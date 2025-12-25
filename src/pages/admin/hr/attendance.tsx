@@ -70,7 +70,8 @@ export default function AttendancePage() {
               Absensi Staf
             </h1>
             <p className="text-emerald-50 font-medium opacity-90 italic">
-              &quot;Pantau kehadiran, ketepatan waktu, dan jam kerja tim Anda.&quot;
+              &quot;Pantau kehadiran, ketepatan waktu, dan jam kerja tim
+              Anda.&quot;
             </p>
           </div>
           <div className="flex gap-3">

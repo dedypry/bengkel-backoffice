@@ -71,7 +71,8 @@ export default function EmployeesPage() {
               Database Karyawan
             </h1>
             <p className="text-blue-50 font-medium opacity-90 italic">
-              &quot;Kelola informasi personil dan dokumen legalitas tim bengkel.&quot;
+              &quot;Kelola informasi personil dan dokumen legalitas tim
+              bengkel.&quot;
             </p>
           </div>
           <Button className="bg-white text-blue-600 hover:bg-blue-50 px-10 py-8 rounded-full font-black text-lg shadow-xl border-none transition-all hover:scale-105 active:scale-95">
@@ -263,8 +264,8 @@ export default function EmployeesPage() {
           <CheckCircle2 size={24} />
         </div>
         <p className="text-sm font-bold text-blue-800 italic">
-          &quot;Pastikan semua dokumen kontrak karyawan telah diperbarui di sistem
-          untuk kepatuhan administrasi.&quot;
+          &quot;Pastikan semua dokumen kontrak karyawan telah diperbarui di
+          sistem untuk kepatuhan administrasi.&quot;
         </p>
       </div>
     </div>

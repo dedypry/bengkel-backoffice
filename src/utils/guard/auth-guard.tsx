@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable react-hooks/rules-of-hooks */
 import type { IChild } from "../interfaces/global";
 

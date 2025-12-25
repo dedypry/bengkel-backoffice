@@ -70,7 +70,8 @@ export default function PerformancePage() {
               Penilaian Kinerja
             </h1>
             <p className="text-amber-50 font-medium opacity-90 italic">
-              &quot;Analisis produktivitas dan evaluasi kualitas kerja tim bengkel.&quot;
+              &quot;Analisis produktivitas dan evaluasi kualitas kerja tim
+              bengkel.&quot;
             </p>
           </div>
           <Button className="bg-white text-orange-600 hover:bg-amber-50 px-10 py-8 rounded-full font-black text-lg shadow-xl border-none transition-all hover:scale-105 active:scale-95 group">
