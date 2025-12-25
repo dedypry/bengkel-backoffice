@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   ShieldCheck,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,8 @@ const employees = [
 ];
 
 export default function EmployeesPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-8 pb-20 px-4 bg-slate-50/30">
       <HeaderAction
@@ -73,7 +76,7 @@ export default function EmployeesPage() {
         leadIcon={Users}
         subtitle="Kelola informasi personil dan dokumen legalitas timbengkel."
         title="Database Karyawan"
-        onAction={() => {}}
+        onAction={() => navigate("/hr/employees/create")}
       />
 
       {/* Stats Cards - Cerah & Clean */}
