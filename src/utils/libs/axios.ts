@@ -1,10 +1,10 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const base_url =
-  import.meta.env.VITE_BASE_URL || "https://api-bengkel.90home.id/";
+import config from "@/configs/api";
+
 const http = axios.create({
-  baseURL: base_url,
+  baseURL: config.api,
 });
 
 http.interceptors.request.use((config) => {
