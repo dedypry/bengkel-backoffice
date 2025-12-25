@@ -1,4 +1,3 @@
-import React from "react";
 import {
   CalendarDays,
   Plus,
@@ -34,21 +33,6 @@ const shiftTypes = [
     icon: Moon,
     color: "bg-violet-100 text-violet-600 border-violet-200",
   },
-];
-
-const weeklyShifts = [
-  { day: "Senin", date: "22 Des", shifts: { pagi: 4, siang: 2, full: 1 } },
-  { day: "Selasa", date: "23 Des", shifts: { pagi: 3, siang: 3, full: 1 } },
-  { day: "Rabu", date: "24 Des", shifts: { pagi: 5, siang: 2, full: 0 } },
-  {
-    day: "Kamis",
-    date: "25 Des",
-    shifts: { pagi: 4, siang: 2, full: 2 },
-    active: true,
-  },
-  { day: "Jumat", date: "26 Des", shifts: { pagi: 3, siang: 4, full: 1 } },
-  { day: "Sabtu", date: "27 Des", shifts: { pagi: 6, siang: 2, full: 2 } },
-  { day: "Minggu", date: "28 Des", shifts: { pagi: 2, siang: 2, full: 4 } },
 ];
 
 const staffShifts = [

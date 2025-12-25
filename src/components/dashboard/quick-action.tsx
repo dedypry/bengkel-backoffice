@@ -41,7 +41,10 @@ export function QuickActions() {
             <div
               className={`${action.bg} ${action.color} p-3 rounded-lg mb-2 group-hover:scale-110 transition-transform`}
             >
-              {cloneElement(action.icon as React.ReactElement, { size: 20 })}
+              {cloneElement(
+                action.icon as React.ReactElement,
+                { size: 20 } as any,
+              )}
             </div>
             <span className="text-[11px] font-semibold text-slate-600 text-center uppercase tracking-tight">
               {action.label}
