@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import HeaderAction from "@/components/header-action";
 
 const services = [
   {
@@ -80,34 +81,17 @@ export default function MasterJasaLight() {
 
   return (
     <div className="space-y-8 pb-20 px-4 bg-slate-50/30">
-      {/* Header Cerah & Ceria */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-primary border border-slate-100 p-10 shadow-xl shadow-blue-100/50">
-        <div className="absolute -right-20 -top-20 size-80 rounded-full bg-blue-50 blur-3xl opacity-60" />
-        <div className="absolute -left-20 -bottom-20 size-80 rounded-full bg-emerald-50 blur-3xl opacity-60" />
-
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="text-center md:text-left">
-            <div className="inline-flex items-center gap-2 bg-blue-100/50 px-4 py-2 rounded-2xl mb-4 border border-blue-200">
-              <Zap className="size-4 text-blue-600 fill-blue-600" />
-              <span className="text-xs font-black text-blue-700 uppercase tracking-widest">
-                Katalog Layanan
-              </span>
-            </div>
-            <h1 className="text-4xl font-black text-slate-800 tracking-tight mb-2">
-              Jasa Bengkel
-            </h1>
-            <p className="text-white font-medium">
-              Atur standarisasi harga dan estimasi waktu kerja tim.
-            </p>
-          </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-8 rounded-[2rem] font-black text-lg shadow-xl transition-all hover:scale-105">
-            <Plus className="mr-2 size-6 stroke-[3]" /> TAMBAH JASA
-          </Button>
-        </div>
-      </div>
+      <HeaderAction
+        actionIcon={Zap}
+        actionTitle="Tambah Jasa"
+        leadIcon={Plus}
+        subtitle="Atur standarisasi harga dan estimasi waktu kerja tim."
+        title="Katalog Layanan"
+        onAction={() => {}}
+      />
 
       {/* Bar Pencarian Melayang */}
-      <div className="relative -mt-12 mx-auto max-w-4xl z-30">
+      <div className="relative mt-12 mx-auto max-w-4xl z-30">
         <div className="bg-white p-3 rounded-3xl shadow-2xl shadow-slate-200/60 flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 size-5 text-blue-400" />

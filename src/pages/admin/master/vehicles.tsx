@@ -24,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import HeaderAction from "@/components/header-action";
 
 const vehicles = [
   {
@@ -68,20 +69,14 @@ export default function MasterVehicles() {
   return (
     <div className="space-y-6 pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Car className="size-6 text-primary" />
-            Database Kendaraan
-          </h1>
-          <p className="text-sm text-slate-500">
-            Kelola spesifikasi unit dan histori pengerjaan kendaraan.
-          </p>
-        </div>
-        <Button className="gap-2 shadow-lg shadow-primary/20">
-          <Plus className="size-4" /> Tambah Unit Baru
-        </Button>
-      </div>
+      <HeaderAction
+        actionIcon={Car}
+        actionTitle="Database Kendaraan"
+        leadIcon={Plus}
+        subtitle="Kelola spesifikasi unit dan histori pengerjaan kendaraan."
+        title="Tambah Unit Baru"
+        onAction={() => {}}
+      />
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-xl border shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">

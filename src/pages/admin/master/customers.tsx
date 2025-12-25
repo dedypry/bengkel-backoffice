@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import HeaderAction from "@/components/header-action";
 
 const customers = [
   {
@@ -62,20 +63,14 @@ export default function MasterPelanggan() {
   return (
     <div className="space-y-6 pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Users className="size-6 text-primary" />
-            Database Pelanggan
-          </h1>
-          <p className="text-sm text-slate-500">
-            Kelola informasi kontak dan profil pemilik kendaraan.
-          </p>
-        </div>
-        <Button className="gap-2 shadow-lg shadow-primary/20">
-          <UserPlus className="size-4" /> Tambah Pelanggan Baru
-        </Button>
-      </div>
+      <HeaderAction
+        actionIcon={UserPlus}
+        actionTitle="Tambah Pelanggan Baru"
+        leadIcon={Users}
+        subtitle="Kelola informasi kontak dan profil pemilik kendaraan."
+        title="Database Pelanggan"
+        onAction={() => {}}
+      />
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-xl border shadow-sm flex flex-col md:flex-row gap-4">
