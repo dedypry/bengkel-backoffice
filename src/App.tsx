@@ -3,6 +3,7 @@ import { useLocation, useRoutes } from "react-router-dom";
 
 import AuthLayout from "./components/layouts/auth";
 import AdminLayout from "./components/layouts/admin";
+import Loading from "./components/loading/Loading";
 
 import routes from "~react-pages";
 
@@ -17,7 +18,7 @@ function App() {
     },
   ]);
 
-  return <Suspense fallback={<p>Loading...</p>}>{element}</Suspense>;
+  return <Suspense fallback={<Loading />}>{element}</Suspense>;
 }
 
 export default App;
