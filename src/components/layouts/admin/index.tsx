@@ -10,7 +10,7 @@ export default function AdminLayout() {
   return (
     <AuthGuard>
       <SidebarProvider>
-        <AppSidebar variant="floating" />
+        <AppSidebar />
         <main className="relative w-full px-5">
           <Navbar />
           <div className="pt-8">

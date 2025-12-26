@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { setCompany } from "@/stores/features/auth/authSlice";
+import { setCompany } from "@/stores/features/auth/auth-slice";
 import { getInitials } from "@/utils/helpers/global";
 
 export function BrandSwitcher() {

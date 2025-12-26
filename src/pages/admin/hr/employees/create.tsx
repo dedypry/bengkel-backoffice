@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, UserPlus } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,17 +32,37 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/utils/helpers/global";
+import { DatePicker } from "@/components/date-picker";
+import Province from "@/components/regions/province";
+import City from "@/components/regions/city";
+import District from "@/components/regions/district";
+import { Textarea } from "@/components/ui/textarea";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getRole } from "@/stores/features/role/role-action";
+import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Nama wajib diisi." }),
+  name: z
+    .string({ message: "Nomor telepon wajib diisi." })
+    .min(1, { message: "Nama wajib diisi." }),
   email: z
     .email({ message: "Format email tidak valid." })
     .min(1, { message: "Email wajib diisi." }),
-  phone: z.string().min(1, { message: "Nomor telepon wajib diisi." }),
-  role: z.string().min(1, { message: "Jabatan wajib diisi." }),
-  department: z.string().min(1, { message: "Departemen wajib diisi." }),
-  joinDate: z.string().min(1, { message: "Tanggal bergabung wajib diisi." }),
-  status: z.string().min(1, { message: "Status wajib dipilih." }),
+  phone: z
+    .string({ message: "Nomor telepon wajib diisi." })
+    .min(1, { message: "Nomor telepon wajib diisi." }),
+  role_id: z
+    .number({ message: "Jabatan wajib diisi." })
+    .min(1, { message: "Jabatan wajib diisi." }),
+  department: z
+    .string({ message: "Departemen wajib diisi." })
+    .min(1, { message: "Departemen wajib diisi." }),
+  join_date: z
+    .string({ message: "Tanggal bergabung wajib diisi." })
+    .min(1, { message: "Tanggal bergabung wajib diisi." }),
+  status: z
+    .string({ message: "Tanggal bergabung wajib diisi." })
+    .min(1, { message: "Status wajib dipilih." }),
   photo: z
     .instanceof(FileList)
     .refine((files) => files.length > 0, { message: "Foto wajib diupload." })
@@ -52,20 +74,51 @@ const formSchema = z.object({
         ["image/jpeg", "image/png", "image/jpg"].includes(files[0]?.type),
       { message: "Format file harus JPG, JPEG, atau PNG." },
     ),
+  province_id: z
+    .number({ message: "Provinsi wajib diisi" })
+    .min(1, { message: "Provinsi wajib diisi" }),
+  city_id: z
+    .number({ message: "Kota wajib diisi" })
+    .min(1, { message: "Kota wajib diisi" }),
+  district_id: z
+    .number({ message: "Kecamatan wajib diisi" })
+    .min(1, { message: "Kecamatan wajib diisi" }),
+  address: z
+    .string({ message: "Alamat wajib diisi" })
+    .min(1, { message: "Alamat wajib diisi" }),
+  gender: z
+    .string({ message: "Jenis Kelamin wajib diisi" })
+    .min(1, { message: "Jenis Kelamin wajib diisi" }),
+  place_birth: z
+    .string({ message: "Tempat Lahir wajib diisi" })
+    .min(1, { message: "Tempat Lahir wajib diisi" }),
+  birth_date: z
+    .string({ message: "Tanggal Lahir wajib diisi" })
+    .min(1, { message: "Tanggal Lahir wajib diisi" }),
+  emergency_name: z
+    .string({ message: "field ini wajib diisi" })
+    .min(1, { message: "field ini wajib diisi" }),
+  emergency_contact: z
+    .string({ message: "field ini wajib diisi" })
+    .min(1, { message: "field ini wajib diisi" }),
 });
 
 export default function CreateEmployeePage() {
+  const { roles } = useAppSelector((state) => state.role);
+  const [isLoading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getRole());
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      role: "",
-      department: "",
-      joinDate: "",
+      join_date: new Date().toISOString(),
+      birth_date: new Date().toISOString(),
       status: "Permanent",
     },
   });
@@ -74,14 +127,15 @@ export default function CreateEmployeePage() {
   const photoPreview = photoFile ? URL.createObjectURL(photoFile) : null;
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
     console.log(values);
     // TODO: Implement API call to create employee
     // For now, just navigate back
-    navigate("/admin/hr/employees");
+    setTimeout(() => setLoading(false), 2000);
   }
 
   return (
-    <div className="space-y-8 pb-20 px-4 bg-slate-50/30 min-h-screen">
+    <div className="space-y-8 pb-20 bg-slate-50/30 min-h-screen">
       <div className="flex items-center gap-4">
         <Button
           className="rounded-full hover:bg-white hover:shadow-md"
@@ -92,16 +146,14 @@ export default function CreateEmployeePage() {
           <ArrowLeft size={20} />
         </Button>
         <div>
-          <h1 className="text-2xl font-black text-slate-800">
-            Tambah Karyawan Baru
-          </h1>
-          <p className="text-sm font-bold text-slate-500">
+          <h3 >Tambah Karyawan Baru</h3>
+          <p className="text-sm font-semibold text-slate-500">
             Lengkapi informasi karyawan untuk menambah ke database.
           </p>
         </div>
       </div>
 
-      <Card className="shadow-lg shadow-gray-100 max-w-4xl mx-auto">
+      <Card className="shadow-lg shadow-gray-100">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UserPlus className="text-blue-600" size={24} />
@@ -200,53 +252,133 @@ export default function CreateEmployeePage() {
                 />
                 <FormField
                   control={form.control}
-                  name="role"
+                  name="role_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Jabatan</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Senior Lead Mechanic" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="department"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Departemen</FormLabel>
                       <Select
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
+                        defaultValue={field.value?.toString()}
+                        onValueChange={(val) => field.onChange(Number(val))}
                       >
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih departemen" />
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Pilih jabatan">
+                              {field.value
+                                ? roles.find(
+                                    (r) =>
+                                      r.id.toString() ===
+                                      field.value.toString(),
+                                  )?.name
+                                : "Pilih jabatan"}
+                            </SelectValue>
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Workshop">Workshop</SelectItem>
-                          <SelectItem value="Front Office">
-                            Front Office
-                          </SelectItem>
-                          <SelectItem value="Finance">Finance</SelectItem>
-                          <SelectItem value="HR">HR</SelectItem>
+                          {roles
+                            .filter((e) => ![1, 2].includes(e.id))
+                            .map((e) => (
+                              <SelectItem key={e.id} value={e.id.toString()}>
+                                <div className="flex flex-col max-w-sm">
+                                  <p>{e.name}</p>
+                                  <span className="text-xs italic text-gray-500">
+                                    {e.description}
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
+                      {/* <FormItem>
+                      <FormLabel>Jabatan</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Senior Lead Mechanic" {...field} />
+                        
+                      </FormControl>
+                      <FormMessage /> */}
                     </FormItem>
                   )}
                 />
+                <div className="grid grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="department"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Departemen</FormLabel>
+                        <Select
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Pilih departemen" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Workshop">Workshop</SelectItem>
+                            <SelectItem value="Front Office">
+                              Front Office
+                            </SelectItem>
+                            <SelectItem value="Finance">Finance</SelectItem>
+                            <SelectItem value="HR">HR</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status Karyawan</FormLabel>
+                        <Select
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Pilih status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Permanent">Permanent</SelectItem>
+                            <SelectItem value="Contract">Contract</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
-                  name="joinDate"
+                  name="join_date"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tanggal Bergabung</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          setValue={field.onChange}
+                          value={new Date(field.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
+                <FormField
+                  control={form.control}
+                  name="place_birth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tempat Lahir</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Masukan Tempat lahir" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -254,24 +386,131 @@ export default function CreateEmployeePage() {
                 />
                 <FormField
                   control={form.control}
-                  name="status"
+                  name="birth_date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status Karyawan</FormLabel>
+                      <FormLabel>Tanggal Lahir</FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          setValue={field.onChange}
+                          value={new Date(field.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Jenis Kelamin</FormLabel>
                       <Select
                         defaultValue={field.value}
                         onValueChange={field.onChange}
                       >
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih status" />
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Pilih Jenis Kelamin" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Permanent">Permanent</SelectItem>
-                          <SelectItem value="Contract">Contract</SelectItem>
+                          <SelectItem value="male">Laki-laki</SelectItem>
+                          <SelectItem value="female">Perempuan</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="province_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Provinsi</FormLabel>
+                      <FormControl>
+                        <Province
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kota</FormLabel>
+                      <FormControl>
+                        <City value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="district_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kecamatan</FormLabel>
+                      <FormControl>
+                        <District
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="col-span-3">
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Alamat</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <h3 className="m-0 pb-2">Kontak Darurat</h3>
+              <Separator />
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
+                <FormField
+                  control={form.control}
+                  name="emergency_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nama Kontak Yang bisa di hubungi</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Masukan Nama" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="emergency_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>No Telp Kontak Yang bisa di hubungi</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Masukan No. Telp" />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -284,18 +523,12 @@ export default function CreateEmployeePage() {
                   className="flex-1"
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/admin/hr/employees")}
+                  onClick={() => navigate("/hr/employees")}
                 >
                   Batal
                 </Button>
-                <Button
-                  className="flex-1"
-                  disabled={form.formState.isSubmitting}
-                  type="submit"
-                >
-                  {form.formState.isSubmitting
-                    ? "Menyimpan..."
-                    : "Simpan Karyawan"}
+                <Button className="flex-1" disabled={isLoading} type="submit">
+                  {isLoading ? "Menyimpan..." : "Simpan Karyawan"}
                 </Button>
               </div>
             </form>

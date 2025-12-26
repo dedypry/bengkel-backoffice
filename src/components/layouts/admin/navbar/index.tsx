@@ -13,7 +13,7 @@ export default function Navbar() {
   const isOpen = isMobile ? openMobile : open;
 
   return (
-    <nav className="sticky z-50 top-4 shadow-lg shadow-blue-100 border rounded-lg border-blue-100">
+    <nav className="sticky z-50 top-4 shadow-lg shadow-blue-50 border rounded-lg border-blue-100">
       <div className="h-16 px-4 flex items-center justify-between rounded-2xl bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]">
         {/* Left Section: Sidebar Toggle & Breadcrumb/Search */}
         <div className="flex items-center gap-4">

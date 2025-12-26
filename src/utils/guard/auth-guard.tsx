@@ -9,7 +9,7 @@ import Cookies from "js-cookie";
 import { http } from "../libs/axios";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { setAuth } from "@/stores/features/auth/authSlice";
+import { setAuth } from "@/stores/features/auth/auth-slice";
 
 export default function AuthGuard({ children }: IChild) {
   const { token } = useAppSelector((state) => state.auth);
