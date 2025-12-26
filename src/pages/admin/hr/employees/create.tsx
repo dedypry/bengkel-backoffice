@@ -146,7 +146,7 @@ export default function CreateEmployeePage() {
           <ArrowLeft size={20} />
         </Button>
         <div>
-          <h3 >Tambah Karyawan Baru</h3>
+          <h3>Tambah Karyawan Baru</h3>
           <p className="text-sm font-semibold text-slate-500">
             Lengkapi informasi karyawan untuk menambah ke database.
           </p>

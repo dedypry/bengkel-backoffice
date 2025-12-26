@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { http } from "@/utils/libs/axios";
