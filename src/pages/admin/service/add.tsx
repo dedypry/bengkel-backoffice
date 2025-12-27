@@ -18,19 +18,17 @@ export default function PendaftaranServis() {
       {/* Header */}
       <div className="flex justify-between items-end border-b pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">
-            Pendaftaran Servis Baru
-          </h1>
-          <p className="text-slate-500">
+          <h3 className="font-bold ">Pendaftaran Servis Baru</h3>
+          <p className="text-slate-500 text-sm">
             Input data kendaraan dan keluhan pelanggan untuk pembuatan Work
             Order.
           </p>
         </div>
         <div className="text-right">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
             No. Antrean
           </span>
-          <p className="text-3xl font-black text-primary">#A-124</p>
+          <h2 className="text-primary">#A-124</h2>
         </div>
       </div>
 
@@ -40,7 +38,7 @@ export default function PendaftaranServis() {
           <div className="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
             <div className="flex items-center gap-2 mb-2 text-primary font-bold">
               <User className="size-5" />
-              <h2>Informasi Pelanggan</h2>
+              <h4>Informasi Pelanggan</h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -65,7 +63,7 @@ export default function PendaftaranServis() {
           <div className="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
             <div className="flex items-center gap-2 mb-2 text-primary font-bold">
               <Car className="size-5" />
-              <h2>Detail Kendaraan</h2>
+              <h4>Detail Kendaraan</h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
@@ -99,7 +97,7 @@ export default function PendaftaranServis() {
           <div className="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
             <div className="flex items-center gap-2 mb-2 text-primary font-bold">
               <Wrench className="size-5" />
-              <h2>Keluhan & Jenis Servis</h2>
+              <h4>Keluhan & Jenis Servis</h4>
             </div>
             <div className="space-y-4">
               <div className="space-y-2">

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,8 +41,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getRole } from "@/stores/features/role/role-action";
 import { Separator } from "@/components/ui/separator";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
-const formSchema = z.object({
+export const formSchema = z.object({
   name: z
     .string({ message: "Nomor telepon wajib diisi." })
     .min(1, { message: "Nama wajib diisi." }),
@@ -64,7 +67,8 @@ const formSchema = z.object({
     .string({ message: "Tanggal bergabung wajib diisi." })
     .min(1, { message: "Status wajib dipilih." }),
   photo: z
-    .instanceof(FileList)
+    .any()
+    .optional()
     .refine((files) => files.length > 0, { message: "Foto wajib diupload." })
     .refine((files) => files[0]?.size <= 5 * 1024 * 1024, {
       message: "Ukuran file maksimal 5MB.",
@@ -103,7 +107,11 @@ const formSchema = z.object({
     .min(1, { message: "field ini wajib diisi" }),
 });
 
-export default function CreateEmployeePage() {
+interface Props {
+  id?: string;
+  userForm?: z.infer<typeof formSchema>;
+}
+export default function CreateEmployeePage({ id, userForm }: Props) {
   const { roles } = useAppSelector((state) => state.role);
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -117,9 +125,10 @@ export default function CreateEmployeePage() {
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
+      status: "Permanent",
       join_date: new Date().toISOString(),
       birth_date: new Date().toISOString(),
-      status: "Permanent",
+      ...userForm,
     },
   });
 
@@ -128,10 +137,17 @@ export default function CreateEmployeePage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    console.log(values);
-    // TODO: Implement API call to create employee
-    // For now, just navigate back
-    setTimeout(() => setLoading(false), 2000);
+    http
+      .post("/employees", {
+        id,
+        ...values,
+      })
+      .then(({ data }) => {
+        notify(data.message);
+        navigate("/hr/employees");
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   }
 
   return (
@@ -146,9 +162,13 @@ export default function CreateEmployeePage() {
           <ArrowLeft size={20} />
         </Button>
         <div>
-          <h3>Tambah Karyawan Baru</h3>
-          <p className="text-sm font-semibold text-slate-500">
-            Lengkapi informasi karyawan untuk menambah ke database.
+          <h3 className="text-lg font-bold">
+            {id ? "Edit Data Karyawan" : "Registrasi Karyawan Baru"}
+          </h3>
+          <p className="text-sm font-medium text-slate-500">
+            {id
+              ? "Perbarui informasi detail karyawan untuk menjaga keakuratan data."
+              : "Lengkapi formulir di bawah ini untuk menambahkan karyawan ke dalam sistem."}
           </p>
         </div>
       </div>
@@ -184,7 +204,7 @@ export default function CreateEmployeePage() {
                       <FormLabel className="cursor-pointer">
                         <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
                           <Upload size={18} />
-                          <span className="font-bold">Upload Foto</span>
+                          <span className="font-semibold">Upload Foto</span>
                         </div>
                       </FormLabel>
                       <FormControl>
@@ -504,7 +524,7 @@ export default function CreateEmployeePage() {
                 />
                 <FormField
                   control={form.control}
-                  name="emergency_name"
+                  name="emergency_contact"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>No Telp Kontak Yang bisa di hubungi</FormLabel>
@@ -528,7 +548,11 @@ export default function CreateEmployeePage() {
                   Batal
                 </Button>
                 <Button className="flex-1" disabled={isLoading} type="submit">
-                  {isLoading ? "Menyimpan..." : "Simpan Karyawan"}
+                  {isLoading
+                    ? "Menyimpan..."
+                    : id
+                      ? "Ubah data karyawan"
+                      : "Simpan Karyawan"}
                 </Button>
               </div>
             </form>

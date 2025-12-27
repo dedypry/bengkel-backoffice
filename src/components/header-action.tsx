@@ -32,7 +32,7 @@ export default function HeaderAction({
         <LeadIcon />
       </ItemMedia>
       <ItemContent>
-        <ItemTitle className="text-xl font-bold text-slate-900">
+        <ItemTitle className="text-xl font-semibold text-slate-900">
           {title}
         </ItemTitle>
         <ItemDescription>{subtitle}</ItemDescription>

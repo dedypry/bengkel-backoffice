@@ -13,8 +13,8 @@ export default function HomePage() {
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Overview Bengkel
+          <h1 className="text-3xl font-bold tracking-tight">
+            Ringkasan Bengkel
           </h1>
           <div className="flex items-center gap-2 mt-1 text-slate-500 text-sm">
             <CalendarDays className="size-4" />
@@ -45,9 +45,7 @@ export default function HomePage() {
 
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-slate-800">
-                Antrean Workshop
-              </h2>
+              <h2 className="text-xl font-bold">Antrean Workshop</h2>
               <Button
                 className="text-primary underline-offset-4 hover:underline"
                 size="sm"

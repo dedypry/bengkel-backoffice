@@ -85,7 +85,7 @@ export function NavMain({
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton
                             asChild
-                            className="data-[active=true]:text-white data-[active=true]:font-black hover:text-gray-300"
+                            className="data-[active=true]:text-white data-[active=true]:font-semibold py-4 hover:text-gray-300"
                             isActive={isSubActive}
                           >
                             {/* 3. Gunakan StyledLink dari Rakkas untuk navigasi SPA */}
@@ -109,7 +109,9 @@ export function NavMain({
               >
                 <Link to={item.url}>
                   {item.icon && <item.icon />}
-                  <span className={pathname === item.url ? "font-bold" : ""}>
+                  <span
+                    className={pathname === item.url ? "font-semibold" : ""}
+                  >
                     {item.title}
                   </span>
                 </Link>
