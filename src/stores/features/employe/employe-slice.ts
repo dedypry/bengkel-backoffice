@@ -18,7 +18,7 @@ export const employeSlice = createSlice({
     detailLoading: false,
     searchQuery: {
       page: 1,
-      pageSize: 2,
+      pageSize: 10,
     },
   },
   reducers: {

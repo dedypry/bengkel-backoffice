@@ -4,6 +4,7 @@ import auth from "./features/auth/auth-slice";
 import region from "./features/region/region-slice";
 import role from "./features/role/role-slice";
 import employe from "./features/employe/employe-slice";
+import service from "./features/service/service-slice";
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     region,
     role,
     employe,
+    service,
   },
 });
 

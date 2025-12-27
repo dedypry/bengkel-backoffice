@@ -133,7 +133,7 @@ export default function EmployeesPage() {
       </Card>
 
       {/* Table Section */}
-      <Card className="shadow-gray-100 shadow-lg">
+      <Card className="shadow-lg shadow-gray-200">
         <CardContent>
           <Table>
             <TableHeader>

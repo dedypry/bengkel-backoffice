@@ -1,3 +1,5 @@
+import type { IQuery } from "@/utils/interfaces/global";
+
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { http } from "@/utils/libs/axios";
@@ -15,13 +17,9 @@ export const getEmployeSummary = createAsyncThunk(
   },
 );
 
-interface Query {
-  pageSize?: number;
-  page?: number;
-}
 export const getEmploye = createAsyncThunk(
   "employe-list",
-  async (query: Query) => {
+  async (query: IQuery) => {
     try {
       const { data } = await http.get("/employees", {
         params: query,
