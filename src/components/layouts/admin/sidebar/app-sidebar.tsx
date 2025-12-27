@@ -26,7 +26,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* Dekorasi Aksen Cahaya (Mesh effect) */}
 
         <SidebarHeader className="z-10 pt-4">
-          <div className="mx-2 p-1 rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 shadow-sm">
+          <div className="mx-2 p-1 rounded-2xl bg-white/40 backdrop-blur-md border border-primary shadow-lg shadow-primary/20">
             <BrandSwitcher />
           </div>
         </SidebarHeader>
