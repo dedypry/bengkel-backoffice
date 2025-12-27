@@ -20,3 +20,14 @@ export const getService = createAsyncThunk(
     }
   },
 );
+export const getCategories = createAsyncThunk("get-categories", async () => {
+  try {
+    const { data } = await http.get(`/services/categories`);
+
+    return data;
+  } catch (error) {
+    console.error(error);
+
+    return null;
+  }
+});

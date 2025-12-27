@@ -1,6 +1,11 @@
+import type { IService } from "@/utils/interfaces/IService";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useEffect, useState } from "react";
+
+import CategoryAdd from "./category-add";
 
 import { Modal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
@@ -21,46 +26,92 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import {
+  getCategories,
+  getService,
+} from "@/stores/features/service/service-action";
+import InputNumber from "@/components/ui/input-number";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
 // Schema berdasarkan struktur IService yang kita buat sebelumnya
 const formSchema = z.object({
+  id: z.number(),
   name: z.string().min(3, "Nama layanan minimal 3 karakter"),
   code: z.string().min(3, "Kode wajib diisi"),
   price: z
-    .string()
+    .string({ message: "Harga harus diisi" })
+    .min(1, { message: "Harga harus diisi" })
     .refine((val) => !isNaN(Number(val)), "Harga harus berupa angka"),
   estimated_duration: z
-    .string()
+    .string({ message: "Durasi harus diisi" })
+    .min(1, { message: "Durasi harus diisi" })
     .refine((val) => !isNaN(Number(val)), "Durasi harus angka"),
   difficulty: z.enum(["easy", "medium", "hard", "extreme"]),
   category_id: z.string().min(1, "Pilih kategori"),
-  description: z.string().min(10, "Deskripsi minimal 10 karakter"),
+  description: z.string(),
 });
 
 interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
+  detail?: IService;
+  setDetail?: () => void;
 }
 
-export default function ModalAdd({ open, setOpen }: Props) {
+export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
+  const { categories, query } = useAppSelector((state) => state.service);
+  const [isLoading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getCategories());
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      code: "SRV-",
-      price: "",
-      estimated_duration: "",
-      difficulty: "easy",
-      category_id: "",
-      description: "",
+      id: undefined,
+      name: detail?.name,
+      code: detail?.code || "SRV-",
+      price: detail?.price,
+      estimated_duration: detail?.estimated_duration?.toString(),
+      difficulty: detail?.difficulty || "easy",
+      category_id: detail?.category.id?.toString(),
+      description: detail?.description,
     },
   });
 
+  useEffect(() => {
+    if (detail) {
+      form.setValue("id", detail.id);
+      form.setValue("name", detail.name);
+      form.setValue("code", detail.code);
+      form.setValue("price", detail.price);
+      form.setValue(
+        "estimated_duration",
+        detail.estimated_duration?.toString(),
+      );
+      form.setValue("difficulty", detail.difficulty);
+      form.setValue("category_id", detail.category?.id?.toString());
+      form.setValue("description", detail.description);
+    }
+  }, [detail]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Data dikirim ke API:", values);
-    // Logika kirim ke API di sini
-    setOpen(false);
-    form.reset();
+    setLoading(true);
+    http
+      .post("/services", values)
+      .then(({ data }) => {
+        notify(data.message);
+        setOpen(false);
+        form.reset();
+        dispatch(getService(query));
+        setDetail?.();
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   }
 
   return (
@@ -75,13 +126,17 @@ export default function ModalAdd({ open, setOpen }: Props) {
           >
             Batal
           </Button>
-          <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
-            Simpan Jasa
+          <Button
+            disabled={isLoading}
+            type="submit"
+            onClick={form.handleSubmit(onSubmit)}
+          >
+            {isLoading ? "Sedang Menyimpan..." : "Simpan Jasa"}
           </Button>
         </div>
       }
       open={open}
-      size="xl" // xl sudah cukup luas untuk form ini
+      size="5xl"
       title="Tambah Jasa Service"
       onOpenChange={setOpen}
     >
@@ -126,9 +181,16 @@ export default function ModalAdd({ open, setOpen }: Props) {
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Harga (Rp)</FormLabel>
+                  <FormLabel>Harga</FormLabel>
                   <FormControl>
-                    <Input placeholder="50000" type="number" {...field} />
+                    <InputNumber
+                      placeholder="50.000"
+                      prefixIcon="Rp"
+                      value={field.value}
+                      onInput={(val) => {
+                        field.onChange(val.toString());
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -141,9 +203,16 @@ export default function ModalAdd({ open, setOpen }: Props) {
               name="estimated_duration"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Estimasi Durasi (Menit)</FormLabel>
+                  <FormLabel>Estimasi Durasi</FormLabel>
                   <FormControl>
-                    <Input placeholder="15" type="number" {...field} />
+                    <InputNumber
+                      placeholder="15"
+                      {...field}
+                      suffixIcon="Menit"
+                      onInput={(val) => {
+                        field.onChange(val.toString());
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -189,21 +258,26 @@ export default function ModalAdd({ open, setOpen }: Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Kategori</FormLabel>
-                  <Select
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih kategori" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">Perawatan Rutin</SelectItem>
-                      <SelectItem value="2">Perbaikan Berat</SelectItem>
-                      <SelectItem value="3">Kelistrikan</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih kategori" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id.toString()}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <CategoryAdd onFinish={(val) => field.onChange(val.id)} />
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

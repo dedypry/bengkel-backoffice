@@ -1,9 +1,9 @@
 import type { IPagination } from "@/utils/interfaces/IPagination";
-import type { IService } from "@/utils/interfaces/IService";
+import type { IService, IServiceCategory } from "@/utils/interfaces/IService";
 
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getService } from "./service-action";
+import { getCategories, getService } from "./service-action";
 
 const serviceSlice = createSlice({
   name: "service",
@@ -13,6 +13,7 @@ const serviceSlice = createSlice({
       page: 1,
       pageSize: 8,
     },
+    categories: [] as IServiceCategory[],
   },
   reducers: {
     setServiceQuery: (state, action) => {
@@ -23,9 +24,13 @@ const serviceSlice = createSlice({
     },
   },
   extraReducers: (build) =>
-    build.addCase(getService.fulfilled, (state, action) => {
-      state.services = action.payload;
-    }),
+    build
+      .addCase(getService.fulfilled, (state, action) => {
+        state.services = action.payload;
+      })
+      .addCase(getCategories.fulfilled, (state, action) => {
+        state.categories = action.payload;
+      }),
 });
 
 export const { setServiceQuery } = serviceSlice.actions;

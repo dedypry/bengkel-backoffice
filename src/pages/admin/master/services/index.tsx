@@ -1,3 +1,5 @@
+import type { IService } from "@/utils/interfaces/IService";
+
 import {
   Clock,
   Plus,
@@ -23,20 +25,35 @@ import { formatIDR } from "@/utils/helpers/format";
 import { statusServiceColor } from "@/utils/helpers/service";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setServiceQuery } from "@/stores/features/service/service-slice";
+import debounce from "@/utils/helpers/debounce";
 
 export default function MasterJasaLight() {
   const { services, query } = useAppSelector((state) => state.service);
   const { company } = useAppSelector((state) => state.auth);
   const [openModal, setOpenModal] = useState(false);
+  const [detail, setDetail] = useState<IService>();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(getService(query));
   }, [company, query]);
 
+  const handleSearch = debounce((search) => {
+    dispatch(
+      setServiceQuery({
+        q: search,
+      }),
+    );
+  }, 1000);
+
   return (
     <div className="space-y-8 pb-20 px-4 bg-slate-50/30">
-      <ModalAdd open={openModal} setOpen={setOpenModal} />
+      <ModalAdd
+        detail={detail}
+        open={openModal}
+        setDetail={() => setDetail(undefined)}
+        setOpen={setOpenModal}
+      />
       <HeaderAction
         actionIcon={Zap}
         actionTitle="Tambah Jasa"
@@ -54,6 +71,7 @@ export default function MasterJasaLight() {
             <Input
               className="h-14 pl-14 pr-6 rounded-2xl border-none bg-slate-50 font-semibold text-slate-700 placeholder:text-slate-300 focus-visible:ring-2 focus-visible:ring-blue-100"
               placeholder="Cari jasa servis..."
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
           <Button
@@ -138,6 +156,10 @@ export default function MasterJasaLight() {
                 </Button>
                 <Button
                   className={`flex-1 shadow-gray-50 font-semibold text-white shadow-lg ${clr.themeColor} hover:${clr.themeColor} hover:opacity-80`}
+                  onClick={() => {
+                    setDetail(srv);
+                    setOpenModal(true);
+                  }}
                 >
                   <Edit />
                   EDIT JASA
