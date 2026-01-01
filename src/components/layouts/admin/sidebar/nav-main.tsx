@@ -57,17 +57,19 @@ export function NavMain({
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton
-                    className="data-[active=true]:bg-violet-50   hover:text-gray-300"
+                    className="data-[active=true]:bg-primary/70 hover:text-gray-300"
                     isActive={isParentActive}
                     tooltip={item.title}
                   >
                     {item.icon && (
                       <item.icon
-                        className={isParentActive ? "text-primary" : ""}
+                        className={isParentActive ? "text-gray-100" : ""}
                       />
                     )}
                     <span
-                      className={isParentActive ? "font-bold text-white" : ""}
+                      className={
+                        isParentActive ? "text-gray-100 font-light" : ""
+                      }
                     >
                       {item.title}
                     </span>
@@ -77,16 +79,17 @@ export function NavMain({
                 <CollapsibleContent className="CollapsibleContent transition-all duration-300 ease-in-out">
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => {
-                      const isSubActive = pathname === subItem.url;
+                      const url = `${item.url}/${subItem.url}`;
+                      const isSubActive = pathname === url;
 
                       return (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton
                             asChild
-                            className="data-[active=true]:text-white data-[active=true]:font-semibold py-4 hover:text-gray-300"
+                            className="data-[active=true]:text-white py-4 hover:text-gray-300"
                             isActive={isSubActive}
                           >
-                            <Link to={subItem.url}>
+                            <Link to={url}>
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>

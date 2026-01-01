@@ -20,18 +20,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { open } = useSidebar();
 
   return (
-    <Sidebar
-      collapsible="icon"
-      {...props}
-      // Menghilangkan border default agar gradient terlihat menyatu
-      className="border-none"
-    >
+    <Sidebar collapsible="icon" {...props} className="border-none">
       <div className="flex h-full flex-col bg-linear-to-b from-slate-50 via-blue-50/50 to-indigo-50/30 relative overflow-hidden">
-        {/* Dekorasi Aksen Cahaya (Mesh effect) */}
-
         <SidebarHeader className="z-10 pt-4">
           <motion.div
-            // 'layout' akan menganimasi perubahan ukuran secara otomatis
             layout
             animate={{
               backgroundColor: open

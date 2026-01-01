@@ -8,6 +8,7 @@ import service from "./features/service/service-slice";
 import customer from "./features/customer/customer-slice";
 import vehicle from "./features/vehicle/vehicle-slice";
 import mechanic from "./features/mechanic/mechanic-slice";
+import product from "./features/product/product-slice";
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
     customer,
     vehicle,
     mechanic,
+    product,
   },
 });
 
