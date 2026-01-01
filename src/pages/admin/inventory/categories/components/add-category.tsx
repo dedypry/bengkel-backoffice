@@ -29,6 +29,7 @@ import { getCategories } from "@/stores/features/product/product-action";
 
 // Skema validasi sesuai database
 const categorySchema = z.object({
+  id: z.number().optional(),
   name: z.string().min(3, "Nama kategori minimal 3 karakter"),
   description: z.string().optional(),
   is_active: z.boolean(),

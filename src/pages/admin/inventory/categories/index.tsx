@@ -1,3 +1,5 @@
+import type { IProductCategory } from "@/utils/interfaces/IProduct";
+
 import {
   Plus,
   Search,
@@ -37,6 +39,7 @@ export default function CategoryProduk() {
   const { company } = useAppSelector((state) => state.auth);
   const [modalOpen, setModalOpen] = useState(false);
   const dispatch = useAppDispatch();
+  const [detail, setDetail] = useState<IProductCategory>();
 
   useEffect(() => {
     dispatch(getCategories(categoryQuery));
@@ -62,9 +65,18 @@ export default function CategoryProduk() {
       .catch((err) => notifyError(err));
   }
 
+  async function handleEditData(data: IProductCategory) {
+    setDetail(data);
+    setModalOpen(true);
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-10">
-      <ModalAddCategory open={modalOpen} setOpen={setModalOpen} />
+      <ModalAddCategory
+        initialData={detail}
+        open={modalOpen}
+        setOpen={setModalOpen}
+      />
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -130,7 +142,12 @@ export default function CategoryProduk() {
                 </ItemDescription>
               </ItemContent>
               <ItemActions>
-                <TableAction onDelete={() => handleDelete(cat.id)} />
+                <TableAction
+                  isDeleteSeparator={false}
+                  viewDetail={false}
+                  onDelete={() => handleDelete(cat.id)}
+                  onEdit={() => handleEditData(cat)}
+                />
               </ItemActions>
             </Item>
 

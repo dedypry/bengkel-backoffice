@@ -13,8 +13,8 @@ import {
 } from "./ui/item";
 
 interface Props {
-  leadIcon: ElementType;
-  actionIcon: ElementType;
+  leadIcon?: ElementType;
+  actionIcon?: ElementType;
   title: string;
   subtitle: string;
   actionTitle?: string;
@@ -36,9 +36,12 @@ export default function HeaderAction({
 }: Props) {
   return (
     <Item className="shadow-md shadow-gray-100" variant="outline">
-      <ItemMedia className="size-10" variant="icon">
-        <LeadIcon />
-      </ItemMedia>
+      {LeadIcon && (
+        <ItemMedia className="size-12 rounded-lg" variant="icon">
+          <LeadIcon className="size-7 text-primary" />
+        </ItemMedia>
+      )}
+
       <ItemContent>
         <ItemTitle className="text-xl font-semibold text-slate-900">
           {title}
@@ -60,7 +63,7 @@ export default function HeaderAction({
               </Button>
             )}
             <Button onClick={onAction}>
-              <ActionIcon className="size-4" /> {actionTitle}
+              {ActionIcon && <ActionIcon className="size-4" />} {actionTitle}
             </Button>
           </>
         )}

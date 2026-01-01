@@ -25,9 +25,21 @@ interface Props {
   onEdit?: () => void;
   onDetail?: () => void;
   onDelete?: () => void;
+  viewDetail?: boolean;
+  viewHeader?: boolean;
+  isDeleteSeparator?: boolean;
+  titleHeader?: string;
 }
 
-export default function TableAction({ onDelete, onDetail, onEdit }: Props) {
+export default function TableAction({
+  onDelete,
+  onDetail,
+  onEdit,
+  viewDetail = true,
+  viewHeader,
+  titleHeader,
+  isDeleteSeparator = true,
+}: Props) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (
@@ -43,17 +55,25 @@ export default function TableAction({ onDelete, onDetail, onEdit }: Props) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
-          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onDetail}>
-            <Eye className="mr-2 h-4 w-4" />
-            Lihat Detail
-          </DropdownMenuItem>
+          {viewHeader && (
+            <>
+              <DropdownMenuLabel>{titleHeader || "Aksi"}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+            </>
+          )}
+
+          {viewDetail && (
+            <DropdownMenuItem onClick={onDetail}>
+              <Eye className="mr-2 h-4 w-4" />
+              Lihat Detail
+            </DropdownMenuItem>
+          )}
+
           <DropdownMenuItem onClick={onEdit}>
             <Edit className="mr-2 h-4 w-4" />
             Edit Data
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          {isDeleteSeparator && <DropdownMenuSeparator />}
 
           {/* Gunakan onSelect dan preventDefault agar dropdown tidak menutup dialog */}
           <DropdownMenuItem

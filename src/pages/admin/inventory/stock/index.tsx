@@ -10,6 +10,7 @@ import {
   History,
   MoreHorizontal,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import HeaderAction from "@/components/header-action";
 
 const inventoryData = [
   {
@@ -63,6 +65,7 @@ const inventoryData = [
 ];
 
 export default function StokBarang() {
+  const navigate = useNavigate();
   const formatIDR = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -74,25 +77,24 @@ export default function StokBarang() {
   return (
     <div className="space-y-6 pb-10">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Package className="size-6 text-primary" />
-            Inventaris Sparepart
-          </h1>
-          <p className="text-sm text-slate-500">
-            Kelola stok, harga, dan kategori barang bengkel Anda.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button className="gap-2" size="sm" variant="outline">
-            <History className="size-4" /> Log Stok
-          </Button>
-          <Button className="gap-2 shadow-lg shadow-primary/20" size="sm">
-            <Plus className="size-4" /> Tambah Barang
-          </Button>
-        </div>
-      </div>
+      <HeaderAction
+        actionContent={
+          <>
+            <Button className="gap-2" variant="outline">
+              <History className="size-4" /> Log Stok
+            </Button>
+            <Button
+              className="gap-2 shadow-lg shadow-primary/20"
+              onClick={() => navigate("/inventory/stock/add")}
+            >
+              <Plus className="size-4" /> Tambah Barang
+            </Button>
+          </>
+        }
+        leadIcon={Package}
+        subtitle=" Kelola stok, harga, dan kategori barang bengkel Anda."
+        title="Inventaris Sparepart"
+      />
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
