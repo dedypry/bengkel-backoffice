@@ -9,7 +9,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [
     Pages({
-      exclude: ["**/components/*.tsx"],
+      exclude: ["**/components/*.tsx", "**/schemas/*.ts"],
       dirs: [
         { dir: "src/pages/admin", baseRoute: "" },
         { dir: "src/pages/auth", baseRoute: "" },

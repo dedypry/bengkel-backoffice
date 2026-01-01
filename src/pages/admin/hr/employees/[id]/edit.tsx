@@ -41,7 +41,7 @@ export default function Edit() {
     <CreateEmployeePage
       id={id}
       userForm={{
-        photo: [],
+        photo: detail.profile?.photo_url,
         name: detail.name,
         email: detail.email,
         phone: detail.profile?.phone_number!,

@@ -5,6 +5,9 @@ import region from "./features/region/region-slice";
 import role from "./features/role/role-slice";
 import employe from "./features/employe/employe-slice";
 import service from "./features/service/service-slice";
+import customer from "./features/customer/customer-slice";
+import vehicle from "./features/vehicle/vehicle-slice";
+import mechanic from "./features/mechanic/mechanic-slice";
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +16,9 @@ export const store = configureStore({
     role,
     employe,
     service,
+    customer,
+    vehicle,
+    mechanic,
   },
 });
 

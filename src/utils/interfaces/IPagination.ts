@@ -2,6 +2,7 @@ export interface IPagination<T> {
   message: string;
   data: T[];
   meta: IMeta;
+  stats?: IStats;
 }
 
 export interface IMeta {
@@ -11,4 +12,11 @@ export interface IMeta {
   lastPage: number;
   from: number;
   to: number;
+}
+
+export interface IStats {
+  this_month: number;
+  last_month: number;
+  growth: number;
+  label: string;
 }

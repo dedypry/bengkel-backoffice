@@ -36,6 +36,8 @@ interface ModalProps {
   onOpenChange?: (open: boolean) => void;
   showCancel?: boolean;
   size?: ModalSize; // Tambahkan prop size
+  onSave?: () => void;
+  isLoading?: boolean;
 }
 
 export function Modal({
@@ -48,6 +50,8 @@ export function Modal({
   onOpenChange,
   showCancel = true,
   size = "md", // Default size ke md
+  onSave,
+  isLoading,
 }: ModalProps) {
   // Mapping ukuran ke class Tailwind
   const sizeClasses: Record<ModalSize, string> = {
@@ -82,12 +86,14 @@ export function Modal({
             <>
               {showCancel && (
                 <DialogClose asChild>
-                  <Button type="button" variant="outline">
-                    Cancel
+                  <Button disabled={isLoading} type="button" variant="outline">
+                    Batal
                   </Button>
                 </DialogClose>
               )}
-              <Button type="submit">Save changes</Button>
+              <Button disabled={isLoading} onClick={onSave}>
+                {isLoading ? "Menyimpan..." : "Simpan"}
+              </Button>
             </>
           )}
         </DialogFooter>

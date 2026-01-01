@@ -5,61 +5,51 @@ import {
   Phone,
   MapPin,
   Car,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  ExternalLink,
   Users,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import HeaderAction from "@/components/header-action";
-
-const customers = [
-  {
-    id: "CUST-001",
-    name: "Budi Santoso",
-    email: "budi.s@gmail.com",
-    phone: "0812-3456-7890",
-    address: "Jl. Merdeka No. 10, Jakarta",
-    joinDate: "12 Jan 2024",
-    totalVehicles: 2,
-    status: "Active",
-  },
-  {
-    id: "CUST-002",
-    name: "Lani Wijaya",
-    email: "lani.w@yahoo.com",
-    phone: "0857-9988-1122",
-    address: "Komp. Hijau Permai B3, Bekasi",
-    joinDate: "05 Mar 2024",
-    totalVehicles: 1,
-    status: "Active",
-  },
-  {
-    id: "CUST-003",
-    name: "Hendra Kurniawan",
-    email: "hendra.k@outlook.com",
-    phone: "0813-1122-3344",
-    address: "Apartemen Mediterania Unit 12A",
-    joinDate: "20 Nov 2023",
-    totalVehicles: 3,
-    status: "Inactive",
-  },
-];
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getCustomer } from "@/stores/features/customer/customer-action";
+import { getInitials } from "@/utils/helpers/global";
+import { formatNumber } from "@/utils/helpers/format";
+import { CustomPagination } from "@/components/custom-pagination";
+import { setCustomerQuery } from "@/stores/features/customer/customer-slice";
+import debounce from "@/utils/helpers/debounce";
+import TableAction from "@/components/table-action";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
 export default function MasterPelanggan() {
+  const { company } = useAppSelector((state) => state.auth);
+  const { customers, query } = useAppSelector((state) => state.customer);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getCustomer(query));
+  }, [query, company]);
+
+  const searchDebounce = debounce((val) => {
+    dispatch(setCustomerQuery({ q: val }));
+  }, 1000);
+
+  function handleDelete(id: number) {
+    http
+      .delete(`/customers/${id}`)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(getCustomer(query));
+      })
+      .catch((err) => notifyError(err));
+  }
+
   return (
     <div className="space-y-6 pb-10">
       {/* Header */}
@@ -69,7 +59,7 @@ export default function MasterPelanggan() {
         leadIcon={Users}
         subtitle="Kelola informasi kontak dan profil pemilik kendaraan."
         title="Database Pelanggan"
-        onAction={() => {}}
+        onAction={() => navigate("/master/customers/create")}
       />
 
       {/* Filters */}
@@ -79,6 +69,7 @@ export default function MasterPelanggan() {
           <Input
             className="pl-10"
             placeholder="Cari nama, email, atau nomor telepon..."
+            onChange={(e) => searchDebounce(e.target.value)}
           />
         </div>
         <div className="flex gap-2">
@@ -102,7 +93,7 @@ export default function MasterPelanggan() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {customers.map((customer) => (
+            {customers?.data.map((customer) => (
               <tr
                 key={customer.id}
                 className="hover:bg-slate-50/50 transition-colors"
@@ -111,10 +102,13 @@ export default function MasterPelanggan() {
                   <div className="flex items-center gap-3">
                     <Avatar className="size-10 border">
                       <AvatarImage
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${customer.name}`}
+                        src={
+                          customer?.profile?.photo_url ||
+                          `https://api.dicebear.com/7.x/avataaars/svg?seed=${customer.name}`
+                        }
                       />
                       <AvatarFallback>
-                        {customer.name.substring(0, 2)}
+                        {getInitials(customer.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
@@ -122,7 +116,7 @@ export default function MasterPelanggan() {
                         {customer.name}
                       </div>
                       <div className="text-[10px] text-slate-400 font-mono">
-                        {customer.id}
+                        {customer.nik_ktp}
                       </div>
                     </div>
                   </div>
@@ -140,59 +134,54 @@ export default function MasterPelanggan() {
                   </div>
                 </td>
                 <td className="p-4">
-                  <div className="flex items-start gap-1 max-w-[200px]">
+                  <div className="flex items-start gap-1 max-w-50">
                     <MapPin className="size-3 text-slate-400 mt-1 shrink-0" />
                     <span className="text-xs text-slate-500 line-clamp-2">
-                      {customer.address}
+                      {customer.profile?.address}
                     </span>
                   </div>
                 </td>
                 <td className="p-4 text-center">
                   <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
                     <Car className="size-3" />
-                    {customer.totalVehicles} Unit
+                    {customer.total_vehicle} Unit
                   </div>
                 </td>
                 <td className="p-4 text-center">
                   <Badge
                     className={
-                      customer.status === "Active"
+                      customer.status === "active"
                         ? "bg-emerald-500 hover:bg-emerald-600"
                         : "opacity-50"
                     }
                     variant={
-                      customer.status === "Active" ? "default" : "secondary"
+                      customer.status === "active" ? "default" : "secondary"
                     }
                   >
                     {customer.status}
                   </Badge>
                 </td>
                 <td className="p-4 text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost">
-                        <MoreHorizontal className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuLabel>Opsi Pelanggan</DropdownMenuLabel>
-                      <DropdownMenuItem className="gap-2">
-                        <ExternalLink className="size-4" /> Detail & Riwayat
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2">
-                        <Edit className="size-4" /> Edit Profil
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="gap-2 text-red-600 focus:text-red-600">
-                        <Trash2 className="size-4" /> Hapus Data
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <TableAction
+                    onDelete={() => handleDelete(customer.id)}
+                    onDetail={() =>
+                      navigate(`/master/customers/${customer.id}`)
+                    }
+                    onEdit={() =>
+                      navigate(`/master/customers/${customer.id}/edit`)
+                    }
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <CustomPagination
+          meta={customers?.meta!}
+          onPageChange={(page) => {
+            dispatch(setCustomerQuery({ page }));
+          }}
+        />
       </div>
 
       {/* Info Card */}
@@ -205,12 +194,12 @@ export default function MasterPelanggan() {
             <p className="text-sm font-bold text-indigo-900">
               Total Pelanggan Terdaftar
             </p>
-            <p className="text-xs text-indigo-700">
-              Meningkat 15% dibandingkan bulan lalu.
-            </p>
+            <p className="text-xs text-indigo-700">{customers?.stats?.label}</p>
           </div>
         </div>
-        <h2 className="text-3xl font-black text-indigo-900 pr-4">1,402</h2>
+        <h2 className="text-3xl font-black text-indigo-900 pr-4">
+          {formatNumber(customers?.meta.total || 0)}
+        </h2>
       </div>
     </div>
   );

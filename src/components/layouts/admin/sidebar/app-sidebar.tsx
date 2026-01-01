@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { motion } from "framer-motion";
 
 import { NavMain } from "@/components/layouts/admin/sidebar/nav-main";
 import { NavUser } from "@/components/layouts/admin/sidebar/nav-user";
@@ -11,10 +12,13 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { navigation } from "@/utils/navigation/sidebar-nav";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { open } = useSidebar();
+
   return (
     <Sidebar
       collapsible="icon"
@@ -26,9 +30,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* Dekorasi Aksen Cahaya (Mesh effect) */}
 
         <SidebarHeader className="z-10 pt-4">
-          <div className="mx-2 p-1 rounded-2xl bg-white/40 backdrop-blur-md border border-primary shadow-lg shadow-primary/20">
+          <motion.div
+            // 'layout' akan menganimasi perubahan ukuran secara otomatis
+            layout
+            animate={{
+              backgroundColor: open
+                ? "rgba(255, 255, 255, 0.4)"
+                : "rgba(255, 255, 255, 0)",
+              backdropFilter: open ? "blur(12px)" : "blur(0px)",
+              borderColor: open ? "var(--primary)" : "transparent",
+              boxShadow: open
+                ? "0 10px 15px -3px rgba(var(--primary-rgb), 0.2)"
+                : "none",
+            }}
+            className={`
+      rounded-xl border flex items-center
+      ${open ? "shadow-lg" : "p-0"}
+    `}
+            initial={false}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 30,
+              mass: 1,
+            }}
+          >
             <BrandSwitcher />
-          </div>
+          </motion.div>
         </SidebarHeader>
 
         <SidebarContent className="z-10 scroll-smooth scrollbar-modern">
@@ -36,7 +64,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarContent>
 
         <SidebarFooter className="z-10 pb-4">
-          <div className="mx-2 p-1 rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 shadow-sm">
+          <div
+            className={
+              open ? "rounded-md bg-white/40 backdrop-blur-md shadow-sm" : ""
+            }
+          >
             <NavUser />
           </div>
         </SidebarFooter>

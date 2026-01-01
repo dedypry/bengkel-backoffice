@@ -4,68 +4,30 @@ import {
   User,
   Settings2,
   Plus,
-  MoreHorizontal,
-  Edit,
-  Trash2,
   History,
   Fuel,
   Cpu,
   ShieldCheck,
 } from "lucide-react";
+import { useEffect } from "react";
+import dayjs from "dayjs";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import HeaderAction from "@/components/header-action";
-
-const vehicles = [
-  {
-    id: "VH-001",
-    plate: "B 1234 GHO",
-    brand: "Toyota",
-    model: "Avanza G",
-    year: "2021",
-    owner: "Budi Santoso",
-    transmission: "Automatic",
-    fuel: "Petrol",
-    color: "Silver Metallic",
-    lastService: "15 Des 2025",
-  },
-  {
-    id: "VH-002",
-    plate: "D 9999 RS",
-    brand: "Honda",
-    model: "Civic Turbo",
-    year: "2023",
-    owner: "Lani Wijaya",
-    transmission: "CVT",
-    fuel: "Petrol",
-    color: "Rallye Red",
-    lastService: "01 Nov 2025",
-  },
-  {
-    id: "VH-003",
-    plate: "F 4567 JK",
-    brand: "Mitsubishi",
-    model: "Xpander Ultimate",
-    year: "2022",
-    owner: "Rian Hidayat",
-    transmission: "Manual",
-    fuel: "Petrol",
-    color: "Quartz White",
-    lastService: "20 Okt 2025",
-  },
-];
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getVehicle } from "@/stores/features/vehicle/vehicle-action";
+import TableAction from "@/components/table-action";
 
 export default function MasterVehicles() {
+  const { vehicles } = useAppSelector((state) => state.vehicle);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getVehicle());
+  }, []);
+
   return (
     <div className="space-y-6 pb-10">
       {/* Header */}
@@ -112,7 +74,7 @@ export default function MasterVehicles() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {vehicles.map((vh) => (
+            {vehicles?.data.map((vh) => (
               <tr
                 key={vh.id}
                 className="hover:bg-slate-50/50 transition-colors group"
@@ -120,22 +82,29 @@ export default function MasterVehicles() {
                 <td className="p-4">
                   <div className="flex items-start gap-3">
                     <div className="bg-slate-900 text-white px-3 py-1.5 rounded-md font-mono font-black text-sm tracking-widest border-2 border-slate-700 shadow-sm">
-                      {vh.plate}
+                      {vh.plate_number}
                     </div>
                     <div>
                       <div className="font-bold text-slate-800">
                         {vh.brand} {vh.model}
                       </div>
                       <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
-                        {vh.year} • {vh.color}
+                        {vh.year} • {vh.color || "black"}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td className="p-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <User className="size-3.5 text-slate-400" />
-                    {vh.owner}
+                  <div className="flex flex-col gap-2">
+                    {vh.customers?.map((cs) => (
+                      <div
+                        key={cs.id}
+                        className="flex items-center gap-2 text-sm text-slate-600"
+                      >
+                        <User className="size-3.5 text-slate-400" />
+                        {cs.name}
+                      </div>
+                    ))}
                   </div>
                 </td>
                 <td className="p-4">
@@ -144,29 +113,30 @@ export default function MasterVehicles() {
                       className="text-[10px] font-medium bg-slate-100 text-slate-600"
                       variant="secondary"
                     >
-                      <Cpu className="size-3 mr-1" /> {vh.transmission}
+                      <Cpu className="size-3 mr-1" /> {vh.transmission_type}
                     </Badge>
                     <Badge
                       className="text-[10px] font-medium bg-slate-100 text-slate-600"
                       variant="secondary"
                     >
-                      <Fuel className="size-3 mr-1" /> {vh.fuel}
+                      <Fuel className="size-3 mr-1" /> {vh.fuel_type}
                     </Badge>
                   </div>
                 </td>
                 <td className="p-4">
                   <div className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
                     <History className="size-3.5 text-slate-400" />
-                    {vh.lastService}
+                    {dayjs(vh.updated_at).format("ddd, DD-MM-YYYY")}
                   </div>
                 </td>
                 <td className="p-4 text-center">
                   <div className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                    <ShieldCheck className="size-3" /> VERIFIED
+                    <ShieldCheck className="size-3" /> {vh.status || "VERIFIED"}
                   </div>
                 </td>
                 <td className="p-4 text-right">
-                  <DropdownMenu>
+                  <TableAction />
+                  {/* <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button size="icon" variant="ghost">
                         <MoreHorizontal className="size-4 text-slate-400" />
@@ -185,7 +155,7 @@ export default function MasterVehicles() {
                         <Trash2 className="size-4" /> Hapus Kendaraan
                       </DropdownMenuItem>
                     </DropdownMenuContent>
-                  </DropdownMenu>
+                  </DropdownMenu> */}
                 </td>
               </tr>
             ))}

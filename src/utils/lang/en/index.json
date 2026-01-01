@@ -1,0 +1,16 @@
+{
+    "mechanic": {
+        "status": {
+            "ready": "Ready",
+            "busy": "Busy",
+            "break": "On Break",
+            "leave": "On Leave"
+        },
+        "description": {
+            "ready": "Available for new tasks",
+            "busy": "Currently working on a vehicle",
+            "break": "Currently taking a rest",
+            "leave": "Currently out of office"
+        }
+    }
+}

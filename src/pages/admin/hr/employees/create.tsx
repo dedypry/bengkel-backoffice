@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, UserPlus } from "lucide-react";
+import { ArrowLeft, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -31,8 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/utils/helpers/global";
 import { DatePicker } from "@/components/date-picker";
 import Province from "@/components/regions/province";
 import City from "@/components/regions/city";
@@ -43,6 +39,8 @@ import { getRole } from "@/stores/features/role/role-action";
 import { Separator } from "@/components/ui/separator";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import UploadAvatar from "@/components/upload-avatar";
+import { uploadFile } from "@/utils/helpers/upload-file";
 
 export const formSchema = z.object({
   name: z
@@ -66,18 +64,7 @@ export const formSchema = z.object({
   status: z
     .string({ message: "Tanggal bergabung wajib diisi." })
     .min(1, { message: "Status wajib dipilih." }),
-  photo: z
-    .any()
-    .optional()
-    .refine((files) => files.length > 0, { message: "Foto wajib diupload." })
-    .refine((files) => files[0]?.size <= 5 * 1024 * 1024, {
-      message: "Ukuran file maksimal 5MB.",
-    })
-    .refine(
-      (files) =>
-        ["image/jpeg", "image/png", "image/jpg"].includes(files[0]?.type),
-      { message: "Format file harus JPG, JPEG, atau PNG." },
-    ),
+  photo: z.any().optional(),
   province_id: z
     .number({ message: "Provinsi wajib diisi" })
     .min(1, { message: "Provinsi wajib diisi" }),
@@ -132,11 +119,14 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
     },
   });
 
-  const photoFile = form.watch("photo")?.[0];
-  const photoPreview = photoFile ? URL.createObjectURL(photoFile) : null;
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
+    if (values.photo && values.photo instanceof File) {
+      const photo = await uploadFile(values.photo);
+
+      form.setValue("photo", photo);
+      values.photo = photo;
+    }
     http
       .post("/employees", {
         id,
@@ -145,6 +135,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
       .then(({ data }) => {
         notify(data.message);
         navigate("/hr/employees");
+        form.reset();
       })
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));
@@ -186,44 +177,22 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
         <CardContent>
           <Form {...form}>
             <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
-              {/* Photo Upload Section */}
-              <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
-                <Avatar className="size-24 border-4 border-white shadow-lg">
-                  <AvatarImage src={photoPreview || ""} />
-                  <AvatarFallback className="text-2xl">
-                    {photoPreview
-                      ? ""
-                      : getInitials(form.watch("name") || "Karyawan")}
-                  </AvatarFallback>
-                </Avatar>
-                <FormField
-                  control={form.control}
-                  name="photo"
-                  render={({ field: { value, onChange, ...field } }) => (
-                    <FormItem className="text-center">
-                      <FormLabel className="cursor-pointer">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                          <Upload size={18} />
-                          <span className="font-semibold">Upload Foto</span>
-                        </div>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          accept="image/*"
-                          className="hidden"
-                          type="file"
-                          onChange={(e) => onChange(e.target.files)}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      <p className="text-xs text-slate-500 mt-2">
-                        Format: JPG, PNG. Maksimal 5MB.
-                      </p>
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="photo"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem className="text-center">
+                    <FormControl>
+                      <UploadAvatar
+                        field={field}
+                        value={value}
+                        onChange={onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

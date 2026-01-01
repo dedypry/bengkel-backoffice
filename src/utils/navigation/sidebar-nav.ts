@@ -45,6 +45,7 @@ export const navigation = [
       { title: "Data Kendaraan", url: "/master/vehicles" },
       { title: "Data Mekanik", url: "/master/mechanics" },
       { title: "Daftar Jasa Servis", url: "/master/services" },
+      { title: "Sparepart", url: "/master/spareparts" },
     ],
   },
   {

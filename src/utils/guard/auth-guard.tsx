@@ -5,10 +5,8 @@ import { Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 
-import { http } from "../libs/axios";
-
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { setAuth } from "@/stores/features/auth/auth-slice";
+import { getProfile } from "@/stores/features/auth/auth-action";
 
 export default function AuthGuard({ children }: IChild) {
   const { token } = useAppSelector((state) => state.auth);
@@ -22,12 +20,7 @@ export default function AuthGuard({ children }: IChild) {
 
   useEffect(() => {
     if (accessToken) {
-      http
-        .get("auth/profile")
-        .then(({ data }) => {
-          dispatch(setAuth(data));
-        })
-        .catch((err) => console.error(err));
+      dispatch(getProfile());
     }
   }, [accessToken]);
 

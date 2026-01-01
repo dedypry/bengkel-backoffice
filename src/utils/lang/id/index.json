@@ -1,0 +1,16 @@
+{
+    "mechanic": {
+        "status": {
+            "ready": "Tersedia",
+            "busy": "Sibuk",
+            "break": "Istirahat",
+            "leave": "Cuti"
+        },
+        "description": {
+            "ready": "Siap menerima tugas baru",
+            "busy": "Sedang mengerjakan kendaraan",
+            "break": "Sedang jam istirahat",
+            "leave": "Sedang tidak masuk kerja"
+        }
+    }
+}

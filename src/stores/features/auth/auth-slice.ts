@@ -2,6 +2,8 @@ import type { ICompany, IUser } from "@/utils/interfaces/IUser";
 
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
+import { getProfile, setStoreCompany } from "./auth-action";
+
 const initialState = {
   token: "",
   user: null as IUser | null,
@@ -28,6 +30,17 @@ export const authSlice = createSlice({
       state.company = null;
     },
   },
+  extraReducers: (builder) =>
+    builder
+      .addCase(getProfile.fulfilled, (state, action: PayloadAction<IUser>) => {
+        state.user = action.payload;
+        state.company = action.payload.companies.find(
+          (e) => e.id === action.payload.company_id,
+        )!;
+      })
+      .addCase(setStoreCompany.fulfilled, (state, action) => {
+        state.company = action.payload;
+      }),
 });
 
 export const { setAuth, authClear, setCompany, setToken } = authSlice.actions;

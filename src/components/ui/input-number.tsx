@@ -105,6 +105,7 @@ export default function InputNumber({
         value={value}
         onChange={(e) => handleInput(e.target.value)}
       />
+      {props.prefix && <InputGroupAddon>{props.prefix}</InputGroupAddon>}
       {prefixIcon && <InputGroupAddon>{prefixIcon}</InputGroupAddon>}
 
       {suffixIcon && (

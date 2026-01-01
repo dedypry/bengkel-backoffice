@@ -54,6 +54,7 @@ export interface IUser {
   id: number;
   created_at: string;
   updated_at: string;
+  work_status: string;
   nik: string;
   name: string;
   email: string;
@@ -65,6 +66,13 @@ export interface IUser {
   companies: ICompany[]; // Relasi HasMany / ManyToMany
   profile?: IProfile;
   roles: IRole[];
+  company_id: number;
+  rating: number;
+  level: number;
+  experience: number;
+  efficiency: number;
+  specialty: string;
+  theme: string;
 }
 
 export interface IUserForm {
@@ -85,4 +93,44 @@ export interface IUserForm {
   birth_date: string; // ISO Date String
   emergency_name: string;
   emergency_contact: string;
+}
+
+export interface IVehicle {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  plate_number: string;
+  brand: string;
+  model: string;
+  year: string; // Tetap string karena di JSON tertulis "2024"
+  engine_capacity: string;
+  transmission_type: "AT" | "MT" | "CVT"; // Menggunakan union agar lebih aman
+  fuel_type: string;
+  vin_number: string;
+  engine_number: string;
+  tire_size: string;
+  color: string;
+  status: string;
+  customers?: ICustomer[];
+}
+export interface ICustomer {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  name: string;
+  phone: string;
+  email: string | null;
+  code_verify: string | null;
+  customer_type: "personal" | "corporate";
+  nik_ktp: string | null;
+  credit_limit: string | number; // String dari DB (Decimal), bisa di-cast ke number
+  notes: string | null;
+  company_id: number;
+  updated_by: number;
+  profile: IProfile;
+  total_vehicle: number;
+  status: string;
+  vehicles?: IVehicle[];
 }

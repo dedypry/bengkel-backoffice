@@ -45,16 +45,17 @@ export default function EmployeesPage() {
   const { summary, list, searchQuery } = useAppSelector(
     (state) => state.employe,
   );
+  const { company } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(getEmployeSummary());
-  }, []);
+  }, [company]);
 
   useEffect(() => {
     dispatch(getEmploye(searchQuery));
-  }, [searchQuery]);
+  }, [searchQuery, company]);
 
   function handleDelete(id: number) {
     http
@@ -147,7 +148,11 @@ export default function EmployeesPage() {
             </TableHeader>
             <TableBody>
               {(list?.data || []).map((emp) => (
-                <TableRow key={emp.id}>
+                <TableRow
+                  key={emp.id}
+                  className="cursor-pointer"
+                  onClick={() => navigate(`/hr/employees/${emp.id}`)}
+                >
                   <TableCell>
                     <div className="flex items-center gap-4">
                       <Avatar className="size-14 border-4 border-white shadow-sm transition-transform group-hover:scale-105">

@@ -32,7 +32,6 @@ export function NavMain({
     }[];
   }[];
 }) {
-  // 1. Ambil pathname dari Page Context Rakkas
   const { pathname } = useLocation();
 
   return (
@@ -45,7 +44,6 @@ export function NavMain({
 
       <SidebarMenu>
         {items.map((item) => {
-          // 2. Logika Active State
           const isParentActive = pathname.startsWith(item.url);
           const hasSubItems = item.items && item.items.length > 0;
 
@@ -88,7 +86,6 @@ export function NavMain({
                             className="data-[active=true]:text-white data-[active=true]:font-semibold py-4 hover:text-gray-300"
                             isActive={isSubActive}
                           >
-                            {/* 3. Gunakan StyledLink dari Rakkas untuk navigasi SPA */}
                             <Link to={subItem.url}>
                               <span>{subItem.title}</span>
                             </Link>
