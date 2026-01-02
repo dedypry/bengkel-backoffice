@@ -18,3 +18,14 @@ export const getCategories = createAsyncThunk(
     }
   },
 );
+export const getUoms = createAsyncThunk("uoms", async () => {
+  try {
+    const { data } = await http.get("/products/uoms");
+
+    return data;
+  } catch (error) {
+    console.error(error);
+
+    return [];
+  }
+});

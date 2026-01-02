@@ -16,16 +16,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import {
+  getCategories,
+  getUoms,
+} from "@/stores/features/product/product-action";
+import Combobox from "@/components/ui/combobox";
+import InputNumber from "@/components/ui/input-number";
+import FileUploader from "@/components/drop-zone";
 
 const productSchema = z.object({
   code: z.string().min(1, "Kode produk wajib diisi"),
@@ -37,26 +38,30 @@ const productSchema = z.object({
   sell_price: z.number().min(0),
   stock: z.number().min(0),
   min_stock: z.number().min(0),
-  unit: z.string().min(1, "Satuan wajib diisi"),
+  uom_id: z.number(),
   location: z.string().optional(),
   is_active: z.boolean(),
-  image: z.string().optional(),
+  images: z.any().array(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
-interface ICategory {
-  id: number;
-  name: string;
-}
-
 interface Props {
   initialData?: any;
-  categories: ICategory[]; // Pastikan categories dilempar lewat props
 }
 
-export default function FormStock({ initialData, categories = [] }: Props) {
-  // 2. Definisikan default values secara eksplisit di luar agar tipe terdeteksi sempurna
+export default function FormStock({ initialData }: Props) {
+  const { company } = useAppSelector((state) => state.auth);
+  const { categories, categoryQuery, uoms } = useAppSelector(
+    (state) => state.product,
+  );
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getCategories(categoryQuery));
+    dispatch(getUoms());
+  }, [company]);
+
   const defaultValues: ProductFormValues = {
     code: initialData?.code ?? "",
     name: initialData?.name ?? "",
@@ -71,10 +76,10 @@ export default function FormStock({ initialData, categories = [] }: Props) {
     sell_price: initialData?.sell_price ? Number(initialData.sell_price) : 0,
     stock: initialData?.stock ? Number(initialData.stock) : 0,
     min_stock: initialData?.min_stock ? Number(initialData.min_stock) : 0,
-    unit: initialData?.unit ?? "Pcs",
+    uom_id: initialData?.unit ?? 1,
     location: initialData?.location ?? "",
     is_active: initialData?.is_active ?? true,
-    image: initialData?.image ?? "",
+    images: initialData?.images ?? [],
   };
 
   const form = useForm<ProductFormValues>({
@@ -99,6 +104,7 @@ export default function FormStock({ initialData, categories = [] }: Props) {
         <Form {...form}>
           <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
             {/* SECTION 1: INFORMASI DASAR */}
+
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-primary">
                 <Package className="size-5" />
@@ -107,6 +113,24 @@ export default function FormStock({ initialData, categories = [] }: Props) {
                 </h2>
               </div>
               <Separator />
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Foto Produk</FormLabel>
+                    <FormControl>
+                      <FileUploader
+                        className="pb-5"
+                        value={field.value as any}
+                        onFileSelect={(files) => field.onChange(files)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
@@ -150,23 +174,15 @@ export default function FormStock({ initialData, categories = [] }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Kategori</FormLabel>
-                      <Select
-                        defaultValue={field.value?.toString()}
-                        onValueChange={field.onChange}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="bg-white">
-                            <SelectValue placeholder="Pilih Kategori" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id.toString()}>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        items={categories.map((e) => ({
+                          label: e.name,
+                          value: e.id,
+                        }))}
+                        placeholder="Pilih Kategori"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -174,15 +190,19 @@ export default function FormStock({ initialData, categories = [] }: Props) {
 
                 <FormField
                   control={form.control}
-                  name="unit"
+                  name="uom_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Satuan</FormLabel>
                       <FormControl>
-                        <Input
-                          className="bg-white"
+                        <Combobox
+                          items={uoms.map((e) => ({
+                            label: e.name,
+                            value: e.id,
+                          }))}
                           placeholder="Pcs / Liter / Botol"
-                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -228,18 +248,13 @@ export default function FormStock({ initialData, categories = [] }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Harga Beli</FormLabel>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
-                          Rp
-                        </span>
-                        <FormControl>
-                          <Input
-                            className="pl-9 bg-white"
-                            type="number"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
+                      <FormControl>
+                        <InputNumber
+                          prefix="Rp."
+                          value={field.value}
+                          onInput={field.onChange}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -251,18 +266,13 @@ export default function FormStock({ initialData, categories = [] }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Harga Jual</FormLabel>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
-                          Rp
-                        </span>
-                        <FormControl>
-                          <Input
-                            className="pl-9 bg-emerald-50 border-emerald-200"
-                            type="number"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
+                      <FormControl>
+                        <InputNumber
+                          prefix="Rp."
+                          value={field.value}
+                          onInput={field.onChange}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -275,10 +285,9 @@ export default function FormStock({ initialData, categories = [] }: Props) {
                     <FormItem>
                       <FormLabel>Stok Awal</FormLabel>
                       <FormControl>
-                        <Input
-                          className="bg-white font-bold"
-                          type="number"
-                          {...field}
+                        <InputNumber
+                          value={field.value}
+                          onInput={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -295,10 +304,9 @@ export default function FormStock({ initialData, categories = [] }: Props) {
                         Stok Minimum
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          className="bg-white border-rose-200"
-                          type="number"
-                          {...field}
+                        <InputNumber
+                          value={field.value}
+                          onInput={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -366,7 +374,7 @@ export default function FormStock({ initialData, categories = [] }: Props) {
                 />
 
                 <Button
-                  className="w-full h-12 text-lg shadow-lg shadow-primary/20"
+                  className="w-full shadow-lg shadow-primary/20"
                   type="submit"
                 >
                   Simpan Perubahan

@@ -11,3 +11,12 @@ export interface IProductCategory {
   deleted_at: string | null;
   total_product: string;
 }
+
+export interface IUom {
+  id?: number; // Opsional saat create, ada saat read
+  code: string; // 'pcs', 'ltr', 'set', dll
+  name: string; // 'Pieces', 'Liter', 'Set', dll
+  description: string | null;
+  created_at?: string; // ISO Date String
+  updated_at?: string; // ISO Date String
+}

@@ -50,10 +50,10 @@ export default function Combobox({
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+      <PopoverContent className="p-0">
         <Command>
           <CommandInput className="h-9" placeholder={placeholder} />
-          <CommandList>
+          <CommandList className="scroll-smooth scrollbar-modern">
             <CommandEmpty>{titleEmpty}</CommandEmpty>
             <CommandGroup>
               {items.map((item) => (
