@@ -11,6 +11,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,55 +25,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import HeaderAction from "@/components/header-action";
-
-const inventoryData = [
-  {
-    id: "SPR-001",
-    name: "Oli Shell Helix HX7 1L",
-    category: "Pelumas",
-    stock: 45,
-    minStock: 10,
-    unit: "Botol",
-    price: 95000,
-  },
-  {
-    id: "SPR-002",
-    name: "Kampas Rem Depan Avanza",
-    category: "Sparepart",
-    stock: 4,
-    minStock: 5,
-    unit: "Set",
-    price: 150000,
-  },
-  {
-    id: "SPR-003",
-    name: "Filter Udara Honda Jazz",
-    category: "Sparepart",
-    stock: 0,
-    minStock: 3,
-    unit: "Pcs",
-    price: 75000,
-  },
-  {
-    id: "SPR-004",
-    name: "Busi NGK Iridium",
-    category: "Aksesoris",
-    stock: 24,
-    minStock: 12,
-    unit: "Pcs",
-    price: 45000,
-  },
-];
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { formatIDR, formatNumber } from "@/utils/helpers/format";
+import { getProduct } from "@/stores/features/product/product-action";
 
 export default function StokBarang() {
+  const { company } = useAppSelector((state) => state.auth);
+  const { products, productQuery } = useAppSelector((state) => state.product);
+
   const navigate = useNavigate();
-  const formatIDR = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getProduct(productQuery));
+  }, [company]);
 
   return (
     <div className="space-y-6 pb-10">
@@ -107,8 +73,8 @@ export default function StokBarang() {
               Total Item
             </p>
             <p className="text-xl font-bold text-slate-900">
-              1,240{" "}
-              <span className="text-xs font-normal text-slate-400 font-mono">
+              {formatNumber(products?.meta.total || 0)}
+              <span className="text-xs font-normal text-slate-400 font-mono ml-1">
                 SKU
               </span>
             </p>
@@ -175,26 +141,28 @@ export default function StokBarang() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {inventoryData.map((item) => (
+            {products?.data.map((item) => (
               <tr
                 key={item.id}
                 className="hover:bg-slate-50/50 transition-colors"
               >
                 <td className="p-4">
-                  <div className="font-bold text-slate-800">{item.name}</div>
+                  <div className="font-semibold text-sm text-slate-800">
+                    {item.name}
+                  </div>
                   <div className="text-[10px] text-slate-400 font-mono uppercase tracking-tighter">
-                    {item.id}
+                    {item.code}
                   </div>
                 </td>
                 <td className="p-4 text-center">
-                  <div className="font-semibold text-slate-700">
+                  <div className="font-semibold text-sm text-slate-700">
                     {item.stock}{" "}
-                    <span className="text-[10px] text-slate-400 font-normal">
-                      {item.unit}
+                    <span className="text-[11px] text-slate-600 font-normal">
+                      {item.uom?.code}
                     </span>
                   </div>
-                  <div className="text-[9px] text-slate-400 italic">
-                    Min. {item.minStock}
+                  <div className="text-[10px] text-slate-600 italic">
+                    Min. {item.min_stock}
                   </div>
                 </td>
                 <td className="p-4">
@@ -202,12 +170,12 @@ export default function StokBarang() {
                     className="font-medium text-[10px] uppercase"
                     variant="secondary"
                   >
-                    {item.category}
+                    {item.category?.name}
                   </Badge>
                 </td>
                 <td className="p-4 text-right">
-                  <div className="font-bold text-slate-900">
-                    {formatIDR(item.price)}
+                  <div className="font-semibold text-sm text-slate-900">
+                    {formatIDR(Number(item.sell_price))}
                   </div>
                 </td>
                 <td className="p-4 text-center">
@@ -218,7 +186,7 @@ export default function StokBarang() {
                     >
                       Kosong
                     </Badge>
-                  ) : item.stock <= item.minStock ? (
+                  ) : item.stock <= item.min_stock ? (
                     <Badge className="bg-amber-500 text-[10px] hover:bg-amber-600">
                       Menipis
                     </Badge>
