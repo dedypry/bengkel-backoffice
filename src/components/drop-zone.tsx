@@ -59,7 +59,7 @@ export default function FileUploader({
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       // Menghitung sisa slot yang tersedia
-      const availableSlots = maxFiles - selectedFiles.length;
+      const availableSlots = maxFiles - value.length;
       const filesToAdd = acceptedFiles.slice(0, availableSlots);
 
       if (filesToAdd.length === 0) return;
@@ -115,9 +115,8 @@ export default function FileUploader({
             </button>
           </div>
         ))}
-
         {/* Tombol Add File (Muncul jika belum mencapai limit) */}
-        {selectedFiles.length < maxFiles && (
+        {value.length < maxFiles && (
           <Dropzone
             accept={accept}
             maxSize={maxSize}
@@ -133,11 +132,11 @@ export default function FileUploader({
                   isDragActive
                     ? "border-primary bg-primary/5"
                     : "border-slate-200",
-                  selectedFiles.length > 0 ? "p-2" : "col-span-full py-10", // Lebar penuh jika belum ada file
+                  value.length > 0 ? "p-2" : "col-span-full py-10", // Lebar penuh jika belum ada file
                 )}
               >
                 <input {...getInputProps()} />
-                {selectedFiles.length > 0 ? (
+                {value.length > 0 ? (
                   <>
                     <Plus className="h-6 w-6 mb-1" />
                     <span className="text-[10px] font-medium text-center">

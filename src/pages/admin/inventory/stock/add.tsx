@@ -1,8 +1,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Archive, DollarSign, Info, MapPin, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Form,
@@ -27,6 +28,9 @@ import {
 import Combobox from "@/components/ui/combobox";
 import InputNumber from "@/components/ui/input-number";
 import FileUploader from "@/components/drop-zone";
+import { uploadFile } from "@/utils/helpers/upload-file";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
 const productSchema = z.object({
   code: z.string().min(1, "Kode produk wajib diisi"),
@@ -55,7 +59,9 @@ export default function FormStock({ initialData }: Props) {
   const { categories, categoryQuery, uoms } = useAppSelector(
     (state) => state.product,
   );
+  const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getCategories(categoryQuery));
@@ -87,15 +93,39 @@ export default function FormStock({ initialData }: Props) {
     defaultValues: defaultValues,
   });
 
-  // 3. Tambahkan useEffect reset agar saat initialData (mode edit) berubah, form terupdate
   useEffect(() => {
     if (initialData) {
       form.reset(defaultValues);
     }
   }, [initialData]);
 
-  const onSubmit = (data: ProductFormValues) => {
-    console.log("Data Produk Terpilih:", data);
+  const onSubmit = async (data: ProductFormValues) => {
+    setLoading(true);
+    const images = await Promise.all(
+      data.images.map((e) => {
+        if (e instanceof File) {
+          return uploadFile(
+            e,
+            `products/${company?.name.toLowerCase().replaceAll(" ", "_")}`,
+          );
+        }
+
+        return e;
+      }),
+    );
+
+    form.setValue("images", images);
+    data.images = images;
+
+    http
+      .post("/products", data)
+      .then(({ data }) => {
+        notify(data.message);
+        form.reset();
+        navigate("/inventory/stock");
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -115,7 +145,7 @@ export default function FormStock({ initialData }: Props) {
               <Separator />
               <FormField
                 control={form.control}
-                name="code"
+                name="images"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Foto Produk</FormLabel>
@@ -375,9 +405,10 @@ export default function FormStock({ initialData }: Props) {
 
                 <Button
                   className="w-full shadow-lg shadow-primary/20"
+                  disabled={isLoading}
                   type="submit"
                 >
-                  Simpan Perubahan
+                  {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
                 </Button>
               </div>
             </div>
