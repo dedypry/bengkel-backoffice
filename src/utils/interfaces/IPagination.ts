@@ -2,7 +2,7 @@ export interface IPagination<T> {
   message: string;
   data: T[];
   meta: IMeta;
-  stats?: IStats;
+  stats?: any;
 }
 
 export interface IMeta {

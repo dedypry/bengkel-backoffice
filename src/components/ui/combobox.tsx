@@ -23,6 +23,7 @@ interface Props {
   }[];
   placeholder?: string;
   titleEmpty?: string;
+  className?: string;
 }
 export default function Combobox({
   value,
@@ -30,6 +31,7 @@ export default function Combobox({
   items,
   placeholder = " ",
   titleEmpty,
+  className,
 }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -50,7 +52,7 @@ export default function Combobox({
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent className={cn(className, "p-0")}>
         <Command>
           <CommandInput className="h-9" placeholder={placeholder} />
           <CommandList className="scroll-smooth scrollbar-modern">
