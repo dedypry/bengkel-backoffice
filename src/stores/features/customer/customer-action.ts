@@ -4,9 +4,12 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { http } from "@/utils/libs/axios";
 
+interface CustomerQuery extends IQuery {
+  noStats?: boolean;
+}
 export const getCustomer = createAsyncThunk(
   "get-customer",
-  async (query: IQuery) => {
+  async (query: CustomerQuery) => {
     try {
       const { data } = await http.get("/customers", {
         params: query,

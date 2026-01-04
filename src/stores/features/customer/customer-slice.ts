@@ -14,6 +14,7 @@ export const customerSlice = createSlice({
     query: {
       page: 1,
       pageSize: 10,
+      q: "",
     },
   },
   reducers: {

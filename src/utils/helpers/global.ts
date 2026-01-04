@@ -9,3 +9,7 @@ export function getInitials(name: string): string {
     .join("") // Gabungkan
     .toUpperCase(); // Ubah jadi huruf kapital
 }
+
+export const getAvatarByName = (name: string) => {
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
+};

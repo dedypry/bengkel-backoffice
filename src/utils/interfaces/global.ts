@@ -7,4 +7,5 @@ export interface IChild {
 export interface IQuery {
   pageSize?: number;
   page?: number;
+  q?: string;
 }

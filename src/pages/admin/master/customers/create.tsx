@@ -486,7 +486,7 @@ export default function CustomerFormPage({ data }: Props) {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="Contoh: Vario 160"
+                                placeholder="Contoh: BRIO Satya"
                                 {...field}
                               />
                             </FormControl>

@@ -3,6 +3,8 @@ import { Upload } from "lucide-react";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Input } from "./ui/input";
 
+import { getAvatarByName } from "@/utils/helpers/global";
+
 interface Props {
   value: any;
   onChange: (val: any) => void;
@@ -22,7 +24,7 @@ export default function UploadAvatar({
       ? value
       : value instanceof File || value instanceof Blob
         ? URL.createObjectURL(value)
-        : `https://api.dicebear.com/7.x/avataaars/svg?seed=kar`;
+        : getAvatarByName("kar");
 
   return (
     <div
