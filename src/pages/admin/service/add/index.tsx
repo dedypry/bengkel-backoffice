@@ -31,7 +31,7 @@ import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function PendaftaranServis() {
   const { company } = useAppSelector((state) => state.auth);
-  const { services, query } = useAppSelector((state) => state.service);
+  const { query } = useAppSelector((state) => state.service);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
