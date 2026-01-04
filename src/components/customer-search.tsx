@@ -57,11 +57,11 @@ export default function CustomerSearch({
   return (
     <div ref={containerRef} className="relative">
       <Input
+        autoComplete="off"
         className="pr-10"
         id="customer"
         placeholder={placeholder}
         value={value}
-        // onBlur={() => setOpen(false)}
         onChange={(e) => {
           const val = e.target.value;
 

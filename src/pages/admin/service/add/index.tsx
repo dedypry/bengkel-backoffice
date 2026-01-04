@@ -1,6 +1,7 @@
 import { Car, User, Wrench, ClipboardCheck, Save } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
 
@@ -24,8 +25,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getService } from "@/stores/features/service/service-action";
+import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function PendaftaranServis() {
+  const { company } = useAppSelector((state) => state.auth);
+  const { services, query } = useAppSelector((state) => state.service);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (company) {
+      dispatch(getService(query));
+    }
+  }, [company]);
+
   const form = useForm({
     resolver: zodResolver(ServiceRegistrationSchema),
   });
@@ -199,25 +213,20 @@ export default function PendaftaranServis() {
                   <h4>Keluhan & Jenis Servis</h4>
                 </div>
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Jenis Layanan</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {[
-                        "Ganti Oli",
-                        "Tune Up",
-                        "Servis Rutin",
-                        "Rem & Kaki",
-                      ].map((service) => (
-                        <Button
-                          key={service}
-                          className="text-xs py-1 h-auto hover:bg-primary hover:text-white"
-                          variant="outline"
-                        >
-                          {service}
-                        </Button>
-                      ))}
-                    </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Barang/Jasa</TableHead>
+                        <TableHead>qty</TableHead>
+                        <TableHead>Biaya</TableHead>
+                        <TableHead>Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                  </Table>
+                  <div className="text-right">
+                    <Button>Tambah Barang/Jasa</Button>
                   </div>
+
                   <div className="space-y-2">
                     <Label>Deskripsi Keluhan</Label>
                     <Textarea

@@ -37,10 +37,10 @@ export default function Combobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className="w-full">
         <Button
           aria-expanded={open}
-          className="w-full justify-between"
+          className="justify-between"
           role="combobox"
           variant="outline"
         >
