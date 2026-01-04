@@ -1,9 +1,12 @@
+import type { IVehicle } from "@/utils/interfaces/IUser";
+
 import { Car, User, Wrench, ClipboardCheck, Save } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
+import VehiclesOption from "./components/vehicles-option";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +35,7 @@ import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 export default function PendaftaranServis() {
   const { company } = useAppSelector((state) => state.auth);
   const { query } = useAppSelector((state) => state.service);
+  const [vehicles, setVehicle] = useState<IVehicle[]>([]);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -90,6 +94,7 @@ export default function PendaftaranServis() {
                               form.setValue("customer.phone", cus.phone);
                               form.setValue("customer.email", cus.email!);
                               field.onChange(cus.name);
+                              setVehicle(cus?.vehicles || []);
                             }}
                           />
                         </FormControl>
@@ -113,6 +118,7 @@ export default function PendaftaranServis() {
                               form.setValue("customer.name", cus.name);
                               form.setValue("customer.email", cus.email!);
                               field.onChange(cus.name);
+                              setVehicle(cus?.vehicles || []);
                             }}
                           />
                         </FormControl>
@@ -150,10 +156,14 @@ export default function PendaftaranServis() {
                       <FormItem>
                         <FormLabel>Nomor Polisi</FormLabel>
                         <FormControl>
-                          <Input
+                          <VehiclesOption
                             {...field}
                             className="uppercase font-bold text-lg"
+                            items={vehicles}
                             placeholder="B 1234 ABC"
+                            onSelect={(val) => {
+                              form.setValue("vehicles", val as any);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />

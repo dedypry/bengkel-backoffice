@@ -50,6 +50,8 @@ export default function CustomerSearch({
         ...query,
         q,
         noStats: true,
+        pageSize: 100,
+        isVehicle: true,
       }),
     );
   }, 1000);
@@ -79,7 +81,6 @@ export default function CustomerSearch({
                 key={cs.id}
                 className="cursor-pointer flex gap-2 items-center hover:bg-gray-100 px-3 py-1"
                 onClick={() => {
-                  console.log("CLICK", cs);
                   onCustomer(cs);
                   setOpen(false);
                 }}
