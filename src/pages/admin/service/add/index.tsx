@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
 import VehiclesOption from "./components/vehicles-option";
+import ModalAddService from "./components/modal-add-service";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -234,7 +235,7 @@ export default function PendaftaranServis() {
                     </TableHeader>
                   </Table>
                   <div className="text-right">
-                    <Button>Tambah Barang/Jasa</Button>
+                    <ModalAddService />
                   </div>
 
                   <div className="space-y-2">
