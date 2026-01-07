@@ -71,7 +71,12 @@ export function Modal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-      <DialogContent className={cn(sizeClasses[size])}>
+      <DialogContent
+        className={cn(
+          sizeClasses[size],
+          "max-h-[calc(100vh-10px)] overflow-y-auto scrollbar-modern",
+        )}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
