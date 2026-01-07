@@ -18,6 +18,9 @@ export const customerSchema = z.object({
     province_id: z.number(),
     city_id: z.number(),
     district_id: z.number(),
+    birth_date: z
+      .string({ message: "Tanggal Lahir wajib diisi" })
+      .min(1, { message: "Tanggal Lahir wajib diisi" }),
     address: z
       .string({ message: "Alamat Wajib diisi" })
       .min(5, "Alamat minimal 5 karakter"),
@@ -30,6 +33,7 @@ export const customerSchema = z.object({
     .or(z.literal("")),
   credit_limit: z.string().default("0"),
   notes: z.string().optional(),
+
   vehicles: z
     .array(
       z.object({
@@ -38,6 +42,7 @@ export const customerSchema = z.object({
         brand: z.string().min(1, "Merk wajib diisi"),
         model: z.string().min(1, "Tipe wajib diisi"),
         year: z.string().optional(),
+        color: z.string().optional(),
         engine_capacity: z.string().optional(), // misal: 1500cc
         transmission_type: z.string().optional(), // CVT, AT, MT
         fuel_type: z.string().optional(), // Bensin, Diesel, Listrik

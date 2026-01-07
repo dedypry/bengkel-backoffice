@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 import SelectCategories from "./components/select-categories";
+import ImportProduct from "./components/import-product";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,8 +64,9 @@ export default function StokBarang() {
             >
               <History className="size-4" /> Log Stok
             </Button>
+            <ImportProduct />
             <Button
-              className="gap-2 shadow-lg shadow-primary/20"
+              className="gap-2 shadow-lg shadow-primary/20 "
               onClick={() => navigate("/inventory/stock/add")}
             >
               <Plus className="size-4" /> Tambah Barang

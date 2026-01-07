@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import Dropzone from "react-dropzone";
 import { UploadCloud, X, Plus } from "lucide-react";
 
+import Excel from "@/assets/images/excel.png";
 import { cn } from "@/lib/utils";
 
 interface FileUploaderProps {
@@ -38,8 +39,23 @@ export default function FileUploader({
 
   const previews = safeValue.map((e) => {
     if (!e) return null;
-    if (typeof e === "string") return e; // URL string (dari database/hosting)
+    if (typeof e === "string") {
+      const isExcel = e.endsWith("xlsx");
+
+      if (isExcel) {
+        return Excel;
+      }
+
+      return e;
+    }
     if (e instanceof File || e instanceof Blob) {
+      const name = (e as any).name as string;
+      const isExcel = name.endsWith("xlsx");
+
+      if (isExcel) {
+        return Excel;
+      }
+
       return URL.createObjectURL(e); // File mentah (baru dipilih)
     }
 

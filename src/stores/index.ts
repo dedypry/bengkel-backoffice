@@ -1,4 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
+import {
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+  persistStore,
+} from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
 import auth from "./features/auth/auth-slice";
 import region from "./features/region/region-slice";
@@ -9,6 +20,9 @@ import customer from "./features/customer/customer-slice";
 import vehicle from "./features/vehicle/vehicle-slice";
 import mechanic from "./features/mechanic/mechanic-slice";
 import product from "./features/product/product-slice";
+import wo from "./features/work-order/wo-slice";
+
+const persistedWoReducer = persistReducer({ key: "wo", storage }, wo);
 
 export const store = configureStore({
   reducer: {
@@ -21,8 +35,16 @@ export const store = configureStore({
     vehicle,
     mechanic,
     product,
+    wo: persistedWoReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });
 
+export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

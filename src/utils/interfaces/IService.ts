@@ -14,6 +14,7 @@ export interface IService {
   price: string; // Menggunakan string karena di JSON tertulis "50000.00"
   estimated_duration: number;
   difficulty: "easy" | "medium" | "hard"; // Menggunakan union type agar lebih spesifik
+  estimated_type: "hours" | "minutes" | "days" | string;
   is_active: boolean;
   category: IServiceCategory;
 }

@@ -24,7 +24,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,9 +47,9 @@ import City from "@/components/regions/city";
 import District from "@/components/regions/district";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
-import InputNumber from "@/components/ui/input-number";
 import { useAppDispatch } from "@/stores/hooks";
 import { getCity, getDistrict } from "@/stores/features/region/region-action";
+import { DatePicker } from "@/components/date-picker";
 
 interface Props {
   data: ICustomer;
@@ -69,6 +68,9 @@ export default function CustomerFormPage({ data }: Props) {
       nik_ktp: "",
       credit_limit: "0",
       vehicles: [{ plate_number: "", brand: "", model: "", year: "" }],
+      profile: {
+        birth_date: new Date().toISOString(),
+      },
     },
   });
 
@@ -82,16 +84,17 @@ export default function CustomerFormPage({ data }: Props) {
       form.setValue("nik_ktp", data.nik_ktp || "");
       form.setValue("credit_limit", data.credit_limit.toString());
       form.setValue("notes", data.notes || "");
-      form.setValue("profile.id", data.profile.id);
-      form.setValue("profile.address", data.profile.address);
-      form.setValue("profile.province_id", data.profile.province_id);
-      form.setValue("profile.city_id", data.profile.city_id);
-      form.setValue("profile.district_id", data.profile.district_id);
-      form.setValue("vehicles", data.vehicles || []);
+      form.setValue("profile.id", data?.profile?.id);
+      form.setValue("profile.address", data?.profile?.address);
+      form.setValue("profile.province_id", data?.profile?.province_id);
+      form.setValue("profile.city_id", data?.profile?.city_id);
+      form.setValue("profile.district_id", data?.profile?.district_id);
+      form.setValue("profile.birth_date", data?.profile?.birth_date);
+      form.setValue("vehicles", data?.vehicles || []);
 
-      if (data.profile.province_id) {
-        dispatch(getCity(data.profile.province_id));
-        dispatch(getDistrict(data.profile.city_id));
+      if (data.profile?.province_id) {
+        dispatch(getCity(data.profile?.province_id));
+        dispatch(getDistrict(data.profile?.city_id));
       }
     }
   }, [data]);
@@ -335,32 +338,18 @@ export default function CustomerFormPage({ data }: Props) {
                     </FormItem>
                   )}
                 />
-              </CardContent>
-            </Card>
-
-            <Card className="border-amber-200 bg-amber-50/30">
-              <CardHeader>
-                <CardTitle className="text-lg text-amber-800">
-                  Keuangan
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
                 <FormField
                   control={form.control}
-                  name="credit_limit"
+                  name="profile.birth_date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Limit Kredit / Piutang</FormLabel>
+                      <FormLabel>Tanggal Lahir</FormLabel>
                       <FormControl>
-                        <InputNumber
-                          prefix="Rp."
-                          value={field.value}
-                          onInput={field.onChange}
+                        <DatePicker
+                          setValue={field.onChange}
+                          value={new Date(field.value as any)}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Batas maksimal hutang servis/part.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -419,8 +408,8 @@ export default function CustomerFormPage({ data }: Props) {
               <CardContent className="space-y-6">
                 {fields.map((field, index) => (
                   <React.Fragment key={field.id}>
-                    <div className="relative grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg border bg-muted/30">
-                      <div className="md:col-span-2 ">
+                    <div className="relative grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg border bg-muted/30">
+                      <div className="md:col-span-3">
                         <h4 className="text-xs font-semibold mb-4 flex items-center gap-2 text-primary border-b pb-2">
                           <FormIcon className="size-4" /> Form Kendaraan{" "}
                           {index + 1}
@@ -514,8 +503,41 @@ export default function CustomerFormPage({ data }: Props) {
                           </FormItem>
                         )}
                       />
+
+                      <FormField
+                        control={form.control}
+                        name={`vehicles.${index}.vin_number`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs uppercase font-bold text-muted-foreground">
+                              Nomor Rangka (VIN)
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                className="font-mono uppercase"
+                                placeholder="Masukkan No. Rangka"
+                                {...field}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`vehicles.${index}.color`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs uppercase font-bold text-muted-foreground">
+                              Warna
+                            </FormLabel>
+                            <FormControl>
+                              <Input placeholder="Hitam Metalic" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
                       {/* Baris 2: Spesifikasi Teknis (Detail) */}
-                      <div className="md:col-span-2 mt-2">
+                      <div className="md:col-span-3 mt-2">
                         <h4 className="text-xs font-semibold mb-4 flex items-center gap-2 text-primary border-b pb-2">
                           <ClipboardList className="size-4" /> Spesifikasi
                           Teknis Kendaraan (Optional)
@@ -592,24 +614,6 @@ export default function CustomerFormPage({ data }: Props) {
                           />
 
                           {/* Kelompok: Identitas Legal */}
-                          <FormField
-                            control={form.control}
-                            name={`vehicles.${index}.vin_number`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-[11px] font-medium text-muted-foreground uppercase">
-                                  Nomor Rangka (VIN)
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    className="font-mono uppercase"
-                                    placeholder="Masukkan No. Rangka"
-                                    {...field}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
 
                           <FormField
                             control={form.control}

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Edit } from "lucide-react";
+import dayjs from "dayjs";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getDetailCustomer } from "@/stores/features/customer/customer-action";
@@ -100,6 +101,14 @@ export default function CustomerDetailPage() {
                     <p className="font-medium">{data.nik_ktp || "-"}</p>
                   </div>
                   <div>
+                    <p className="text-gray-500">Tanggal Lahir</p>
+                    <p className="font-medium">
+                      {data?.profile.birth_date
+                        ? dayjs(data?.profile.birth_date).format("DD MMMM YYYY")
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
                     <p className="text-gray-500">Tipe Pelanggan</p>
                     <p className="font-medium capitalize">
                       {data.customer_type}
@@ -126,7 +135,7 @@ export default function CustomerDetailPage() {
                       className="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-50"
                     >
                       <div>
-                        <p className="text-blue-600 font-bold">
+                        <p className="text-primary font-bold">
                           {v.plate_number}
                         </p>
                         <p className="text-sm text-gray-600 uppercase">
@@ -145,7 +154,7 @@ export default function CustomerDetailPage() {
 
             {/* Kolom Kanan: Finansial & Notes */}
             <div className="space-y-6">
-              <div className="bg-blue-600 p-6 rounded-xl shadow-md text-white">
+              <div className="bg-primary p-6 rounded-xl shadow-md text-white">
                 <p className="text-sm opacity-80">Credit Limit</p>
                 <h3 className="text-3xl font-bold">
                   Rp{" "}

@@ -39,6 +39,7 @@ export function DatePicker({ value, setValue }: Props) {
           required={true}
           selected={value}
           onSelect={(date) => {
+            date.setHours(12, 0, 0, 0);
             setValue(date.toISOString());
           }}
         />

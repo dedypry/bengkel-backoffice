@@ -55,7 +55,10 @@ export function CustomPagination({ meta, onPageChange }: Props) {
       <p className="text-sm text-muted-foreground">
         Menampilkan <span className="font-medium">{meta.from}</span> sampai{" "}
         <span className="font-medium">
-          {Math.min((meta.page + 1) * meta.pageSize, meta.total)}
+          {Math.min(
+            (meta.page + 1) * meta.pageSize - meta.pageSize,
+            meta.total,
+          )}
         </span>{" "}
         dari <span className="font-medium">{meta.total}</span> data
       </p>

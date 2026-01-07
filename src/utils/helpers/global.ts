@@ -1,3 +1,5 @@
+import type { IWo } from "@/stores/features/work-order/wo-slice";
+
 export function getInitials(name: string): string {
   if (!name) return "";
 
@@ -12,4 +14,49 @@ export function getInitials(name: string): string {
 
 export const getAvatarByName = (name: string) => {
   return `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
+};
+
+export const calculateTotalEstimation = (services: IWo[]) => {
+  // 1. Hitung total dalam satuan MENIT sebagai base unit
+  const totalMinutes = services.reduce((acc, item) => {
+    const duration = Number(item.estimated_duration) || 0;
+    const qty = item.qty || 1;
+    let minutesPerItem = 0;
+
+    switch (item.estimated_type?.toLowerCase()) {
+      case "days":
+      case "day":
+        minutesPerItem = duration * 24 * 60;
+        break;
+      case "hours":
+      case "hour":
+        minutesPerItem = duration * 60;
+        break;
+      case "minutes":
+      case "minute":
+      default:
+        minutesPerItem = duration;
+        break;
+    }
+
+    return acc + minutesPerItem * qty;
+  }, 0);
+
+  // 2. Konversi kembali ke format yang bisa dibaca (Days, Hours, Minutes)
+  const d = Math.floor(totalMinutes / (24 * 60));
+  const h = Math.floor((totalMinutes % (24 * 60)) / 60);
+  const m = totalMinutes % 60;
+
+  // 3. Buat string output
+  const result = [];
+
+  if (d > 0) result.push(`${d} Hari`);
+  if (h > 0) result.push(`${h} Jam`);
+  if (m > 0) result.push(`${m} Menit`);
+
+  return {
+    total_minutes: totalMinutes,
+    readable_format: result.length > 0 ? result.join(" ") : "0 Menit",
+    details: { days: d, hours: h, minutes: m },
+  };
 };
