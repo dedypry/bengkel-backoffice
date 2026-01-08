@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 
 import AddMechanich from "../components/add-mekanik";
 
+import ButtonStatus from "./components/button-status";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -41,8 +43,6 @@ import { PROGRESS_CONFIG } from "@/utils/interfaces/global";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
-import { http } from "@/utils/libs/axios";
-import { notify, notifyError } from "@/utils/helpers/notify";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 
 export default function AntreanBengkel() {
@@ -63,20 +63,6 @@ export default function AntreanBengkel() {
   }, [company]);
 
   const debounceSearch = debounce((q) => dispatch(getWo({ q })), 500);
-
-  const handleUpdateStatus = (id: number, status: string) => {
-    setLoading(id);
-    http
-      .patch(`/work-order/${id}`, {
-        progress: status,
-      })
-      .then(({ data }) => {
-        notify(data.message);
-        dispatch(getWo(woQuery));
-      })
-      .catch((err) => notifyError(err))
-      .finally(() => setLoading(0));
-  };
 
   return (
     <div className="space-y-6 pb-10">
@@ -257,42 +243,10 @@ export default function AntreanBengkel() {
 
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {item.progress === "queue" && (
-                      <Button
-                        className="text-xs"
-                        disabled={
-                          isLoading === item.id || item.mechanics?.length! < 1
-                        }
-                        size="sm"
-                        onClick={() =>
-                          handleUpdateStatus(item.id, "on_progress")
-                        }
-                      >
-                        {isLoading === item.id ? "Menyimpan..." : "MULAI KERJA"}
-                      </Button>
-                    )}
-                    {item.progress === "on_progress" && (
-                      <Button
-                        className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 text-[10px] h-8 font-bold"
-                        disabled={isLoading === item.id}
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleUpdateStatus(item.id, "ready")}
-                      >
-                        {isLoading === item.id ? "Menyimpan..." : "SELESAIKAN"}
-                      </Button>
-                    )}
-                    {item.progress === "ready" && (
-                      <Button
-                        className="bg-emerald-600 hover:bg-emerald-700 text-[10px] h-8 font-bold"
-                        disabled={isLoading === item.id}
-                        size="sm"
-                      >
-                        {isLoading === item.id
-                          ? "Menyimpan..."
-                          : "KASIR / PULANG"}
-                      </Button>
-                    )}
+                    <ButtonStatus
+                      item={item}
+                      onSuccess={() => dispatch(getWo(woQuery))}
+                    />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button className="size-8" size="icon" variant="ghost">

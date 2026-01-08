@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import ButtonStatus from "../components/button-status";
+
 import {
   Card,
   CardContent,
@@ -73,10 +75,10 @@ export default function WorkOrderDetail() {
           </p>
         </div>
         <Card className="bg-primary text-primary-foreground">
-          <CardContent className="pt-6">
+          <CardContent>
             <div className="text-right">
               <p className="text-xs uppercase opacity-80">Grand Total</p>
-              <p className="text-3xl font-bold">
+              <p className="text-xl font-semibold">
                 {formatIDR(Number(data.sub_total || 0))}
               </p>
             </div>
@@ -248,6 +250,11 @@ export default function WorkOrderDetail() {
                   Personel yang menangani unit ini
                 </CardDescription>
               </div>
+              <div className="flex-1" />
+              <ButtonStatus
+                item={data}
+                onSuccess={() => dispatch(getWoDetail(id!))}
+              />
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

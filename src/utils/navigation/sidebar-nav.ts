@@ -7,6 +7,7 @@ import {
   FileBarChart,
   Receipt,
   Users,
+  ShoppingCart,
 } from "lucide-react";
 
 const navigation = [
@@ -14,6 +15,12 @@ const navigation = [
     title: "Dashboard",
     url: "/",
     icon: SquareTerminal,
+    isActive: true,
+  },
+  {
+    title: "Kasir",
+    url: "/cashier",
+    icon: ShoppingCart,
     isActive: true,
   },
   {

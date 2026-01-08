@@ -212,12 +212,12 @@ export default function PendaftaranServis() {
                 Order.
               </p>
             </div>
-            <div className="text-right">
+            {/* <div className="text-right">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
                 No. Antrean
               </span>
               <h2 className="text-primary">#A-124</h2>
-            </div>
+            </div> */}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

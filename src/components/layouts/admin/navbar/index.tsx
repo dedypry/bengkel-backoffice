@@ -1,5 +1,6 @@
 import { ChevronsLeft, Menu, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
 
 import UserMenu from "./user-menu";
 import NotificationDropdown from "./notification";
@@ -7,10 +8,24 @@ import NotificationDropdown from "./notification";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { setSidebar } from "@/stores/features/layout/layout-slice";
 
 export default function Navbar() {
-  const { toggleSidebar, open, isMobile, openMobile } = useSidebar();
+  const { sidebarOpen } = useAppSelector((state) => state.layout);
+  const { open, isMobile, openMobile, setOpen } = useSidebar();
   const isOpen = isMobile ? openMobile : open;
+
+  const dispatch = useAppDispatch();
+
+  function handleOpen() {
+    dispatch(setSidebar(!sidebarOpen));
+  }
+
+  useEffect(() => {
+    console.log(setSidebar);
+    setOpen(sidebarOpen);
+  }, [sidebarOpen]);
 
   return (
     <nav className="sticky z-50 top-4 shadow-lg shadow-blue-50 border rounded-lg border-blue-100">
@@ -21,7 +36,7 @@ export default function Navbar() {
             className="rounded-xl hover:bg-violet-50 hover:text-violet-600 transition-colors"
             size="icon"
             variant="ghost"
-            onClick={toggleSidebar}
+            onClick={handleOpen}
           >
             <AnimatePresence initial={false} mode="wait">
               {isOpen ? (
