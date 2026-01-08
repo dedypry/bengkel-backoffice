@@ -148,11 +148,7 @@ export default function EmployeesPage() {
             </TableHeader>
             <TableBody>
               {(list?.data || []).map((emp) => (
-                <TableRow
-                  key={emp.id}
-                  className="cursor-pointer"
-                  onClick={() => navigate(`/hr/employees/${emp.id}`)}
-                >
+                <TableRow key={emp.id} className="cursor-pointer">
                   <TableCell>
                     <div className="flex items-center gap-4">
                       <Avatar className="size-14 border-4 border-white shadow-sm transition-transform group-hover:scale-105">

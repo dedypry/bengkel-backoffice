@@ -17,6 +17,9 @@ const regionSlice = createSlice({
   reducers: {
     setProvinceId: (state, action) => {
       state.province_id = action.payload;
+      state.city_id = null;
+      state.district_id = null;
+      state.district = [];
     },
     setCityId: (state, action) => {
       state.city_id = action.payload;

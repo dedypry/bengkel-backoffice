@@ -10,7 +10,7 @@ interface Props {
   onChange: (val: number) => void;
 }
 export default function District({ value, onChange }: Props) {
-  const { city_id, district } = useAppSelector((state) => state.region);
+  const { city_id, district, province_id } = useAppSelector((state) => state.region);
 
   const dispatch = useAppDispatch();
 
@@ -18,7 +18,7 @@ export default function District({ value, onChange }: Props) {
     if (city_id) {
       dispatch(getDistrict(city_id!));
     }
-  }, [city_id]);
+  }, [city_id, province_id]);
 
   return (
     <Combobox

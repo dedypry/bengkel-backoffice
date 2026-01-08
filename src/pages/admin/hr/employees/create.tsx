@@ -1,3 +1,5 @@
+import { formSchema } from "./schemas/create-schema";
+
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,58 +43,7 @@ import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import UploadAvatar from "@/components/upload-avatar";
 import { uploadFile } from "@/utils/helpers/upload-file";
-
-export const formSchema = z.object({
-  name: z
-    .string({ message: "Nomor telepon wajib diisi." })
-    .min(1, { message: "Nama wajib diisi." }),
-  email: z
-    .email({ message: "Format email tidak valid." })
-    .min(1, { message: "Email wajib diisi." }),
-  phone: z
-    .string({ message: "Nomor telepon wajib diisi." })
-    .min(1, { message: "Nomor telepon wajib diisi." }),
-  role_id: z
-    .number({ message: "Jabatan wajib diisi." })
-    .min(1, { message: "Jabatan wajib diisi." }),
-  department: z
-    .string({ message: "Departemen wajib diisi." })
-    .min(1, { message: "Departemen wajib diisi." }),
-  join_date: z
-    .string({ message: "Tanggal bergabung wajib diisi." })
-    .min(1, { message: "Tanggal bergabung wajib diisi." }),
-  status: z
-    .string({ message: "Tanggal bergabung wajib diisi." })
-    .min(1, { message: "Status wajib dipilih." }),
-  photo: z.any().optional(),
-  province_id: z
-    .number({ message: "Provinsi wajib diisi" })
-    .min(1, { message: "Provinsi wajib diisi" }),
-  city_id: z
-    .number({ message: "Kota wajib diisi" })
-    .min(1, { message: "Kota wajib diisi" }),
-  district_id: z
-    .number({ message: "Kecamatan wajib diisi" })
-    .min(1, { message: "Kecamatan wajib diisi" }),
-  address: z
-    .string({ message: "Alamat wajib diisi" })
-    .min(1, { message: "Alamat wajib diisi" }),
-  gender: z
-    .string({ message: "Jenis Kelamin wajib diisi" })
-    .min(1, { message: "Jenis Kelamin wajib diisi" }),
-  place_birth: z
-    .string({ message: "Tempat Lahir wajib diisi" })
-    .min(1, { message: "Tempat Lahir wajib diisi" }),
-  birth_date: z
-    .string({ message: "Tanggal Lahir wajib diisi" })
-    .min(1, { message: "Tanggal Lahir wajib diisi" }),
-  emergency_name: z
-    .string({ message: "field ini wajib diisi" })
-    .min(1, { message: "field ini wajib diisi" }),
-  emergency_contact: z
-    .string({ message: "field ini wajib diisi" })
-    .min(1, { message: "field ini wajib diisi" }),
-});
+import Combobox from "@/components/ui/combobox";
 
 interface Props {
   id?: string;
@@ -241,50 +192,23 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                 />
                 <FormField
                   control={form.control}
-                  name="role_id"
+                  name="role_ids"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Jabatan</FormLabel>
-                      <Select
-                        defaultValue={field.value?.toString()}
-                        onValueChange={(val) => field.onChange(Number(val))}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Pilih jabatan">
-                              {field.value
-                                ? roles.find(
-                                    (r) =>
-                                      r.id.toString() ===
-                                      field.value.toString(),
-                                  )?.name
-                                : "Pilih jabatan"}
-                            </SelectValue>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {roles
-                            .filter((e) => ![1, 2].includes(e.id))
-                            .map((e) => (
-                              <SelectItem key={e.id} value={e.id.toString()}>
-                                <div className="flex flex-col max-w-sm">
-                                  <p>{e.name}</p>
-                                  <span className="text-xs italic text-gray-500">
-                                    {e.description}
-                                  </span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        isMulti
+                        items={roles
+                          .filter((e) => ![1, 2].includes(e.id))
+                          .map((item) => ({
+                            label: item.name,
+                            value: item.id,
+                            description: item.description,
+                          }))}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                       <FormMessage />
-                      {/* <FormItem>
-                      <FormLabel>Jabatan</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Senior Lead Mechanic" {...field} />
-                        
-                      </FormControl>
-                      <FormMessage /> */}
                     </FormItem>
                   )}
                 />

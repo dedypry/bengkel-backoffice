@@ -8,6 +8,7 @@ import App from "./App.tsx";
 import LayoutProvider from "./components/providers/provider.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import i18n from "./utils/libs/i18n.ts";
+import "sweetalert2/src/sweetalert2.scss";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
