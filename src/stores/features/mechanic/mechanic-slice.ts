@@ -8,12 +8,18 @@ const mechanicSlice = createSlice({
   name: "mechanic",
   initialState: {
     mechanics: [] as IUser[],
+    mechanicIds: [] as number[],
   },
-  reducers: {},
+  reducers: {
+    setMechanic: (state, action) => {
+      state.mechanicIds = action.payload;
+    },
+  },
   extraReducers: (builder) =>
     builder.addCase(getMechanic.fulfilled, (state, action) => {
       state.mechanics = action.payload;
     }),
 });
 
+export const { setMechanic } = mechanicSlice.actions;
 export default mechanicSlice.reducer;

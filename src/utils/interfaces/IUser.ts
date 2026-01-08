@@ -1,3 +1,4 @@
+import type { IProduct } from "./IProduct";
 import type { IRole } from "./IRole";
 
 export interface IAddress {
@@ -164,7 +165,10 @@ export interface IWorkOrder {
   vehicle: IVehicle;
   customer: ICustomer;
   estimation?: string;
-  mechanic?: IUser;
+  mechanics?: IUser[];
+  spareparts?: IProduct[];
+  start_at?: string;
+  end_at?: string;
   services: {
     type: string;
     name: string;

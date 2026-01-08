@@ -17,3 +17,17 @@ export const getWo = createAsyncThunk("get-wo", async (params: WoQuery) => {
     return null;
   }
 });
+export const getWoDetail = createAsyncThunk(
+  "get-wo-detail",
+  async (id: string) => {
+    try {
+      const { data } = await http.get(`/work-order/${id}`);
+
+      return data;
+    } catch (error) {
+      console.error(error);
+
+      return null;
+    }
+  },
+);

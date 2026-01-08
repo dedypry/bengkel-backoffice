@@ -45,7 +45,7 @@ export default function Edit() {
         name: detail.name,
         email: detail.email,
         phone: detail.profile?.phone_number!,
-        role_id: detail.roles[0].id,
+        role_id: detail.roles?.[0]?.id,
         department: detail.department,
         join_date: detail.profile?.join_date!,
         status: detail.status,

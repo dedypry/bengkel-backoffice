@@ -5,7 +5,7 @@ import type { ICustomer, IWorkOrder } from "@/utils/interfaces/IUser";
 
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-import { getWo } from "./wo-action";
+import { getWo, getWoDetail } from "./wo-action";
 
 export interface IWo extends IService {
   qty?: number;
@@ -28,6 +28,8 @@ const woSlice = createSlice({
     sparepart: [] as ISparepart[],
     workOrder: {} as any,
     customer: null as ICustomer | null,
+    detail: null as IWorkOrder | null,
+    isLoadingDetail: false,
   },
   reducers: {
     setWoQuery: (state, action) => {
@@ -81,9 +83,17 @@ const woSlice = createSlice({
     },
   },
   extraReducers: (builder) =>
-    builder.addCase(getWo.fulfilled, (state, action) => {
-      state.orders = action.payload;
-    }),
+    builder
+      .addCase(getWo.fulfilled, (state, action) => {
+        state.orders = action.payload;
+      })
+      .addCase(getWoDetail.fulfilled, (state, action) => {
+        state.detail = action.payload;
+        state.isLoadingDetail = false;
+      })
+      .addCase(getWoDetail.pending, (state) => {
+        state.isLoadingDetail = true;
+      }),
 });
 
 export const {

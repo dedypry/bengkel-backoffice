@@ -9,6 +9,10 @@ import {
   EyeIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
+
+import AddMechanich from "../components/add-mekanik";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,13 +41,20 @@ import { PROGRESS_CONFIG } from "@/utils/interfaces/global";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 
 export default function AntreanBengkel() {
   const [activeTab, setActiveTab] = useState("all");
+  const [isLoading, setLoading] = useState(0);
+  const [openModal, setOpenModal] = useState(false);
+  const [woId, setWoId] = useState(0);
   const { orders, woQuery } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (company) {
@@ -53,8 +64,23 @@ export default function AntreanBengkel() {
 
   const debounceSearch = debounce((q) => dispatch(getWo({ q })), 500);
 
+  const handleUpdateStatus = (id: number, status: string) => {
+    setLoading(id);
+    http
+      .patch(`/work-order/${id}`, {
+        progress: status,
+      })
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(getWo(woQuery));
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(0));
+  };
+
   return (
     <div className="space-y-6 pb-10">
+      <AddMechanich id={woId} open={openModal} setOpen={setOpenModal} />
       {/* Top Header & Filter */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
         <div className="relative flex-1 max-w-md">
@@ -72,7 +98,7 @@ export default function AntreanBengkel() {
           </Button>
           <div className="h-8 w-px bg-slate-200 mx-2 hidden md:block" />
           <div className="flex p-1 bg-slate-100 rounded-lg">
-            {["all", "waiting", "progress", "ready"].map((tab) => (
+            {["all", "queue", "on_progress", "ready", "finish"].map((tab) => (
               <button
                 key={tab}
                 className={`px-4 py-1.5 text-xs font-bold rounded-md capitalize transition-all ${
@@ -80,9 +106,12 @@ export default function AntreanBengkel() {
                     ? "bg-white text-primary shadow-sm"
                     : "text-slate-500 hover:text-slate-700"
                 }`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setActiveTab(tab);
+                  dispatch(getWo({ status: tab }));
+                }}
               >
-                {tab}
+                {t(tab)}
               </button>
             ))}
           </div>
@@ -177,23 +206,23 @@ export default function AntreanBengkel() {
                   </div>
                 </TableCell>
                 <TableCell className="text-center">
-                  {item.mechanic ? (
-                    <div className="flex gap-2">
-                      <Avatar>
-                        <AvatarImage
-                          src={
-                            item.mechanic.profile?.photo_url ||
-                            getAvatarByName(item.mechanic.name)
-                          }
-                        />
-                      </Avatar>
-                      <Badge className="mt-2">
-                        <Timer className="size-3" /> {item.mechanic.name}
-                      </Badge>
-                    </div>
-                  ) : (
-                    "-"
-                  )}
+                  {item.mechanics?.length! > 0
+                    ? item.mechanics?.map((mc) => (
+                        <div key={mc.id} className="flex gap-2">
+                          <Avatar>
+                            <AvatarImage
+                              src={
+                                mc.profile?.photo_url ||
+                                getAvatarByName(mc.name)
+                              }
+                            />
+                          </Avatar>
+                          <Badge className="mt-2">
+                            <Timer className="size-3" /> {mc.name}
+                          </Badge>
+                        </div>
+                      ))
+                    : "-"}
                 </TableCell>
                 <TableCell>
                   {(() => {
@@ -204,13 +233,20 @@ export default function AntreanBengkel() {
                     const IconComponent = config.icon;
 
                     return (
-                      <div
-                        className={`flex items-center gap-2 ${config.color}`}
-                      >
-                        <IconComponent size={16} />
+                      <div>
+                        <div
+                          className={`flex items-center gap-2 ${config.color}`}
+                        >
+                          <IconComponent size={16} />
 
-                        <span className="text-xs font-bold italic">
-                          {t(item.progress!)}
+                          <span className="text-xs font-bold italic">
+                            {t(item.progress!)}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-gray-400 italic">
+                          {dayjs(item.end_at || item.start_at).format(
+                            "DD MMMM YY",
+                          )}
                         </span>
                       </div>
                     );
@@ -221,27 +257,38 @@ export default function AntreanBengkel() {
                   <div className="flex items-center gap-2">
                     {item.progress === "queue" && (
                       <Button
-                        className="bg-indigo-600 hover:bg-indigo-700 text-[10px] h-8 font-bold"
+                        className="text-xs"
+                        disabled={
+                          isLoading === item.id || item.mechanics?.length! < 1
+                        }
                         size="sm"
+                        onClick={() =>
+                          handleUpdateStatus(item.id, "on_progress")
+                        }
                       >
-                        MULAI KERJA
+                        {isLoading === item.id ? "Menyimpan..." : "MULAI KERJA"}
                       </Button>
                     )}
                     {item.progress === "on_progress" && (
                       <Button
                         className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 text-[10px] h-8 font-bold"
+                        disabled={isLoading === item.id}
                         size="sm"
                         variant="outline"
+                        onClick={() => handleUpdateStatus(item.id, "ready")}
                       >
-                        SELESAIKAN
+                        {isLoading === item.id ? "Menyimpan..." : "SELESAIKAN"}
                       </Button>
                     )}
                     {item.progress === "ready" && (
                       <Button
                         className="bg-emerald-600 hover:bg-emerald-700 text-[10px] h-8 font-bold"
+                        disabled={isLoading === item.id}
                         size="sm"
                       >
-                        KASIR / PULANG
+                        {isLoading === item.id
+                          ? "Menyimpan..."
+                          : "KASIR / PULANG"}
                       </Button>
                     )}
                     <DropdownMenu>
@@ -251,11 +298,23 @@ export default function AntreanBengkel() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/service/queue/${item.id}`)}
+                        >
                           <EyeIcon /> Detail Order
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <UserCircleIcon /> Ganti Mekanik
+                        <DropdownMenuItem
+                          onClick={() => {
+                            dispatch(
+                              setMechanic(
+                                item.mechanics?.map((item) => item.id),
+                              ),
+                            );
+                            setOpenModal(true);
+                            setWoId(item.id);
+                          }}
+                        >
+                          <UserCircleIcon /> Pilih Mekanik
                         </DropdownMenuItem>
                         {item.progress === "queue" && (
                           <DropdownMenuItem className="text-red-600">
