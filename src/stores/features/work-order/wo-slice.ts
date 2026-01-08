@@ -1,9 +1,11 @@
+import type { IPagination } from "@/utils/interfaces/IPagination";
 import type { IProduct } from "@/utils/interfaces/IProduct";
 import type { IService } from "@/utils/interfaces/IService";
-import type z from "zod";
-import type { ServiceRegistrationSchema } from "@/pages/admin/service/add/schemas/create-schema";
+import type { ICustomer, IWorkOrder } from "@/utils/interfaces/IUser";
 
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+
+import { getWo } from "./wo-action";
 
 export interface IWo extends IService {
   qty?: number;
@@ -12,14 +14,31 @@ interface ISparepart extends IProduct {
   qty?: number;
   price?: number;
 }
+
 const woSlice = createSlice({
   name: "wo",
   initialState: {
+    orders: null as IPagination<IWorkOrder> | null,
+    woQuery: {
+      page: 1,
+      pageSize: 10,
+      q: "",
+    },
     services: [] as IWo[],
     sparepart: [] as ISparepart[],
     workOrder: {} as any,
+    customer: null as ICustomer | null,
   },
   reducers: {
+    setWoQuery: (state, action) => {
+      state.woQuery = {
+        ...state.woQuery,
+        ...action.payload,
+      };
+    },
+    setCustomer: (state, action) => {
+      state.customer = action.payload;
+    },
     setWo: (state, action) => {
       state.workOrder = action.payload;
     },
@@ -55,7 +74,16 @@ const woSlice = createSlice({
     setWoSparepart: (state, action) => {
       state.sparepart = action.payload;
     },
+    formWoClear: (state) => {
+      state.services = [];
+      state.sparepart = [];
+      state.customer = null;
+    },
   },
+  extraReducers: (builder) =>
+    builder.addCase(getWo.fulfilled, (state, action) => {
+      state.orders = action.payload;
+    }),
 });
 
 export const {
@@ -66,6 +94,9 @@ export const {
   addSparepartService,
   removeSparepartService,
   setWo,
+  formWoClear,
+  setCustomer,
+  setWoQuery,
 } = woSlice.actions;
 
 export default woSlice.reducer;

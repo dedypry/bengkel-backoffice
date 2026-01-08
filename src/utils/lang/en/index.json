@@ -12,5 +12,13 @@
             "break": "Currently taking a rest",
             "leave": "Currently out of office"
         }
-    }
+    },
+    "queue": "Queue",
+    "on_progress": "On Progress",
+    "pick_up": "Ready to Pick Up",
+    "ready": "Ready",
+    "finish": "Finished",
+    "low": "Low",
+    "normal": "Normal",
+    "high": "High"
 }

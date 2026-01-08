@@ -1,4 +1,6 @@
 import type z from "zod";
+import type { AxiosError } from "axios";
+import type { IVehicle } from "@/utils/interfaces/IUser";
 
 import {
   Car,
@@ -10,6 +12,8 @@ import {
   Edit,
   Plus,
   Trash2,
+  FileWarningIcon,
+  CloudBackup,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,18 +55,26 @@ import {
 import { DatePicker } from "@/components/date-picker";
 import { formatIDR, formatNumber } from "@/utils/helpers/format";
 import {
+  formWoClear,
+  setCustomer,
   setWoService,
   setWoSparepart,
 } from "@/stores/features/work-order/wo-slice";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateTotalEstimation } from "@/utils/helpers/global";
 import InputNumber from "@/components/ui/input-number";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function PendaftaranServis() {
   const { company } = useAppSelector((state) => state.auth);
   const { query } = useAppSelector((state) => state.service);
-  const { services, sparepart } = useAppSelector((state) => state.wo);
+  const { services, sparepart, customer } = useAppSelector((state) => state.wo);
   const [isEdit, setEdit] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+  const [isNew, setNew] = useState(false);
+  const [isErrorService, setErrorService] = useState(false);
   const dispatch = useAppDispatch();
 
   const servicePrice = services.reduce(
@@ -90,11 +102,44 @@ export default function PendaftaranServis() {
     },
   });
 
-  const isVehicleDisable = !!form.watch("vehicles.id") && !isEdit;
+  const isVehicleDisable = !!form.watch("vehicle.id") && !isEdit;
   const estimation = calculateTotalEstimation(services);
 
   const onSubmit = (data: z.infer<typeof ServiceRegistrationSchema>) => {
-    console.log("DATA", data);
+    setLoading(true);
+    const payload = {
+      ...data,
+      services: services.map((item) => ({
+        id: item.id,
+        qty: item.qty,
+        price: Number(item.price),
+      })),
+      sparepart: sparepart.map((item) => ({
+        id: item.id,
+        qty: item.qty,
+        price: item.price,
+      })),
+    };
+
+    http
+      .post("/work-order", payload)
+      .then(({ data }) => {
+        setErrorService(false);
+        notify(data.message);
+        form.reset();
+        handleVehicleReset();
+        handleResetCustomer();
+        dispatch(formWoClear());
+      })
+      .catch((err: AxiosError) => {
+        notifyError(err);
+        const data = (err.response?.data as any)?.data;
+
+        if (data && (data.services || data.sparepart)) {
+          setErrorService(true);
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -112,6 +157,47 @@ export default function PendaftaranServis() {
       form.reset(JSON.parse(savedData));
     }
   }, []);
+
+  function handleVehicleReset() {
+    form.setValue("vehicle", {
+      id: undefined,
+      plate_number: "",
+      brand: "",
+      model: "",
+      year: "",
+      color: "",
+      engine_capacity: "",
+      transmission_type: "",
+      fuel_type: "",
+      vin_number: "",
+      engine_number: "",
+      tire_size: "",
+    });
+    form.clearErrors("vehicle");
+  }
+
+  function handleResetCustomer() {
+    form.setValue("customer", {
+      id: undefined,
+      name: "",
+      phone: "",
+      email: "",
+      birth_date: new Date().toISOString(),
+    });
+    form.clearErrors("customer");
+  }
+
+  function setFormVehicle(data: IVehicle) {
+    const cleanedData = Object.fromEntries(
+      Object.entries(data).map(([key, val]) => [key, val ?? ""]),
+    );
+
+    // Set nilai sebagai object ke path "vehicle"
+    form.setValue("vehicle", cleanedData as any, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
 
   return (
     <Form {...form}>
@@ -138,9 +224,20 @@ export default function PendaftaranServis() {
             <div className="lg:col-span-2 space-y-6">
               {/* Section 1: Data Pemilik */}
               <div className="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                <div className="flex items-center gap-2 mb-2 text-primary font-bold">
-                  <User className="size-5" />
-                  <h4>Informasi Pelanggan</h4>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2 mb-2 text-primary font-bold">
+                    <User className="size-5" />
+                    <h4>Informasi Pelanggan</h4>
+                  </div>
+                  <div>
+                    <Button
+                      size="sm"
+                      type="button"
+                      onClick={handleResetCustomer}
+                    >
+                      Reset Form
+                    </Button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
@@ -160,8 +257,11 @@ export default function PendaftaranServis() {
                               form.setValue("customer.phone", cus.phone);
                               form.setValue("customer.email", cus.email!);
                               field.onChange(cus.name);
+                              dispatch(setCustomer(cus));
                               if (cus?.vehicles && cus?.vehicles?.length > 0) {
-                                form.setValue("vehicles", cus.vehicles[0]);
+                                setFormVehicle(cus.vehicles[0]);
+                              } else {
+                                handleVehicleReset();
                               }
                             }}
                           />
@@ -186,8 +286,9 @@ export default function PendaftaranServis() {
                               form.setValue("customer.name", cus.name);
                               form.setValue("customer.email", cus.email!);
                               field.onChange(cus.name);
+                              dispatch(setCustomer(cus));
                               if (cus?.vehicles && cus?.vehicles?.length > 0) {
-                                form.setValue("vehicles", cus.vehicles[0]);
+                                setFormVehicle(cus.vehicles[0]);
                               }
                             }}
                           />
@@ -248,10 +349,34 @@ export default function PendaftaranServis() {
                         Ubah Data
                       </Button>
                     )}
-                    {!!form.watch("vehicles.id") && (
-                      <Button size="sm">
+                    {!!form.watch("vehicle.id") && !isNew && (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setNew(true);
+                          handleVehicleReset();
+                        }}
+                      >
                         <Plus />
                         Kendaraan Baru
+                      </Button>
+                    )}
+                    {isNew && (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (
+                            customer?.vehicles &&
+                            customer?.vehicles?.length > 0
+                          ) {
+                            setFormVehicle(customer?.vehicles?.[0]);
+                            setNew(false);
+                            setEdit(false);
+                          }
+                        }}
+                      >
+                        <CloudBackup />
+                        Setelan awal
                       </Button>
                     )}
                   </div>
@@ -259,19 +384,54 @@ export default function PendaftaranServis() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
-                    name={`vehicles.plate_number`}
+                    name={`vehicle.plate_number`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs uppercase font-bold text-muted-foreground">
                           No. Polisi (Nopol)
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            className="uppercase font-mono"
-                            disabled={isVehicleDisable}
-                            placeholder="B 1234 ABC"
-                            {...field}
-                          />
+                          {isNew ? (
+                            <Input
+                              className="uppercase font-mono"
+                              disabled={isVehicleDisable}
+                              placeholder="Contoh : B 1234 ABC"
+                              {...field}
+                            />
+                          ) : (
+                            <Select
+                              value={field.value}
+                              onValueChange={(val) => {
+                                if (val) {
+                                  const find = customer?.vehicles?.find(
+                                    (e) => e.id == Number(val),
+                                  );
+
+                                  if (find) {
+                                    setFormVehicle(find);
+                                  }
+                                }
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Pilih Plat No">
+                                    {field.value}
+                                  </SelectValue>
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="mt-10">
+                                {(customer?.vehicles || []).map((item, i) => (
+                                  <SelectItem
+                                    key={i}
+                                    value={item.id.toString()}
+                                  >
+                                    {item.plate_number}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -280,7 +440,7 @@ export default function PendaftaranServis() {
 
                   <FormField
                     control={form.control}
-                    name={`vehicles.brand`}
+                    name={`vehicle.brand`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs uppercase font-bold text-muted-foreground">
@@ -300,7 +460,7 @@ export default function PendaftaranServis() {
 
                   <FormField
                     control={form.control}
-                    name={`vehicles.model`}
+                    name={`vehicle.model`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs uppercase font-bold text-muted-foreground">
@@ -320,7 +480,7 @@ export default function PendaftaranServis() {
 
                   <FormField
                     control={form.control}
-                    name={`vehicles.year`}
+                    name={`vehicle.year`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs uppercase font-bold text-muted-foreground">
@@ -341,7 +501,7 @@ export default function PendaftaranServis() {
 
                   <FormField
                     control={form.control}
-                    name={`vehicles.vin_number`}
+                    name={`vehicle.vin_number`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs uppercase font-bold text-muted-foreground">
@@ -360,7 +520,7 @@ export default function PendaftaranServis() {
                   />
                   <FormField
                     control={form.control}
-                    name={`vehicles.color`}
+                    name={`vehicle.color`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs uppercase font-bold text-muted-foreground">
@@ -369,7 +529,7 @@ export default function PendaftaranServis() {
                         <FormControl>
                           <Input
                             disabled={isVehicleDisable}
-                            placeholder="Hitam Metalic"
+                            placeholder="Contoh: Hitam Metalic"
                             {...field}
                           />
                         </FormControl>
@@ -386,7 +546,7 @@ export default function PendaftaranServis() {
                         </FormLabel>
                         <FormControl>
                           <InputNumber
-                            placeholder="Hitam Metalic"
+                            placeholder="Masukan KM Terakhir"
                             value={(field.value || 0) as any}
                             onInput={field.onChange}
                           />
@@ -407,7 +567,7 @@ export default function PendaftaranServis() {
                       {/* Kelompok: Mesin & Tenaga */}
                       <FormField
                         control={form.control}
-                        name={`vehicles.engine_capacity`}
+                        name={`vehicle.engine_capacity`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-[11px] font-medium text-muted-foreground uppercase">
@@ -426,7 +586,7 @@ export default function PendaftaranServis() {
 
                       <FormField
                         control={form.control}
-                        name={`vehicles.fuel_type`}
+                        name={`vehicle.fuel_type`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-[11px] font-medium text-muted-foreground uppercase">
@@ -445,20 +605,24 @@ export default function PendaftaranServis() {
 
                       <FormField
                         control={form.control}
-                        name={`vehicles.transmission_type`}
+                        name={`vehicle.transmission_type`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-[11px] font-medium text-muted-foreground uppercase">
                               Tipe Transmisi
                             </FormLabel>
                             <Select
-                              defaultValue={field.value}
                               disabled={isVehicleDisable}
-                              onValueChange={field.onChange}
+                              value={field.value}
+                              onValueChange={(val) => {
+                                if (val) field.onChange(val);
+                              }}
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Pilih Transmisi" />
+                                  <SelectValue placeholder="Pilih Transmisi">
+                                    {field.value}
+                                  </SelectValue>
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -477,7 +641,7 @@ export default function PendaftaranServis() {
 
                       <FormField
                         control={form.control}
-                        name={`vehicles.engine_number`}
+                        name={`vehicle.engine_number`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-[11px] font-medium text-muted-foreground uppercase">
@@ -497,7 +661,7 @@ export default function PendaftaranServis() {
 
                       <FormField
                         control={form.control}
-                        name={`vehicles.tire_size`}
+                        name={`vehicle.tire_size`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-[11px] font-medium text-muted-foreground uppercase">
@@ -516,76 +680,23 @@ export default function PendaftaranServis() {
                     </div>
                   </div>
                 </div>
-                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="vehicles.plate_number"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nomor Polisi</FormLabel>
-                        <FormControl>
-                          <VehiclesOption
-                            {...field}
-                            className="uppercase font-bold text-lg"
-                            items={vehicles}
-                            placeholder="B 1234 ABC"
-                            onSelect={(val) => {
-                              form.setValue("vehicles", val as any);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="vehicles.brand"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Merk</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Contoh: Honda" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="vehicles.model"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipe / Model</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Contoh: BRIO Satya" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="vehicles.year"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tahun</FormLabel>
-                        <FormControl>
-                          <Input placeholder="2023" type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="space-y-2">
-                    <Label>Kilometer (KM)</Label>
-                    <Input placeholder="Contoh: 50000" type="number" />
-                  </div>
-                </div> */}
               </div>
 
               {/* Section 3: Keluhan & Layanan */}
-              <div className="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+              <div
+                className={`bg-white p-6 rounded-2xl border ${isErrorService ? "border-red-500" : ""} shadow-sm space-y-4`}
+              >
+                {isErrorService && (
+                  <Alert className="border-red-500" variant="destructive">
+                    <FileWarningIcon />
+                    <AlertTitle>Terjadi Kesalahan</AlertTitle>
+                    <AlertDescription>
+                      Mohon tambahkan **minimal satu** barang atau jasa sebelum
+                      melanjutkan.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                     <Wrench className="size-5" />
@@ -783,11 +894,12 @@ export default function PendaftaranServis() {
                     </div>
                     <Button
                       className="w-full mt-5 shadow-lg"
+                      disabled={isLoading}
                       type="button"
                       onClick={form.handleSubmit(onSubmit)}
                     >
                       <Save className="mr-2 size-4" />
-                      Simpan Work Order
+                      {isLoading ? "Sedang Process..." : "Simpan Work Order"}
                     </Button>
                   </CardContent>
                 </Card>

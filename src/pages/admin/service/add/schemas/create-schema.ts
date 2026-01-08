@@ -19,7 +19,7 @@ export const ServiceRegistrationSchema = z.object({
       .string({ message: "Tanggal Lahir wajib diisi" })
       .min(1, { message: "Tanggal Lahir wajib diisi" }),
   }),
-  vehicles: z.object({
+  vehicle: z.object({
     id: z.number().optional(),
     plate_number: z
       .string({ message: "Nopol wajib diisi" })

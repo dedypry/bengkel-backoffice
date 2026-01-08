@@ -55,6 +55,7 @@ function Button({
       data-size={size}
       data-slot="button"
       data-variant={variant}
+      type="button"
       {...props}
     />
   );

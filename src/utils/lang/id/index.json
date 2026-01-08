@@ -12,5 +12,13 @@
             "break": "Sedang jam istirahat",
             "leave": "Sedang tidak masuk kerja"
         }
-    }
+    },
+    "queue": "Antre",
+    "on_progress": "Sedang Dikerjakan",
+    "pick_up": "Siap Diambil",
+    "ready": "Siap Diambil",
+    "finish": "Selesai",
+    "low": "Rendah",
+    "normal": "Normal",
+    "high": "Tinggi"
 }

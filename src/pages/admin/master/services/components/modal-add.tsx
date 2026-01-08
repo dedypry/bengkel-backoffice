@@ -37,7 +37,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 
 // Schema berdasarkan struktur IService yang kita buat sebelumnya
 const formSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   name: z.string().min(3, "Nama layanan minimal 3 karakter"),
   code: z.string().min(3, "Kode wajib diisi"),
   price: z
@@ -50,7 +50,7 @@ const formSchema = z.object({
     .refine((val) => !isNaN(Number(val)), "Durasi harus angka"),
   difficulty: z.enum(["easy", "medium", "hard", "extreme"]),
   category_id: z.string().min(1, "Pilih kategori"),
-  description: z.string(),
+  description: z.string().optional(),
 });
 
 interface Props {
