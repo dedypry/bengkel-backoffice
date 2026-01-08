@@ -16,6 +16,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { hasRoles } from "@/utils/helpers/roles";
 
 export function NavMain({
   header,
@@ -23,10 +24,12 @@ export function NavMain({
 }: {
   header?: string;
   items: {
+    roles?: string[];
     title: string;
     url: string;
     icon?: LucideIcon;
     items?: {
+      roles?: string[];
       title: string;
       url: string;
     }[];
@@ -46,6 +49,10 @@ export function NavMain({
         {items.map((item) => {
           const isParentActive = pathname.startsWith(item.url);
           const hasSubItems = item.items && item.items.length > 0;
+
+          if (item.roles && item.roles.length > 0 && !hasRoles(item.roles)) {
+            return;
+          }
 
           return hasSubItems ? (
             <Collapsible
@@ -81,6 +88,14 @@ export function NavMain({
                     {item.items?.map((subItem) => {
                       const url = `${item.url}/${subItem.url}`;
                       const isSubActive = pathname === url;
+
+                      if (
+                        subItem.roles &&
+                        subItem.roles.length > 0 &&
+                        !hasRoles(subItem.roles)
+                      ) {
+                        return;
+                      }
 
                       return (
                         <SidebarMenuSubItem key={subItem.title}>

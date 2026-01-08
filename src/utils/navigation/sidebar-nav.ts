@@ -9,7 +9,7 @@ import {
   Users,
 } from "lucide-react";
 
-export const navigation = [
+const navigation = [
   {
     title: "Dashboard",
     url: "/",
@@ -21,12 +21,17 @@ export const navigation = [
     url: "/service",
     icon: ClipboardList,
     items: [
-      { title: "Pendaftaran Servis", url: "add" },
+      {
+        title: "Pendaftaran Servis",
+        url: "add",
+        roles: ["super-admin", "sa", "owner"],
+      },
       { title: "Antrean Bengkel", url: "queue" },
       { title: "Riwayat Servis", url: "history" },
     ],
   },
   {
+    roles: ["super-admin", "partsman", "owner"],
     title: "Inventaris Sparepart",
     url: "/inventory",
     icon: Package,
@@ -37,17 +42,27 @@ export const navigation = [
     ],
   },
   {
+    roles: ["super-admin", "owner", "cro"],
     title: "Data Master",
     url: "/master",
     icon: CarFront,
     items: [
       { title: "Data Pelanggan", url: "customers" },
       { title: "Data Kendaraan", url: "vehicles" },
-      { title: "Data Mekanik", url: "mechanics" },
-      { title: "Daftar Jasa Servis", url: "services" },
+      {
+        title: "Data Mekanik",
+        url: "mechanics",
+        roles: ["super-admin", "owner"],
+      },
+      {
+        title: "Daftar Jasa Servis",
+        url: "services",
+        roles: ["super-admin", "owner"],
+      },
     ],
   },
   {
+    roles: ["super-admin", "owner", "cashier"],
     title: "Keuangan",
     url: "/finance",
     icon: Receipt,
@@ -58,6 +73,7 @@ export const navigation = [
     ],
   },
   {
+    roles: ["super-admin", "owner"],
     title: "Laporan",
     url: "/reports",
     icon: FileBarChart,
@@ -68,6 +84,7 @@ export const navigation = [
     ],
   },
   {
+    roles: ["super-admin", "owner"],
     title: "Pengaturan",
     url: "/settings",
     icon: Settings2,
@@ -77,9 +94,10 @@ export const navigation = [
     ],
   },
   {
+    roles: ["super-admin", "owner", "hr"],
     title: "Human Resources",
     url: "/hr",
-    icon: Users, // Menggunakan icon Users dari lucide-react
+    icon: Users,
     items: [
       {
         title: "Data Karyawan",
@@ -104,3 +122,5 @@ export const navigation = [
     ],
   },
 ];
+
+export { navigation };

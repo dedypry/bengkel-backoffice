@@ -23,10 +23,11 @@ import product from "./features/product/product-slice";
 import wo from "./features/work-order/wo-slice";
 
 const persistedWoReducer = persistReducer({ key: "wo", storage }, wo);
+const persistedAuthReducer = persistReducer({ key: "auth", storage }, auth);
 
 export const store = configureStore({
   reducer: {
-    auth,
+    auth: persistedAuthReducer,
     region,
     role,
     employe,
