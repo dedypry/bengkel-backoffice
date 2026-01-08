@@ -243,10 +243,12 @@ export default function AntreanBengkel() {
                             {t(item.progress!)}
                           </span>
                         </div>
-                        <span className="text-[10px] text-gray-400 italic">
-                          {dayjs(item.end_at || item.start_at).format(
-                            "DD MMMM YY",
-                          )}
+                        <span className="text-[12px] text-gray-400 italic">
+                          {item.start_at &&
+                            dayjs(item.start_at).format("HH:mm")}{" "}
+                          {item.end_at ? "-" : ""}{" "}
+                          {item.end_at && dayjs(item.end_at).format("HH:mm")}{" "}
+                          {item.start_at ? "WIB" : ""}
                         </span>
                       </div>
                     );
