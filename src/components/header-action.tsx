@@ -62,9 +62,11 @@ export default function HeaderAction({
                 <UploadIcon className="size-4" /> Upload Excel
               </Button>
             )}
-            <Button onClick={onAction}>
-              {ActionIcon && <ActionIcon className="size-4" />} {actionTitle}
-            </Button>
+            {actionTitle && (
+              <Button onClick={onAction}>
+                {ActionIcon && <ActionIcon className="size-4" />} {actionTitle}
+              </Button>
+            )}
           </>
         )}
       </ItemActions>
