@@ -21,15 +21,17 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import HeaderAction from "@/components/header-action";
 
 export default function SettingsProfile() {
   return (
     <div className="space-y-10 pb-20 px-4 bg-slate-50/20">
       {/* Header Azure Blue */}
+      <HeaderAction title="" />
       <div className="relative overflow-hidden rounded-[3rem] bg-primary p-10 text-white shadow-2xl shadow-blue-100">
         <div className="absolute -right-20 -top-20 size-80 rounded-full bg-white/10 blur-3xl" />
         <div className="relative z-10">
-          <h1 className="text-4xl font-black tracking-tight mb-2 uppercase">
+          <h1 className="text-4xl font-black tracking-tight mb-2 uppercase ">
             Pengaturan
           </h1>
           <p className="text-blue-50 font-medium opacity-90 italic">
