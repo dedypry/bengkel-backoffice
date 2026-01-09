@@ -80,7 +80,7 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <FormItemContext.Provider value={{ id }}>
       <div
-        className={cn("grid gap-2", className)}
+        className={cn("grid gap-1", className)}
         data-slot="form-item"
         {...props}
       />
@@ -96,7 +96,11 @@ function FormLabel({
 
   return (
     <Label
-      className={cn("data-[error=true]:text-destructive", className)}
+      className={cn(
+        "data-[error=true]:text-destructive",
+        "text-xs font-normal text-gray-800",
+        className,
+      )}
       data-error={!!error}
       data-slot="form-label"
       htmlFor={formItemId}

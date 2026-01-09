@@ -164,11 +164,7 @@ export default function ModalAddCompany({ open, setOpen, initialData }: Props) {
               <FormItem>
                 <FormLabel>Telepon</FormLabel>
                 <FormControl>
-                  <Input
-                    id="phone_number"
-                    {...field}
-                    placeholder="admin@cabang.com"
-                  />
+                  <Input id="phone_number" {...field} placeholder="0888..." />
                 </FormControl>
                 <FormMessage />
               </FormItem>

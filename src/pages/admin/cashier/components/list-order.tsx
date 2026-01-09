@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import { Receipt, Search } from "lucide-react";
+import { Computer, Search } from "lucide-react";
 import { useState } from "react";
 
 import StatusQueue from "../../service/queue/components/status-queue";
@@ -26,14 +26,14 @@ export default function ListOrder() {
     <div className="w-full md:w-1/3 flex flex-col gap-4">
       <Card className="flex-1 overflow-hidden flex flex-col">
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-[#168BAB]" />
+          <CardTitle className="flex items-center gap-2">
+            <Computer className="w-5 h-5 text-[#168BAB]" />
             Antrean Pembayaran
           </CardTitle>
           <div className="relative mt-2">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              className="pl-9"
+              className="pl-8 placeholder:text-xs"
               placeholder="Cari plat nomor atau nama..."
               value={searchTerm}
               onChange={(e) => {
@@ -48,7 +48,7 @@ export default function ListOrder() {
             {orders?.data.map((wo) => (
               <div
                 key={wo.id}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
                   workOrder?.id === wo.id
                     ? "border-[#168BAB] bg-blue-50/50"
                     : "border-transparent bg-slate-50 hover:border-slate-200"
@@ -69,16 +69,16 @@ export default function ListOrder() {
                       {formatIDR(Number(wo.grand_total))}
                     </p>
                   </div>
-                  <div className="flex flex-col gap-1 text-end">
-                    <span className="font-bold text-slate-700">
+                  <div className="flex flex-col text-end">
+                    <span className="font-bold text-sm text-slate-700">
                       {wo.vehicle.plate_number}
                     </span>
                     <p className="text-xs text-slate-500">
                       {wo.vehicle.brand} {wo.vehicle.model}
                     </p>
-                    <StatusQueue wo={wo} />
                   </div>
                 </div>
+                <StatusQueue wo={wo} />
               </div>
             ))}
           </div>

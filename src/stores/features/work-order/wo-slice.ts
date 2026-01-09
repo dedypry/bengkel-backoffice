@@ -23,6 +23,7 @@ const woSlice = createSlice({
       page: 1,
       pageSize: 10,
       q: "",
+      status: "all",
     },
     services: [] as IWo[],
     sparepart: [] as ISparepart[],

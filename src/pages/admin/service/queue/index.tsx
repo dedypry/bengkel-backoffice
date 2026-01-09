@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   Search,
-  Filter,
   MoreVertical,
   Timer,
   Trash2,
@@ -43,6 +42,7 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
+import Combobox from "@/components/ui/combobox";
 
 export default function AntreanBengkel() {
   const [activeTab, setActiveTab] = useState("all");
@@ -67,7 +67,7 @@ export default function AntreanBengkel() {
       <AddMechanich id={woId} open={openModal} setOpen={setOpenModal} />
       {/* Top Header & Filter */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
-        <div className="relative flex-1 max-w-md">
+        <div className="relative max-w-md">
           <Search className="absolute left-3 top-2.5 size-4 text-slate-400" />
           <Input
             className="pl-10"
@@ -76,12 +76,21 @@ export default function AntreanBengkel() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button className="gap-2" size="sm" variant="outline">
+        <div className="w-50">
+          <Combobox
+            items={["all", "queue", "on_progress", "ready", "finish"].map(
+              (e) => ({ label: t(e), value: e }),
+            )}
+            value={woQuery.status}
+            onChange={(tab) => {
+              dispatch(getWo({ status: tab }));
+            }}
+          />
+          {/* <Button className="gap-2" size="sm" variant="outline">
             <Filter className="size-4" /> Filter
-          </Button>
-          <div className="h-8 w-px bg-slate-200 mx-2 hidden md:block" />
-          <div className="flex p-1 bg-slate-100 rounded-lg">
+          </Button> */}
+          {/* <div className="h-8 w-px bg-slate-200 mx-2 hidden md:block" /> */}
+          {/* <div className="flex p-1 bg-slate-100 rounded-lg">
             {["all", "queue", "on_progress", "ready", "finish"].map((tab) => (
               <button
                 key={tab}
@@ -98,12 +107,12 @@ export default function AntreanBengkel() {
                 {t(tab)}
               </button>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Total Antrean",
