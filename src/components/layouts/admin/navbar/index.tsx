@@ -1,4 +1,4 @@
-import { ChevronsLeft, Menu, Search } from "lucide-react";
+import { ChevronsLeft, Fullscreen, Menu, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 
@@ -25,6 +25,20 @@ export default function Navbar() {
   useEffect(() => {
     setOpen(sidebarOpen);
   }, [sidebarOpen]);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      // Jika belum fullscreen, aktifkan
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error gagal masuk mode fullscreen: ${err.message}`);
+      });
+    } else {
+      // Jika sedang fullscreen, keluar
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   return (
     <nav className="sticky z-50 top-4 shadow-lg shadow-blue-50 border rounded-lg border-blue-100">
@@ -75,6 +89,9 @@ export default function Navbar() {
         {/* Right Section: Actions & User */}
         <div className="flex gap-2 md:gap-3 items-center">
           <div className="flex items-center bg-slate-100/50 p-1 rounded-xl border border-slate-200/50">
+            <Button size="icon" variant="ghost" onClick={toggleFullScreen}>
+              <Fullscreen />
+            </Button>
             <NotificationDropdown />
             <div className="w-px h-4 bg-slate-200 mx-1" />
             <UserMenu />

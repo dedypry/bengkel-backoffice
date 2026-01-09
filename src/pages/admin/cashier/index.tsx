@@ -108,7 +108,7 @@ export default function Cashier() {
                         placeholder="0"
                         type="number"
                         onChange={(e) => {
-                          /* Logika kalkulasi diskon */
+                          console.log(e);
                         }}
                       />
                     </div>
