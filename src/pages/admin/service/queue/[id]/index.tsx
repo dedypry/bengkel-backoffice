@@ -1,9 +1,9 @@
 import { CalendarDays, Car, User, Wrench, Receipt } from "lucide-react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 
 import ButtonStatus from "../components/button-status";
+import StatusQueue from "../components/status-queue";
 
 import {
   Card,
@@ -28,14 +28,12 @@ import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import DetailSkeleton from "@/pages/admin/hr/employees/components/detail-skeleton";
 import Detail404 from "@/pages/admin/hr/employees/components/detail-404";
 import { formatIDR } from "@/utils/helpers/format";
-import { PROGRESS_CONFIG } from "@/utils/interfaces/global";
 
 export default function WorkOrderDetail() {
   const { detail: data, isLoadingDetail } = useAppSelector((state) => state.wo);
 
   const dispatch = useAppDispatch();
   const { id } = useParams();
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (id) {
@@ -46,11 +44,6 @@ export default function WorkOrderDetail() {
   if (isLoadingDetail) return <DetailSkeleton />;
   if (!data) return <Detail404 />;
 
-  const config =
-    PROGRESS_CONFIG[data.progress as keyof typeof PROGRESS_CONFIG] ||
-    PROGRESS_CONFIG.queue;
-  const IconComponent = config.icon;
-
   return (
     <div className="container mx-auto py-8 space-y-8">
       {/* 1. Header & Quick Actions */}
@@ -58,13 +51,7 @@ export default function WorkOrderDetail() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight">{data.trx_no}</h1>
-            <div className={`flex items-center gap-2 ${config.color}`}>
-              <IconComponent size={16} />
-
-              <span className="text-xs font-bold italic">
-                {t(data.progress!)}
-              </span>
-            </div>
+            <StatusQueue wo={data} />
           </div>
           <p className="text-muted-foreground flex items-center gap-2 mt-1">
             <CalendarDays className="w-4 h-4" />

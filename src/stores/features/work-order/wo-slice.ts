@@ -26,7 +26,7 @@ const woSlice = createSlice({
     },
     services: [] as IWo[],
     sparepart: [] as ISparepart[],
-    workOrder: {} as any,
+    workOrder: {} as IWorkOrder,
     customer: null as ICustomer | null,
     detail: null as IWorkOrder | null,
     isLoadingDetail: false,

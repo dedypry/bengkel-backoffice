@@ -23,7 +23,6 @@ export default function Navbar() {
   }
 
   useEffect(() => {
-    console.log(setSidebar);
     setOpen(sidebarOpen);
   }, [sidebarOpen]);
 

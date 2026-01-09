@@ -9,12 +9,12 @@ import {
   EyeIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
 import AddMechanich from "../components/add-mekanik";
 
 import ButtonStatus from "./components/button-status";
+import StatusQueue from "./components/status-queue";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +39,6 @@ import {
 } from "@/components/ui/table";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarByName } from "@/utils/helpers/global";
-import { PROGRESS_CONFIG } from "@/utils/interfaces/global";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
@@ -47,7 +46,6 @@ import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 
 export default function AntreanBengkel() {
   const [activeTab, setActiveTab] = useState("all");
-  const [isLoading, setLoading] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [woId, setWoId] = useState(0);
   const { orders, woQuery } = useAppSelector((state) => state.wo);
@@ -211,34 +209,7 @@ export default function AntreanBengkel() {
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {(() => {
-                    const config =
-                      PROGRESS_CONFIG[
-                        item.progress as keyof typeof PROGRESS_CONFIG
-                      ] || PROGRESS_CONFIG.queue;
-                    const IconComponent = config.icon;
-
-                    return (
-                      <div>
-                        <div
-                          className={`flex items-center gap-2 ${config.color}`}
-                        >
-                          <IconComponent size={16} />
-
-                          <span className="text-xs font-bold italic">
-                            {t(item.progress!)}
-                          </span>
-                        </div>
-                        <span className="text-[12px] text-gray-400 italic">
-                          {item.start_at &&
-                            dayjs(item.start_at).format("HH:mm")}{" "}
-                          {item.end_at ? "-" : ""}{" "}
-                          {item.end_at && dayjs(item.end_at).format("HH:mm")}{" "}
-                          {item.start_at ? "WIB" : ""}
-                        </span>
-                      </div>
-                    );
-                  })()}
+                  <StatusQueue wo={item} />
                 </TableCell>
 
                 <TableCell>
