@@ -195,4 +195,11 @@ export const forms: Components<Theme> | undefined = {
       },
     },
   },
+  JoyRadio: {
+    defaultProps: {
+      slotProps: {
+        label: { sx: { fontSize: 14 } },
+      },
+    },
+  },
 };

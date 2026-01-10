@@ -1,3 +1,5 @@
+import type { IPromo } from "@/utils/interfaces/IPromo";
+
 import {
   Search,
   Tag,
@@ -7,6 +9,7 @@ import {
   XCircle,
   MoreVertical,
   TicketPercent,
+  Plus,
 } from "lucide-react";
 import {
   Button,
@@ -23,48 +26,38 @@ import {
   MenuItem,
   Box,
 } from "@mui/joy";
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
 
-import AddPromo from "./components/add-promo";
+import ModalAddPromo from "./components/add-promo";
 
 import HeaderAction from "@/components/header-action";
-
-// Data Dummy Promo
-const promos = [
-  {
-    id: 1,
-    title: "Promo Awal Tahun 2026",
-    code: "TAHUNBARU26",
-    discount: "15%",
-    status: "Aktif",
-    period: "01 Jan - 31 Jan 2026",
-    type: "Service",
-  },
-  {
-    id: 2,
-    title: "Diskon Ulang Tahun Pelanggan",
-    code: "HBDUSER",
-    discount: "Rp 50.000",
-    status: "Aktif",
-    period: "Selamanya",
-    type: "Global",
-  },
-  {
-    id: 3,
-    title: "Flash Sale Ganti Oli",
-    code: "OLIMURAH",
-    discount: "20%",
-    status: "Berakhir",
-    period: "05 Jan - 07 Jan 2026",
-    type: "Sparepart",
-  },
-];
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getPromo } from "@/stores/features/promo/promo-action";
 
 export default function PromoPage() {
+  const [open, setOpen] = useState(false);
+  const { promos } = useAppSelector((state) => state.promo);
+  const [promo, setPromo] = useState<IPromo>();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getPromo());
+  }, []);
+
   return (
     <Box className="space-y-6 p-1">
-      {/* Header dengan Tombol Tambah */}
+      <ModalAddPromo data={promo} open={open} setOpen={setOpen} />
       <HeaderAction
-        actionContent={<AddPromo />}
+        actionContent={
+          <Button
+            color="primary"
+            startDecorator={<Plus />}
+            onClick={() => setOpen(true)}
+          >
+            Tambah Promo
+          </Button>
+        }
         leadIcon={TicketPercent}
         subtitle="Kelola kode voucher dan diskon layanan bengkel Anda."
         title="Daftar Promo"
@@ -108,14 +101,12 @@ export default function PromoPage() {
             variant="outlined"
           >
             <CardContent>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Chip
-                  color={promo.status === "Aktif" ? "success" : "danger"}
+                  color={promo.is_active ? "success" : "danger"}
                   size="sm"
                   startDecorator={
-                    promo.status === "Aktif" ? (
+                    promo.is_active ? (
                       <CheckCircle2 size={14} />
                     ) : (
                       <XCircle size={14} />
@@ -123,20 +114,27 @@ export default function PromoPage() {
                   }
                   variant="soft"
                 >
-                  {promo.status}
+                  {promo.is_active ? "Aktif" : "Tidak Aktif"}
                 </Chip>
 
                 <Dropdown>
                   <MenuButton
                     slotProps={{
-                      root: { variant: "plain", color: "neutral", size: "sm" },
+                      root: { variant: "plain", color: "neutral" },
                     }}
                     slots={{ root: IconButton }}
                   >
                     <MoreVertical size={18} />
                   </MenuButton>
                   <Menu placement="bottom-end" size="sm">
-                    <MenuItem>Edit Promo</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        setPromo(promo);
+                        setOpen(true);
+                      }}
+                    >
+                      Edit Promo
+                    </MenuItem>
                     <MenuItem>Lihat Performa</MenuItem>
                     <Divider />
                     <MenuItem color="danger" variant="soft">
@@ -146,9 +144,7 @@ export default function PromoPage() {
                 </Dropdown>
               </Box>
 
-              <Typography level="title-lg" sx={{ mt: 1 }}>
-                {promo.title}
-              </Typography>
+              <Typography level="title-lg">{promo.name}</Typography>
 
               <Box
                 sx={{
@@ -156,7 +152,7 @@ export default function PromoPage() {
                   alignItems: "center",
                   gap: 1,
                   mt: 0.5,
-                  mb: 2,
+                  mb: 1,
                 }}
               >
                 <Tag className="text-slate-400" size={14} />
@@ -176,7 +172,7 @@ export default function PromoPage() {
                   display: "flex",
                   flexDirection: "column",
                   gap: 1.5,
-                  mt: 2,
+                  mt: 1,
                 }}
               >
                 <Box
@@ -191,7 +187,8 @@ export default function PromoPage() {
                     <Typography level="body-xs">Besar Diskon</Typography>
                   </Box>
                   <Typography color="primary" level="title-sm">
-                    {promo.discount}
+                    {promo.type === "fixed" && "Rp"} {Number(promo.value)}{" "}
+                    {promo.type === "percentage" && "%"}
                   </Typography>
                 </Box>
 
@@ -207,7 +204,8 @@ export default function PromoPage() {
                     <Typography level="body-xs">Periode</Typography>
                   </Box>
                   <Typography fontWeight="md" level="body-xs">
-                    {promo.period}
+                    {dayjs(promo.start_date).format("DD MMM YY")} -{" "}
+                    {dayjs(promo.end_date).format("DD MMM YY")}
                   </Typography>
                 </Box>
               </Box>

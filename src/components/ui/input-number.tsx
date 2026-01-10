@@ -96,23 +96,5 @@ export default function InputNumber({
       value={value}
       onChange={(e) => handleInput(e.target.value)}
     />
-    // <InputGroup>
-    //   <InputGroupInput
-    //     {...props}
-    //     value={value}
-    //     onChange={(e) => handleInput(e.target.value)}
-    //   />
-    //   {props.prefix && <InputGroupAddon>{props.prefix}</InputGroupAddon>}
-    //   {prefixIcon && <InputGroupAddon>{prefixIcon}</InputGroupAddon>}
-
-    //   {suffixIcon && (
-    //     <InputGroupAddon align="inline-end">{suffixIcon}</InputGroupAddon>
-    //   )}
-    // </InputGroup>
-    // <Input
-    //   {...props}
-    //   value={value}
-    //   onChange={(e) => handleInput(e.target.value)}
-    // />
   );
 }

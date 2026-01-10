@@ -22,6 +22,7 @@ import mechanic from "./features/mechanic/mechanic-slice";
 import product from "./features/product/product-slice";
 import wo from "./features/work-order/wo-slice";
 import layout from "./features/layout/layout-slice";
+import promo from "./features/promo/promo-slice";
 
 const persistedWoReducer = persistReducer({ key: "wo", storage }, wo);
 const persistedAuthReducer = persistReducer({ key: "auth", storage }, auth);
@@ -40,6 +41,7 @@ export const store = configureStore({
     product,
     wo: persistedWoReducer,
     layout: persistedLayoutReducer,
+    promo,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

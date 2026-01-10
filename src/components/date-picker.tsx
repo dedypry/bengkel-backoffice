@@ -1,49 +1,83 @@
 import { Calendar as CalendarIcon } from "lucide-react";
 import dayjs from "dayjs";
+import { useEffect, useRef, useState } from "react";
+import { Box, Dropdown, Input, Menu, MenuButton } from "@mui/joy";
 
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 interface Props {
   value?: Date;
   setValue: (date: string) => void;
+  placeholder?: string;
 }
-export function DatePicker({ value, setValue }: Props) {
-  //   console.log("VAL", value);
+export function DatePicker({ value, setValue, placeholder }: Props) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          className="data-[empty=true]:text-muted-foreground justify-start text-left font-normal"
-          data-empty={!value}
-          variant="outline"
-        >
-          <CalendarIcon />
-          {value ? (
-            dayjs(value).format("ddd, DD MMM YYYY")
-          ) : (
-            <span>Pick a date</span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          captionLayout="dropdown"
-          mode="single"
-          required={true}
-          selected={value}
-          onSelect={(date) => {
-            date.setHours(12, 0, 0, 0);
-            setValue(date.toISOString());
-          }}
+    <Dropdown open={open} onOpenChange={(_, isOpen) => setOpen(isOpen)}>
+      <MenuButton
+        slots={{ root: Box }}
+        sx={{ width: "100%", cursor: "pointer" }}
+      >
+        <Input
+          readOnly
+          placeholder={placeholder || "Pilih tanggal"}
+          startDecorator={<CalendarIcon size={18} />}
+          sx={{ pointerEvents: "none" }}
+          value={value ? dayjs(value).format("DD MMM YYYY") : ""}
         />
-      </PopoverContent>
-    </Popover>
+      </MenuButton>
+
+      <Menu
+        ref={containerRef}
+        placement="bottom-start"
+        sx={{
+          p: 2,
+          zIndex: 1300,
+          boxShadow: "lg",
+          borderRadius: "md",
+          minWidth: "auto",
+        }}
+      >
+        <Box
+          sx={{
+            "& .rdp": { "--rdp-accent-color": "#168BAB", margin: 0 },
+            "& .rdp-day_selected": { backgroundColor: "#168BAB !important" },
+          }}
+        >
+          <Calendar
+            captionLayout="dropdown"
+            mode="single"
+            required={true}
+            selected={value}
+            onSelect={(date) => {
+              date.setHours(12, 0, 0, 0);
+              setValue(date.toISOString());
+              setOpen(false);
+            }}
+          />
+        </Box>
+      </Menu>
+    </Dropdown>
   );
 }

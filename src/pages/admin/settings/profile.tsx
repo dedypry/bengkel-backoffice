@@ -464,7 +464,7 @@ export default function WorkshopSettings() {
                                   }
                                 >
                                   <Option value="percentage">%</Option>
-                                  <Option value="value">Rp</Option>
+                                  <Option value="fixed">Rp</Option>
                                 </Select>
                               </React.Fragment>
                             }
