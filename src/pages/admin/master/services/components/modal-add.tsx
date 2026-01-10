@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 import CategoryAdd from "./category-add";
 
-import { Modal } from "@/components/modal";
+import Modal from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import {
   Form,

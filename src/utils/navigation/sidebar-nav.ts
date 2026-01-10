@@ -97,6 +97,7 @@ const navigation = [
     icon: Settings2,
     items: [
       { title: "Profil Bengkel", url: "profile" },
+      { title: "Promo", url: "promo" },
       { title: "Manajemen User", url: "users" },
     ],
   },

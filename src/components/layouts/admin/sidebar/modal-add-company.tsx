@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { Modal } from "@/components/modal";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -19,6 +18,7 @@ import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { useAppDispatch } from "@/stores/hooks";
 import { getProfile } from "@/stores/features/auth/auth-action";
+import Modal from "@/components/modal";
 
 // 1. Definisi Skema Validasi Zod
 const companySchema = z.object({

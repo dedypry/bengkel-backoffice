@@ -2,7 +2,7 @@ import { Import } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/modal";
+import Modal from "@/components/modal";
 import FileUploader from "@/components/drop-zone";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";

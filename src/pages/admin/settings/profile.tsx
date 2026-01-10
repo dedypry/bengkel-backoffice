@@ -37,7 +37,7 @@ import City from "@/components/regions/city";
 import District from "@/components/regions/district";
 import { http } from "@/utils/libs/axios";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { notify, notifyError } from "@/utils/helpers/notify";
+import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { FaxMask, NpwpMask, PhoneMask } from "@/utils/mask/mask";
 import { uploadFile } from "@/utils/helpers/upload-file";
 import { getCity, getDistrict } from "@/stores/features/region/region-action";
@@ -131,7 +131,11 @@ export default function WorkshopSettings() {
         <div className="space-y-6">
           <HeaderAction
             actionContent={
-              <Button color="danger" startDecorator={<Trash2 />}>
+              <Button
+                color="danger"
+                startDecorator={<Trash2 />}
+                onClick={() => confirmSweat(() => {})}
+              >
                 Hapus Bengkel
               </Button>
             }

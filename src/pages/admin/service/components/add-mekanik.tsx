@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { PhoneCallIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Modal } from "@/components/modal";
 import {
   Table,
   TableBody,
@@ -21,6 +20,7 @@ import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { getWo } from "@/stores/features/work-order/wo-action";
+import Modal from "@/components/modal";
 
 interface Props {
   open: boolean;

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import TabService from "./tab-service";
 import TabSparepart from "./tab-sparepart";
 
-import { Modal } from "@/components/modal";
+import Modal from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
