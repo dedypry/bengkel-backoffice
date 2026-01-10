@@ -3,8 +3,9 @@ import type { ICompany } from "@/utils/interfaces/IUser";
 import { Store, Tag, Save, Percent, Settings, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Textarea } from "@mui/joy";
-import { useEffect } from "react";
+import { Button, Divider, Input, Select, Textarea, Option } from "@mui/joy";
+import { useEffect, useState } from "react";
+import React from "react";
 
 import {
   companySchema,
@@ -35,11 +36,16 @@ import Province from "@/components/regions/province";
 import City from "@/components/regions/city";
 import District from "@/components/regions/district";
 import { http } from "@/utils/libs/axios";
-import { useAppSelector } from "@/stores/hooks";
-import { notifyError } from "@/utils/helpers/notify";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import { FaxMask, NpwpMask, PhoneMask } from "@/utils/mask/mask";
+import { uploadFile } from "@/utils/helpers/upload-file";
+import { getCity, getDistrict } from "@/stores/features/region/region-action";
 
 export default function WorkshopSettings() {
   const { user } = useAppSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
 
   const form = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
@@ -52,6 +58,8 @@ export default function WorkshopSettings() {
       npwp: "",
       is_ppn: false,
       is_discount_birth_day: false,
+      type_discount_birth_day: "percentage",
+      max_discount_birth_day: 0,
     },
   });
 
@@ -64,6 +72,7 @@ export default function WorkshopSettings() {
       http
         .get<ICompany>(`/companies/${user.company_id}`)
         .then(({ data }) => {
+          form.setValue("id", data.id);
           form.setValue("name", data.name);
           form.setValue("logo_url", data.logo_url);
           form.setValue("email", data.email!);
@@ -73,12 +82,22 @@ export default function WorkshopSettings() {
           form.setValue("is_ppn", data.is_ppn!);
           form.setValue("is_discount_birth_day", data.is_discount_birth_day!);
           form.setValue(
+            "max_discount_birth_day",
+            Number(data.max_discount_birth_day || 0),
+          );
+          form.setValue(
             "total_discount_birth_day",
             Number(data.total_discount_birth_day || 0),
           );
           form.setValue("ppn", Number(data.ppn || 0));
           if (data.address) {
             form.setValue("address", data.address);
+            if (data.address.province_id) {
+              dispatch(getCity(data.address.province_id));
+            }
+            if (data.address.city_id) {
+              dispatch(getDistrict(data.address.city_id));
+            }
           }
         })
         .catch((err) => notifyError(err));
@@ -86,7 +105,21 @@ export default function WorkshopSettings() {
   }
 
   const onSubmit = async (data: CompanyFormValues) => {
-    console.log(data);
+    setLoading(true);
+    if (data.logo_url && data.logo_url instanceof File) {
+      const logo = await uploadFile(data.logo_url);
+
+      form.setValue("logo_url", logo);
+      data.logo_url = logo;
+    }
+
+    http
+      .patch("/companies", data)
+      .then(({ data }) => {
+        notify(data.message);
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -169,6 +202,7 @@ export default function WorkshopSettings() {
                             id="phone_number"
                             {...field}
                             placeholder="082..."
+                            slotProps={{ input: { component: PhoneMask } }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -204,7 +238,8 @@ export default function WorkshopSettings() {
                             error={!!form.formState.errors.npwp}
                             id="fax"
                             {...field}
-                            placeholder="admin@cabang.com"
+                            placeholder="Masukan NPWP"
+                            slotProps={{ input: { component: NpwpMask } }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -222,7 +257,8 @@ export default function WorkshopSettings() {
                             error={!!form.formState.errors.fax}
                             id="fax"
                             {...field}
-                            placeholder="admin@cabang.com"
+                            placeholder="Masukan No. FAX"
+                            slotProps={{ input: { component: FaxMask } }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -398,11 +434,36 @@ export default function WorkshopSettings() {
                     name="total_discount_birth_day"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="italic">
-                          Default Kode Promo
-                        </FormLabel>
+                        <FormLabel className="italic">Jumlah Promo</FormLabel>
                         <FormControl>
                           <InputNumber
+                            endDecorator={
+                              <React.Fragment>
+                                <Divider orientation="vertical" />
+                                <Select
+                                  slotProps={{
+                                    listbox: {
+                                      variant: "outlined",
+                                    },
+                                  }}
+                                  sx={{
+                                    mr: -1.5,
+                                    "&:hover": { bgcolor: "transparent" },
+                                  }}
+                                  value={form.watch("type_discount_birth_day")}
+                                  variant="plain"
+                                  onChange={(_, value) =>
+                                    form.setValue(
+                                      "type_discount_birth_day",
+                                      value!,
+                                    )
+                                  }
+                                >
+                                  <Option value="percentage">%</Option>
+                                  <Option value="value">Rp</Option>
+                                </Select>
+                              </React.Fragment>
+                            }
                             placeholder="Masukan Nilai Promo"
                             value={field.value}
                             onInput={field.onChange}
@@ -413,13 +474,37 @@ export default function WorkshopSettings() {
                     )}
                   />
 
+                  {form.watch("type_discount_birth_day") === "percentage" && (
+                    <FormField
+                      control={form.control}
+                      name="max_discount_birth_day"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel>Maksimal Promo</FormLabel>
+                          <FormControl>
+                            <InputNumber
+                              startDecorator="Rp"
+                              value={field.value}
+                              onInput={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                   <p className="text-[11px] text-slate-500 italic">
                     *Promo yang dikonfigurasi di sini akan muncul sebagai
                     pilihan default di halaman kasir.
                   </p>
                 </CardContent>
               </Card>
-              <Button fullWidth startDecorator={<Save />} type="submit">
+              <Button
+                fullWidth
+                disabled={loading}
+                startDecorator={<Save />}
+                type="submit"
+              >
                 Simpan Perubahan
               </Button>
             </div>

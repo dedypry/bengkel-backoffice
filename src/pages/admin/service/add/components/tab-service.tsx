@@ -121,7 +121,15 @@ export default function TabService() {
                 <div className="max-w-24">
                   <InputNumber
                     className="text-center"
-                    prefixIcon={
+                    endDecorator={
+                      <button
+                        className="cursor-pointer"
+                        onClick={() => handleQty(item, findQty(item) + 1)}
+                      >
+                        +
+                      </button>
+                    }
+                    startDecorator={
                       <button
                         className="cursor-pointer"
                         onClick={() => {
@@ -133,14 +141,6 @@ export default function TabService() {
                         }}
                       >
                         -
-                      </button>
-                    }
-                    suffixIcon={
-                      <button
-                        className="cursor-pointer"
-                        onClick={() => handleQty(item, findQty(item) + 1)}
-                      >
-                        +
                       </button>
                     }
                     value={findQty(item)}

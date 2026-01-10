@@ -16,6 +16,8 @@ export const companySchema = z
     ppn: z.number().optional(),
     is_discount_birth_day: z.boolean(),
     total_discount_birth_day: z.number().optional(),
+    type_discount_birth_day: z.string().optional(),
+    max_discount_birth_day: z.number().optional(),
     address: z.object({
       title: z.string().optional(),
       province_id: z.number().optional(),

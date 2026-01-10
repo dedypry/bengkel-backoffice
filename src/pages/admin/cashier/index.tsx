@@ -44,9 +44,7 @@ export default function Cashier() {
   const {
     control,
     handleSubmit,
-    setValue,
-    watch,
-    formState: { errors, isValid },
+    formState: { isValid },
   } = useForm<PaymentForm>({
     resolver: zodResolver(paymentSchema),
     mode: "onChange",
@@ -55,7 +53,6 @@ export default function Cashier() {
     },
   });
 
-  console.log("valid", isValid);
   function handlePrint() {
     console.log(workOrder);
   }

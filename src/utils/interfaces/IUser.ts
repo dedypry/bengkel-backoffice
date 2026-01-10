@@ -29,6 +29,8 @@ export interface ICompany {
   ppn?: number;
   is_discount_birth_day?: boolean;
   total_discount_birth_day?: number;
+  max_discount_birth_day?: number;
+  type_discount_birth_day?: string;
 }
 
 export interface IProfile {

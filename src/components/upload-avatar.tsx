@@ -15,7 +15,6 @@ interface Props {
 export default function UploadAvatar({
   value,
   onChange,
-  field,
   buttonTitle,
   isInvalid,
 }: Props) {
@@ -46,8 +45,6 @@ export default function UploadAvatar({
         id="avatar-upload"
         type="file"
         onChange={(e) => onChange(e.target.files?.[0])}
-        {...field}
-        value=""
       />
       <p
         className={`text-xs ${isInvalid ? "text-red-500" : "text-slate-500"} mt-2`}

@@ -185,7 +185,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                   <FormControl>
                     <InputNumber
                       placeholder="50.000"
-                      prefixIcon="Rp"
+                      startDecorator="Rp"
                       value={field.value}
                       onInput={(val) => {
                         field.onChange(val.toString());
@@ -208,7 +208,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                     <InputNumber
                       placeholder="15"
                       {...field}
-                      suffixIcon="Menit"
+                      endDecorator="Menit"
                       onInput={(val) => {
                         field.onChange(val.toString());
                       }}
