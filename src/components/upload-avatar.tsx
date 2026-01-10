@@ -47,6 +47,7 @@ export default function UploadAvatar({
         type="file"
         onChange={(e) => onChange(e.target.files?.[0])}
         {...field}
+        value=""
       />
       <p
         className={`text-xs ${isInvalid ? "text-red-500" : "text-slate-500"} mt-2`}

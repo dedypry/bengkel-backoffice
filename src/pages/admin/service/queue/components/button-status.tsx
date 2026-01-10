@@ -1,8 +1,8 @@
 import type { IWorkOrder } from "@/utils/interfaces/IUser";
 
 import { useState } from "react";
+import { Button } from "@mui/joy";
 
-import { Button } from "@/components/ui/button";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 
@@ -32,7 +32,6 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
     <>
       {item.progress === "queue" && (
         <Button
-          className="text-xs"
           disabled={isLoading || item.mechanics?.length! < 1}
           size="sm"
           onClick={() => handleUpdateStatus(item.id, "on_progress")}
@@ -42,21 +41,17 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
       )}
       {item.progress === "on_progress" && (
         <Button
-          className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 text-[10px] h-8 font-bold"
+          color="success"
           disabled={isLoading}
           size="sm"
-          variant="outline"
+          variant="outlined"
           onClick={() => handleUpdateStatus(item.id, "ready")}
         >
           {isLoading ? "Menyimpan..." : "SELESAIKAN"}
         </Button>
       )}
       {item.progress === "ready" && (
-        <Button
-          className="bg-emerald-600 hover:bg-emerald-700 text-[10px] h-8 font-bold"
-          disabled={isLoading}
-          size="sm"
-        >
+        <Button disabled={isLoading} size="sm">
           {isLoading ? "Menyimpan..." : "KASIR / PULANG"}
         </Button>
       )}

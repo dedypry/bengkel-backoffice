@@ -1,7 +1,15 @@
+import type { ICompany } from "@/utils/interfaces/IUser";
+
 import { Store, Tag, Save, Percent, Settings, Trash2 } from "lucide-react";
-import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Input, Textarea } from "@mui/joy";
+import { useEffect } from "react";
+
+import {
+  companySchema,
+  type CompanyFormValues,
+} from "./schemas/profile-schema";
 
 import {
   Card,
@@ -10,13 +18,10 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import HeaderAction from "@/components/header-action";
 import UploadAvatar from "@/components/upload-avatar";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -26,42 +31,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import InputNumber from "@/components/ui/input-number";
-
-const companySchema = z
-  .object({
-    id: z.number().optional(),
-    name: z.string().min(1, "Nama cabang wajib diisi"),
-    logo_url: z.any().optional(),
-    email: z.string().email("Format email tidak valid"),
-    phone_number: z
-      .string()
-      .min(10, "Nomor telepon minimal 10 digit")
-      .regex(/^[0-9]+$/, "Hanya boleh berisi angka"),
-    fax: z.string().optional().or(z.literal("")),
-    npwp: z.string().optional().or(z.literal("")),
-    is_ppn: z.boolean(),
-    ppn: z.number().optional(),
-    is_discount_birth_day: z.boolean(),
-    total_discount_birth_day: z.number(),
-  })
-  .refine(
-    (data) => {
-      // Jika is_ppn true, maka ppn tidak boleh undefined atau null
-      if (data.is_ppn) {
-        return data.ppn !== undefined && data.ppn !== null;
-      }
-
-      return true;
-    },
-    {
-      message: "Nilai PPN wajib diisi jika PPN aktif",
-      path: ["ppn"], // Pesan error akan muncul di field ppn
-    },
-  );
-
-type CompanyFormValues = z.infer<typeof companySchema>;
+import Province from "@/components/regions/province";
+import City from "@/components/regions/city";
+import District from "@/components/regions/district";
+import { http } from "@/utils/libs/axios";
+import { useAppSelector } from "@/stores/hooks";
+import { notifyError } from "@/utils/helpers/notify";
 
 export default function WorkshopSettings() {
+  const { user } = useAppSelector((state) => state.auth);
+
   const form = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
     defaultValues: {
@@ -72,10 +51,43 @@ export default function WorkshopSettings() {
       fax: "",
       npwp: "",
       is_ppn: false,
+      is_discount_birth_day: false,
     },
   });
 
-  const onSubmit = async (data: CompanyFormValues) => {};
+  useEffect(() => {
+    getCompany();
+  }, []);
+
+  function getCompany() {
+    if (user) {
+      http
+        .get<ICompany>(`/companies/${user.company_id}`)
+        .then(({ data }) => {
+          form.setValue("name", data.name);
+          form.setValue("logo_url", data.logo_url);
+          form.setValue("email", data.email!);
+          form.setValue("phone_number", data.phone_number!);
+          form.setValue("fax", data.fax!);
+          form.setValue("npwp", data.npwp!);
+          form.setValue("is_ppn", data.is_ppn!);
+          form.setValue("is_discount_birth_day", data.is_discount_birth_day!);
+          form.setValue(
+            "total_discount_birth_day",
+            Number(data.total_discount_birth_day || 0),
+          );
+          form.setValue("ppn", Number(data.ppn || 0));
+          if (data.address) {
+            form.setValue("address", data.address);
+          }
+        })
+        .catch((err) => notifyError(err));
+    }
+  }
+
+  const onSubmit = async (data: CompanyFormValues) => {
+    console.log(data);
+  };
 
   return (
     <Form {...form}>
@@ -86,8 +98,8 @@ export default function WorkshopSettings() {
         <div className="space-y-6">
           <HeaderAction
             actionContent={
-              <Button variant="destructive">
-                <Trash2 /> Hapus Bengkel
+              <Button color="danger" startDecorator={<Trash2 />}>
+                Hapus Bengkel
               </Button>
             }
             leadIcon={Settings}
@@ -135,6 +147,7 @@ export default function WorkshopSettings() {
                         <FormLabel>Nama Cabang</FormLabel>
                         <FormControl>
                           <Input
+                            error={!!form.formState.errors.name}
                             id="name"
                             {...field}
                             placeholder="Contoh: Cabang Jakarta Pusat"
@@ -152,6 +165,7 @@ export default function WorkshopSettings() {
                         <FormLabel>Telepon</FormLabel>
                         <FormControl>
                           <Input
+                            error={!!form.formState.errors.phone_number}
                             id="phone_number"
                             {...field}
                             placeholder="082..."
@@ -169,6 +183,7 @@ export default function WorkshopSettings() {
                         <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input
+                            error={!!form.formState.errors.email}
                             id="email"
                             {...field}
                             placeholder="admin@cabang.com"
@@ -186,6 +201,7 @@ export default function WorkshopSettings() {
                         <FormLabel>NPWP (Opsional)</FormLabel>
                         <FormControl>
                           <Input
+                            error={!!form.formState.errors.npwp}
                             id="fax"
                             {...field}
                             placeholder="admin@cabang.com"
@@ -203,6 +219,7 @@ export default function WorkshopSettings() {
                         <FormLabel>Fax (Opsional)</FormLabel>
                         <FormControl>
                           <Input
+                            error={!!form.formState.errors.fax}
                             id="fax"
                             {...field}
                             placeholder="admin@cabang.com"
@@ -214,18 +231,70 @@ export default function WorkshopSettings() {
                   />
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="address.province_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Provinsi</FormLabel>
+                        <FormControl>
+                          <Province
+                            value={field.value!}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.city_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kota</FormLabel>
+                        <FormControl>
+                          <City
+                            value={field.value!}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.district_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kecamatan</FormLabel>
+                        <FormControl>
+                          <District
+                            value={field.value!}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
-                  name="fax"
+                  name="address.title"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Alamat Lengkap</FormLabel>
                       <FormControl>
                         <Textarea
-                          {...field}
                           className="min-h-25"
                           id="address"
                           placeholder="Jl. Raya Utama No. 123..."
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -350,9 +419,8 @@ export default function WorkshopSettings() {
                   </p>
                 </CardContent>
               </Card>
-              <Button className="w-full" type="submit">
-                {" "}
-                <Save /> Simpan Perubahan
+              <Button fullWidth startDecorator={<Save />} type="submit">
+                Simpan Perubahan
               </Button>
             </div>
           </div>

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import { useEffect } from "react";
 import {
   Banknote,
@@ -9,15 +8,26 @@ import {
   Printer,
 } from "lucide-react";
 import dayjs from "dayjs";
+import { Button, FormControl, FormLabel, IconButton, Input } from "@mui/joy";
+import z from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import ListOrder from "./components/list-order";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWo } from "@/stores/features/work-order/wo-action";
 import { formatIDR } from "@/utils/helpers/format";
-import { Input } from "@/components/ui/input";
+import InputNumber from "@/components/ui/input-number";
+
+const paymentSchema = z.object({
+  discount: z.number().min(0, "Diskon tidak boleh negatif"),
+  promoCode: z.string().optional(),
+  paymentMethod: z.enum(["CASH", "TRANSFER"]),
+});
+
+type PaymentForm = z.infer<typeof paymentSchema>;
 
 export default function Cashier() {
   const { woQuery, workOrder } = useAppSelector((state) => state.wo);
@@ -31,7 +41,25 @@ export default function Cashier() {
     }
   }, [company]);
 
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<PaymentForm>({
+    resolver: zodResolver(paymentSchema),
+    mode: "onChange",
+    defaultValues: {
+      discount: 0,
+    },
+  });
+
+  console.log("valid", isValid);
   function handlePrint() {
+    console.log(workOrder);
+  }
+  function onSubmit() {
     console.log(workOrder);
   }
 
@@ -52,9 +80,9 @@ export default function Cashier() {
                     Selesaikan transaksi untuk #{workOrder.trx_no}
                   </p>
                 </div>
-                <Button variant="outline" onClick={handlePrint}>
+                <IconButton variant="outlined" onClick={handlePrint}>
                   <Printer className="size-5" />
-                </Button>
+                </IconButton>
               </div>
             </CardHeader>
 
@@ -101,38 +129,38 @@ export default function Cashier() {
               <div className="space-y-3 border-t pt-2">
                 {/* BAGIAN DISKON & PROMO */}
                 <div className="grid grid-cols-2 gap-4 py-2">
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-slate-500">
-                      Diskon Manual
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                        Rp
-                      </span>
-                      <Input
-                        className="pl-8 h-9 focus-visible:ring-[#168BAB]"
-                        placeholder="0"
-                        type="number"
-                        onChange={(e) => {
-                          console.log(e);
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-slate-500">
-                      Kode Promo
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        className="h-9 uppercase focus-visible:ring-[#168BAB]"
-                        placeholder="PROMO123"
-                      />
-                      <Button className="bg-slate-800 h-9" size="sm">
-                        Cek
-                      </Button>
-                    </div>
-                  </div>
+                  <Controller
+                    control={control}
+                    name="discount"
+                    render={({ field }) => (
+                      <FormControl>
+                        <FormLabel>Diskon Manual</FormLabel>
+                        <InputNumber
+                          startDecorator="Rp"
+                          value={field.value}
+                          onInput={field.onChange}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="discount"
+                    render={({ field }) => (
+                      <FormControl>
+                        <FormLabel>Kode Promo</FormLabel>
+                        <Input
+                          {...field}
+                          endDecorator={
+                            <Button color="neutral" size="sm">
+                              Cek
+                            </Button>
+                          }
+                          placeholder="Masukan Kode Promo"
+                        />
+                      </FormControl>
+                    )}
+                  />
                 </div>
 
                 <div className="flex justify-between text-slate-600 text-sm">
@@ -170,28 +198,48 @@ export default function Cashier() {
               </div>
 
               {/* Metode Pembayaran */}
-              <div className="mt-auto pt-2">
-                <p className="font-bold mb-3 text-slate-600">
-                  Metode Pembayaran
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <Button
-                    className="h-16 flex flex-col gap-1 border-2 hover:border-primary hover:bg-blue-50"
-                    variant="outline"
-                  >
-                    <Banknote className="w-5 h-5" />
-                    Tunai
-                  </Button>
-                  <Button
-                    className="h-16 flex flex-col gap-1 border-2 hover:border-primary hover:bg-blue-50"
-                    variant="outline"
-                  >
-                    <CreditCard className="w-5 h-5" />
-                    Transfer / Debit
-                  </Button>
-                </div>
-                <Button className="w-full mt-6">Konfirmasi Pembayaran</Button>
-              </div>
+              <Controller
+                control={control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <div className="mt-auto pt-2">
+                    <p className="font-bold mb-3 text-slate-600">
+                      Metode Pembayaran
+                    </p>
+                    <div className="grid grid-cols-2 gap-4 pb-5">
+                      <Button
+                        color="success"
+                        size="lg"
+                        startDecorator={<Banknote />}
+                        sx={{ height: 50 }}
+                        variant={field.value === "CASH" ? "soft" : "outlined"}
+                        onClick={() => field.onChange("CASH")}
+                      >
+                        Tunai
+                      </Button>
+                      <Button
+                        color="success"
+                        size="lg"
+                        startDecorator={<CreditCard />}
+                        sx={{ height: 50 }}
+                        variant={
+                          field.value === "TRANSFER" ? "soft" : "outlined"
+                        }
+                        onClick={() => field.onChange("TRANSFER")}
+                      >
+                        Transfer / Debit
+                      </Button>
+                    </div>
+                    <Button
+                      fullWidth
+                      disabled={!isValid}
+                      onClick={handleSubmit(onSubmit)}
+                    >
+                      Konfirmasi Pembayaran
+                    </Button>
+                  </div>
+                )}
+              />
             </CardContent>
           </Card>
         ) : (

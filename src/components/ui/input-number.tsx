@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState, type ComponentProps } from "react";
-
-import { InputGroup, InputGroupAddon, InputGroupInput } from "./input-group";
+import { useEffect, useState } from "react";
+import { Input, type InputProps } from "@mui/joy";
 
 import { switchCommasToDots, switchDotsToCommas } from "@/utils/helpers/format";
 
@@ -9,23 +7,17 @@ interface Props {
   onInput?: (val: number) => void;
   maxInput?: number;
   minimumOrderQuantity?: number;
-  isInputBase?: boolean;
   isAllowDecimal?: boolean;
   maxDecimal?: number;
-  prefixIcon?: any;
-  suffixIcon?: any;
 }
 export default function InputNumber({
   onInput,
   maxInput,
   minimumOrderQuantity,
-  isInputBase = false,
   isAllowDecimal = true,
   maxDecimal = 4,
-  prefixIcon,
-  suffixIcon,
   ...props
-}: Props & ComponentProps<"input">) {
+}: Props & InputProps) {
   const [value, setValue] = useState("");
 
   useEffect(() => {
@@ -99,19 +91,24 @@ export default function InputNumber({
   }
 
   return (
-    <InputGroup>
-      <InputGroupInput
-        {...props}
-        value={value}
-        onChange={(e) => handleInput(e.target.value)}
-      />
-      {props.prefix && <InputGroupAddon>{props.prefix}</InputGroupAddon>}
-      {prefixIcon && <InputGroupAddon>{prefixIcon}</InputGroupAddon>}
+    <Input
+      {...(props as any)}
+      value={value}
+      onChange={(e) => handleInput(e.target.value)}
+    />
+    // <InputGroup>
+    //   <InputGroupInput
+    //     {...props}
+    //     value={value}
+    //     onChange={(e) => handleInput(e.target.value)}
+    //   />
+    //   {props.prefix && <InputGroupAddon>{props.prefix}</InputGroupAddon>}
+    //   {prefixIcon && <InputGroupAddon>{prefixIcon}</InputGroupAddon>}
 
-      {suffixIcon && (
-        <InputGroupAddon align="inline-end">{suffixIcon}</InputGroupAddon>
-      )}
-    </InputGroup>
+    //   {suffixIcon && (
+    //     <InputGroupAddon align="inline-end">{suffixIcon}</InputGroupAddon>
+    //   )}
+    // </InputGroup>
     // <Input
     //   {...props}
     //   value={value}

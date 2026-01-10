@@ -1,25 +1,44 @@
 import type { AxiosError } from "axios";
 
-import Swal, { type SweetAlertOptions } from "sweetalert2";
-import { toast, type ExternalToast } from "sonner";
+import Swal, { type SweetAlertIcon, type SweetAlertOptions } from "sweetalert2";
 
-export const notify = (msg: string, data?: ExternalToast) => {
-  toast.success("Success", {
-    position: "top-right",
-    description: msg,
-    ...data,
-    descriptionClassName: "!text-black",
+export const notify = (msg: string, icon?: SweetAlertIcon) => {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
+
+  Toast.fire({
+    icon: icon ?? "success",
+    title: msg,
   });
 };
 
 export const notifyError = (res: AxiosError) => {
   const msg = (res.response?.data as any).message || res;
 
-  toast.error("Terjadi Kesalahan", {
-    position: "top-right",
-    style: { color: "red" },
-    description: msg,
-    descriptionClassName: "!text-black",
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
+
+  Toast.fire({
+    icon: "error",
+    title: msg,
   });
 };
 
@@ -28,6 +47,7 @@ export const confirmSweat = (
   option?: SweetAlertOptions,
 ) => {
   Swal.fire({
+    theme: "material-ui",
     title: "Apakah anda yakin?",
     text: "Data yang dihapus tidak dapat dikembalikan!",
     icon: "warning",

@@ -6,10 +6,13 @@ export interface IAddress {
   created_at: string;
   updated_at: string;
   title: string;
-  province: string;
-  city: string;
-  district: string;
+  province: IRegion;
+  city: IRegion;
+  district: IRegion;
   zip_code: string;
+  province_id?: number;
+  city_id?: number;
+  district_id?: number;
 }
 
 export interface ICompany {
@@ -22,6 +25,10 @@ export interface ICompany {
   fax: string | null;
   npwp: string | null;
   address: IAddress; // Relasi HasOne
+  is_ppn?: boolean;
+  ppn?: number;
+  is_discount_birth_day?: boolean;
+  total_discount_birth_day?: number;
 }
 
 export interface IProfile {
