@@ -70,6 +70,7 @@ export default function Cashier() {
     watch,
     handleSubmit,
     setValue,
+    reset,
     formState: { isValid },
   } = useForm<PaymentForm>({
     resolver: zodResolver(paymentSchema),
@@ -115,7 +116,7 @@ export default function Cashier() {
         notify(data.message);
         dispatch(getWoDetail(workOrder.id.toString()));
         dispatch(getWo({}));
-        console.log(data);
+        reset();
       })
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));
@@ -542,7 +543,7 @@ export default function Cashier() {
                     workOrder?.payment?.proof_image && (
                       <img
                         alt="photo-transfer"
-                        className="max-w-md"
+                        className="max-w-xs"
                         src={workOrder?.payment?.proof_image}
                       />
                     )}

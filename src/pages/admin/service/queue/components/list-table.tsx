@@ -30,6 +30,9 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getAvatarByName } from "@/utils/helpers/global";
 import { getWo } from "@/stores/features/work-order/wo-action";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
+import { CustomPagination } from "@/components/custom-pagination";
+import { setWoQuery } from "@/stores/features/work-order/wo-slice";
+import { hasRoles } from "@/utils/helpers/roles";
 
 interface Props {
   setOpenModal: (val: boolean) => void;
@@ -39,13 +42,12 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { orders, woQuery } = useAppSelector((state) => state.wo);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const restriction = hasRoles(["foreman", "super-admin"]);
 
   return (
     <Card>
       <Sheet>
-        <Table
-          borderAxis="xBetween" // Garis pemisah antar kolom agar lebih jelas
-        >
+        <Table borderAxis="xBetween">
           <thead>
             <tr>
               <th style={{ width: 140 }}>Estimasi/Antrean</th>
@@ -138,28 +140,33 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                       </MenuButton>
                       <Menu placement="bottom-start">
                         <MenuItem
+                          key="detail"
                           onClick={() => navigate(`/service/queue/${item.id}`)}
                         >
                           <EyeIcon size={18} />
                           Detail Order
                         </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            dispatch(
-                              setMechanic(
-                                item.mechanics?.map((item) => item.id),
-                              ),
-                            );
-                            setOpenModal(true);
-                            setWoId(item.id);
-                          }}
-                        >
-                          <UserCircleIcon size={18} /> Pilih Mekanik
-                        </MenuItem>
-                        {item.progress === "queue" && (
+                        {restriction && (
+                          <MenuItem
+                            key="mech"
+                            onClick={() => {
+                              dispatch(
+                                setMechanic(
+                                  item.mechanics?.map((item) => item.id),
+                                ),
+                              );
+                              setOpenModal(true);
+                              setWoId(item.id);
+                            }}
+                          >
+                            <UserCircleIcon size={18} /> Pilih Mekanik
+                          </MenuItem>
+                        )}
+
+                        {item.progress === "queue" && restriction && (
                           <>
                             <ListDivider />
-                            <MenuItem sx={{ color: "red" }}>
+                            <MenuItem key="dele" sx={{ color: "red" }}>
                               <Trash2 size={18} />
                               Batalkan Antrean
                             </MenuItem>
@@ -174,6 +181,10 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
           </tbody>
         </Table>
       </Sheet>
+      <CustomPagination
+        meta={orders?.meta!}
+        onPageChange={(page) => dispatch(setWoQuery({ page }))}
+      />
     </Card>
   );
 }

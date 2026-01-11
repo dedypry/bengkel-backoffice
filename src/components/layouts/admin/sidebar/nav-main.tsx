@@ -103,6 +103,7 @@ export function NavMain({
                             asChild
                             className="data-[active=true]:text-white py-4 hover:text-gray-300"
                             isActive={isSubActive}
+                            title={subItem.title}
                           >
                             <Link to={url}>
                               <span>{subItem.title}</span>

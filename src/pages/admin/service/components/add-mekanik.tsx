@@ -36,10 +36,10 @@ export default function AddMechanich({ open, setOpen, id }: Props) {
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (company) {
+    if (company && open) {
       dispatch(getMechanic());
     }
-  }, [company]);
+  }, [company, open]);
 
   function handleSubmit() {
     setLoading(true);

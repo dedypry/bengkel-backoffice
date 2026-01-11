@@ -1,5 +1,3 @@
-import type { AxiosError } from "axios";
-
 import Swal, { type SweetAlertIcon, type SweetAlertOptions } from "sweetalert2";
 
 export const notify = (msg: string, icon?: SweetAlertIcon) => {

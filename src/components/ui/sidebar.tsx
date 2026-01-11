@@ -4,6 +4,10 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Typography } from "@mui/joy";
+
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -18,12 +22,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { navigation } from "@/utils/navigation/sidebar-nav";
+import { hasRoles } from "@/utils/helpers/roles";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -523,7 +524,7 @@ const SidebarMenuButton = React.forwardRef<
 
     const button = (
       <Comp
-        ref={ref} // SANGAT PENTING: Teruskan ref ke komponen Comp
+        ref={ref}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
         data-active={isActive}
         data-sidebar="menu-button"
@@ -538,22 +539,82 @@ const SidebarMenuButton = React.forwardRef<
     }
 
     if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      };
+      const find = navigation.find((item) => item.title === tooltip);
+
+      return (
+        <HoverCard closeDelay={100} openDelay={100}>
+          <HoverCardTrigger asChild>{button}</HoverCardTrigger>
+          <HoverCardContent
+            align="center"
+            className="w-64 p-3 shadow-xl border-slate-200" // Ukuran yang lebih proporsional
+            hidden={state !== "collapsed" || isMobile}
+            side="right"
+            sideOffset={10}
+          >
+            {/* Header: Judul Menu Utama */}
+            <div className="flex gap-3 items-center px-2 py-1 mb-2">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+                {find?.icon && <find.icon size={18} />}
+              </div>
+              <Typography className="font-bold" level="title-sm">
+                {tooltip}
+              </Typography>
+            </div>
+
+            <Separator className="mb-2 opacity-50" />
+
+            {/* List Item Sub-Menu */}
+            <div className="flex flex-col gap-1">
+              {find?.items?.map((item, i) => {
+                // Role Check
+                if (item?.roles?.length! > 0 && !hasRoles(item.roles || []))
+                  return null;
+
+                return (
+                  <Link
+                    key={i}
+                    className="group flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 hover:bg-slate-100 hover:text-primary active:scale-[0.98]"
+                    to={`${find.url}/${item.url}`}
+                  >
+                    {/* Dot Indicator atau Icon Kecil */}
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-primary transition-colors" />
+
+                    <div className="flex flex-col">
+                      <Typography
+                        level="body-sm"
+                        sx={{
+                          fontWeight: "500", // Sama dengan font-medium
+                          ".group:hover &": {
+                            color: "var(--joy-palette-primary-main)", // Mengikuti warna primary
+                          },
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </HoverCardContent>
+        </HoverCard>
+      );
+      // tooltip = {
+      //   children: tooltip,
+      // };
     }
 
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent
-          align="center"
-          hidden={state !== "collapsed" || isMobile}
-          side="right"
-          {...tooltip}
-        />
-      </Tooltip>
-    );
+    // return (
+    //   <Tooltip>
+    //     <TooltipTrigger asChild>{button}</TooltipTrigger>
+    //     <TooltipContent
+    //       align="center"
+    //       hidden={state !== "collapsed" || isMobile}
+    //       side="right"
+    //       {...tooltip}
+    //     />
+    //   </Tooltip>
+    // );
   },
 );
 
