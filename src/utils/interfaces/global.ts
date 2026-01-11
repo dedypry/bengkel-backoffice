@@ -25,12 +25,12 @@ export const PROGRESS_CONFIG = {
   },
   ready: {
     label: "Siap Diambil",
-    color: "text-green-600",
+    color: "text-primary",
     icon: CheckCircle2,
   },
   finish: {
     label: "Selesai",
-    color: "text-gray-600",
+    color: "text-green-600",
     icon: Flag,
   },
 };

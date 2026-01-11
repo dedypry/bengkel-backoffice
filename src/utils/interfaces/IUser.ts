@@ -1,4 +1,5 @@
 import type { IProduct } from "./IProduct";
+import type { IPromo } from "./IPromo";
 import type { IRole } from "./IRole";
 
 export interface IAddress {
@@ -145,6 +146,19 @@ export interface ICustomer {
   vehicles?: IVehicle[];
 }
 
+export interface IPayment {
+  id: number;
+  payment_no: string;
+  amount: number;
+  method?: string;
+  payment_date?: string;
+  reference_no?: string;
+  bank_name?: string;
+  proof_image?: string;
+  updated_by?: number;
+  work_order_id?: number;
+}
+
 export interface IWorkOrder {
   id: number;
   created_at: string;
@@ -178,6 +192,9 @@ export interface IWorkOrder {
   spareparts?: IProduct[];
   start_at?: string;
   end_at?: string;
+  promo_data?: IPromo[];
+  promo_amount?: number;
+  payment: IPayment;
   services: {
     type: string;
     name: string;

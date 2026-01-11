@@ -1,49 +1,32 @@
 import type { IPromo } from "@/utils/interfaces/IPromo";
 
-import {
-  Search,
-  Tag,
-  Calendar,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  MoreVertical,
-  TicketPercent,
-  Plus,
-} from "lucide-react";
-import {
-  Button,
-  Input,
-  Typography,
-  Card,
-  CardContent,
-  Chip,
-  IconButton,
-  Divider,
-  Dropdown,
-  Menu,
-  MenuButton,
-  MenuItem,
-  Box,
-} from "@mui/joy";
+import { Search, TicketPercent, Plus } from "lucide-react";
+import { Button, Input, Card, Divider, Box } from "@mui/joy";
 import { useEffect, useState } from "react";
-import dayjs from "dayjs";
 
 import ModalAddPromo from "./components/add-promo";
+import PromoCard from "./components/promo-card";
 
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getPromo } from "@/stores/features/promo/promo-action";
+import debounce from "@/utils/helpers/debounce";
+import { setQueryPromo } from "@/stores/features/promo/promo-slice";
 
 export default function PromoPage() {
   const [open, setOpen] = useState(false);
-  const { promos } = useAppSelector((state) => state.promo);
+  const { promos, queryPromo } = useAppSelector((state) => state.promo);
+  const { company } = useAppSelector((state) => state.auth);
   const [promo, setPromo] = useState<IPromo>();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getPromo());
-  }, []);
+    if (company) {
+      dispatch(getPromo(queryPromo));
+    }
+  }, [company, queryPromo]);
+
+  const searchDebounce = debounce((q) => dispatch(setQueryPromo({ q })), 500);
 
   return (
     <Box className="space-y-6 p-1">
@@ -70,6 +53,7 @@ export default function PromoPage() {
             placeholder="Cari nama atau kode promo..."
             startDecorator={<Search size={18} />}
             sx={{ flex: 1 }}
+            onChange={(e) => searchDebounce(e.target.value)}
           />
           <Divider orientation="vertical" />
           <Box sx={{ display: "flex", gap: 1 }}>
@@ -95,122 +79,12 @@ export default function PromoPage() {
         }}
       >
         {promos.map((promo) => (
-          <Card
+          <PromoCard
             key={promo.id}
-            sx={{ "--Card-radius": "16px", boxShadow: "sm" }}
-            variant="outlined"
-          >
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Chip
-                  color={promo.is_active ? "success" : "danger"}
-                  size="sm"
-                  startDecorator={
-                    promo.is_active ? (
-                      <CheckCircle2 size={14} />
-                    ) : (
-                      <XCircle size={14} />
-                    )
-                  }
-                  variant="soft"
-                >
-                  {promo.is_active ? "Aktif" : "Tidak Aktif"}
-                </Chip>
-
-                <Dropdown>
-                  <MenuButton
-                    slotProps={{
-                      root: { variant: "plain", color: "neutral" },
-                    }}
-                    slots={{ root: IconButton }}
-                  >
-                    <MoreVertical size={18} />
-                  </MenuButton>
-                  <Menu placement="bottom-end" size="sm">
-                    <MenuItem
-                      onClick={() => {
-                        setPromo(promo);
-                        setOpen(true);
-                      }}
-                    >
-                      Edit Promo
-                    </MenuItem>
-                    <MenuItem>Lihat Performa</MenuItem>
-                    <Divider />
-                    <MenuItem color="danger" variant="soft">
-                      Hapus
-                    </MenuItem>
-                  </Menu>
-                </Dropdown>
-              </Box>
-
-              <Typography level="title-lg">{promo.name}</Typography>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  mt: 0.5,
-                  mb: 1,
-                }}
-              >
-                <Tag className="text-slate-400" size={14} />
-                <Typography
-                  fontWeight="bold"
-                  level="body-xs"
-                  sx={{ color: "#168BAB", letterSpacing: "0.5px" }}
-                >
-                  {promo.code}
-                </Typography>
-              </Box>
-
-              <Divider inset="none" />
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1.5,
-                  mt: 1,
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Clock className="text-slate-400" size={16} />
-                    <Typography level="body-xs">Besar Diskon</Typography>
-                  </Box>
-                  <Typography color="primary" level="title-sm">
-                    {promo.type === "fixed" && "Rp"} {Number(promo.value)}{" "}
-                    {promo.type === "percentage" && "%"}
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Calendar className="text-slate-400" size={16} />
-                    <Typography level="body-xs">Periode</Typography>
-                  </Box>
-                  <Typography fontWeight="md" level="body-xs">
-                    {dayjs(promo.start_date).format("DD MMM YY")} -{" "}
-                    {dayjs(promo.end_date).format("DD MMM YY")}
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
+            promo={promo}
+            setOpen={setOpen}
+            setPromo={setPromo}
+          />
         ))}
       </Box>
     </Box>

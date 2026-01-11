@@ -9,8 +9,9 @@ interface Props {
   value?: Date;
   setValue: (date: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }
-export function DatePicker({ value, setValue, placeholder }: Props) {
+export function DatePicker({ value, setValue, placeholder, disabled }: Props) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +33,18 @@ export function DatePicker({ value, setValue, placeholder }: Props) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open]);
+
+  if (disabled) {
+    return (
+      <Input
+        readOnly
+        placeholder={placeholder || "Pilih tanggal"}
+        startDecorator={<CalendarIcon size={18} />}
+        sx={{ pointerEvents: "none" }}
+        value={value ? dayjs(value).format("DD MMM YYYY") : ""}
+      />
+    );
+  }
 
   return (
     <Dropdown open={open} onOpenChange={(_, isOpen) => setOpen(isOpen)}>

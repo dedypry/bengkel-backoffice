@@ -9,6 +9,13 @@ export const button: Components<Theme> | undefined = {
           ? theme.vars.palette.neutral.mainChannel
           : theme.vars.palette[colorSelector].mainChannel;
 
+        const fontIcon =
+          ownerState.size === "sm"
+            ? "16px"
+            : ownerState.size === "md"
+              ? "18px"
+              : "20px";
+
         return {
           fontWeight: 500,
           transition: "all 0.2s",
@@ -17,6 +24,14 @@ export const button: Components<Theme> | undefined = {
             transform: "translateY(-2px)",
           },
 
+          "& .MuiButton-startDecorator, & .MuiButton-endDecorator": {
+            fontSize: fontIcon,
+            "& > svg": {
+              fontSize: fontIcon, // Ukuran untuk SVG (Lucide, MUI Icons, dll)
+              width: fontIcon,
+              height: fontIcon,
+            },
+          },
           // Shadow khusus saat ditekan (active)
           "&:active": {
             transform: "translateY(0)",

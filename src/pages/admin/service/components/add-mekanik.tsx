@@ -62,7 +62,7 @@ export default function AddMechanich({ open, setOpen, id }: Props) {
       <Modal
         isLoading={loading}
         open={open}
-        size="5xl"
+        size="xl"
         title="Tambah Mekanik"
         onOpenChange={setOpen}
         onSave={handleSubmit}

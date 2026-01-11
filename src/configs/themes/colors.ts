@@ -6,6 +6,21 @@ export const colorSchema:
   | undefined = {
   light: {
     palette: {
+      warning: {
+        50: "#fff8e1", // Sangat krem
+        100: "#ffecb3",
+        200: "#ffe082",
+        300: "#ffd54f",
+        400: "#ffca28",
+        500: "#fb8c00", // Warna dasar yang lebih solid (Deep Amber)
+        600: "#f57c00", // Mulai masuk ke dark orange
+        700: "#ef6c00",
+        800: "#e65100", // Coklat oranye tua
+        900: "#e65100", // Sangat gelap (Deep Burnt Orange)
+
+        // Untuk Joy UI (RGB main channel)
+        mainChannel: "255 179 0",
+      },
       primary: {
         50: "#f1f9fb",
         100: "#e1f2f6",

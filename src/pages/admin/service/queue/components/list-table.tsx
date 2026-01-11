@@ -20,9 +20,11 @@ import {
   UserCircleIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
 import StatusQueue from "./status-queue";
 import ButtonStatus from "./button-status";
+import ChipPriority from "./chip-priority";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getAvatarByName } from "@/utils/helpers/global";
@@ -48,10 +50,11 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
             <tr>
               <th style={{ width: 140 }}>Estimasi/Antrean</th>
               <th style={{ width: 200 }}>Pelanggan & Unit</th>
-              <th style={{ minWidth: 400 }}>Layanan</th>
-              <th style={{ width: 200 }}>dikerjakan Oleh</th>
-              <th style={{ width: 200 }}>Status</th>
-              <th style={{ width: 100 }}>Aksi</th>
+              <th>Prioritas</th>
+              <th>Tanggal Masuk</th>
+              <th>dikerjakan Oleh</th>
+              <th style={{ width: 180 }}>Status</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -59,7 +62,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
               <tr key={item.id}>
                 <td>
                   <Card color="neutral" size="sm" variant="soft">
-                    <CardContent>
+                    <CardContent sx={{ textAlign: "center" }}>
                       <span className="text-[10px] font-bold text-slate-500 leading-none mb-1">
                         {item.estimation}
                       </span>
@@ -81,14 +84,14 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                     </p>
                   </div>
                 </td>
-
                 <td>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {item?.services?.map((srv, j) => (
-                      <Chip key={j} variant="outlined">
-                        {srv.name}
-                      </Chip>
-                    ))}
+                  <ChipPriority wo={item} />
+                </td>
+                <td>
+                  <div className="flex flex-col gap-1">
+                    <span>
+                      {dayjs(item.created_at).format("DD MMM YY | HH:mm")}
+                    </span>
                   </div>
                 </td>
                 <td>

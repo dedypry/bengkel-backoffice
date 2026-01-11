@@ -17,10 +17,9 @@ export default function StatusQueue({ wo }: Props) {
   const { t } = useTranslation();
 
   return (
-    <div>
+    <>
       <div className={`flex items-center gap-2 ${config.color}`}>
         <IconComponent size={16} />
-
         <span className="text-xs font-bold italic">{t(wo.progress!)}</span>
       </div>
       <span className="text-[11px] text-gray-400 italic">
@@ -28,6 +27,6 @@ export default function StatusQueue({ wo }: Props) {
         {wo.end_at ? "-" : ""} {wo.end_at && dayjs(wo.end_at).format("HH:mm")}{" "}
         {wo.start_at ? "WIB" : ""}
       </span>
-    </div>
+    </>
   );
 }

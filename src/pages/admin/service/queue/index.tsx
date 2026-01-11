@@ -53,37 +53,6 @@ export default function AntreanBengkel() {
               </Option>
             ))}
           </Select>
-          {/* <Combobox
-            items={["all", "queue", "on_progress", "ready", "finish"].map(
-              (e) => ({ label: t(e), value: e }),
-            )}
-            value={woQuery.status}
-            onChange={(tab) => {
-              dispatch(getWo({ status: tab }));
-            }}
-          /> */}
-          {/* <Button className="gap-2" size="sm" variant="outline">
-            <Filter className="size-4" /> Filter
-          </Button> */}
-          {/* <div className="h-8 w-px bg-slate-200 mx-2 hidden md:block" /> */}
-          {/* <div className="flex p-1 bg-slate-100 rounded-lg">
-            {["all", "queue", "on_progress", "ready", "finish"].map((tab) => (
-              <button
-                key={tab}
-                className={`px-4 py-1.5 text-xs font-bold rounded-md capitalize transition-all ${
-                  activeTab === tab
-                    ? "bg-white text-primary shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-                onClick={() => {
-                  setActiveTab(tab);
-                  dispatch(getWo({ status: tab }));
-                }}
-              >
-                {t(tab)}
-              </button>
-            ))}
-          </div> */}
         </div>
       </div>
 

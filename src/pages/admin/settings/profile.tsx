@@ -41,6 +41,7 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { FaxMask, NpwpMask, PhoneMask } from "@/utils/mask/mask";
 import { uploadFile } from "@/utils/helpers/upload-file";
 import { getCity, getDistrict } from "@/stores/features/region/region-action";
+import { getProfile } from "@/stores/features/auth/auth-action";
 
 export default function WorkshopSettings() {
   const { user } = useAppSelector((state) => state.auth);
@@ -117,6 +118,7 @@ export default function WorkshopSettings() {
       .patch("/companies", data)
       .then(({ data }) => {
         notify(data.message);
+        dispatch(getProfile());
       })
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));

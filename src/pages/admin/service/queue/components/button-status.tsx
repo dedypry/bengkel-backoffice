@@ -2,9 +2,12 @@ import type { IWorkOrder } from "@/utils/interfaces/IUser";
 
 import { useState } from "react";
 import { Button } from "@mui/joy";
+import { useNavigate } from "react-router-dom";
 
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import { setWo } from "@/stores/features/work-order/wo-slice";
+import { useAppDispatch } from "@/stores/hooks";
 
 interface Props {
   item: IWorkOrder;
@@ -12,6 +15,8 @@ interface Props {
 }
 export default function ButtonStatus({ item, onSuccess }: Props) {
   const [isLoading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const handleUpdateStatus = (id: number, status: string) => {
     setLoading(true);
     http
@@ -30,7 +35,7 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
 
   return (
     <>
-      {item.progress === "queue" && (
+      {["queue", "pick_up"].includes(item.progress as any) && (
         <Button
           disabled={isLoading || item.mechanics?.length! < 1}
           size="sm"
@@ -51,7 +56,14 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
         </Button>
       )}
       {item.progress === "ready" && (
-        <Button disabled={isLoading} size="sm">
+        <Button
+          disabled={isLoading}
+          size="sm"
+          onClick={() => {
+            dispatch(setWo(item));
+            navigate("/cashier");
+          }}
+        >
           {isLoading ? "Menyimpan..." : "KASIR / PULANG"}
         </Button>
       )}

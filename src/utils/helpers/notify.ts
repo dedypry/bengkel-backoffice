@@ -21,7 +21,7 @@ export const notify = (msg: string, icon?: SweetAlertIcon) => {
   });
 };
 
-export const notifyError = (res: AxiosError) => {
+export const notifyError = (res: any) => {
   const msg = (res.response?.data as any).message || res;
 
   const Toast = Swal.mixin({

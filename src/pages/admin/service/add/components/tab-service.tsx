@@ -2,9 +2,9 @@ import type { IService } from "@/utils/interfaces/IService";
 
 import { Search, X } from "lucide-react";
 import { useState } from "react";
+import { Input } from "@mui/joy";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import InputNumber from "@/components/ui/input-number";
 import {
   Table,
   TableBody,
@@ -22,12 +22,8 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
 import { CustomPagination } from "@/components/custom-pagination";
 import { getService } from "@/stores/features/service/service-action";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import debounce from "@/utils/helpers/debounce";
+import InputQty from "@/components/input-qty";
 
 export default function TabService() {
   const { services } = useAppSelector((state) => state.service);
@@ -65,19 +61,8 @@ export default function TabService() {
   return (
     <>
       <div className="my-5">
-        <InputGroup>
-          <InputGroupInput
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              searchDebounce(e.target.value);
-            }}
-          />
-          <InputGroupAddon>
-            <Search />
-          </InputGroupAddon>
-          <InputGroupAddon align="inline-end">
+        <Input
+          endDecorator={
             <button
               className="cursor-pointer"
               onClick={() => {
@@ -87,8 +72,15 @@ export default function TabService() {
             >
               <X />
             </button>
-          </InputGroupAddon>
-        </InputGroup>
+          }
+          placeholder="Search..."
+          startDecorator={<Search />}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            searchDebounce(e.target.value);
+          }}
+        />
       </div>
       <Table>
         <TableHeader>
@@ -118,8 +110,15 @@ export default function TabService() {
                 {formatIDR(Number(item.price))}
               </TableCell>
               <TableCell className="flex justify-center">
-                <div className="max-w-24">
-                  <InputNumber
+                <div className="max-w-32">
+                  <InputQty
+                    handleQty={(qty) => {
+                      console.log("qty", qty, findQty(item));
+                      handleQty(item, qty);
+                    }}
+                    value={findQty(item)}
+                  />
+                  {/* <InputNumber
                     className="text-center"
                     endDecorator={
                       <button
@@ -145,7 +144,7 @@ export default function TabService() {
                     }
                     value={findQty(item)}
                     onInput={(val) => handleQty(item, val as number)}
-                  />
+                  /> */}
                 </div>
               </TableCell>
             </TableRow>

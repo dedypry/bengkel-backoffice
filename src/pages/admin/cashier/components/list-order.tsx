@@ -10,9 +10,8 @@ import { Input } from "@/components/ui/input";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { Badge } from "@/components/ui/badge";
 import { formatIDR } from "@/utils/helpers/format";
-import { setWo } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
-import { getWo } from "@/stores/features/work-order/wo-action";
+import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
 
 export default function ListOrder() {
   const { orders, workOrder } = useAppSelector((state) => state.wo);
@@ -53,7 +52,7 @@ export default function ListOrder() {
                     ? "border-[#168BAB] bg-blue-50/50"
                     : "border-transparent bg-slate-50 hover:border-slate-200"
                 }`}
-                onClick={() => dispatch(setWo(wo))}
+                onClick={() => dispatch(getWoDetail(wo.id.toString()))}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex flex-col gap-1">

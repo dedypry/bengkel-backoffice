@@ -1,29 +1,50 @@
-import { useEffect } from "react";
+import type { IPromo } from "@/utils/interfaces/IPromo";
+
+import { useEffect, useState } from "react";
 import {
-  Banknote,
-  CreditCard,
   User,
   Car,
   Receipt,
   Printer,
+  X,
+  CheckCircle,
+  Banknote,
 } from "lucide-react";
 import dayjs from "dayjs";
-import { Button, FormControl, FormLabel, IconButton, Input } from "@mui/joy";
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  FormLabel,
+  IconButton,
+  Input,
+  Typography,
+} from "@mui/joy";
 import z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import ListOrder from "./components/list-order";
+import PaymentMethod from "./components/payment-method";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { getWo } from "@/stores/features/work-order/wo-action";
+import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
 import { formatIDR } from "@/utils/helpers/format";
 import InputNumber from "@/components/ui/input-number";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import FileUploader from "@/components/drop-zone";
+import { uploadFile } from "@/utils/helpers/upload-file";
 
 const paymentSchema = z.object({
   discount: z.number().min(0, "Diskon tidak boleh negatif"),
   promoCode: z.string().optional(),
+  receivedAmount: z.number().optional(),
+  proofImage: z.any().optional(),
+  isManualDiscount: z.boolean().optional(),
   paymentMethod: z.enum(["CASH", "TRANSFER"]),
 });
 
@@ -32,6 +53,9 @@ type PaymentForm = z.infer<typeof paymentSchema>;
 export default function Cashier() {
   const { woQuery, workOrder } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
+  const [promoData, setPromoData] = useState<IPromo | null>(null);
+  const [totalPromo, setTotalPromo] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -43,22 +67,120 @@ export default function Cashier() {
 
   const {
     control,
+    watch,
     handleSubmit,
+    setValue,
     formState: { isValid },
   } = useForm<PaymentForm>({
     resolver: zodResolver(paymentSchema),
     mode: "onChange",
     defaultValues: {
       discount: 0,
+      isManualDiscount: false,
+      receivedAmount: 0,
+      paymentMethod: "CASH",
     },
   });
+
+  const grandTotal =
+    Number(workOrder.grand_total || 0) - Number(watch("discount") || 0);
+
+  const selectedMethod = watch("paymentMethod");
+  const changeAmount = (watch("receivedAmount") || 0) - grandTotal;
 
   function handlePrint() {
     console.log(workOrder);
   }
-  function onSubmit() {
-    console.log(workOrder);
+  async function onSubmit(data: PaymentForm) {
+    setLoading(true);
+    const payload = {
+      woId: workOrder.id,
+      ...data,
+    };
+
+    if (data.proofImage && data.proofImage.length > 0) {
+      if (data.proofImage[0] instanceof File) {
+        const photo = await uploadFile(data.proofImage[0]);
+
+        setValue("proofImage", [photo]);
+        payload.proofImage = photo;
+      } else {
+        payload.proofImage = data.proofImage[0];
+      }
+    }
+
+    http
+      .post("/payments", payload)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(getWoDetail(workOrder.id.toString()));
+        dispatch(getWo({}));
+        console.log(data);
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   }
+
+  function handleChekPromo() {
+    http
+      .get<IPromo>("/promos/check", {
+        params: {
+          code: watch("promoCode"),
+        },
+      })
+      .then(({ data }) => {
+        setPromoData(data);
+        setValue("isManualDiscount", false);
+        const subtotal = Number(workOrder.sub_total || 0);
+        let calculatedDiscount = 0;
+        const minPurchase = Number(data.min_purchase || 0);
+
+        if (subtotal < minPurchase) {
+          notifyError(
+            `Minimal pembelian untuk promo ini adalah Rp ${minPurchase.toLocaleString()}`,
+          );
+
+          return;
+        }
+
+        if (data.type === "percentage") {
+          const percentageValue = Number(data.value || 0);
+          const maxDiscount = Number(data.max_discount || 0);
+
+          // Hitung nominal persentase
+          const discountAmount = (subtotal * percentageValue) / 100;
+
+          // Jika ada max_discount dan lebih dari 0, lakukan pembatasan (limit)
+          if (maxDiscount > 0) {
+            calculatedDiscount = Math.min(discountAmount, maxDiscount);
+          } else {
+            calculatedDiscount = discountAmount;
+          }
+        } else {
+          // Jika tipe 'fix' atau nominal langsung
+          calculatedDiscount = Number(data.value || 0);
+        }
+
+        calculatedDiscount = Math.min(calculatedDiscount, subtotal);
+
+        if (calculatedDiscount > 0) {
+          setValue("discount", calculatedDiscount);
+          setTotalPromo(calculatedDiscount);
+        }
+      })
+      .catch((err) => {
+        notifyError(err);
+        setPromoData(null);
+      });
+  }
+
+  useEffect(() => {
+    if (Number(watch("discount")) != totalPromo) {
+      setPromoData(null);
+      setValue("promoCode", "");
+      setValue("isManualDiscount", true);
+    }
+  }, [watch("discount")]);
 
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-100px)] gap-4 antialiased">
@@ -68,18 +190,29 @@ export default function Cashier() {
       {/* --- BAGIAN KANAN: RINCIAN & PEMBAYARAN --- */}
       <div className="w-full md:w-2/3 overflow-y-auto scrollbar-modern">
         {workOrder?.id ? (
-          <Card className="h-full flex flex-col border-[#168BAB]/20 shadow-lg">
+          <Card className="min-h-full flex flex-col border-[#168BAB]/20 shadow-lg">
             <CardHeader className="bg-slate-50/50 border-b">
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle>Rincian Tagihan</CardTitle>
-                  <p className="text-slate-500 text-xs">
-                    Selesaikan transaksi untuk #{workOrder.trx_no}
+                  <CardTitle className="mb-1">Rincian Tagihan</CardTitle>
+                  <p
+                    className={
+                      workOrder.status === "closed"
+                        ? "text-success-600 font-medium text-xs"
+                        : "text-slate-500 text-xs"
+                    }
+                  >
+                    {workOrder.status === "closed"
+                      ? `Transaksi #${workOrder.trx_no} telah berhasil diselesaikan`
+                      : `Selesaikan transaksi untuk #${workOrder.trx_no}`}
                   </p>
                 </div>
-                <IconButton variant="outlined" onClick={handlePrint}>
-                  <Printer className="size-5" />
-                </IconButton>
+
+                {workOrder.status === "closed" && (
+                  <IconButton variant="outlined" onClick={handlePrint}>
+                    <Printer className="size-5" />
+                  </IconButton>
+                )}
               </div>
             </CardHeader>
 
@@ -124,58 +257,108 @@ export default function Cashier() {
 
               {/* Ringkasan Biaya & Diskon */}
               <div className="space-y-3 border-t pt-2">
-                {/* BAGIAN DISKON & PROMO */}
-                <div className="grid grid-cols-2 gap-4 py-2">
-                  <Controller
-                    control={control}
-                    name="discount"
-                    render={({ field }) => (
-                      <FormControl>
-                        <FormLabel>Diskon Manual</FormLabel>
-                        <InputNumber
-                          startDecorator="Rp"
-                          value={field.value}
-                          onInput={field.onChange}
-                        />
-                      </FormControl>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="discount"
-                    render={({ field }) => (
-                      <FormControl>
-                        <FormLabel>Kode Promo</FormLabel>
-                        <Input
-                          {...field}
-                          endDecorator={
-                            <Button color="neutral" size="sm">
-                              Cek
-                            </Button>
-                          }
-                          placeholder="Masukan Kode Promo"
-                        />
-                      </FormControl>
-                    )}
-                  />
-                </div>
+                {workOrder.status != "closed" && (
+                  <div className="grid grid-cols-2 gap-4 py-2">
+                    <Controller
+                      control={control}
+                      name="discount"
+                      render={({ field }) => (
+                        <FormControl>
+                          <FormLabel>Diskon Manual</FormLabel>
+                          <InputNumber
+                            startDecorator="Rp"
+                            value={field.value}
+                            onInput={field.onChange}
+                          />
+                        </FormControl>
+                      )}
+                    />
+                    <Controller
+                      control={control}
+                      name="promoCode"
+                      render={({ field }) => (
+                        <FormControl>
+                          <FormLabel>Kode Promo</FormLabel>
+                          <Input
+                            endDecorator={
+                              <Button
+                                color="neutral"
+                                size="sm"
+                                onClick={handleChekPromo}
+                              >
+                                Cek
+                              </Button>
+                            }
+                            placeholder="Masukan Kode Promo"
+                            {...field}
+                          />
+                        </FormControl>
+                      )}
+                    />
+                  </div>
+                )}
+
+                {promoData && (
+                  <Card>
+                    <CardContent className="flex">
+                      <Box sx={{ flex: 1 }}>
+                        <Typography color="success" level="title-sm">
+                          Promo Berhasil Digunakan: <b>{promoData.code}</b>
+                        </Typography>
+                        <Typography level="body-xs">
+                          Potongan:{" "}
+                          {promoData.type === "percentage"
+                            ? `${Number(promoData.value)}% (Maks. Rp ${Number(promoData.max_discount).toLocaleString()})`
+                            : formatIDR(Number(promoData.value))}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        color="danger"
+                        size="sm"
+                        variant="plain"
+                        onClick={() => {
+                          setPromoData(null);
+                          setValue("promoCode", "");
+                          setValue("discount", 0);
+                        }}
+                      >
+                        <X size={18} />
+                      </IconButton>
+                    </CardContent>
+                  </Card>
+                )}
 
                 <div className="flex justify-between text-slate-600 text-sm">
                   <span>Subtotal Jasa & Part</span>
                   <span className="font-semibold">
-                    {formatIDR(Number(workOrder.grand_total))}
+                    {formatIDR(Number(workOrder.sub_total))}
                   </span>
                 </div>
 
                 {/* Detail Pemotongan */}
                 <div className="flex justify-between text-red-500 text-sm italic">
                   <span>Potongan Diskon</span>
-                  <span>-{formatIDR(0)}</span>
+                  <span>-{formatIDR(watch("discount"))}</span>
                 </div>
 
+                {workOrder.promo_data?.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between text-red-500 text-sm italic"
+                  >
+                    <span>
+                      {item.name}{" "}
+                      {item.type === "percentage"
+                        ? `(${item.value} %) ${item.max_discount ? `MAX : ${formatIDR(Number(item.max_discount))}` : ""}`
+                        : "Fixed"}{" "}
+                    </span>
+                    <span>-{formatIDR(Number(item.price))}</span>
+                  </div>
+                ))}
+
                 <div className="flex justify-between text-slate-600 text-sm">
-                  <span>Pajak (0%)</span>
-                  <span>Rp 0</span>
+                  <span>Pajak ({Number(workOrder.ppn_percent || 0)}%)</span>
+                  <span>{formatIDR(Number(workOrder.ppn_amount || 0))}</span>
                 </div>
 
                 {/* TOTAL AKHIR */}
@@ -189,54 +372,182 @@ export default function Cashier() {
                     </span>
                   </div>
                   <span className="font-black text-primary">
-                    {formatIDR(Number(workOrder.grand_total))}
+                    {formatIDR(Number(grandTotal))}
                   </span>
                 </div>
               </div>
 
-              {/* Metode Pembayaran */}
-              <Controller
-                control={control}
-                name="paymentMethod"
-                render={({ field }) => (
-                  <div className="mt-auto pt-2">
-                    <p className="font-bold mb-3 text-slate-600">
-                      Metode Pembayaran
-                    </p>
-                    <div className="grid grid-cols-2 gap-4 pb-5">
-                      <Button
-                        color="success"
-                        size="lg"
-                        startDecorator={<Banknote />}
-                        sx={{ height: 50 }}
-                        variant={field.value === "CASH" ? "soft" : "outlined"}
-                        onClick={() => field.onChange("CASH")}
-                      >
-                        Tunai
-                      </Button>
-                      <Button
-                        color="success"
-                        size="lg"
-                        startDecorator={<CreditCard />}
-                        sx={{ height: 50 }}
-                        variant={
-                          field.value === "TRANSFER" ? "soft" : "outlined"
-                        }
-                        onClick={() => field.onChange("TRANSFER")}
-                      >
-                        Transfer / Debit
-                      </Button>
-                    </div>
-                    <Button
-                      fullWidth
-                      disabled={!isValid}
-                      onClick={handleSubmit(onSubmit)}
-                    >
-                      Konfirmasi Pembayaran
-                    </Button>
+              {workOrder.status !== "closed" ? (
+                <>
+                  <Controller
+                    control={control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <div className="mt-auto pt-2">
+                        <p className="font-bold mb-3 text-slate-600">
+                          Metode Pembayaran
+                        </p>
+                        <PaymentMethod
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </div>
+                    )}
+                  />
+
+                  <div className="mt-4 animate-in fade-in duration-500">
+                    {selectedMethod === "CASH" ? (
+                      <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <Controller
+                          control={control}
+                          name="receivedAmount"
+                          render={({ field }) => (
+                            <FormControl>
+                              <FormLabel
+                                sx={{ fontSize: "xs", fontWeight: "bold" }}
+                              >
+                                Uang Diterima
+                              </FormLabel>
+                              <InputNumber
+                                endDecorator={
+                                  <Button
+                                    size="sm"
+                                    onClick={() => {
+                                      setValue("receivedAmount", grandTotal);
+                                    }}
+                                  >
+                                    Penuh
+                                  </Button>
+                                }
+                                placeholder="Rp 0"
+                                startDecorator={<Banknote size={18} />}
+                                value={field.value}
+                                onInput={field.onChange}
+                              />
+                            </FormControl>
+                          )}
+                        />
+                        <FormControl>
+                          <FormLabel
+                            sx={{ fontSize: "xs", fontWeight: "bold" }}
+                          >
+                            Kembalian
+                          </FormLabel>
+                          <div
+                            className={`h-10 flex items-center px-3 rounded-md border ${changeAmount >= 0 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
+                          >
+                            <Typography
+                              color={changeAmount >= 0 ? "success" : "danger"}
+                              level="title-sm"
+                            >
+                              {changeAmount >= 0
+                                ? `Rp ${changeAmount.toLocaleString()}`
+                                : "Kurang Bayar"}
+                            </Typography>
+                          </div>
+                        </FormControl>
+                      </div>
+                    ) : (
+                      <Controller
+                        control={control}
+                        name="proofImage"
+                        render={({ field }) => (
+                          <FormControl>
+                            <FormLabel
+                              sx={{ fontSize: "xs", fontWeight: "bold" }}
+                            >
+                              Uang Diterima
+                            </FormLabel>
+                            <FileUploader
+                              maxFiles={1}
+                              value={field.value}
+                              onFileSelect={field.onChange}
+                            />
+                          </FormControl>
+                        )}
+                      />
+                    )}
                   </div>
-                )}
-              />
+                  <Button
+                    fullWidth
+                    disabled={
+                      !isValid ||
+                      loading ||
+                      (selectedMethod === "CASH" && changeAmount < 0)
+                    }
+                    onClick={handleSubmit(onSubmit)}
+                  >
+                    {loading
+                      ? "Pembayaran sedang di proses"
+                      : "Konfirmasi Pembayaran"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Alert
+                    color="success"
+                    startDecorator={<CheckCircle size={24} />}
+                    sx={{
+                      alignItems: "flex-start",
+                      gap: 2,
+                      mb: 2,
+                      mt: "auto",
+                    }}
+                    variant="soft"
+                  >
+                    <div style={{ width: "100%" }}>
+                      <Typography color="success" level="title-lg">
+                        Pembayaran Berhasil
+                      </Typography>
+
+                      <Typography level="body-sm" sx={{ mt: 0.5, mb: 1.5 }}>
+                        Transaksi telah selesai. Unit sudah bisa diserahkan
+                        kembali kepada pelanggan.
+                      </Typography>
+
+                      <Divider sx={{ my: 1, opacity: 0.5 }} />
+
+                      <div className="grid grid-cols-2 gap-y-1 mt-2">
+                        <Typography fontWeight="bold" level="body-xs">
+                          Metode:
+                        </Typography>
+                        <Typography level="body-xs" textAlign="right">
+                          {workOrder.payment.method || "CASH"}
+                        </Typography>
+
+                        <Typography fontWeight="bold" level="body-xs">
+                          Waktu:
+                        </Typography>
+                        <Typography level="body-xs" textAlign="right">
+                          {dayjs(
+                            workOrder.payment.payment_date ||
+                              workOrder.updated_at,
+                          ).format("DD MMM YY | HH:mm")}
+                        </Typography>
+
+                        {workOrder.payment.reference_no && (
+                          <>
+                            <Typography fontWeight="bold" level="body-xs">
+                              Ref No:
+                            </Typography>
+                            <Typography level="body-xs" textAlign="right">
+                              {workOrder.payment.reference_no}
+                            </Typography>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </Alert>
+                  {workOrder?.payment?.method === "TRANSFER" &&
+                    workOrder?.payment?.proof_image && (
+                      <img
+                        alt="photo-transfer"
+                        className="max-w-md"
+                        src={workOrder?.payment?.proof_image}
+                      />
+                    )}
+                </>
+              )}
             </CardContent>
           </Card>
         ) : (

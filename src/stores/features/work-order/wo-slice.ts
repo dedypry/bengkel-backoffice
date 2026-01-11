@@ -48,7 +48,7 @@ const woSlice = createSlice({
     addWoService: (state, action: PayloadAction<IWo>) => {
       const find = state.services.findIndex((e) => action.payload.id == e.id);
 
-      if (find > 0) {
+      if (find >= 0) {
         state.services[find] = action.payload;
       } else {
         state.services = [...state.services, action.payload];
@@ -60,7 +60,7 @@ const woSlice = createSlice({
     addSparepartService: (state, action: PayloadAction<ISparepart>) => {
       const find = state.sparepart.findIndex((e) => action.payload.id == e.id);
 
-      if (find > 0) {
+      if (find >= 0) {
         state.sparepart[find] = action.payload;
       } else {
         state.sparepart = [...state.sparepart, action.payload];
@@ -90,6 +90,7 @@ const woSlice = createSlice({
       })
       .addCase(getWoDetail.fulfilled, (state, action) => {
         state.detail = action.payload;
+        state.workOrder = action.payload;
         state.isLoadingDetail = false;
       })
       .addCase(getWoDetail.pending, (state) => {

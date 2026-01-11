@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { Button } from "@mui/joy";
+import { Plus } from "lucide-react";
 
 import TabService from "./tab-service";
 import TabSparepart from "./tab-sparepart";
 
 import Modal from "@/components/modal";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getService } from "@/stores/features/service/service-action";
@@ -28,14 +29,14 @@ export default function ModalAddService() {
     <>
       <Modal
         footer={
-          <>
+          <div>
             <Button type="button" onClick={() => setOpen(false)}>
               Tutup
             </Button>
-          </>
+          </div>
         }
         open={open}
-        size="5xl"
+        size="xl"
         title="Tambah Barang dan Jasa"
         onOpenChange={setOpen}
       >
@@ -60,7 +61,12 @@ export default function ModalAddService() {
         </Tabs>
       </Modal>
 
-      <Button type="button" onClick={() => setOpen(true)}>
+      <Button
+        size="sm"
+        startDecorator={<Plus />}
+        type="button"
+        onClick={() => setOpen(true)}
+      >
         Tambah Barang/Jasa
       </Button>
     </>

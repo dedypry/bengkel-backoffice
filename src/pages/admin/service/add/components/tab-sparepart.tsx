@@ -2,12 +2,8 @@ import type { IProduct } from "@/utils/interfaces/IProduct";
 
 import { Search, X } from "lucide-react";
 import { useState } from "react";
+import { IconButton, Input } from "@mui/joy";
 
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import {
   Table,
   TableBody,
@@ -70,22 +66,26 @@ export default function TabSparepart() {
   return (
     <>
       <div className="my-5">
-        <InputGroup>
-          <InputGroupInput
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              searchDebounce(e.target.value);
-            }}
-          />
-          <InputGroupAddon>
-            <Search />
-          </InputGroupAddon>
-          <InputGroupAddon align="inline-end">
-            <X />
-          </InputGroupAddon>
-        </InputGroup>
+        <Input
+          endDecorator={
+            <button
+              className="cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                dispatch(getProduct({ q: "" }));
+              }}
+            >
+              <X />
+            </button>
+          }
+          placeholder="Search..."
+          startDecorator={<Search />}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            searchDebounce(e.target.value);
+          }}
+        />
       </div>
       <Table>
         <TableHeader>
@@ -115,20 +115,24 @@ export default function TabSparepart() {
                 {formatIDR(Number(item.sell_price))}
               </TableCell>
               <TableCell className="flex justify-center">
-                <div className="max-w-24">
+                <div className="max-w-32">
                   <InputNumber
-                    className="text-center"
                     endDecorator={
-                      <button
-                        className="cursor-pointer"
+                      <IconButton
                         onClick={() => handleQty(item, findQty(item) + 1)}
                       >
                         +
-                      </button>
+                      </IconButton>
                     }
+                    slotProps={{
+                      input: {
+                        style: {
+                          textAlign: "center", // Membuat teks value di tengah
+                        },
+                      },
+                    }}
                     startDecorator={
-                      <button
-                        className="cursor-pointer"
+                      <IconButton
                         onClick={() => {
                           const val = findQty(item);
 
@@ -138,7 +142,7 @@ export default function TabSparepart() {
                         }}
                       >
                         -
-                      </button>
+                      </IconButton>
                     }
                     value={findQty(item)}
                     onInput={(val) => handleQty(item, val as number)}

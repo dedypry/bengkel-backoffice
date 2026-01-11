@@ -22,8 +22,11 @@ import InputNumber from "@/components/ui/input-number";
 import { DatePicker } from "@/components/date-picker";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import { getPromo } from "@/stores/features/promo/promo-action";
+import { useAppDispatch } from "@/stores/hooks";
 
 export const promoSchema = z.object({
+  id: z.number().optional(),
   name: z.string().min(3, "Nama promo minimal 3 karakter"),
   code: z.string().min(3, "Kode promo minimal 3 karakter").toUpperCase(),
   type: z.enum(["percentage", "fixed"]),
@@ -65,9 +68,17 @@ export default function ModalAddPromo({ open, setOpen, data }: Props) {
     },
   });
 
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     if (data) {
-      reset(data as any);
+      reset({
+        ...data,
+        value: Number(data.value),
+        max_discount: Number(data.max_discount),
+        min_purchase: Number(data.min_purchase),
+        quota: Number(data.quota),
+      } as any);
     }
   }, [data]);
 
@@ -80,6 +91,7 @@ export default function ModalAddPromo({ open, setOpen, data }: Props) {
       .then(({ data }) => {
         notify(data.message);
         reset();
+        dispatch(getPromo({}));
       })
       .catch((err) => notifyError(err))
       .finally(() => {

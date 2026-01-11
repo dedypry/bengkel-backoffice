@@ -14,25 +14,27 @@ import {
   Trash2,
   FileWarningIcon,
   CloudBackup,
+  PhoneCall,
+  Mail,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import {
+  Input,
+  Option,
+  Select,
+  Button,
+  IconButton,
+  Textarea,
+  Alert,
+} from "@mui/joy";
 
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
 import ModalAddService from "./components/modal-add-service";
+import VehicleOption from "./components/vehicle-option";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import CustomerSearch from "@/components/customer-search";
 import {
   Form,
@@ -56,6 +58,8 @@ import { DatePicker } from "@/components/date-picker";
 import { formatIDR, formatNumber } from "@/utils/helpers/format";
 import {
   formWoClear,
+  removeSparepartService,
+  removeWoService,
   setCustomer,
   setWoService,
   setWoSparepart,
@@ -64,8 +68,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { calculateTotalEstimation } from "@/utils/helpers/global";
 import InputNumber from "@/components/ui/input-number";
 import { http } from "@/utils/libs/axios";
-import { notify, notifyError } from "@/utils/helpers/notify";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
+import { getCustomer } from "@/stores/features/customer/customer-action";
+import { PhoneMask } from "@/utils/mask/mask";
 
 export default function PendaftaranServis() {
   const { company } = useAppSelector((state) => state.auth);
@@ -89,6 +94,13 @@ export default function PendaftaranServis() {
   useEffect(() => {
     if (company) {
       dispatch(getService(query));
+      dispatch(
+        getCustomer({
+          noStats: true,
+          pageSize: 100,
+          isVehicle: true,
+        }),
+      );
     }
   }, [company]);
 
@@ -104,6 +116,7 @@ export default function PendaftaranServis() {
 
   const isVehicleDisable = !!form.watch("vehicle.id") && !isEdit;
   const estimation = calculateTotalEstimation(services);
+  const isProduct = services.length > 0 || sparepart.length > 0;
 
   const onSubmit = (data: z.infer<typeof ServiceRegistrationSchema>) => {
     setLoading(true);
@@ -188,15 +201,33 @@ export default function PendaftaranServis() {
   }
 
   function setFormVehicle(data: IVehicle) {
-    const cleanedData = Object.fromEntries(
-      Object.entries(data).map(([key, val]) => [key, val ?? ""]),
-    );
+    if ((data as any).isNew) {
+      form.setValue("vehicle", {
+        plate_number: data.plate_number,
+        brand: "",
+        model: "",
+        color: "",
+        engine_capacity: "",
+        engine_number: "",
+        fuel_type: "",
+        id: undefined,
+        tire_size: "",
+        transmission_type: "",
+        vin_number: "",
+        year: "",
+      });
+    } else {
+      const cleanedData = Object.fromEntries(
+        Object.entries(data).map(([key, val]) => [key, val ?? ""]),
+      );
 
-    // Set nilai sebagai object ke path "vehicle"
-    form.setValue("vehicle", cleanedData as any, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+      console.log(data);
+      // Set nilai sebagai object ke path "vehicle"
+      form.setValue("vehicle", cleanedData as any, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
   }
 
   return (
@@ -231,6 +262,7 @@ export default function PendaftaranServis() {
                   </div>
                   <div>
                     <Button
+                      color="danger"
                       size="sm"
                       type="button"
                       onClick={handleResetCustomer}
@@ -250,13 +282,24 @@ export default function PendaftaranServis() {
                           <CustomerSearch
                             placeholder="Cari atau masukkan nama..."
                             value={field.value}
-                            onChange={field.onChange}
-                            onCustomer={(cus) => {
+                            onChange={(cus) => {
                               console.log("CUS", cus);
-                              form.setValue("customer.id", cus.id);
-                              form.setValue("customer.phone", cus.phone);
-                              form.setValue("customer.email", cus.email!);
-                              field.onChange(cus.name);
+                              form.setValue(
+                                "customer.id",
+                                cus?.id || undefined,
+                              );
+                              form.setValue("customer.phone", cus?.phone || "");
+                              form.setValue(
+                                "customer.email",
+                                cus?.email! || "",
+                              );
+                              field.onChange(cus?.name);
+
+                              form.setValue(
+                                "customer.birth_date",
+                                cus?.profile?.birth_date || "",
+                              );
+
                               dispatch(setCustomer(cus));
                               if (cus?.vehicles && cus?.vehicles?.length > 0) {
                                 setFormVehicle(cus.vehicles[0]);
@@ -277,20 +320,11 @@ export default function PendaftaranServis() {
                       <FormItem>
                         <FormLabel>Nomor Telepon / WA</FormLabel>
                         <FormControl>
-                          <CustomerSearch
+                          <Input
+                            startDecorator={<PhoneCall />}
+                            {...field}
                             placeholder="Cari atau masukkan no hp..."
-                            value={field.value}
-                            onChange={field.onChange}
-                            onCustomer={(cus) => {
-                              form.setValue("customer.id", cus.id);
-                              form.setValue("customer.name", cus.name);
-                              form.setValue("customer.email", cus.email!);
-                              field.onChange(cus.name);
-                              dispatch(setCustomer(cus));
-                              if (cus?.vehicles && cus?.vehicles?.length > 0) {
-                                setFormVehicle(cus.vehicles[0]);
-                              }
-                            }}
+                            slotProps={{ input: { component: PhoneMask } }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -305,6 +339,10 @@ export default function PendaftaranServis() {
                         <FormLabel>Tanggal Lahir</FormLabel>
                         <FormControl>
                           <DatePicker
+                            disabled={
+                              !!form.watch("customer.id") &&
+                              !!form.watch("customer.birth_date")
+                            }
                             setValue={field.onChange}
                             value={new Date(field.value as any)}
                           />
@@ -320,7 +358,11 @@ export default function PendaftaranServis() {
                       <FormItem>
                         <FormLabel>Email (Optional)</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Masukan Email valid" />
+                          <Input
+                            startDecorator={<Mail />}
+                            {...field}
+                            placeholder="Masukan Email valid"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -340,30 +382,31 @@ export default function PendaftaranServis() {
                   <div className="flex items-center gap-2 ">
                     {isVehicleDisable && (
                       <Button
-                        className="bg-amber-600 hover:bg-amber-500"
+                        color="warning"
                         size="sm"
+                        startDecorator={<Edit />}
                         type="button"
                         onClick={() => setEdit(true)}
                       >
-                        <Edit />
                         Ubah Data
                       </Button>
                     )}
                     {!!form.watch("vehicle.id") && !isNew && (
                       <Button
                         size="sm"
+                        startDecorator={<Plus />}
                         onClick={() => {
                           setNew(true);
                           handleVehicleReset();
                         }}
                       >
-                        <Plus />
                         Kendaraan Baru
                       </Button>
                     )}
                     {isNew && (
                       <Button
                         size="sm"
+                        startDecorator={<CloudBackup />}
                         onClick={() => {
                           if (
                             customer?.vehicles &&
@@ -375,7 +418,6 @@ export default function PendaftaranServis() {
                           }
                         }}
                       >
-                        <CloudBackup />
                         Setelan awal
                       </Button>
                     )}
@@ -391,47 +433,12 @@ export default function PendaftaranServis() {
                           No. Polisi (Nopol)
                         </FormLabel>
                         <FormControl>
-                          {isNew ? (
-                            <Input
-                              className="uppercase font-mono"
-                              disabled={isVehicleDisable}
-                              placeholder="Contoh : B 1234 ABC"
-                              {...field}
-                            />
-                          ) : (
-                            <Select
-                              value={field.value}
-                              onValueChange={(val) => {
-                                if (val) {
-                                  const find = customer?.vehicles?.find(
-                                    (e) => e.id == Number(val),
-                                  );
-
-                                  if (find) {
-                                    setFormVehicle(find);
-                                  }
-                                }
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Pilih Plat No">
-                                    {field.value}
-                                  </SelectValue>
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="mt-10">
-                                {(customer?.vehicles || []).map((item, i) => (
-                                  <SelectItem
-                                    key={i}
-                                    value={item.id.toString()}
-                                  >
-                                    {item.plate_number}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <VehicleOption
+                            value={field.value}
+                            onChange={(val) => {
+                              setFormVehicle(val);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -611,28 +618,18 @@ export default function PendaftaranServis() {
                             <FormLabel className="text-[11px] font-medium text-muted-foreground uppercase">
                               Tipe Transmisi
                             </FormLabel>
-                            <Select
-                              disabled={isVehicleDisable}
-                              value={field.value}
-                              onValueChange={(val) => {
-                                if (val) field.onChange(val);
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Pilih Transmisi">
-                                    {field.value}
-                                  </SelectValue>
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="MT">Manual (MT)</SelectItem>
-                                <SelectItem value="AT">
-                                  Automatic (AT)
-                                </SelectItem>
-                                <SelectItem value="CVT">CVT</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <Select
+                                disabled={isVehicleDisable}
+                                placeholder="Pilih Transmisi"
+                                value={field.value}
+                                onChange={(_, val) => field.onChange(val)}
+                              >
+                                <Option value="MT">Manual (MT)</Option>
+                                <Option value="AT">Automatic (AT)</Option>
+                                <Option value="CVT">CVT</Option>
+                              </Select>
+                            </FormControl>
                           </FormItem>
                         )}
                       />
@@ -686,16 +683,19 @@ export default function PendaftaranServis() {
               <div
                 className={`bg-white p-6 rounded-2xl border ${isErrorService ? "border-red-500" : ""} shadow-sm space-y-4`}
               >
-                {isErrorService && (
-                  <Alert className="border-red-500" variant="destructive">
-                    <FileWarningIcon />
-                    <AlertTitle>Terjadi Kesalahan</AlertTitle>
-                    <AlertDescription>
+                {isErrorService ||
+                  (!isProduct && (
+                    <Alert
+                      color="warning"
+                      startDecorator={<FileWarningIcon />}
+                      sx={{
+                        fontSize: 14,
+                      }}
+                    >
                       Mohon tambahkan **minimal satu** barang atau jasa sebelum
                       melanjutkan.
-                    </AlertDescription>
-                  </Alert>
-                )}
+                    </Alert>
+                  ))}
 
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 mb-2 text-primary font-bold">
@@ -725,11 +725,13 @@ export default function PendaftaranServis() {
                           </TableCell>
                           <TableCell className="text-end" colSpan={4}>
                             <Button
-                              className="bg-rose-700 hover:bg-rose-600"
+                              color="danger"
                               size="sm"
-                              onClick={() => dispatch(setWoSparepart([]))}
+                              startDecorator={<Trash2 />}
+                              onClick={() =>
+                                confirmSweat(() => dispatch(setWoSparepart([])))
+                              }
                             >
-                              <Trash2 />
                               Hapus Semua
                             </Button>
                           </TableCell>
@@ -758,9 +760,13 @@ export default function PendaftaranServis() {
                             )}
                           </TableCell>
                           <TableCell className="text-end">
-                            <button>
+                            <IconButton
+                              onClick={() =>
+                                dispatch(removeSparepartService(item))
+                              }
+                            >
                               <Trash2 className="size-4 text-red-600" />
-                            </button>
+                            </IconButton>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -770,11 +776,13 @@ export default function PendaftaranServis() {
                           <TableCell className="font-semibold">Jasa</TableCell>
                           <TableCell className="text-end" colSpan={4}>
                             <Button
-                              className="bg-rose-700 hover:bg-rose-600"
+                              color="danger"
                               size="sm"
-                              onClick={() => dispatch(setWoService([]))}
+                              startDecorator={<Trash2 />}
+                              onClick={() =>
+                                confirmSweat(() => dispatch(setWoService([])))
+                              }
                             >
-                              <Trash2 />
                               Hapus Semua
                             </Button>
                           </TableCell>
@@ -802,9 +810,13 @@ export default function PendaftaranServis() {
                             )}
                           </TableCell>
                           <TableCell className="text-end">
-                            <button>
+                            <IconButton
+                              onClick={() => {
+                                dispatch(removeWoService(item));
+                              }}
+                            >
                               <Trash2 className="size-4 text-red-600" />
-                            </button>
+                            </IconButton>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -813,10 +825,7 @@ export default function PendaftaranServis() {
 
                   <div className="space-y-2">
                     <Label>Deskripsi Keluhan</Label>
-                    <Textarea
-                      className="min-h-30"
-                      placeholder="Contoh: Rem bunyi saat diinjak, AC tidak dingin..."
-                    />
+                    <Textarea placeholder="Contoh: Rem bunyi saat diinjak, AC tidak dingin..." />
                   </div>
                 </div>
               </div>
@@ -831,7 +840,7 @@ export default function PendaftaranServis() {
                       <ClipboardCheck className="size-5" />
                       Ringkasan Order
                     </h3>
-                    <div className="space-y-3 text-sm">
+                    <div className="space-y-3 text-sm mb-5">
                       <div className="flex justify-between opacity-80">
                         <span>Estimasi Waktu</span>
                         <span className="font-semibold">
@@ -863,26 +872,14 @@ export default function PendaftaranServis() {
                               <FormItem>
                                 <FormControl>
                                   <Select
-                                    defaultValue={field.value}
-                                    onValueChange={field.onChange}
+                                    placeholder="Pilih Prioritas"
+                                    value={field.value}
+                                    onChange={(_, val) => field.onChange(val)}
                                   >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Pilih Prioritas" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="low">
-                                        Rendah
-                                      </SelectItem>
-                                      <SelectItem value="normal">
-                                        Normal
-                                      </SelectItem>
-                                      <SelectItem value="hight">
-                                        Tinggi
-                                      </SelectItem>
-                                      <SelectItem value="urgent">
-                                        Urgent
-                                      </SelectItem>
-                                    </SelectContent>
+                                    <Option value="low">Rendah</Option>
+                                    <Option value="normal">Normal</Option>
+                                    <Option value="hight">Tinggi</Option>
+                                    <Option value="urgent">Urgent</Option>
                                   </Select>
                                 </FormControl>
                                 <FormMessage />
@@ -893,12 +890,14 @@ export default function PendaftaranServis() {
                       </div>
                     </div>
                     <Button
-                      className="w-full mt-5 shadow-lg"
-                      disabled={isLoading}
+                      fullWidth
+                      disabled={
+                        isLoading || !form.formState.isValid || !isProduct
+                      }
+                      startDecorator={<Save />}
                       type="button"
                       onClick={form.handleSubmit(onSubmit)}
                     >
-                      <Save className="mr-2 size-4" />
                       {isLoading ? "Sedang Process..." : "Simpan Work Order"}
                     </Button>
                   </CardContent>
