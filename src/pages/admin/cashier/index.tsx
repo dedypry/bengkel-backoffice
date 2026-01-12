@@ -9,6 +9,7 @@ import {
   X,
   CheckCircle,
   Banknote,
+  Eye,
 } from "lucide-react";
 import dayjs from "dayjs";
 import {
@@ -25,6 +26,7 @@ import {
 import z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 
 import ListOrder from "./components/list-order";
 import PaymentMethod from "./components/payment-method";
@@ -51,19 +53,20 @@ const paymentSchema = z.object({
 type PaymentForm = z.infer<typeof paymentSchema>;
 
 export default function Cashier() {
-  const { woQuery, workOrder } = useAppSelector((state) => state.wo);
+  const { workOrder, woQuery } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
   const [promoData, setPromoData] = useState<IPromo | null>(null);
   const [totalPromo, setTotalPromo] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (company) {
-      dispatch(getWo(woQuery));
+      dispatch(getWo({ ...woQuery, pageSize: 100 }));
     }
-  }, [company]);
+  }, [company, woQuery]);
 
   const {
     control,
@@ -207,13 +210,28 @@ export default function Cashier() {
                       ? `Transaksi #${workOrder.trx_no} telah berhasil diselesaikan`
                       : `Selesaikan transaksi untuk #${workOrder.trx_no}`}
                   </p>
+                  <p className="italic text-sm text-gray-500">
+                    Dibuat tanggal :{" "}
+                    {dayjs(workOrder.created_at).format(
+                      "DD MMM YYYY | HH:mm WIB",
+                    )}
+                  </p>
                 </div>
 
-                {workOrder.status === "closed" && (
-                  <IconButton variant="outlined" onClick={handlePrint}>
-                    <Printer className="size-5" />
-                  </IconButton>
-                )}
+                <div className="flex gap-2 items-center">
+                  <Button
+                    color="success"
+                    startDecorator={<Eye />}
+                    onClick={() => navigate(`/service/queue/${workOrder.id}`)}
+                  >
+                    Detail
+                  </Button>
+                  {workOrder.status === "closed" && (
+                    <IconButton variant="outlined" onClick={handlePrint}>
+                      <Printer className="size-5" />
+                    </IconButton>
+                  )}
+                </div>
               </div>
             </CardHeader>
 

@@ -19,7 +19,7 @@ export const getWo = createAsyncThunk("get-wo", async (params: WoQuery) => {
 });
 export const getWoDetail = createAsyncThunk(
   "get-wo-detail",
-  async (id: string) => {
+  async (id: string | number) => {
     try {
       const { data } = await http.get(`/work-order/${id}`);
 

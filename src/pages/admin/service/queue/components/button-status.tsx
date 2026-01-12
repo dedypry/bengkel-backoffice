@@ -11,6 +11,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { setWo } from "@/stores/features/work-order/wo-slice";
 import { useAppDispatch } from "@/stores/hooks";
 import { hasRoles } from "@/utils/helpers/roles";
+import { getWoDetail } from "@/stores/features/work-order/wo-action";
 
 interface Props {
   item: IWorkOrder;
@@ -73,7 +74,7 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
           disabled={isLoading || !restriction}
           size="sm"
           onClick={() => {
-            dispatch(setWo(item));
+            dispatch(getWoDetail(item.id));
             navigate("/cashier");
           }}
         >

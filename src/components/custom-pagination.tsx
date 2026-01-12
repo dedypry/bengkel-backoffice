@@ -9,12 +9,22 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 interface Props {
   meta: IMeta;
   onPageChange: (page: number) => void;
+  showDesc?: boolean;
+  showTotal?: boolean;
+  className?: string;
 }
 
-export function CustomPagination({ meta, onPageChange }: Props) {
+export function CustomPagination({
+  meta,
+  onPageChange,
+  showDesc = true,
+  showTotal = false,
+  className,
+}: Props) {
   if (!meta) return null;
   // Hitung total halaman (Misal: total 100 / pageSize 10 = 10 halaman)
   const total = Number(meta.total) || 0;
@@ -50,18 +60,24 @@ export function CustomPagination({ meta, onPageChange }: Props) {
   };
 
   return (
-    <div className="flex items-center justify-between px-2 py-4">
-      {/* Keterangan Data */}
-      <p className="text-sm text-muted-foreground">
-        Menampilkan <span className="font-medium">{meta.from}</span> sampai{" "}
-        <span className="font-medium">
-          {Math.min(
-            (meta.page + 1) * meta.pageSize - meta.pageSize,
-            meta.total,
-          )}
-        </span>{" "}
-        dari <span className="font-medium">{meta.total}</span> data
-      </p>
+    <div
+      className={cn("flex items-center justify-between px-2 py-4", className)}
+    >
+      {showDesc && (
+        <p className="text-sm text-muted-foreground">
+          Menampilkan <span className="font-medium">{meta.from}</span> sampai{" "}
+          <span className="font-medium">
+            {Math.min(
+              (meta.page + 1) * meta.pageSize - meta.pageSize,
+              meta.total,
+            )}
+          </span>{" "}
+          dari <span className="font-medium">{meta.total}</span> data
+        </p>
+      )}
+      {showTotal && (
+        <p className="text-sm text-muted-foreground">Total {meta.total}</p>
+      )}
 
       <Pagination className="w-auto mx-0">
         <PaginationContent>

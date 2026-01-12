@@ -2,6 +2,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import { Computer, Search } from "lucide-react";
 import { useState } from "react";
+import { CardActions } from "@mui/joy";
+import dayjs from "dayjs";
 
 import StatusQueue from "../../service/queue/components/status-queue";
 
@@ -11,7 +13,9 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { Badge } from "@/components/ui/badge";
 import { formatIDR } from "@/utils/helpers/format";
 import debounce from "@/utils/helpers/debounce";
-import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
+import { getWoDetail } from "@/stores/features/work-order/wo-action";
+import { setWoQuery } from "@/stores/features/work-order/wo-slice";
+import { CustomPagination } from "@/components/custom-pagination";
 
 export default function ListOrder() {
   const { orders, workOrder } = useAppSelector((state) => state.wo);
@@ -19,7 +23,7 @@ export default function ListOrder() {
 
   const dispatch = useAppDispatch();
 
-  const debounceSearch = debounce((q) => dispatch(getWo({ q })), 500);
+  const debounceSearch = debounce((q) => dispatch(setWoQuery({ q })), 500);
 
   return (
     <div className="w-full md:w-1/3 flex flex-col gap-4">
@@ -75,6 +79,9 @@ export default function ListOrder() {
                     <p className="text-xs text-slate-500">
                       {wo.vehicle.brand} {wo.vehicle.model}
                     </p>
+                    <p className="font-bold mt-3 text-gray-500 text-sm">
+                      {dayjs(wo.created_at).format("DD MMM YYYY")}
+                    </p>
                   </div>
                 </div>
                 <StatusQueue wo={wo} />
@@ -82,6 +89,15 @@ export default function ListOrder() {
             ))}
           </div>
         </CardContent>
+        <CardActions>
+          <CustomPagination
+            className="w-full"
+            meta={orders?.meta!}
+            showDesc={false}
+            showTotal={true}
+            onPageChange={(page) => dispatch(setWoQuery({ page }))}
+          />
+        </CardActions>
       </Card>
     </div>
   );
