@@ -51,10 +51,10 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
           <thead>
             <tr>
               <th style={{ width: 140 }}>Estimasi/Antrean</th>
-              <th style={{ width: 200 }}>Pelanggan & Unit</th>
-              <th>Prioritas</th>
-              <th>Tanggal Masuk</th>
-              <th>dikerjakan Oleh</th>
+              <th style={{ width: 150 }}>Pelanggan & Unit</th>
+              <th style={{ width: 80 }}>Prioritas</th>
+              <th style={{ width: 180 }}>Tanggal Masuk</th>
+              <th style={{ width: 180 }}>dikerjakan Oleh</th>
               <th style={{ width: 180 }}>Status</th>
               <th>Aksi</th>
             </tr>

@@ -237,7 +237,7 @@ export default function PendaftaranServis() {
           {/* Header */}
           <div className="flex justify-between items-end border-b pb-6">
             <div>
-              <h3 className="font-bold ">Pendaftaran Servis Baru</h3>
+              <h4 className="font-bold ">Pendaftaran Servis Baru</h4>
               <p className="text-slate-500 text-sm">
                 Input data kendaraan dan keluhan pelanggan untuk pembuatan Work
                 Order.
@@ -258,7 +258,7 @@ export default function PendaftaranServis() {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                     <User className="size-5" />
-                    <h4>Informasi Pelanggan</h4>
+                    <h5 className="font-bold">Informasi Pelanggan</h5>
                   </div>
                   <div>
                     <Button
@@ -376,7 +376,7 @@ export default function PendaftaranServis() {
                 <div className="flex justify-between items-center mb-5">
                   <div className="flex items-center gap-2 text-primary font-bold">
                     <Car className="size-5" />
-                    <h4>Detail Kendaraan</h4>
+                    <h5 className="font-bold">Detail Kendaraan</h5>
                   </div>
 
                   <div className="flex items-center gap-2 ">
@@ -700,7 +700,7 @@ export default function PendaftaranServis() {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                     <Wrench className="size-5" />
-                    <h4>Keluhan & Jenis Servis</h4>
+                    <h5 className="font-bold">Keluhan & Jenis Servis</h5>
                   </div>
                   <div className="text-right">
                     <ModalAddService />
@@ -836,10 +836,10 @@ export default function PendaftaranServis() {
               <div className="space-y-6 sticky top-32">
                 <Card>
                   <CardContent>
-                    <h3 className="font-bold border-b border-white/10 pb-3 flex items-center gap-2">
+                    <h5 className="font-bold border-b border-white/10 pb-3 flex items-center gap-2">
                       <ClipboardCheck className="size-5" />
                       Ringkasan Order
-                    </h3>
+                    </h5>
                     <div className="space-y-3 text-sm mb-5">
                       <div className="flex justify-between opacity-80">
                         <span>Estimasi Waktu</span>
