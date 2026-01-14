@@ -66,6 +66,11 @@ const navigation = [
         url: "services",
         roles: ["super-admin", "owner"],
       },
+      {
+        title: "Supplier",
+        url: "suppliers",
+        roles: ["super-admin", "owner"],
+      },
     ],
   },
   {
