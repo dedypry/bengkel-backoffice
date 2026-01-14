@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEffect, useState } from "react";
+import { Input, Select, Option } from "@mui/joy";
 
 import CategoryAdd from "./category-add";
 
@@ -17,15 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import {
   getCategories,
@@ -34,6 +27,8 @@ import {
 import InputNumber from "@/components/ui/input-number";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import { getSupplier } from "@/stores/features/supplier/supplier-action";
+import Combobox from "@/components/ui/combobox";
 
 // Schema berdasarkan struktur IService yang kita buat sebelumnya
 const formSchema = z.object({
@@ -51,6 +46,7 @@ const formSchema = z.object({
   difficulty: z.enum(["easy", "medium", "hard", "extreme"]),
   category_id: z.string().min(1, "Pilih kategori"),
   description: z.string().optional(),
+  supplier_id: z.number().optional(),
 });
 
 interface Props {
@@ -62,11 +58,13 @@ interface Props {
 
 export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
   const { categories, query } = useAppSelector((state) => state.service);
+  const { suppliers } = useAppSelector((state) => state.supplier);
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(getCategories());
+    dispatch(getSupplier({ pageSize: 100 }));
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -79,7 +77,6 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
       estimated_duration: detail?.estimated_duration?.toString(),
       difficulty: detail?.difficulty || "easy",
       category_id: detail?.category.id?.toString(),
-      description: detail?.description,
     },
   });
 
@@ -95,7 +92,10 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
       );
       form.setValue("difficulty", detail.difficulty);
       form.setValue("category_id", detail.category?.id?.toString());
-      form.setValue("description", detail.description);
+      form.setValue("description", detail?.description || "");
+      if (detail.supplier_id) {
+        form.setValue("supplier_id", detail.supplier_id);
+      }
     }
   }, [detail]);
 
@@ -136,7 +136,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
         </div>
       }
       open={open}
-      size="5xl"
+      size="2xl"
       title="Tambah Jasa Service"
       onOpenChange={setOpen}
     >
@@ -174,7 +174,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Harga */}
             <FormField
               control={form.control}
@@ -218,6 +218,26 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="supplier_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Supplier</FormLabel>
+                  <FormControl>
+                    <Combobox
+                      items={(suppliers?.data || []).map((e) => ({
+                        label: e.name,
+                        value: e.id,
+                      }))}
+                      value={field.value}
+                      onChange={(val) => field.onChange(val)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -229,22 +249,14 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                 <FormItem>
                   <FormLabel>Tingkat Kesulitan</FormLabel>
                   <Select
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
+                    placeholder="Pilih kesulitan"
+                    value={field.value}
+                    onChange={(_, val) => field.onChange(val)}
                   >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih kesulitan" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="easy">Easy (Mudah)</SelectItem>
-                      <SelectItem value="medium">Medium (Sedang)</SelectItem>
-                      <SelectItem value="hard">Hard (Sulit)</SelectItem>
-                      <SelectItem value="extreme">
-                        Extreme (Sangat Sulit)
-                      </SelectItem>
-                    </SelectContent>
+                    <Option value="easy">Easy (Mudah)</Option>
+                    <Option value="medium">Medium (Sedang)</Option>
+                    <Option value="hard">Hard (Sulit)</Option>
+                    <Option value="extreme">Extreme (Sangat Sulit)</Option>
                   </Select>
                   <FormMessage />
                 </FormItem>
@@ -260,21 +272,16 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                   <FormLabel>Kategori</FormLabel>
                   <div className="flex gap-2">
                     <Select
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
+                      placeholder="Pilih kategori"
+                      sx={{ flex: 1 }}
+                      value={field.value}
+                      onChange={(_, val) => field.onChange(val)}
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih kategori" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id.toString()}>
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                      {categories.map((cat) => (
+                        <Option key={cat.id} value={cat.id.toString()}>
+                          {cat.name}
+                        </Option>
+                      ))}
                     </Select>
                     <CategoryAdd onFinish={(val) => field.onChange(val.id)} />
                   </div>

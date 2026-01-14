@@ -8,6 +8,7 @@ export interface IServiceCategory {
 
 export interface IService {
   id: number;
+  supplier_id?: number;
   name: string;
   code: string;
   description: string;

@@ -23,6 +23,7 @@ import product from "./features/product/product-slice";
 import wo from "./features/work-order/wo-slice";
 import layout from "./features/layout/layout-slice";
 import promo from "./features/promo/promo-slice";
+import supplier from "./features/supplier/supplier-slice";
 
 const persistedWoReducer = persistReducer({ key: "wo", storage }, wo);
 const persistedAuthReducer = persistReducer({ key: "auth", storage }, auth);
@@ -42,6 +43,7 @@ export const store = configureStore({
     wo: persistedWoReducer,
     layout: persistedLayoutReducer,
     promo,
+    supplier,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
