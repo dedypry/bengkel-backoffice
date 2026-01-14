@@ -11,7 +11,12 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getService } from "@/stores/features/service/service-action";
 import { getProduct } from "@/stores/features/product/product-action";
 
-export default function ModalAddService() {
+interface Props {
+  isSave?: boolean;
+  onSave?: () => void;
+  onClose?: () => void;
+}
+export default function ModalAddService({ isSave, onSave, onClose }: Props) {
   const { company } = useAppSelector((state) => state.auth);
   const { query } = useAppSelector((state) => state.service);
   const { productQuery } = useAppSelector((state) => state.product);
@@ -29,16 +34,20 @@ export default function ModalAddService() {
     <>
       <Modal
         footer={
-          <div>
-            <Button type="button" onClick={() => setOpen(false)}>
-              Tutup
-            </Button>
-          </div>
+          !isSave ? (
+            <div>
+              <Button type="button" onClick={() => setOpen(false)}>
+                Tutup
+              </Button>
+            </div>
+          ) : undefined
         }
         open={open}
         size="xl"
         title="Tambah Barang dan Jasa"
+        onClose={onClose}
         onOpenChange={setOpen}
+        onSave={onSave}
       >
         <Tabs defaultValue={category}>
           <TabsList>

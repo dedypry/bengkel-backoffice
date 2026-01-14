@@ -7,7 +7,7 @@ interface Props {
 }
 export default function PaymentMethod({ value, onChange }: Props) {
   return (
-    <RadioGroup value={value} onChange={onChange}>
+    <RadioGroup value={value} onChange={(e) => onChange(e.target.value)}>
       <List
         orientation="horizontal"
         sx={{

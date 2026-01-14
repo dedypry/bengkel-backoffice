@@ -28,9 +28,11 @@ const woSlice = createSlice({
     services: [] as IWo[],
     sparepart: [] as ISparepart[],
     workOrder: {} as IWorkOrder,
+    products: [] as ISparepart[],
     customer: null as ICustomer | null,
     detail: null as IWorkOrder | null,
     isLoadingDetail: false,
+    tabCashier: "customer",
   },
   reducers: {
     setWoQuery: (state, action) => {
@@ -38,6 +40,21 @@ const woSlice = createSlice({
         ...state.woQuery,
         ...action.payload,
       };
+    },
+    setTabCashier: (state, action) => {
+      state.tabCashier = action.payload;
+    },
+    setWoProducts: (state, action: PayloadAction<ISparepart>) => {
+      const find = state.products.findIndex((e) => action.payload.id == e.id);
+
+      if (find >= 0) {
+        state.products[find] = action.payload;
+      } else {
+        state.products = [...state.products, action.payload];
+      }
+    },
+    removeWoProduct: (state, action: PayloadAction<ISparepart>) => {
+      state.products = state.products.filter((e) => e.id !== action.payload.id);
     },
     setCustomer: (state, action) => {
       state.customer = action.payload;
@@ -81,6 +98,8 @@ const woSlice = createSlice({
       state.services = [];
       state.sparepart = [];
       state.customer = null;
+      state.products = [];
+      state.workOrder = {} as any;
     },
   },
   extraReducers: (builder) =>
@@ -109,6 +128,9 @@ export const {
   formWoClear,
   setCustomer,
   setWoQuery,
+  setTabCashier,
+  setWoProducts,
+  removeWoProduct,
 } = woSlice.actions;
 
 export default woSlice.reducer;

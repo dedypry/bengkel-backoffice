@@ -20,5 +20,6 @@
     "finish": "Finished",
     "low": "Low",
     "normal": "Normal",
-    "high": "High"
+    "high": "High",
+    "cancel": "Cancel"
 }

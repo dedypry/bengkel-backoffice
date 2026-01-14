@@ -35,7 +35,9 @@ interface ModalProps {
   showCancel?: boolean;
   size?: ModalSize; // Tambahkan prop size
   onSave?: () => void;
+  onClose?: () => void;
   isLoading?: boolean;
+  disable?: boolean;
 }
 
 export default function Modal({
@@ -49,6 +51,8 @@ export default function Modal({
   size = "md", // Default size ke md
   onSave,
   isLoading,
+  disable,
+  onClose,
 }: ModalProps) {
   // Mapping ukuran ke class Tailwind
   const sizeConfig: Record<ModalSize, any> = {
@@ -130,12 +134,20 @@ export default function Modal({
                   <>
                     <Box sx={{ gap: 2, display: "flex" }}>
                       {showCancel && (
-                        <Button color="neutral" variant="outlined">
+                        <Button
+                          color="neutral"
+                          disabled={isLoading}
+                          variant="outlined"
+                          onClick={() => {
+                            onOpenChange!(false);
+                            onClose!();
+                          }}
+                        >
                           Batal
                         </Button>
                       )}
 
-                      <Button disabled={isLoading} onClick={onSave}>
+                      <Button disabled={isLoading || disable} onClick={onSave}>
                         Simpan
                       </Button>
                     </Box>

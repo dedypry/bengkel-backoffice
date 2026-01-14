@@ -77,14 +77,13 @@ export default function InputNumber({
     // Prevent more than one comma
     if (commaCount > 1) return;
 
-    // Update the value with the formatted Indonesian number
-    setValue(formatIndonesianNumber(sanitizedInput));
-
     // Convert sanitized input to a number
     const numericValue = switchCommasToDots(sanitizedInput);
 
     // Validate maximum input value
-    if (maxInput && numericValue > maxInput) return;
+    if (maxInput != undefined && numericValue > maxInput) return;
+    // Update the value with the formatted Indonesian number
+    setValue(formatIndonesianNumber(sanitizedInput));
 
     // Call the onInput callback with the numeric value
     onInput?.(numericValue);

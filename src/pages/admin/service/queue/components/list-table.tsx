@@ -33,6 +33,8 @@ import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
 import { hasRoles } from "@/utils/helpers/roles";
+import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
+import { http } from "@/utils/libs/axios";
 
 interface Props {
   setOpenModal: (val: boolean) => void;
@@ -44,19 +46,29 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const navigate = useNavigate();
   const restriction = hasRoles(["foreman", "super-admin"]);
 
+  function handleCancel(id: number) {
+    http
+      .patch(`/work-order/cancel/${id}`)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(getWo(woQuery));
+      })
+      .catch((err) => notifyError(err));
+  }
+
   return (
     <Card>
       <Sheet>
-        <Table borderAxis="xBetween">
+        <Table borderAxis="xBetween" noWrap={true}>
           <thead>
             <tr>
               <th style={{ width: 140 }}>Estimasi/Antrean</th>
               <th style={{ width: 150 }}>Pelanggan & Unit</th>
               <th style={{ width: 80 }}>Prioritas</th>
               <th style={{ width: 180 }}>Tanggal Masuk</th>
-              <th style={{ width: 180 }}>dikerjakan Oleh</th>
+              <th>dikerjakan Oleh</th>
               <th style={{ width: 180 }}>Status</th>
-              <th>Aksi</th>
+              <th style={{ width: 180 }}>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -120,60 +132,70 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                   <StatusQueue wo={item} />
                 </td>
                 <td>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 justify-end">
                     <ButtonStatus
                       item={item}
                       onSuccess={() => dispatch(getWo(woQuery))}
                     />
-                    <Dropdown>
-                      <MenuButton
-                        slotProps={{
-                          root: {
-                            variant: "plain",
-                            color: "neutral",
-                            size: "sm",
-                          },
-                        }}
-                        slots={{ root: IconButton }}
-                      >
-                        <MoreVertical />
-                      </MenuButton>
-                      <Menu placement="bottom-start">
-                        <MenuItem
-                          key="detail"
-                          onClick={() => navigate(`/service/queue/${item.id}`)}
+                    {item.progress !== "cancel" && (
+                      <Dropdown>
+                        <MenuButton
+                          slotProps={{
+                            root: {
+                              variant: "plain",
+                              color: "neutral",
+                              size: "sm",
+                            },
+                          }}
+                          slots={{ root: IconButton }}
                         >
-                          <EyeIcon size={18} />
-                          Detail Order
-                        </MenuItem>
-                        {restriction && (
+                          <MoreVertical />
+                        </MenuButton>
+                        <Menu placement="bottom-start">
                           <MenuItem
-                            key="mech"
-                            onClick={() => {
-                              dispatch(
-                                setMechanic(
-                                  item.mechanics?.map((item) => item.id),
-                                ),
-                              );
-                              setOpenModal(true);
-                              setWoId(item.id);
-                            }}
+                            key="detail"
+                            onClick={() =>
+                              navigate(`/service/queue/${item.id}`)
+                            }
                           >
-                            <UserCircleIcon size={18} /> Pilih Mekanik
+                            <EyeIcon size={18} />
+                            Detail Order
                           </MenuItem>
-                        )}
-
-                        {item.progress === "queue" && restriction && (
-                          <>
-                            <ListDivider />
-                            <MenuItem key="dele" sx={{ color: "red" }}>
-                              <Trash2 size={18} />
-                              Batalkan Antrean
+                          {restriction && (
+                            <MenuItem
+                              key="mech"
+                              onClick={() => {
+                                dispatch(
+                                  setMechanic(
+                                    item.mechanics?.map((item) => item.id),
+                                  ),
+                                );
+                                setOpenModal(true);
+                                setWoId(item.id);
+                              }}
+                            >
+                              <UserCircleIcon size={18} /> Pilih Mekanik
                             </MenuItem>
-                          </>
-                        )}
-                      </Menu>
-                    </Dropdown>
+                          )}
+
+                          {item.progress === "queue" && restriction && (
+                            <>
+                              <ListDivider />
+                              <MenuItem
+                                key="dele"
+                                sx={{ color: "red" }}
+                                onClick={() =>
+                                  confirmSweat(() => handleCancel(item.id))
+                                }
+                              >
+                                <Trash2 size={18} />
+                                Batalkan Antrean
+                              </MenuItem>
+                            </>
+                          )}
+                        </Menu>
+                      </Dropdown>
+                    )}
                   </div>
                 </td>
               </tr>

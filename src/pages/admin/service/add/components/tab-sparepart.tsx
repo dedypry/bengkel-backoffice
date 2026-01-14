@@ -21,7 +21,7 @@ import {
 } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
 import { getProduct } from "@/stores/features/product/product-action";
-import { formatIDR } from "@/utils/helpers/format";
+import { formatIDR, formatNumber } from "@/utils/helpers/format";
 import InputNumber from "@/components/ui/input-number";
 import { CustomPagination } from "@/components/custom-pagination";
 
@@ -49,7 +49,12 @@ export default function TabSparepart() {
 
   function handleQty(item: IProduct, qty: number) {
     if (qty > 0) {
-      dispatch(addSparepartService({ ...item, qty }));
+      dispatch(
+        addSparepartService({
+          ...item,
+          qty: item.stock < qty ? item.stock : qty,
+        }),
+      );
     } else {
       dispatch(removeSparepartService(item));
     }
@@ -92,6 +97,7 @@ export default function TabSparepart() {
           <TableRow>
             <TableHead>Pilih</TableHead>
             <TableHead>Barang/Jasa</TableHead>
+            <TableHead className="text-end">Stok</TableHead>
             <TableHead className="text-end">Harga</TableHead>
             <TableHead className="text-center">Qty</TableHead>
           </TableRow>
@@ -102,6 +108,7 @@ export default function TabSparepart() {
               <TableCell>
                 <Checkbox
                   checked={selectedIds.includes(item.id)}
+                  disabled={item.stock < 1}
                   onCheckedChange={(e) => handleCheck(e as boolean, item)}
                 />
               </TableCell>
@@ -111,12 +118,19 @@ export default function TabSparepart() {
                   <span className="text-gray-400 text-xs">{item.code}</span>
                 </div>
               </TableCell>
+              <TableCell
+                className={`text-end ${Number(item.stock - findQty(item)) < 0 ? "text-red-600" : ""} `}
+              >
+                {formatNumber(Number(item.stock - findQty(item)))}{" "}
+                <span className="text-xs italic">{item.uom?.code}</span>
+              </TableCell>
               <TableCell className="text-end">
                 {formatIDR(Number(item.sell_price))}
               </TableCell>
               <TableCell className="flex justify-center">
                 <div className="max-w-32">
                   <InputNumber
+                    disabled={item.stock < 1}
                     endDecorator={
                       <IconButton
                         onClick={() => handleQty(item, findQty(item) + 1)}
@@ -124,6 +138,7 @@ export default function TabSparepart() {
                         +
                       </IconButton>
                     }
+                    maxInput={item.stock}
                     slotProps={{
                       input: {
                         style: {

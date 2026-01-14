@@ -1,9 +1,20 @@
-import { CalendarDays, Car, User, Wrench, Receipt } from "lucide-react";
-import { useEffect } from "react";
+import {
+  CalendarDays,
+  Car,
+  User,
+  Wrench,
+  Receipt,
+  UserCircleIcon,
+  Printer,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Button, CircularProgress, IconButton } from "@mui/joy";
 
 import ButtonStatus from "../components/button-status";
 import StatusQueue from "../components/status-queue";
+import ModalAddService from "../../add/components/modal-add-service";
+import AddMechanich from "../../components/add-mekanik";
 
 import {
   Card,
@@ -28,9 +39,26 @@ import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import DetailSkeleton from "@/pages/admin/hr/employees/components/detail-skeleton";
 import Detail404 from "@/pages/admin/hr/employees/components/detail-404";
 import { formatIDR } from "@/utils/helpers/format";
+import {
+  formWoClear,
+  setWoService,
+  setWoSparepart,
+} from "@/stores/features/work-order/wo-slice";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
+import { handleDownload } from "@/utils/helpers/global";
 
 export default function WorkOrderDetail() {
-  const { detail: data, isLoadingDetail } = useAppSelector((state) => state.wo);
+  const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const {
+    detail: data,
+    isLoadingDetail,
+    sparepart,
+    services,
+  } = useAppSelector((state) => state.wo);
 
   const dispatch = useAppDispatch();
   const { id } = useParams();
@@ -41,11 +69,61 @@ export default function WorkOrderDetail() {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (data) {
+      const dataServices = data.services?.map((e: any) => ({
+        ...e.data,
+        qty: e.qty,
+        price: e.price,
+      }));
+      const dataSparepart = data.spareparts?.map((e: any) => ({
+        ...e.data,
+        qty: e.qty,
+        price: e.price,
+      }));
+
+      dispatch(setWoSparepart(dataSparepart));
+      dispatch(setWoService(dataServices));
+    }
+  }, [data]);
+
   if (isLoadingDetail) return <DetailSkeleton />;
   if (!data) return <Detail404 />;
 
+  function handleSave() {
+    http
+      .patch(`/work-order/service/${id}`, {
+        services: services.map((e) => ({
+          id: e.id,
+          qty: e.qty,
+          price: e.price,
+        })),
+        sparepart: sparepart.map((e) => ({
+          id: e.id,
+          qty: e.qty,
+          price: e.sell_price,
+        })),
+      })
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(formWoClear());
+        dispatch(getWoDetail(id as any));
+      })
+      .catch((err) => notifyError(err));
+  }
+
+  function onClose() {
+    dispatch(formWoClear());
+  }
+
   return (
     <div className="container mx-auto py-8 space-y-8">
+      <AddMechanich
+        id={id as any}
+        open={openModal}
+        setOpen={setOpenModal}
+        onRefresh={() => dispatch(getWoDetail(id as any))}
+      />
       {/* 1. Header & Quick Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -159,6 +237,33 @@ export default function WorkOrderDetail() {
                   </CardDescription>
                 </div>
               </div>
+              <div className="flex gap-2">
+                <IconButton
+                  disabled={loading}
+                  variant="outlined"
+                  onClick={() =>
+                    handleDownload(
+                      `/invoices/${id}`,
+                      data.trx_no,
+                      true,
+                      setLoading,
+                    )
+                  }
+                >
+                  {loading ? (
+                    <CircularProgress />
+                  ) : (
+                    <Printer className="size-5" />
+                  )}
+                </IconButton>
+                {!["closed", "cancel"].includes(data.status) && (
+                  <ModalAddService
+                    isSave
+                    onClose={onClose}
+                    onSave={handleSave}
+                  />
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -238,10 +343,26 @@ export default function WorkOrderDetail() {
                 </CardDescription>
               </div>
               <div className="flex-1" />
-              <ButtonStatus
-                item={data}
-                onSuccess={() => dispatch(getWoDetail(id!))}
-              />
+              {data.status !== "cancel" && (
+                <>
+                  <Button
+                    size="sm"
+                    startDecorator={<UserCircleIcon size={18} />}
+                    onClick={() => {
+                      dispatch(
+                        setMechanic(data.mechanics?.map((item) => item.id)),
+                      );
+                      setOpenModal(true);
+                    }}
+                  >
+                    Pilih Mekanik
+                  </Button>
+                  <ButtonStatus
+                    item={data}
+                    onSuccess={() => dispatch(getWoDetail(id!))}
+                  />
+                </>
+              )}
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

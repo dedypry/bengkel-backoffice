@@ -340,8 +340,7 @@ export default function PendaftaranServis() {
                         <FormControl>
                           <DatePicker
                             disabled={
-                              !!form.watch("customer.id") &&
-                              !!form.watch("customer.birth_date")
+                              !!customer?.id && !!customer.profile.birth_date
                             }
                             setValue={field.onChange}
                             value={new Date(field.value as any)}

@@ -20,5 +20,6 @@
     "finish": "Selesai",
     "low": "Rendah",
     "normal": "Normal",
-    "high": "Tinggi"
+    "high": "Tinggi",
+    "cancel": "Batal"
 }

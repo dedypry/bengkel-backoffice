@@ -26,8 +26,9 @@ interface Props {
   open: boolean;
   id: number;
   setOpen: (val: boolean) => void;
+  onRefresh?: () => void;
 }
-export default function AddMechanich({ open, setOpen, id }: Props) {
+export default function AddMechanich({ open, setOpen, id, onRefresh }: Props) {
   const { mechanics, mechanicIds } = useAppSelector((state) => state.mechanic);
   const { company } = useAppSelector((state) => state.auth);
   const { woQuery } = useAppSelector((state) => state.wo);
@@ -50,7 +51,12 @@ export default function AddMechanich({ open, setOpen, id }: Props) {
       .then(({ data }) => {
         notify(data.message);
         dispatch(setMechanic([]));
-        dispatch(getWo(woQuery));
+
+        if (onRefresh) {
+          onRefresh();
+        } else {
+          dispatch(getWo(woQuery));
+        }
         setOpen(false);
       })
       .catch((err) => notifyError(err))

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { CheckCircle2, Clock, Flag, Play } from "lucide-react";
+import { CheckCircle2, Clock, Flag, Play, X } from "lucide-react";
 
 export interface IChild {
   children?: ReactNode;
@@ -32,6 +32,11 @@ export const PROGRESS_CONFIG = {
     label: "Selesai",
     color: "text-green-600",
     icon: Flag,
+  },
+  cancel: {
+    label: "Batal",
+    color: "text-rose-600",
+    icon: X,
   },
 };
 

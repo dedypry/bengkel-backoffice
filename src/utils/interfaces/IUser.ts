@@ -1,3 +1,4 @@
+import type { IOrder } from "./IOrder";
 import type { IProduct } from "./IProduct";
 import type { IPromo } from "./IPromo";
 import type { IRole } from "./IRole";
@@ -157,6 +158,14 @@ export interface IPayment {
   proof_image?: string;
   updated_by?: number;
   work_order_id?: number;
+  received_amount?: number;
+  order_id?: number;
+  company_id?: number;
+  created_at: string; // ISO Date string
+  updated_at: string; // ISO Date string
+  order?: IOrder;
+  work_order?: IWorkOrder;
+  cashier?: IUser;
 }
 
 export interface IWorkOrder {
@@ -168,7 +177,7 @@ export interface IWorkOrder {
   queue_no: string | null;
   current_km?: number;
   priority: "normal" | "high" | "low"; // Sesuaikan dengan opsi priority Anda
-  status: "draft" | "open" | "closed"; // Sesuaikan dengan opsi status Anda
+  status: "draft" | "open" | "closed" | "cancel"; // Sesuaikan dengan opsi status Anda
   company_id?: number;
   customer_id?: number;
   vehicle_id?: number;
@@ -181,7 +190,7 @@ export interface IWorkOrder {
   grand_total?: string;
   ppn_percent?: string;
   ppn_amount?: string;
-  progress?: "queue" | "on_progress" | "ready" | "finish";
+  progress?: "queue" | "on_progress" | "ready" | "finish" | "cancel";
   discount_amount?: string;
 
   // Relasi & Computed Fields

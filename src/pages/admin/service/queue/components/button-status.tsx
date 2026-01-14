@@ -3,15 +3,16 @@ import type { IWorkOrder } from "@/utils/interfaces/IUser";
 import React, { useState } from "react";
 import { Button } from "@mui/joy";
 import { useNavigate } from "react-router-dom";
+import { Eye } from "lucide-react";
 
 import ResultMechanic from "./result-mechanic";
 
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
-import { setWo } from "@/stores/features/work-order/wo-slice";
 import { useAppDispatch } from "@/stores/hooks";
 import { hasRoles } from "@/utils/helpers/roles";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
+import { setTabCashier } from "@/stores/features/work-order/wo-slice";
 
 interface Props {
   item: IWorkOrder;
@@ -75,10 +76,23 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
           size="sm"
           onClick={() => {
             dispatch(getWoDetail(item.id));
+            dispatch(setTabCashier("customer"));
             navigate("/cashier");
           }}
         >
           {isLoading ? "Menyimpan..." : "KASIR / PULANG"}
+        </Button>
+      )}
+      {item.progress === "cancel" && (
+        <Button
+          color="success"
+          size="sm"
+          startDecorator={<Eye />}
+          onClick={() => {
+            navigate(`/service/queue/${item.id}`);
+          }}
+        >
+          Detail
         </Button>
       )}
     </React.Fragment>

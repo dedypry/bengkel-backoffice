@@ -1,5 +1,9 @@
 import type { IWo } from "@/stores/features/work-order/wo-slice";
 
+import { http } from "../libs/axios";
+
+import { notifyError } from "./notify";
+
 export function getInitials(name: string): string {
   if (!name) return "";
 
@@ -60,3 +64,41 @@ export const calculateTotalEstimation = (services: IWo[]) => {
     details: { days: d, hours: h, minutes: m },
   };
 };
+
+export async function handleDownload(
+  linkUrl: string,
+  fileName: string = "",
+  isRedirect: boolean = false,
+  setLoading?: (val: boolean) => void,
+) {
+  try {
+    setLoading!(true);
+    // 1. Lakukan request dengan responseType 'blob'
+    const response = await http.get(linkUrl, {
+      responseType: "blob",
+    });
+
+    // 2. Buat URL sementara dari blob tersebut
+    const blob = new Blob([response.data], { type: "application/pdf" });
+    const url = window.URL.createObjectURL(blob);
+
+    if (isRedirect) {
+      window.open(url, "_blank");
+    } else {
+      const link = document.createElement("a");
+
+      link.href = url;
+
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }
+  } catch (error) {
+    console.error("Download gagal:", error);
+    notifyError("Gagal mendownload PDF");
+  } finally {
+    setLoading!(false);
+  }
+}
