@@ -80,7 +80,6 @@ const navigation = [
     icon: Receipt,
     items: [
       { title: "Daftar (Invoicing)", url: "list" },
-      { title: "Kasir (Invoicing)", url: "invoices" },
       { title: "Pengeluaran Operasional", url: "expenses" },
     ],
   },

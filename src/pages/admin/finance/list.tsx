@@ -1,150 +1,173 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Avatar,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Input,
+  Sheet,
+  Table,
+} from "@mui/joy";
+import { Banknote, Eye, Search } from "lucide-react";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
-type InvoiceStatus = "paid" | "unpaid" | "cancelled";
-
-type Invoice = {
-  id: number;
-  invoiceNumber: string;
-  customerName: string;
-  serviceName: string;
-  total: number;
-  date: string;
-  status: InvoiceStatus;
-};
-
-const INVOICES: Invoice[] = [
-  {
-    id: 1,
-    invoiceNumber: "INV-2024-001",
-    customerName: "Budi Santoso",
-    serviceName: "Servis Berkala Mobil",
-    total: 350000,
-    date: "2024-12-20",
-    status: "paid",
-  },
-  {
-    id: 2,
-    invoiceNumber: "INV-2024-002",
-    customerName: "Andi Wijaya",
-    serviceName: "Ganti Oli Mobil",
-    total: 250000,
-    date: "2024-12-21",
-    status: "unpaid",
-  },
-  {
-    id: 3,
-    invoiceNumber: "INV-2024-003",
-    customerName: "Siti Rahma",
-    serviceName: "Servis Rem Mobil",
-    total: 300000,
-    date: "2024-12-22",
-    status: "cancelled",
-  },
-];
+import HeaderAction from "@/components/header-action";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getPayment } from "@/stores/features/payments/payment-action";
+import { CustomPagination } from "@/components/custom-pagination";
+import { setPaymentQuery } from "@/stores/features/payments/payment-slice";
+import { getAvatarByName } from "@/utils/helpers/global";
+import { formatIDR } from "@/utils/helpers/format";
 
 export default function InvoiceListPage() {
+  const { payments, paymentQuery } = useAppSelector((state) => state.payment);
+  const { company } = useAppSelector((state) => state.auth);
   const [search, setSearch] = useState("");
 
-  const filteredInvoices = INVOICES.filter(
-    (invoice) =>
-      invoice.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
-      invoice.customerName.toLowerCase().includes(search.toLowerCase()),
-  );
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-  const statusVariant = (status: InvoiceStatus) => {
-    switch (status) {
-      case "paid":
-        return "default";
-      case "unpaid":
-        return "outline";
-      case "cancelled":
-        return "secondary";
+  useEffect(() => {
+    if (company) {
+      dispatch(getPayment(paymentQuery));
     }
-  };
-
-  const statusLabel = (status: InvoiceStatus) => {
-    switch (status) {
-      case "paid":
-        return "Lunas";
-      case "unpaid":
-        return "Belum Bayar";
-      case "cancelled":
-        return "Dibatalkan";
-    }
-  };
+  }, [company, paymentQuery]);
 
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold">Daftar Invoice</h1>
-        <p className="text-sm text-muted-foreground">
-          Riwayat invoice servis mobil
-        </p>
-      </div>
+      <HeaderAction
+        subtitle="Riwayat invoice servis mobil"
+        title="Daftar Invoice"
+      />
 
       {/* Action Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
-          className="sm:max-w-xs"
+          fullWidth
+          endDecorator={
+            <Button onClick={() => dispatch(setPaymentQuery({ q: search }))}>
+              Cari
+            </Button>
+          }
           placeholder="Cari invoice / customer..."
+          startDecorator={<Search />}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {/* List */}
-      <div className="grid gap-4">
-        {filteredInvoices.map((invoice) => (
-          <div
-            key={invoice.id}
-            className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium">
-                {invoice.invoiceNumber}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {invoice.customerName} • {invoice.serviceName}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {new Date(invoice.date).toLocaleDateString("id-ID")}
-              </span>
-            </div>
+      <Card>
+        <CardContent>
+          <Sheet>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Nomor Invoice</th>
+                  <th>Pelanggan</th>
+                  <th>Pembayaran</th>
+                  <th>Petugas</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {payments?.data.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <div className="flex flex-col gap-1">
+                        <p>{item.payment_no}</p>
+                        <p className="italic text-gray-500">
+                          Reference No. {item.reference_no}
+                        </p>
+                      </div>
+                    </td>
+                    <td>
+                      {item.work_order ? (
+                        <div className="flex gap-2">
+                          <Avatar
+                            size="sm"
+                            src={
+                              item.work_order?.customer?.profile?.photo_url ||
+                              getAvatarByName(item.work_order?.customer?.name!)
+                            }
+                          />
+                          <div className="flex flex-col">
+                            <p className="font-semibold">
+                              {item.work_order?.customer?.name}
+                            </p>
+                            <p className="text-[10px]">
+                              {item.work_order?.customer?.phone}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-center">-</p>
+                      )}
+                    </td>
+                    <td>
+                      <div className="flex flex-col gap-2">
+                        <p className="text-right font-semibold text-green-600">
+                          {formatIDR(item.amount)}
+                        </p>
+                        <div className="flex justify-between">
+                          <p>{dayjs(item.created_at).format("DD MMM YYYY")}</p>
+                          <Chip
+                            size="sm"
+                            startDecorator={<Banknote />}
+                            variant="outlined"
+                          >
+                            {item.method}
+                          </Chip>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex gap-2">
+                        <Avatar
+                          size="sm"
+                          src={
+                            item.cashier?.profile?.photo_url ||
+                            getAvatarByName(item.cashier?.name!)
+                          }
+                        />
+                        <div className="flex flex-col">
+                          <p className="font-semibold">{item.cashier?.name}</p>
+                          <p className="text-[10px]">{item.cashier?.nik}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ textAlign: "end" }}>
+                      <Button
+                        color="success"
+                        size="sm"
+                        startDecorator={<Eye />}
+                        onClick={() =>
+                          navigate(
+                            item.work_order_id
+                              ? `/service/queue/${item.work_order_id}`
+                              : `/finance/${item.id}`,
+                          )
+                        }
+                      >
+                        Detail
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Sheet>
+        </CardContent>
+      </Card>
 
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-semibold">
-                  Rp {invoice.total.toLocaleString("id-ID")}
-                </p>
-                <Badge variant={statusVariant(invoice.status)}>
-                  {statusLabel(invoice.status)}
-                </Badge>
-              </div>
-
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline">
-                  Detail
-                </Button>
-
-                {invoice.status === "unpaid" && (
-                  <Button size="sm">Bayar</Button>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {filteredInvoices.length === 0 && (
-          <div className="text-center text-sm text-muted-foreground">
-            Invoice tidak ditemukan
-          </div>
-        )}
-      </div>
+      <CustomPagination
+        className="mt-auto"
+        meta={payments?.meta!}
+        onPageChange={(page) => dispatch(setPaymentQuery({ page }))}
+      />
     </div>
   );
 }

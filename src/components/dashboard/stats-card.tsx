@@ -1,28 +1,38 @@
 import { Car, Wrench, DollarSign, Clock } from "lucide-react";
 
-const stats = [
-  {
-    label: "Servis Hari Ini",
-    value: "12",
-    icon: <Car />,
-    color: "bg-blue-500",
-  },
-  {
-    label: "Sedang Dikerjakan",
-    value: "5",
-    icon: <Wrench />,
-    color: "bg-amber-500",
-  },
-  { label: "Selesai", value: "7", icon: <Clock />, color: "bg-green-500" },
-  {
-    label: "Pendapatan (Hari Ini)",
-    value: "Rp 3.5M",
-    icon: <DollarSign />,
-    color: "bg-emerald-600",
-  },
-];
+import { useAppSelector } from "@/stores/hooks";
+import { formatIDR } from "@/utils/helpers/format";
 
 export function StatsGrid() {
+  const { dashboard } = useAppSelector((state) => state.dashboard);
+
+  const stats = [
+    {
+      label: "Servis Hari Ini",
+      value: dashboard?.countToday,
+      icon: <Car />,
+      color: "bg-blue-500",
+    },
+    {
+      label: "Sedang Dikerjakan",
+      value: dashboard?.countWork,
+      icon: <Wrench />,
+      color: "bg-amber-500",
+    },
+    {
+      label: "Selesai",
+      value: dashboard?.countFinish,
+      icon: <Clock />,
+      color: "bg-green-500",
+    },
+    {
+      label: "Pendapatan (Hari Ini)",
+      value: formatIDR(Number(dashboard?.revenueToday || 0)),
+      icon: <DollarSign />,
+      color: "bg-emerald-600",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, i) => (

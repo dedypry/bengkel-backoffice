@@ -1,4 +1,17 @@
-export const formatIDR = (price: number) => {
+export const formatIDR = (price: number, type: "full" | "short" = "full") => {
+  if (type === "short") {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      notation: "compact",
+      maximumFractionDigits: 1, // Menampilkan 1 desimal, misal 1.5 Jt
+    })
+      .format(price)
+      .replace("jt", "Jt")
+      .replace("rb", "Rb");
+    // .replace di atas untuk memastikan kapitalisasi sesuai selera UI
+  }
+
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",

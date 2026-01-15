@@ -7,25 +7,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { TrendingDown, TrendingUp } from "lucide-react";
 
-const data = [
-  { day: "Senin", total: 1200000 },
-  { day: "Selasa", total: 2100000 },
-  { day: "Rabu", total: 1800000 },
-  { day: "Kamis", total: 2500000 },
-  { day: "Jumat", total: 3200000 },
-  { day: "Sabtu", total: 4500000 },
-  { day: "Minggu", total: 2800000 },
-];
+import { useAppSelector } from "@/stores/hooks";
+import { formatIDR } from "@/utils/helpers/format";
 
 export function RevenueChart() {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  const { dashboard } = useAppSelector((state) => state.dashboard);
 
   return (
     <div className="bg-white p-6 rounded-xl border shadow-sm">
@@ -35,16 +23,35 @@ export function RevenueChart() {
           <p className="text-xs text-slate-500">7 Hari Terakhir</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-primary">Rp 18.1M</p>
-          <p className="text-[10px] text-green-500 font-bold">
-            ↑ 12% dari minggu lalu
+          <p className="text-2xl font-bold text-primary">
+            {formatIDR(Number(dashboard?.revenueComparison.lastTotal), "short")}
           </p>
+          <div className="flex items-center gap-1">
+            {/* Warna dinamis: Hijau jika naik, Merah jika turun */}
+            <p
+              className={`text-[10px] font-bold flex items-center gap-0.5 ${
+                dashboard?.revenueComparison.status === "increase"
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            >
+              {dashboard?.revenueComparison.status === "increase" ? (
+                <TrendingUp size={12} />
+              ) : (
+                <TrendingDown size={12} />
+              )}
+              {/* Gunakan Math.abs agar angka negatif tidak menampilkan double minus */}
+              {Math.abs(dashboard?.revenueComparison.percentageChange || 0)}%
+            </p>
+
+            <span className="text-[10px] text-slate-500">dari minggu lalu</span>
+          </div>
         </div>
       </div>
 
       <div className="h-75 w-full">
         <ResponsiveContainer height="100%" width="100%">
-          <AreaChart data={data}>
+          <AreaChart data={dashboard?.trends}>
             <defs>
               <linearGradient id="colorTotal" x1="0" x2="0" y1="0" y2="1">
                 <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1} />
@@ -72,10 +79,7 @@ export function RevenueChart() {
                 border: "none",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
               }}
-              formatter={(value: number) => [
-                formatCurrency(value),
-                "Pendapatan",
-              ]}
+              formatter={(value: number) => [formatIDR(value), "Pendapatan"]}
             />
             <Area
               dataKey="total"

@@ -1,13 +1,26 @@
 import { Car, CalendarDays, Plus } from "lucide-react";
+import { useEffect } from "react";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@mui/joy";
 
-import { Button } from "@/components/ui/button";
 import { ServiceQueue } from "@/components/dashboard/service-queue";
 import { StatsGrid } from "@/components/dashboard/stats-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { InventoryAlert } from "@/components/dashboard/inventory-alert";
 import { QuickActions } from "@/components/dashboard/quick-action";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getDashboard } from "@/stores/features/dashboard/dashboard-action";
 
 export default function HomePage() {
+  const { dashboard } = useAppSelector((state) => state.dashboard);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getDashboard());
+  }, []);
+
   return (
     <div className="max-w-400 mx-auto pb-10 space-y-8">
       {/* HEADER SECTION */}
@@ -18,14 +31,16 @@ export default function HomePage() {
           </h1>
           <div className="flex items-center gap-2 mt-1 text-slate-500 text-sm">
             <CalendarDays className="size-4" />
-            <span>Kamis, 25 Desember 2025</span>
+            <span>{dayjs().format("dddd, DD MMMM YYYY")}</span>
             <span className="w-1 h-1 bg-slate-300 rounded-full" />
             <span className="text-emerald-600 font-medium">Sistem Online</span>
           </div>
         </div>
 
-        <Button className="shadow-lg shadow-primary/25 gap-2 px-6">
-          <Plus className="size-5" />
+        <Button
+          startDecorator={<Plus />}
+          onClick={() => navigate("/service/add")}
+        >
           Work Order Baru
         </Button>
       </div>
@@ -47,9 +62,9 @@ export default function HomePage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Antrean Workshop</h2>
               <Button
-                className="text-primary underline-offset-4 hover:underline"
                 size="sm"
-                variant="ghost"
+                variant="outlined"
+                onClick={() => navigate("/service/queue")}
               >
                 Lihat Semua Antrean
               </Button>
@@ -73,7 +88,18 @@ export default function HomePage() {
               <p className="text-white/80 text-xs mt-2 max-w-50">
                 Gunakan fitur scan QR untuk mempercepat input data kendaraan.
               </p>
-              <Button className="mt-4 font-bold" size="sm" variant="secondary">
+              <Button
+                size="sm"
+                sx={{
+                  mt: 2,
+                  borderColor: "white",
+                  color: "white",
+                  ":hover": {
+                    color: "black",
+                  },
+                }}
+                variant="outlined"
+              >
                 Pelajari Fitur
               </Button>
             </div>

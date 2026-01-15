@@ -1,20 +1,13 @@
 import { AlertTriangle, PackageSearch, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
-
-const lowStockItems = [
-  {
-    id: 1,
-    name: "Oli Shell Helix 1L",
-    stock: 2,
-    unit: "Botol",
-    status: "Critical",
-  },
-  { id: 2, name: "Kampas Rem Vario", stock: 0, unit: "Set", status: "Empty" },
-  { id: 3, name: "Busi NGK", stock: 5, unit: "Pcs", status: "Low" },
-];
+import { useAppSelector } from "@/stores/hooks";
 
 export function InventoryAlert() {
+  const { dashboard } = useAppSelector((state) => state.dashboard);
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white rounded-xl border shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
@@ -23,12 +16,12 @@ export function InventoryAlert() {
           Stok Kritis
         </h3>
         <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
-          {lowStockItems.length} Item
+          {dashboard?.product?.length} Item
         </span>
       </div>
 
       <div className="space-y-3">
-        {lowStockItems.map((item) => (
+        {dashboard?.product.map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100"
@@ -53,7 +46,11 @@ export function InventoryAlert() {
         ))}
       </div>
 
-      <Button className="w-full mt-4 text-xs h-9 gap-2" variant="outline">
+      <Button
+        className="w-full mt-4 text-xs h-9 gap-2"
+        variant="outline"
+        onClick={() => navigate("/inventory/stock")}
+      >
         Lihat Gudang <ArrowRight className="size-3" />
       </Button>
     </div>

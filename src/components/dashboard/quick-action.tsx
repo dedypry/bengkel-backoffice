@@ -1,5 +1,6 @@
 import { PlusCircle, FileText, UserPlus, ClipboardList } from "lucide-react";
 import { cloneElement } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function QuickActions() {
   const actions = [
@@ -8,26 +9,32 @@ export function QuickActions() {
       icon: <PlusCircle />,
       color: "text-blue-600",
       bg: "bg-blue-50",
+      to: "/service/add",
     },
     {
       label: "Tambah Pelanggan",
       icon: <UserPlus />,
       color: "text-purple-600",
       bg: "bg-purple-50",
+      to: "/master/customers/create",
     },
     {
-      label: "Buat Invoice",
+      label: "Kasir",
       icon: <FileText />,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
+      to: "/cashier",
     },
     {
       label: "Laporan Harian",
       icon: <ClipboardList />,
       color: "text-slate-600",
       bg: "bg-slate-50",
+      to: "/reports/revenue",
     },
   ];
+
+  const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-xl border shadow-sm p-5">
@@ -36,7 +43,8 @@ export function QuickActions() {
         {actions.map((action, i) => (
           <button
             key={i}
-            className="flex flex-col items-center justify-center p-4 rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-all group"
+            className="flex cursor-pointer flex-col items-center justify-center p-4 rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-all group"
+            onClick={() => navigate(action.to)}
           >
             <div
               className={`${action.bg} ${action.color} p-3 rounded-lg mb-2 group-hover:scale-110 transition-transform`}

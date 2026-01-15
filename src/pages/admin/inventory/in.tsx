@@ -8,6 +8,7 @@ import {
   ChevronRight,
   PackagePlus,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,7 @@ const incomingData = [
 ];
 
 export default function BarangMasuk() {
+  const navigate = useNavigate();
   const formatIDR = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -94,7 +96,11 @@ export default function BarangMasuk() {
             <CalendarIcon className="absolute left-3 top-2.5 size-4 text-slate-400" />
             <Input className="pl-10 w-44" type="date" />
           </div>
-          <Button className="gap-2" variant="outline">
+          <Button
+            className="gap-2"
+            variant="outline"
+            onClick={() => navigate("/master/suppliers")}
+          >
             <Truck className="size-4" /> Supplier
           </Button>
         </div>

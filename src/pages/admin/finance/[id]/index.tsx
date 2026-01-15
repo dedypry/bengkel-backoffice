@@ -81,7 +81,7 @@ export default function PaymentDetail() {
 
       <Grid container spacing={3}>
         {/* Kolom Kiri: Info Pembayaran */}
-        <Grid md={4} xs={12}>
+        <Grid lg={3} md={4} xs={12}>
           <Card sx={{ height: "100%" }} variant="outlined">
             <Typography
               level="title-md"
@@ -136,7 +136,7 @@ export default function PaymentDetail() {
         </Grid>
 
         {/* Kolom Kanan: Detail Order */}
-        <Grid md={8} xs={12}>
+        <Grid lg={9} md={8} xs={12}>
           <Card variant="outlined">
             <Typography level="title-md" startDecorator={<Receipt size={20} />}>
               Detail Pesanan ({data?.order?.trx_no})
@@ -161,51 +161,53 @@ export default function PaymentDetail() {
             <Typography level="title-sm" sx={{ mb: 1 }}>
               Item Pesanan:
             </Typography>
-            <Table size="sm" variant="plain">
-              <thead>
-                <tr>
-                  <th>Nama Produk</th>
-                  <th style={{ width: 80 }}>Qty</th>
-                  <th style={{ textAlign: "right" }}>Harga</th>
-                  <th style={{ textAlign: "right" }}>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(data?.order?.items || []).map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <Typography fontWeight="md" level="body-sm">
-                        {item?.data?.name}
-                      </Typography>
-                      <Typography level="body-xs">
-                        {item?.data?.code}
-                      </Typography>
-                    </td>
-                    <td>
-                      {item.qty} {item?.data?.unit}
-                    </td>
-                    <td style={{ textAlign: "right" }}>
-                      {formatIDR(Number(item.price))}
-                    </td>
-                    <td style={{ textAlign: "right" }}>
-                      {formatIDR(Number(item.total_price))}
-                    </td>
+            <Sheet>
+              <Table noWrap size="sm" variant="plain">
+                <thead>
+                  <tr>
+                    <th>Nama Produk</th>
+                    <th style={{ width: 80, textAlign: "center" }}>Qty</th>
+                    <th style={{ textAlign: "right", width: 100 }}>Harga</th>
+                    <th style={{ textAlign: "right", width: 100 }}>Total</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th colSpan={3} style={{ textAlign: "right" }}>
-                    Grand Total
-                  </th>
-                  <th style={{ textAlign: "right" }}>
-                    <Typography color="primary" level="title-md">
-                      {formatIDR(Number(data?.order?.grand_total))}
-                    </Typography>
-                  </th>
-                </tr>
-              </tfoot>
-            </Table>
+                </thead>
+                <tbody>
+                  {(data?.order?.items || []).map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <Typography fontWeight="md" level="body-sm">
+                          {item?.data?.name}
+                        </Typography>
+                        <Typography level="body-xs">
+                          {item?.data?.code}
+                        </Typography>
+                      </td>
+                      <td style={{ textAlign: "center" }}>
+                        {item.qty} {item?.data?.unit}
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        {formatIDR(Number(item.price))}
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        {formatIDR(Number(item.total_price))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colSpan={2} style={{ textAlign: "right" }}>
+                      Grand Total
+                    </th>
+                    <th colSpan={2} style={{ textAlign: "right" }}>
+                      <Typography color="primary" level="title-md">
+                        {formatIDR(Number(data?.order?.grand_total))}
+                      </Typography>
+                    </th>
+                  </tr>
+                </tfoot>
+              </Table>
+            </Sheet>
           </Card>
         </Grid>
       </Grid>

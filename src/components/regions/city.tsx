@@ -7,7 +7,7 @@ import { getCity } from "@/stores/features/region/region-action";
 import { setCityId } from "@/stores/features/region/region-slice";
 
 interface Props {
-  value: number;
+  value: number | string | undefined;
   onChange: (val: number) => void;
 }
 export default function City({ value, onChange }: Props) {

@@ -10,6 +10,7 @@ export const componentStyle: Components<Theme> | undefined = {
     styleOverrides: {
       root: () => ({
         overflow: "auto",
+        backgroundColor: "transparent",
       }),
     },
   },

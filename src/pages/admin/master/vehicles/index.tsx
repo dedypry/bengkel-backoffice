@@ -2,7 +2,6 @@ import {
   Search,
   Car,
   User,
-  Settings2,
   Plus,
   History,
   Fuel,
@@ -11,45 +10,51 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import dayjs from "dayjs";
+import { Input } from "@mui/joy";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getVehicle } from "@/stores/features/vehicle/vehicle-action";
 import TableAction from "@/components/table-action";
+import debounce from "@/utils/helpers/debounce";
+import { setVehicleQuery } from "@/stores/features/vehicle/vehicle-slice";
+import { CustomPagination } from "@/components/custom-pagination";
 
 export default function MasterVehicles() {
-  const { vehicles } = useAppSelector((state) => state.vehicle);
+  const { vehicles, vehicleQuery } = useAppSelector((state) => state.vehicle);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getVehicle());
-  }, []);
+    dispatch(getVehicle(vehicleQuery));
+  }, [vehicleQuery]);
+
+  const searchDebounce = debounce(
+    (q) => dispatch(setVehicleQuery({ q })),
+    1000,
+  );
 
   return (
     <div className="space-y-6 pb-10">
       {/* Header */}
       <HeaderAction
-        actionIcon={Car}
-        actionTitle="Database Kendaraan"
-        leadIcon={Plus}
+        actionIcon={Plus}
+        actionTitle="Tambah Unit Baru"
+        leadIcon={Car}
         subtitle="Kelola spesifikasi unit dan histori pengerjaan kendaraan."
-        title="Tambah Unit Baru"
+        title="Database Kendaraan"
         onAction={() => {}}
       />
 
       {/* Filter Bar */}
-      <div className="bg-white p-4 rounded-xl border shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="relative md:col-span-2">
-          <Search className="absolute left-3 top-2.5 size-4 text-slate-400" />
-          <Input
-            className="pl-10"
-            placeholder="Cari Plat Nomor, Tipe Mobil, atau Pemilik..."
-          />
-        </div>
-        <select className="bg-slate-50 border border-slate-200 rounded-lg px-3 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-primary/20">
+      <div className="bg-white p-4 rounded-xl border shadow-sm">
+        <Input
+          className="pl-10"
+          placeholder="Cari Plat Nomor, Tipe Mobil, atau Pemilik..."
+          startDecorator={<Search />}
+          onChange={(e) => searchDebounce(e.target.value)}
+        />
+        {/* <select className="bg-slate-50 border border-slate-200 rounded-lg px-3 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-primary/20">
           <option>Semua Brand</option>
           <option>Toyota</option>
           <option>Honda</option>
@@ -57,7 +62,7 @@ export default function MasterVehicles() {
         </select>
         <Button className="gap-2" variant="outline">
           <Settings2 className="size-4" /> Filter Lanjut
-        </Button>
+        </Button> */}
       </div>
 
       {/* Vehicle Grid/Table */}
@@ -164,18 +169,11 @@ export default function MasterVehicles() {
       </div>
 
       {/* Footer Info */}
-      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-sm">
-        <span className="text-slate-500 italic">
-          Total 2,840 kendaraan terdaftar dalam sistem.
-        </span>
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline">
-            Previous
-          </Button>
-          <Button size="sm" variant="outline">
-            Next
-          </Button>
-        </div>
+      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center text-sm">
+        <CustomPagination
+          meta={vehicles?.meta!}
+          onPageChange={(page) => dispatch(setVehicleQuery({ page }))}
+        />
       </div>
     </div>
   );

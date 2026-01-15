@@ -1,34 +1,43 @@
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  FormHelperText,
-  Input,
-  Stack,
-  Textarea,
-  Switch,
-  Typography,
-} from "@mui/joy";
-import { useForm, Controller } from "react-hook-form";
+import type { ISupplier } from "@/utils/interfaces/ISupplier";
+
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Input, Textarea, Typography } from "@mui/joy";
+import { useEffect, useState } from "react";
 
 import { supplierSchema, type SupplierFormValues } from "./form-schema";
 
 import Modal from "@/components/modal";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import { NpwpMask, PhoneMask } from "@/utils/mask/mask";
+import Province from "@/components/regions/province";
+import City from "@/components/regions/city";
+import District from "@/components/regions/district";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getCity, getDistrict } from "@/stores/features/region/region-action";
+import { getSupplier } from "@/stores/features/supplier/supplier-action";
 
 interface Props {
   open: boolean;
   setOpen: (val: boolean) => void;
-  onSubmit: (data: SupplierFormValues) => void;
+  supplier?: ISupplier;
 }
 
-export default function AddModal({ open, setOpen, onSubmit }: Props) {
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<SupplierFormValues>({
+export default function AddModal({ open, setOpen, supplier }: Props) {
+  const { supplierQuery } = useAppSelector((state) => state.supplier);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierSchema),
     defaultValues: {
       name: "",
@@ -42,173 +51,241 @@ export default function AddModal({ open, setOpen, onSubmit }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (open && supplier) {
+      form.reset(supplier as any);
+      if (supplier.province_id) {
+        dispatch(getCity(supplier.province_id));
+      }
+      if (supplier.city_id) {
+        dispatch(getDistrict(supplier.city_id));
+      }
+    }
+  }, [supplier, open]);
+
   const handleFormSubmit = (data: SupplierFormValues) => {
-    onSubmit(data);
-    reset();
-    setOpen(false);
+    setLoading(true);
+    http
+      .post("/suppliers", data)
+      .then(({ data }) => {
+        dispatch(getSupplier(supplierQuery));
+        notify(data.message);
+        form.reset();
+        setOpen(false);
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   };
 
   return (
-    <Modal open={open} title="Tambah Supplier" onOpenChange={setOpen}>
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Stack spacing={2}>
-          <Stack direction="row" spacing={2}>
+    <Modal
+      isLoading={loading}
+      open={open}
+      size="xl"
+      title="Tambah Supplier"
+      onOpenChange={setOpen}
+      onSave={form.handleSubmit(handleFormSubmit)}
+    >
+      <Form {...form}>
+        <form
+          className="space-y-4"
+          onSubmit={form.handleSubmit(handleFormSubmit)}
+        >
+          <div className="grid grid-cols-2 gap-4">
             {/* Nama Supplier */}
-            <FormControl error={!!errors.name} sx={{ flex: 2 }}>
-              <FormLabel>Nama Supplier</FormLabel>
-              <Controller
-                control={control}
-                name="name"
-                render={({ field }) => (
-                  <Input {...field} placeholder="Contoh: PT. Maju Jaya" />
-                )}
-              />
-              {errors.name && (
-                <FormHelperText>{errors.name.message}</FormHelperText>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Supplier</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Contoh: PT. Maju Jaya" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </FormControl>
+            />
 
             {/* Kode Supplier */}
-            <FormControl error={!!errors.code} sx={{ flex: 1 }}>
-              <FormLabel>Kode</FormLabel>
-              <Controller
-                control={control}
-                name="code"
-                render={({ field }) => (
-                  <Input {...field} placeholder="SUP-001" />
-                )}
-              />
-              {errors.code && (
-                <FormHelperText>{errors.code.message}</FormHelperText>
+            <FormField
+              control={form.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kode</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="SUP-001" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </FormControl>
-          </Stack>
+            />
+          </div>
 
-          <Stack direction="row" spacing={2}>
+          <div className="grid grid-cols-2 gap-4">
             {/* Phone */}
-            <FormControl error={!!errors.phone} sx={{ flex: 1 }}>
-              <FormLabel>Telepon</FormLabel>
-              <Controller
-                control={control}
-                name="phone"
-                render={({ field }) => (
-                  <Input {...field} placeholder="0812..." />
-                )}
-              />
-              {errors.phone && (
-                <FormHelperText>{errors.phone.message}</FormHelperText>
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telepon</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="0812..."
+                      slotProps={{ input: { component: PhoneMask } }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </FormControl>
+            />
 
             {/* Email */}
-            <FormControl error={!!errors.email} sx={{ flex: 1 }}>
-              <FormLabel>Email</FormLabel>
-              <Controller
-                control={control}
-                name="email"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="vendor@mail.com"
-                    type="email"
-                  />
-                )}
-              />
-              {errors.email && (
-                <FormHelperText>{errors.email.message}</FormHelperText>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="vendor@mail.com"
+                      type="email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </FormControl>
-          </Stack>
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <FormField
+              control={form.control}
+              name="province_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Provinsi</FormLabel>
+                  <FormControl>
+                    <Province {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="city_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kota</FormLabel>
+                  <FormControl>
+                    <City {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="district_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kecamatan</FormLabel>
+                  <FormControl>
+                    <District {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           {/* Alamat */}
-          <FormControl error={!!errors.address}>
-            <FormLabel>Alamat Lengkap</FormLabel>
-            <Controller
-              control={control}
-              name="address"
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Alamat Lengkap</FormLabel>
+                <FormControl>
+                  <Textarea {...field} placeholder="Jl. Industri No. 5..." />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            {/* NPWP */}
+            <FormField
+              control={form.control}
+              name="npwp"
               render={({ field }) => (
-                <Textarea
-                  {...field}
-                  minRows={2}
-                  placeholder="Jl. Industri No. 5..."
-                />
+                <FormItem>
+                  <FormLabel>NPWP</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="00.000.000.0-000.000"
+                      slotProps={{ input: { component: NpwpMask } }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
-          </FormControl>
-
-          <Stack direction="row" spacing={2}>
-            {/* NPWP */}
-            <FormControl sx={{ flex: 1 }}>
-              <FormLabel>NPWP</FormLabel>
-              <Controller
-                control={control}
-                name="npwp"
-                render={({ field }) => (
-                  <Input {...field} placeholder="00.000.000.0-000.000" />
-                )}
-              />
-            </FormControl>
 
             {/* Website */}
-            <FormControl error={!!errors.website} sx={{ flex: 1 }}>
-              <FormLabel>Website</FormLabel>
-              <Controller
-                control={control}
-                name="website"
-                render={({ field }) => (
-                  <Input {...field} placeholder="https://..." />
-                )}
-              />
-              {errors.website && (
-                <FormHelperText>{errors.website.message}</FormHelperText>
-              )}
-            </FormControl>
-          </Stack>
-
-          {/* Status Switch */}
-          <FormControl
-            orientation="horizontal"
-            sx={{ justifyContent: "space-between", alignItems: "center" }}
-          >
-            <div>
-              <FormLabel>Status Aktif</FormLabel>
-              <Typography level="body-xs">
-                Supplier dapat digunakan dalam transaksi
-              </Typography>
-            </div>
-            <Controller
-              control={control}
-              name="is_active"
-              render={({ field: { value, onChange } }) => (
-                <Switch
-                  checked={value}
-                  color={value ? "success" : "neutral"}
-                  onChange={(e) => onChange(e.target.checked)}
-                />
+            <FormField
+              control={form.control}
+              name="website"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Website</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="https://..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
-          </FormControl>
+          </div>
 
-          {/* Action Buttons */}
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            spacing={1}
-            sx={{ mt: 2 }}
-          >
-            <Button
-              color="neutral"
-              variant="plain"
-              onClick={() => setOpen(false)}
-            >
-              Batal
-            </Button>
-            <Button loading={isSubmitting} type="submit">
-              Simpan Supplier
-            </Button>
-          </Stack>
-        </Stack>
-      </form>
+          {/* Status Switch */}
+          <FormField
+            control={form.control}
+            name="is_active"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <FormLabel>
+                      Status {field.value ? "Aktif" : "Tidak Aktif"}
+                    </FormLabel>
+                    <Typography level="body-xs">
+                      {field.value
+                        ? "Supplier tersedia dan dapat dipilih dalam modul pembelian atau transaksi."
+                        : "Supplier akan disembunyikan dari daftar pilihan transaksi aktif."}
+                    </Typography>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
     </Modal>
   );
 }

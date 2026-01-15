@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getDistrict } from "@/stores/features/region/region-action";
 
 interface Props {
-  value: number;
+  value: number | string | undefined;
   onChange: (val: number) => void;
 }
 export default function District({ value, onChange }: Props) {

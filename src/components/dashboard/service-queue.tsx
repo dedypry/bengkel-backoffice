@@ -1,4 +1,11 @@
+import { Avatar } from "@mui/joy";
+
+import StatusQueue from "@/pages/admin/service/queue/components/status-queue";
+import { useAppSelector } from "@/stores/hooks";
+import { getAvatarByName } from "@/utils/helpers/global";
+
 export function ServiceQueue() {
+  const { dashboard } = useAppSelector((state) => state.dashboard);
   const queue = [
     {
       id: "WO-001",
@@ -28,51 +35,51 @@ export function ServiceQueue() {
 
   return (
     <div className="bg-white rounded-xl border shadow-sm mt-6">
-      <div className="p-4 border-b flex justify-between items-center">
-        <h2 className="font-bold text-slate-700">Antrean Workshop</h2>
-        <button className="text-sm text-primary font-medium">
-          Lihat Semua
-        </button>
-      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr>
               <th className="p-4">Kendaraan</th>
+              <th className="p-4">Customer</th>
               <th className="p-4">Mekanik</th>
-              <th className="p-4">Progress</th>
               <th className="p-4">Status</th>
             </tr>
           </thead>
           <tbody>
-            {queue.map((item, i) => (
+            {dashboard?.wo.map((item, i) => (
               <tr
                 key={i}
                 className="border-t hover:bg-slate-50 transition-colors"
               >
                 <td className="p-4">
-                  <div className="font-medium">{item.vehicle}</div>
-                  <div className="text-xs text-slate-400">{item.plate}</div>
-                </td>
-                <td className="p-4 text-slate-600">{item.mechanic}</td>
-                <td className="p-4 w-48">
-                  <div className="w-full bg-slate-100 rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full"
-                      style={{ width: `${item.progress}%` }}
-                    />
+                  <div className="font-medium">{item.vehicle.brand}</div>
+                  <div className="text-xs text-slate-400">
+                    {item.vehicle.plate_number}
                   </div>
                 </td>
+                <td>
+                  <div className="flex gap-2 items-center">
+                    <Avatar
+                      size="sm"
+                      src={
+                        item.customer?.profile?.photo_url ||
+                        getAvatarByName(item.customer.name)
+                      }
+                    />
+                    <div>
+                      <p>{item.customer.name}</p>
+                      <p className="text-xs text-gray-500">{item.customer.phone}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="p-4 text-slate-600">
+                  {item.mechanics?.map((item) => (
+                    <p key={item.id}>{item.name}</p>
+                  ))}
+                </td>
+
                 <td className="p-4">
-                  <span
-                    className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                      item.status === "Selesai"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-amber-100 text-amber-700"
-                    }`}
-                  >
-                    {item.status}
-                  </span>
+                  <StatusQueue wo={item} />
                 </td>
               </tr>
             ))}
