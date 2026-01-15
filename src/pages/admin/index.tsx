@@ -9,11 +9,10 @@ import { StatsGrid } from "@/components/dashboard/stats-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { InventoryAlert } from "@/components/dashboard/inventory-alert";
 import { QuickActions } from "@/components/dashboard/quick-action";
-import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { useAppDispatch } from "@/stores/hooks";
 import { getDashboard } from "@/stores/features/dashboard/dashboard-action";
 
 export default function HomePage() {
-  const { dashboard } = useAppSelector((state) => state.dashboard);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 

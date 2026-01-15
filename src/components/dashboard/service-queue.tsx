@@ -6,32 +6,6 @@ import { getAvatarByName } from "@/utils/helpers/global";
 
 export function ServiceQueue() {
   const { dashboard } = useAppSelector((state) => state.dashboard);
-  const queue = [
-    {
-      id: "WO-001",
-      vehicle: "Toyota Avanza",
-      plate: "B 1234 GHO",
-      status: "Proses",
-      mechanic: "Budi",
-      progress: 65,
-    },
-    {
-      id: "WO-002",
-      vehicle: "Honda Civic",
-      plate: "D 9999 RS",
-      status: "Menunggu Part",
-      mechanic: "Andi",
-      progress: 30,
-    },
-    {
-      id: "WO-003",
-      vehicle: "Yamaha NMAX",
-      plate: "F 4567 JK",
-      status: "Selesai",
-      mechanic: "Siti",
-      progress: 100,
-    },
-  ];
 
   return (
     <div className="bg-white rounded-xl border shadow-sm mt-6">
@@ -68,7 +42,9 @@ export function ServiceQueue() {
                     />
                     <div>
                       <p>{item.customer.name}</p>
-                      <p className="text-xs text-gray-500">{item.customer.phone}</p>
+                      <p className="text-xs text-gray-500">
+                        {item.customer.phone}
+                      </p>
                     </div>
                   </div>
                 </td>

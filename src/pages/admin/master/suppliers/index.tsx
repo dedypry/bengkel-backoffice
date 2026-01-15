@@ -1,6 +1,6 @@
 import type { ISupplier } from "@/utils/interfaces/ISupplier";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
