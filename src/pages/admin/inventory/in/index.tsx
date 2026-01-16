@@ -77,7 +77,10 @@ export default function BarangMasuk() {
             Catat dan verifikasi kiriman sparepart dari supplier.
           </p>
         </div>
-        <Button className="gap-2 shadow-lg shadow-primary/20">
+        <Button
+          className="gap-2 shadow-lg shadow-primary/20"
+          onClick={() => navigate("/inventory/in/add")}
+        >
           <PackagePlus className="size-4" /> Buat Penerimaan Baru
         </Button>
       </div>
