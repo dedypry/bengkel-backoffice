@@ -15,28 +15,21 @@ import {
   Card,
   Textarea,
 } from "@mui/joy";
-import {
-  Plus,
-  Trash2,
-  Package,
-  Truck,
-  Calendar,
-  Save,
-  FileText,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { Plus, Trash2, Package, Truck, Save, FileText } from "lucide-react";
+import { useEffect } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { receiptSchema, type ReceiptFormValues } from "./schemas/add-schema";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getSupplier } from "@/stores/features/supplier/supplier-action";
-import { useFieldArray, useForm } from "react-hook-form";
-import { receiptSchema, type ReceiptFormValues } from "./schemas/add-schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { DatePicker } from "@/components/date-picker";
+import InputNumber from "@/components/ui/input-number";
+import SearchProduct from "@/components/search-product";
 
 export default function GoodsReceiptForm() {
   const { suppliers } = useAppSelector((state) => state.supplier);
-  const [items, setItems] = useState([
-    { id: 1, name: "", qtyPo: 0, qtyRec: 0, status: "Baik" },
-  ]);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -44,27 +37,31 @@ export default function GoodsReceiptForm() {
   }, []);
 
   const addRow = () => {
-    setItems([
-      ...items,
-      { id: Date.now(), name: "", qtyPo: 0, qtyRec: 0, status: "Baik" },
-    ]);
+    append({
+      productId: 0,
+      purchasePrice: 0,
+      qtyPo: 0,
+      qtyRec: 0,
+      condition: "Baik",
+    });
   };
 
-  const removeRow = (id: number) => {
-    setItems(items.filter((item) => item.id !== id));
+  const removeRow = (index: number) => {
+    remove(index);
   };
 
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<ReceiptFormValues>({
     resolver: zodResolver(receiptSchema),
     defaultValues: {
       poNumber: "",
-      supplierId: "",
+      supplierId: undefined,
       receiptDate: new Date().toISOString().split("T")[0],
-      items: [{ productId: "", qtyPo: 0, qtyRec: 0, condition: "Baik" }],
+      items: [{ productId: undefined, qtyPo: 0, qtyRec: 0, condition: "Baik" }],
       notes: "",
     },
   });
@@ -110,44 +107,105 @@ export default function GoodsReceiptForm() {
             mb: 3,
           }}
         >
-          <FormControl required>
-            <FormLabel>No. Purchase Order (PO)</FormLabel>
-            <Input
-              placeholder="PO-XXXXX"
-              startDecorator={<FileText size={16} />}
-            />
-          </FormControl>
+          <Controller
+            control={control}
+            name="poNumber"
+            render={({ field }) => (
+              <FormControl required error={!!errors.poNumber}>
+                <FormLabel>No. Purchase Order (PO)</FormLabel>
+                <Input
+                  {...field}
+                  placeholder="PO-XXXXX"
+                  startDecorator={<FileText size={16} />}
+                />
+                {errors.poNumber && (
+                  <Typography color="danger" level="body-xs">
+                    {errors.poNumber.message}
+                  </Typography>
+                )}
+              </FormControl>
+            )}
+          />
 
-          <FormControl required>
+          <FormControl required error={!!errors.supplierId}>
             <FormLabel>Nama Supplier</FormLabel>
-            <Select placeholder="Pilih Supplier">
-              <Option value="supp1">PT. Abadi Motor</Option>
-              <Option value="supp2">CV. Maju Jaya</Option>
-            </Select>
-          </FormControl>
-
-          <FormControl required>
-            <FormLabel>Tanggal Terima</FormLabel>
-            <Input startDecorator={<Calendar size={16} />} type="date" />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>No. Surat Jalan Supplier</FormLabel>
-            <Input placeholder="SJ-XXXXX" />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Ekspedisi / Kurir</FormLabel>
-            <Input
-              placeholder="JNE / Nama Driver"
-              startDecorator={<Truck size={16} />}
+            <Controller
+              control={control}
+              name="supplierId"
+              render={({ field }) => (
+                <Select
+                  placeholder="Pilih Supplier"
+                  value={field.value}
+                  onChange={(_, val) => field.onChange(val)}
+                >
+                  {suppliers?.data.map((supplier) => (
+                    <Option key={supplier.id} value={supplier.id}>
+                      {supplier.name}
+                    </Option>
+                  ))}
+                </Select>
+              )}
             />
+            {errors.supplierId && (
+              <Typography color="danger" level="body-xs">
+                {errors.supplierId.message}
+              </Typography>
+            )}
           </FormControl>
 
-          <FormControl>
-            <FormLabel>No. Polisi Kendaraan</FormLabel>
-            <Input placeholder="B 1234 ABC" />
+          <FormControl required error={!!errors.receiptDate}>
+            <FormLabel>Tanggal Terima</FormLabel>
+            <Controller
+              control={control}
+              name="receiptDate"
+              render={({ field }) => (
+                <DatePicker
+                  setValue={field.onChange}
+                  value={new Date(field.value)}
+                />
+              )}
+            />
+            {errors.receiptDate && (
+              <Typography color="danger" level="body-xs">
+                {errors.receiptDate.message}
+              </Typography>
+            )}
           </FormControl>
+
+          <Controller
+            control={control}
+            name="suratJalanNumber"
+            render={({ field }) => (
+              <FormControl>
+                <FormLabel>No. Surat Jalan Supplier</FormLabel>
+                <Input {...field} placeholder="SJ-XXXXX" />
+              </FormControl>
+            )}
+          />
+          <Controller
+            control={control}
+            name="expedition"
+            render={({ field }) => (
+              <FormControl>
+                <FormLabel>Ekspedisi / Kurir</FormLabel>
+                <Input
+                  {...field}
+                  placeholder="JNE / Nama Driver"
+                  startDecorator={<Truck size={16} />}
+                />
+              </FormControl>
+            )}
+          />
+          <Controller
+            control={control}
+            name="policeNumber"
+            render={({ field }) => (
+              <FormControl>
+                <FormLabel>No. Polisi Kendaraan</FormLabel>
+                <Input {...field} placeholder="B 1234 ABC" />
+              </FormControl>
+            )}
+          />
         </Box>
 
         <Divider sx={{ my: 2 }} />
@@ -168,47 +226,90 @@ export default function GoodsReceiptForm() {
                 <th style={{ width: "40%" }}>Nama Barang / Kode</th>
                 <th>Qty di PO</th>
                 <th>Qty Diterima</th>
+                <th>Harga Beli Satuan</th>
                 <th>Kondisi</th>
                 <th style={{ width: "50px" }} />
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
+              {fields.map((field, index) => (
+                <tr key={field.id}>
                   <td>
-                    <Input
-                      fullWidth
-                      placeholder="Cari barang..."
-                      variant="plain"
+                    <Controller
+                      control={control}
+                      name={`items.${index}.productId`}
+                      render={({ field }) => (
+                        <SearchProduct
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      )}
                     />
                   </td>
                   <td>
-                    <Input defaultValue={0} type="number" variant="plain" />
-                  </td>
-                  <td>
-                    <Input
-                      color="primary"
-                      defaultValue={0}
-                      type="number"
-                      variant="plain"
+                    <Controller
+                      control={control}
+                      name={`items.${index}.qtyPo`}
+                      render={({ field }) => (
+                        <InputNumber
+                          value={field.value || ""}
+                          variant="plain"
+                          onInput={field.onChange}
+                        />
+                      )}
                     />
                   </td>
                   <td>
-                    <Select defaultValue="Baik" variant="plain">
-                      <Option value="Baik">Baik</Option>
-                      <Option value="Rusak">Rusak / Reject</Option>
-                      <Option value="Kurang">Kurang</Option>
-                    </Select>
+                    <Controller
+                      control={control}
+                      name={`items.${index}.qtyRec`}
+                      render={({ field }) => (
+                        <InputNumber
+                          value={field.value || ""}
+                          variant="plain"
+                          onInput={field.onChange}
+                        />
+                      )}
+                    />
                   </td>
                   <td>
-                    <IconButton
-                      color="danger"
-                      size="sm"
-                      variant="soft"
-                      onClick={() => removeRow(item.id)}
-                    >
-                      <Trash2 size={16} />
-                    </IconButton>
+                    <Controller
+                      control={control}
+                      name={`items.${index}.purchasePrice`}
+                      render={({ field }) => (
+                        <InputNumber
+                          startDecorator="Rp"
+                          value={field.value || ""}
+                          variant="plain"
+                          onInput={field.onChange}
+                        />
+                      )}
+                    />
+                  </td>
+                  <td>
+                    <Controller
+                      control={control}
+                      name={`items.${index}.condition`}
+                      render={({ field }) => (
+                        <Select {...field} variant="plain">
+                          <Option value="Baik">Baik</Option>
+                          <Option value="Rusak">Rusak / Reject</Option>
+                          <Option value="Kurang">Kurang</Option>
+                        </Select>
+                      )}
+                    />
+                  </td>
+                  <td>
+                    {watch("items").length > 1 && (
+                      <IconButton
+                        color="danger"
+                        size="sm"
+                        variant="soft"
+                        onClick={() => removeRow(index)}
+                      >
+                        <Trash2 size={16} />
+                      </IconButton>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -218,8 +319,7 @@ export default function GoodsReceiptForm() {
 
         <Button
           startDecorator={<Plus size={18} />}
-          sx={{ mt: 1, alignSelf: "flex-start" }}
-          variant="plain"
+          sx={{ mt: 1, alignSelf: "flex-end" }}
           onClick={addRow}
         >
           Tambah Baris
@@ -235,19 +335,31 @@ export default function GoodsReceiptForm() {
             gap: 4,
           }}
         >
-          <FormControl>
+          <FormControl error={!!errors.notes}>
             <FormLabel>Catatan Penerimaan</FormLabel>
-            <Textarea
-              minRows={3}
-              placeholder="Tulis catatan terkait kondisi fisik barang atau selisih..."
+            <Controller
+              control={control}
+              name="notes"
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  minRows={3}
+                  placeholder="Tulis catatan terkait kondisi fisik barang atau selisih..."
+                />
+              )}
             />
+            {errors.notes && (
+              <Typography color="danger" level="body-xs">
+                {errors.notes.message}
+              </Typography>
+            )}
           </FormControl>
 
-          <Stack justifyContent="flex-end" spacing={2}>
+          <Stack justifyContent="flex-end" spacing={1}>
             <Button
               color="primary"
-              size="lg"
               startDecorator={<Save size={20} />}
+              onClick={handleSubmit(onSubmit)}
             >
               Simpan Penerimaan
             </Button>
