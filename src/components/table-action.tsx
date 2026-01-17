@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
 
 import { Button } from "./ui/button";
@@ -10,16 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "./ui/alert-dialog";
+
+import { confirmSweat } from "@/utils/helpers/notify";
 
 interface Props {
   onEdit?: () => void;
@@ -40,8 +31,6 @@ export default function TableAction({
   titleHeader,
   isDeleteSeparator = true,
 }: Props) {
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
   return (
     <>
       <DropdownMenu modal={false}>
@@ -80,7 +69,7 @@ export default function TableAction({
             className="text-red-600 focus:text-red-600 focus:bg-red-50"
             onSelect={(e) => {
               e.preventDefault();
-              setShowDeleteDialog(true);
+              confirmSweat(onDelete!);
             }}
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -88,31 +77,6 @@ export default function TableAction({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {/* AlertDialog diletakkan di luar DropdownMenu */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. Data akan terhapus secara
-              permanen dari server kami.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700"
-              onClick={() => {
-                onDelete?.();
-                setShowDeleteDialog(false);
-              }}
-            >
-              Hapus
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

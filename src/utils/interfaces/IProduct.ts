@@ -1,3 +1,6 @@
+import type { ISupplier } from "./ISupplier";
+import type { IUser } from "./IUser";
+
 export interface IProductCategory {
   id: number;
   name: string;
@@ -49,6 +52,7 @@ export interface IProduct {
   sell_price: string;
   stock: number;
   min_stock: number;
+  ppn: number;
   unit: string;
   location: string;
   is_active: boolean;
@@ -59,4 +63,43 @@ export interface IProduct {
   category?: IProductCategory;
   uom?: IUom;
   images?: IProductImage[];
+}
+
+export interface IReceipt {
+  id: number;
+  grn_number?: string;
+  po_number?: string;
+  supplier_id?: number;
+  received_id?: number;
+  receipt_at?: string;
+  verify_id?: number;
+  verify_at?: string;
+  delivery_note_no?: string;
+  expedition?: string;
+  driver_name?: string;
+  license_plate?: string;
+  notes?: string;
+  company_id?: number;
+  items: IReceiptItem[];
+  supplier: ISupplier;
+  received: IUser;
+  status: string;
+  total_amount: string;
+  total_items: string;
+  total_qty: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IReceiptItem {
+  id: number;
+  goods_receipt_id?: number;
+  product_id?: number;
+  product?: IProduct;
+  condition?: string;
+  qty_po?: number;
+  qty_receipt?: number;
+  purchase_price?: number;
+  created_at: string;
+  updated_at: string;
 }

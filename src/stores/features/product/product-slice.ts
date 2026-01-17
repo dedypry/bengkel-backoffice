@@ -1,18 +1,27 @@
 import type {
   IProduct,
   IProductCategory,
+  IReceipt,
   IUom,
 } from "@/utils/interfaces/IProduct";
 import type { IPagination } from "@/utils/interfaces/IPagination";
 
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getCategories, getProduct, getUoms } from "./product-action";
+import {
+  getCategories,
+  getProduct,
+  getProductDetail,
+  getProductReceipt,
+  getProductReceiptDetail,
+  getUoms,
+} from "./product-action";
 
 const productSlice = createSlice({
   name: "product",
   initialState: {
     products: null as IPagination<IProduct> | null,
+    product: null as IProduct | null,
     categories: [] as IProductCategory[],
     uoms: [] as IUom[],
     categoryQuery: {
@@ -23,6 +32,8 @@ const productSlice = createSlice({
       page: 1,
       pageSize: 10,
     },
+    recepipts: null as IPagination<IReceipt> | null,
+    recepipt: null as IReceipt | null,
   },
   reducers: {
     setCategoryQuery: (state, action) => {
@@ -48,6 +59,15 @@ const productSlice = createSlice({
       })
       .addCase(getProduct.fulfilled, (state, action) => {
         state.products = action.payload;
+      })
+      .addCase(getProductDetail.fulfilled, (state, action) => {
+        state.product = action.payload;
+      })
+      .addCase(getProductReceiptDetail.fulfilled, (state, action) => {
+        state.recepipt = action.payload;
+      })
+      .addCase(getProductReceipt.fulfilled, (state, action) => {
+        state.recepipts = action.payload;
       }),
 });
 

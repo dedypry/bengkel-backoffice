@@ -34,6 +34,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
 export default function StokBarang() {
   const { company } = useAppSelector((state) => state.auth);
@@ -50,6 +52,16 @@ export default function StokBarang() {
     (q) => dispatch(setProductQuery({ q })),
     1000,
   );
+
+  function handleDelete(id: number) {
+    http
+      .delete(`/products/${id}`)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(getProduct(productQuery));
+      })
+      .catch((err) => notifyError(err));
+  }
 
   return (
     <div className="space-y-6 pb-10">
@@ -226,7 +238,11 @@ export default function StokBarang() {
                 </TableCell>
 
                 <TableCell className="text-right">
-                  <TableAction />
+                  <TableAction
+                    onDelete={() => handleDelete(item.id)}
+                    onDetail={() => navigate(`/inventory/stock/${item.id}`)}
+                    onEdit={() => navigate(`/inventory/stock/${item.id}/edit`)}
+                  />
                 </TableCell>
               </TableRow>
             ))}

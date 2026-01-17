@@ -14,11 +14,13 @@ import {
   IconButton,
   Card,
   Textarea,
+  FormHelperText,
 } from "@mui/joy";
 import { Plus, Trash2, Package, Truck, Save, FileText } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 
 import { receiptSchema, type ReceiptFormValues } from "./schemas/add-schema";
 
@@ -27,10 +29,14 @@ import { getSupplier } from "@/stores/features/supplier/supplier-action";
 import { DatePicker } from "@/components/date-picker";
 import InputNumber from "@/components/ui/input-number";
 import SearchProduct from "@/components/search-product";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
 export default function GoodsReceiptForm() {
   const { suppliers } = useAppSelector((state) => state.supplier);
+  const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getSupplier({ pageSize: 100 }));
@@ -54,6 +60,7 @@ export default function GoodsReceiptForm() {
     control,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<ReceiptFormValues>({
     resolver: zodResolver(receiptSchema),
@@ -73,7 +80,16 @@ export default function GoodsReceiptForm() {
 
   const onSubmit = (data: ReceiptFormValues) => {
     console.log("Valid Form Data:", data);
-    // Kirim ke API via InvoicesService/GoodsReceiptService
+    setLoading(true);
+    http
+      .post("/products/receipt", data)
+      .then(({ data }) => {
+        notify(data.message);
+        reset();
+        navigate("/inventory/in");
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -239,10 +255,17 @@ export default function GoodsReceiptForm() {
                       control={control}
                       name={`items.${index}.productId`}
                       render={({ field }) => (
-                        <SearchProduct
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
+                        <FormControl error={!!errors.items?.[index]?.productId}>
+                          <SearchProduct
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                          {errors.items?.[index]?.productId && (
+                            <FormHelperText>
+                              {errors.items[index].productId.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       )}
                     />
                   </td>
@@ -251,11 +274,18 @@ export default function GoodsReceiptForm() {
                       control={control}
                       name={`items.${index}.qtyPo`}
                       render={({ field }) => (
-                        <InputNumber
-                          value={field.value || ""}
-                          variant="plain"
-                          onInput={field.onChange}
-                        />
+                        <FormControl error={!!errors.items?.[index]?.qtyPo}>
+                          <InputNumber
+                            value={field.value || 0}
+                            variant="plain"
+                            onInput={field.onChange}
+                          />
+                          {errors.items?.[index]?.qtyPo && (
+                            <FormHelperText>
+                              {errors.items[index].qtyPo.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       )}
                     />
                   </td>
@@ -264,11 +294,18 @@ export default function GoodsReceiptForm() {
                       control={control}
                       name={`items.${index}.qtyRec`}
                       render={({ field }) => (
-                        <InputNumber
-                          value={field.value || ""}
-                          variant="plain"
-                          onInput={field.onChange}
-                        />
+                        <FormControl error={!!errors.items?.[index]?.qtyRec}>
+                          <InputNumber
+                            value={field.value || 0}
+                            variant="plain"
+                            onInput={field.onChange}
+                          />
+                          {errors.items?.[index]?.qtyRec && (
+                            <FormHelperText>
+                              {errors.items[index].qtyRec.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       )}
                     />
                   </td>
@@ -277,12 +314,21 @@ export default function GoodsReceiptForm() {
                       control={control}
                       name={`items.${index}.purchasePrice`}
                       render={({ field }) => (
-                        <InputNumber
-                          startDecorator="Rp"
-                          value={field.value || ""}
-                          variant="plain"
-                          onInput={field.onChange}
-                        />
+                        <FormControl
+                          error={!!errors.items?.[index]?.purchasePrice}
+                        >
+                          <InputNumber
+                            startDecorator="Rp"
+                            value={field.value || ""}
+                            variant="plain"
+                            onInput={field.onChange}
+                          />
+                          {errors.items?.[index]?.purchasePrice && (
+                            <FormHelperText>
+                              {errors.items[index].purchasePrice.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       )}
                     />
                   </td>
@@ -358,12 +404,21 @@ export default function GoodsReceiptForm() {
           <Stack justifyContent="flex-end" spacing={1}>
             <Button
               color="primary"
+              disabled={loading}
               startDecorator={<Save size={20} />}
               onClick={handleSubmit(onSubmit)}
             >
-              Simpan Penerimaan
+              {loading ? "Sedang Menyimpan..." : "Simpan Penerimaan"}
             </Button>
-            <Button color="neutral" variant="outlined">
+            <Button
+              color="neutral"
+              disabled={loading}
+              variant="outlined"
+              onClick={() => {
+                reset();
+                navigate("/inventory/in");
+              }}
+            >
               Batal
             </Button>
           </Stack>

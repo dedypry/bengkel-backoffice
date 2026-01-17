@@ -2,103 +2,88 @@ import {
   Search,
   Truck,
   Calendar as CalendarIcon,
-  FileText,
   ArrowDownLeft,
-  Printer,
   ChevronRight,
   PackagePlus,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import { IconButton, Input } from "@mui/joy";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getProductReceipt } from "@/stores/features/product/product-action";
+import { formatIDR, formatNumber } from "@/utils/helpers/format";
+import { CustomPagination } from "@/components/custom-pagination";
+import { setProductQuery } from "@/stores/features/product/product-slice";
+import HeaderAction from "@/components/header-action";
+import { DatePicker } from "@/components/date-picker";
+import debounce from "@/utils/helpers/debounce";
 
-const incomingData = [
-  {
-    id: "RCV-2025-001",
-    date: "25 Des 2025",
-    supplier: "PT. Astra Otoparts",
-    itemsCount: 5,
-    totalCost: 4250000,
-    receivedBy: "Admin Gudang",
-    status: "Verified",
-  },
-  {
-    id: "RCV-2025-002",
-    date: "23 Des 2025",
-    supplier: "Berkat Motor Jakarta",
-    itemsCount: 12,
-    totalCost: 1850000,
-    receivedBy: "Admin Gudang",
-    status: "Verified",
-  },
-  {
-    id: "RCV-2025-003",
-    date: "22 Des 2025",
-    supplier: "Indo Sparepart",
-    itemsCount: 2,
-    totalCost: 600000,
-    receivedBy: "Samsul",
-    status: "Pending",
-  },
-];
-
-export default function BarangMasuk() {
+export default function ProductIn() {
+  const { recepipts, productQuery } = useAppSelector((state) => state.product);
+  const { company } = useAppSelector((state) => state.auth);
+  const [date, setDate] = useState(new Date().toISOString());
+  const [search, setSearch] = useState("");
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const formatIDR = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+
+  useEffect(() => {
+    if (company) {
+      dispatch(getProductReceipt(productQuery));
+    }
+  }, [company, productQuery]);
+
+  const searchDebounce = debounce((q) => dispatch(setProductQuery({ q })), 500);
 
   return (
     <div className="space-y-6 pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <ArrowDownLeft className="size-6 text-primary" />
-            </div>
-            Penerimaan Barang Masuk
-          </h1>
-          <p className="text-sm text-slate-500">
-            Catat dan verifikasi kiriman sparepart dari supplier.
-          </p>
-        </div>
-        <Button
-          className="gap-2 shadow-lg shadow-primary/20"
-          onClick={() => navigate("/inventory/in/add")}
-        >
-          <PackagePlus className="size-4" /> Buat Penerimaan Baru
-        </Button>
-      </div>
+      <HeaderAction
+        actionIcon={PackagePlus}
+        actionTitle="Buat Penerimaan Baru"
+        leadIcon={ArrowDownLeft}
+        subtitle="Catat dan verifikasi kiriman sparepart dari supplier."
+        title=" Penerimaan Barang Masuk"
+        onAction={() => navigate("/inventory/in/add")}
+      />
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl border shadow-sm">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 size-4 text-slate-400" />
-          <Input
-            className="pl-10"
-            placeholder="Cari No. Referensi atau Supplier..."
-          />
-        </div>
+        <Input
+          endDecorator={
+            <IconButton
+              onClick={() => {
+                searchDebounce("");
+                setSearch("");
+              }}
+            >
+              <X />
+            </IconButton>
+          }
+          placeholder="Cari No. Referensi atau Supplier..."
+          startDecorator={<Search />}
+          sx={{ flex: 1 }}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            searchDebounce(e.target.value);
+          }}
+        />
+
         <div className="flex gap-2">
-          <div className="relative">
-            <CalendarIcon className="absolute left-3 top-2.5 size-4 text-slate-400" />
-            <Input className="pl-10 w-44" type="date" />
-          </div>
+          <DatePicker setValue={setDate} value={new Date(date)} />
           <Button
             className="gap-2"
             variant="outline"
@@ -124,39 +109,40 @@ export default function BarangMasuk() {
               <TableHead className="font-bold text-right">
                 Total Pembelian
               </TableHead>
-              <TableHead className="font-bold text-center">Status</TableHead>
+              {/* <TableHead className="font-bold text-center">Status</TableHead> */}
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {incomingData.map((data) => (
+            {recepipts?.data.map((data) => (
               <TableRow
                 key={data.id}
                 className="hover:bg-slate-50/50 transition-colors"
               >
                 <TableCell>
                   <div className="font-bold text-slate-800 uppercase tracking-tighter">
-                    {data.id}
+                    {data.grn_number}
                   </div>
                   <div className="text-xs text-slate-500 flex items-center gap-1">
-                    <CalendarIcon className="size-3" /> {data.date}
+                    <CalendarIcon className="size-3" />{" "}
+                    {dayjs(data.receipt_at).format("DD MMM YY")}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="font-medium text-slate-700">
-                    {data.supplier}
+                    {data.supplier?.name}
                   </div>
                   <div className="text-[10px] text-slate-400 font-medium">
-                    Penerima: {data.receivedBy}
+                    Penerima: {data.received.name}
                   </div>
                 </TableCell>
                 <TableCell className="text-center font-bold text-slate-600">
-                  {data.itemsCount} SKU
+                  {formatNumber(Number(data.total_qty))}
                 </TableCell>
                 <TableCell className="text-right font-bold text-slate-900 underline decoration-primary/20 underline-offset-4">
-                  {formatIDR(data.totalCost)}
+                  {formatIDR(Number(data.total_amount))}
                 </TableCell>
-                <TableCell className="text-center">
+                {/* <TableCell className="text-center">
                   <Badge
                     className={
                       data.status === "Verified"
@@ -166,9 +152,9 @@ export default function BarangMasuk() {
                   >
                     {data.status === "Verified" ? "Terverifikasi" : "Menunggu"}
                   </Badge>
-                </TableCell>
+                </TableCell> */}
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
+                  {/* <div className="flex justify-end gap-1">
                     <Button
                       size="icon"
                       title="Cetak Label/Struk"
@@ -179,32 +165,25 @@ export default function BarangMasuk() {
                     <Button size="icon" variant="ghost">
                       <ChevronRight className="size-5 text-slate-300" />
                     </Button>
-                  </div>
+                  </div> */}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => navigate(`/inventory/in/${data.id}`)}
+                  >
+                    <ChevronRight className="size-5 text-slate-300" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
+          <TableCaption>
+            <CustomPagination
+              meta={recepipts?.meta!}
+              onPageChange={(page) => dispatch(setProductQuery({ page }))}
+            />
+          </TableCaption>
         </Table>
-      </div>
-
-      {/* Stats Summary Footer */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-4 rounded-xl bg-slate-900 text-white flex justify-between items-center shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/10 rounded-lg">
-              <FileText className="size-5 text-primary-foreground" />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase opacity-60 font-bold">
-                Total Pembelian Bulan Ini
-              </p>
-              <p className="text-xl font-black">{formatIDR(24500000)}</p>
-            </div>
-          </div>
-          <Button className="text-white text-xs opacity-70" variant="link">
-            Lihat Detail
-          </Button>
-        </div>
       </div>
     </div>
   );

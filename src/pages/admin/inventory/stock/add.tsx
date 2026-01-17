@@ -33,6 +33,7 @@ import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 
 const productSchema = z.object({
+  id: z.number().optional(),
   code: z.string().min(1, "Kode produk wajib diisi"),
   name: z.string().min(3, "Nama produk minimal 3 karakter"),
   description: z.string().optional(),
@@ -69,6 +70,7 @@ export default function FormStock({ initialData }: Props) {
   }, [company]);
 
   const defaultValues: ProductFormValues = {
+    id: initialData?.id ?? undefined,
     code: initialData?.code ?? "",
     name: initialData?.name ?? "",
     description: initialData?.description ?? "",
@@ -82,7 +84,7 @@ export default function FormStock({ initialData }: Props) {
     sell_price: initialData?.sell_price ? Number(initialData.sell_price) : 0,
     stock: initialData?.stock ? Number(initialData.stock) : 0,
     min_stock: initialData?.min_stock ? Number(initialData.min_stock) : 0,
-    uom_id: initialData?.unit ?? 1,
+    uom_id: initialData?.uom_id ?? 1,
     location: initialData?.location ?? "",
     is_active: initialData?.is_active ?? true,
     images: initialData?.images ?? [],
