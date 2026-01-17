@@ -39,7 +39,7 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
   }, [company, paymentQuery]);
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       {!noHeader && (
         <HeaderAction
@@ -49,24 +49,23 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
       )}
 
       {/* Action Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Input
-          fullWidth
-          endDecorator={
-            <Button
-              size="sm"
-              onClick={() => dispatch(setPaymentQuery({ q: search }))}
-            >
-              Cari
-            </Button>
-          }
-          placeholder="Cari invoice / customer..."
-          size="lg"
-          startDecorator={<Search />}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      <Card>
+        <CardContent sx={{ display: "flex", flexDirection: "row" }}>
+          <Input
+            fullWidth
+            placeholder="Cari invoice / customer..."
+            startDecorator={<Search />}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Button
+            startDecorator={<Search />}
+            onClick={() => dispatch(setPaymentQuery({ q: search }))}
+          >
+            Cari
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* List */}
       <Card>

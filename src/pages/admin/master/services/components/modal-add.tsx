@@ -131,13 +131,17 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
             type="submit"
             onClick={form.handleSubmit(onSubmit)}
           >
-            {isLoading ? "Sedang Menyimpan..." : "Simpan Jasa"}
+            {isLoading
+              ? "Sedang Menyimpan..."
+              : detail?.id
+                ? "Ubah Jasa"
+                : "Simpan Jasa"}
           </Button>
         </div>
       }
       open={open}
       size="2xl"
-      title="Tambah Jasa Service"
+      title={detail?.id ? "Ubah data Jasa Service" : "Tambah Jasa Service"}
       onOpenChange={setOpen}
     >
       <Form {...form}>

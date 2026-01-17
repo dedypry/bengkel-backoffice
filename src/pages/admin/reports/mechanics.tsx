@@ -8,12 +8,12 @@ import {
   ShieldCheck,
   Timer,
   Award,
-  Download,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import HeaderAction from "@/components/header-action";
 
 const performanceData = [
   {
@@ -53,37 +53,19 @@ const performanceData = [
 
 export default function LaporanPerformaMekanik() {
   return (
-    <div className="space-y-8 pb-20 px-4 bg-slate-50/20">
-      {/* Header Vibrant - Purple Blue Gradient */}
-      <div className="relative overflow-hidden rounded-[3rem] bg-primary p-10 text-white shadow-2xl shadow-indigo-100">
-        <div className="absolute -right-10 -bottom-10 size-64 rounded-full bg-white/10 blur-3xl" />
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-1.5 rounded-full backdrop-blur-md mb-4 border border-white/30">
-              <Award className="size-4 text-amber-300" />
-              <span className="text-[10px] font-black uppercase tracking-widest">
-                Analytics Center
-              </span>
-            </div>
-            <h1 className="text-4xl font-black tracking-tight mb-2 uppercase">
-              Performa Mekanik
-            </h1>
-            <p className="text-indigo-50 font-medium opacity-90 italic">
-              Pantau produktivitas dan kualitas pengerjaan tim teknisi.
-            </p>
-          </div>
-          <Button className="bg-white text-indigo-600 hover:bg-indigo-50 px-8 py-7 rounded-[2rem] font-black shadow-xl transition-all border-none">
-            <Download className="mr-2 size-5" /> UNDUH LAPORAN
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-8 pb-20 bg-slate-50/20">
+      <HeaderAction
+        leadIcon={Award}
+        subtitle="Pantau produktivitas dan kualitas pengerjaan tim teknisi."
+        title="Performa Mekanik"
+      />
 
       {/* Podium Mekanik Terbaik (Top 3 Cards) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 -mt-12 relative z-20">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 relative z-20">
         {performanceData.map((mec) => (
           <div
             key={mec.rank}
-            className="bg-white rounded-[3rem] p-8 shadow-xl shadow-slate-200/60 border-2 border-transparent hover:border-indigo-100 transition-all flex flex-col items-center"
+            className="bg-white rounded-xl p-8 shadow-xl shadow-slate-200/60 border-2 border-transparent hover:border-indigo-100 transition-all flex flex-col items-center"
           >
             <div className="relative mb-6">
               <div

@@ -102,7 +102,7 @@ const navigation = [
     items: [
       { title: "Profil Bengkel", url: "profile" },
       { title: "Promo", url: "promo" },
-      { title: "Manajemen User", url: "users" },
+      // { title: "Manajemen User", url: "users" },
       { title: "Whastapp", url: "wa" },
     ],
   },
