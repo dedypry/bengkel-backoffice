@@ -21,7 +21,10 @@ import { setPaymentQuery } from "@/stores/features/payments/payment-slice";
 import { getAvatarByName } from "@/utils/helpers/global";
 import { formatIDR } from "@/utils/helpers/format";
 
-export default function InvoiceListPage() {
+interface Props {
+  noHeader?: boolean;
+}
+export default function InvoiceListPage({ noHeader = false }: Props) {
   const { payments, paymentQuery } = useAppSelector((state) => state.payment);
   const { company } = useAppSelector((state) => state.auth);
   const [search, setSearch] = useState("");
@@ -38,21 +41,27 @@ export default function InvoiceListPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
-      <HeaderAction
-        subtitle="Riwayat invoice servis mobil"
-        title="Daftar Invoice"
-      />
+      {!noHeader && (
+        <HeaderAction
+          subtitle="Riwayat invoice servis mobil"
+          title="Daftar Invoice"
+        />
+      )}
 
       {/* Action Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           fullWidth
           endDecorator={
-            <Button onClick={() => dispatch(setPaymentQuery({ q: search }))}>
+            <Button
+              size="sm"
+              onClick={() => dispatch(setPaymentQuery({ q: search }))}
+            >
               Cari
             </Button>
           }
           placeholder="Cari invoice / customer..."
+          size="lg"
           startDecorator={<Search />}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
