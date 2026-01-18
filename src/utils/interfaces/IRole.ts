@@ -5,6 +5,7 @@ export interface IRole {
   name: string;
   slug: RoleSlug;
   description: string;
+  permissions: IPermission[];
 }
 
 export type RoleSlug =
@@ -18,3 +19,24 @@ export type RoleSlug =
   | "cashier" // Keuangan: Invoice & pembayaran
   | "cro" // Customer Relation: Follow-up & komplain
   | "driver-valet";
+
+/**
+ * Objek permission tunggal dari database
+ */
+export interface IPermission {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  slug: string;
+  group: string;
+  description: string;
+}
+
+/**
+ * Struktur data Permission yang sudah dikelompokkan berdasarkan nama Grup
+ * Contoh: data['Dashboard'] -> IPermission[]
+ */
+export interface IGroupedPermissions {
+  [groupName: string]: IPermission[];
+}

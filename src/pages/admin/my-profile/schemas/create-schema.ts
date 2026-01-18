@@ -10,18 +10,6 @@ export const formSchema = z.object({
   phone: z
     .string({ message: "Nomor telepon wajib diisi." })
     .min(1, { message: "Nomor telepon wajib diisi." }),
-  role_ids: z
-    .array(z.number({ message: "Jabatan wajib diisi." }))
-    .nonempty({ message: "Pilih minimal satu jabatan." }),
-  department: z
-    .string({ message: "Departemen wajib diisi." })
-    .min(1, { message: "Departemen wajib diisi." }),
-  join_date: z
-    .string({ message: "Tanggal bergabung wajib diisi." })
-    .min(1, { message: "Tanggal bergabung wajib diisi." }),
-  status: z
-    .string({ message: "Tanggal bergabung wajib diisi." })
-    .min(1, { message: "Status wajib dipilih." }),
   photo: z.any().optional(),
   province_id: z
     .number({ message: "Provinsi wajib diisi" })

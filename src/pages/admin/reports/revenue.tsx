@@ -1,3 +1,5 @@
+import type { IReport } from "@/utils/interfaces/IReport";
+
 import {
   DollarSign,
   ArrowUpRight,
@@ -6,16 +8,35 @@ import {
   Target,
   ArrowRight,
   Zap,
+  ArrowDownLeft,
 } from "lucide-react";
 import { Button, Card, CardActions, CardContent } from "@mui/joy";
+import { useEffect, useState } from "react";
 
 import InvoiceListPage from "../finance/list";
 
 import { Progress } from "@/components/ui/progress";
 import HeaderAction from "@/components/header-action";
-import { formatIDR } from "@/utils/helpers/format";
+import { formatIDR, formatNumber } from "@/utils/helpers/format";
+import { http } from "@/utils/libs/axios";
+import { notifyError } from "@/utils/helpers/notify";
 
 export default function LaporanPendapatan() {
+  const [report, setReport] = useState<IReport>();
+
+  useEffect(() => {
+    getReport();
+  }, []);
+
+  async function getReport() {
+    http
+      .get("/reports/revenue")
+      .then(({ data }) => {
+        setReport(data);
+      })
+      .catch((err) => notifyError(err));
+  }
+
   return (
     <div className="space-y-8 pb-20 px-4 bg-slate-50/20">
       <HeaderAction
@@ -29,31 +50,36 @@ export default function LaporanPendapatan() {
         {[
           {
             label: "Total Pendapatan",
-            val: 85450000,
+            val: report?.revenue,
             icon: DollarSign,
             color: "text-emerald-600",
             bg: "bg-emerald-50",
           },
           {
             label: "Unit Servis",
-            val: "124 Unit",
+            val: formatNumber(report?.wo || 0) + " Unit",
             icon: Zap,
             color: "text-blue-600",
             bg: "bg-blue-50",
           },
           {
             label: "Rata-rata Transaksi",
-            val: 689000,
+            val: report?.avg,
             icon: BarChart3,
             color: "text-purple-600",
             bg: "bg-purple-50",
           },
           {
             label: "Pertumbuhan",
-            val: "+12.5%",
-            icon: ArrowUpRight,
-            color: "text-rose-600",
-            bg: "bg-rose-50",
+            val: report?.growth,
+            icon:
+              report?.growthType == "decrement" ? ArrowDownLeft : ArrowUpRight,
+            color:
+              report?.growthType == "decrement"
+                ? "text-rose-600"
+                : "text-green-600",
+            bg:
+              report?.growthType == "decrement" ? "bg-rose-50" : "bg-green-50",
           },
         ].map((item, i) => (
           <Card key={i}>
@@ -83,32 +109,26 @@ export default function LaporanPendapatan() {
                 <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
                   <PieChart className="text-emerald-500" /> Sumber Pendapatan
                 </h3>
-                <Button variant="outlined">Lihat Detail</Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid gap-4 h-48">
                 <div className="space-y-6">
-                  {[
-                    { name: "Jasa Servis", pct: 65, color: "bg-emerald-500" },
-                    { name: "Suku Cadang", pct: 25, color: "bg-blue-500" },
-                    { name: "Aksesoris", pct: 10, color: "bg-amber-500" },
-                  ].map((cat, i) => (
+                  {report?.grafik.map((cat, i) => (
                     <div key={i} className="space-y-2">
                       <div className="flex justify-between text-xs font-bold">
-                        <span className="text-slate-500">{cat.name}</span>
-                        <span className="text-slate-800">{cat.pct}%</span>
+                        <span>{cat.label}</span>
+                        <span>{cat.percentage}%</span>
                       </div>
                       <Progress
-                        className={`h-2 bg-slate-100 ${cat.color}`}
-                        value={cat.pct}
+                        className={`h-2 bg-slate-100`}
+                        color={cat.color}
+                        value={cat.percentage}
                       />
                     </div>
                   ))}
                 </div>
-                <div className="bg-slate-50 rounded-[2rem] flex items-center justify-center border border-dashed border-slate-200">
-                  <p className="text-slate-400 text-xs font-medium italic">
-                    Grafik Area Chart Disini
-                  </p>
-                </div>
+                {/* <div className="col-span-2">
+                  <RevenueChart />
+                </div> */}
               </div>
             </CardContent>
           </Card>
@@ -120,16 +140,20 @@ export default function LaporanPendapatan() {
               <h5 className="font-black tracking-tight">Target Bulanan</h5>
             </div>
             <p className="text-gray-500 text-xs mb-4">
-              Anda sudah mencapai 85% dari target pendapatan Desember.
+              Anda sudah mencapai {report?.reportMonthly.growth_formatted} dari
+              target pendapatan {report?.reportMonthly.last_month_name}.
             </p>
             <div className="bg-gray-100 rounded-xl py-2 px-4 backdrop-blur-md border border-gray-400">
               <p className="text-[10px] font-black uppercase opacity-60 tracking-widest">
                 Pencapaian
               </p>
               <p className="text-3xl font-black mb-4 tracking-tighter">
-                {formatIDR(85450000)}
+                {formatIDR(report?.reportMonthly.current_revenue || 0)}
               </p>
-              <Progress className="h-3 bg-gray-300" value={85} />
+              <Progress
+                className="h-3 bg-gray-300"
+                value={report?.reportMonthly.growth_value}
+              />
             </div>
           </CardContent>
           <CardActions>

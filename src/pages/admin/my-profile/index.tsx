@@ -7,7 +7,15 @@ import {
   Phone,
   BadgeCheck,
   Globe,
+  Lock,
+  Edit,
 } from "lucide-react";
+import { Button, FormControl, FormHelperText, FormLabel } from "@mui/joy";
+import z from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Card,
@@ -21,9 +29,59 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAppSelector } from "@/stores/hooks";
 import { getInitials } from "@/utils/helpers/global";
+import Password from "@/components/password";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
+export const changePasswordSchema = z
+  .object({
+    old_password: z.string().min(1, { message: "Password lama wajib diisi." }),
+    new_password: z
+      .string()
+      .min(8, { message: "Password baru minimal 8 karakter." })
+      .regex(/[A-Z]/, {
+        message: "Harus mengandung minimal satu huruf kapital.",
+      })
+      .regex(/[0-9]/, { message: "Harus mengandung minimal satu angka." }),
+    confirm_password: z
+      .string()
+      .min(1, { message: "Konfirmasi password wajib diisi." }),
+  })
+  .refine((data) => data.new_password === data.confirm_password, {
+    message: "Konfirmasi password tidak cocok.",
+    path: ["confirm_password"], // Error akan muncul di field confirm_password
+  });
+
+export type ChangePasswordType = z.infer<typeof changePasswordSchema>;
 export default function ProfilePage() {
   const { user: data } = useAppSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ChangePasswordType>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      old_password: "",
+      new_password: "",
+      confirm_password: "",
+    },
+  });
+
+  const onSubmit = async (data: ChangePasswordType) => {
+    setLoading(true);
+    http
+      .post("/user/password", data)
+      .then(({ data }) => {
+        notify(data.message);
+        reset();
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
+  };
 
   return (
     <div className="container mx-auto py-10 space-y-8">
@@ -31,7 +89,7 @@ export default function ProfilePage() {
       <div className="flex flex-col md:flex-row items-center gap-6 bg-card p-8 rounded-2xl border shadow-sm">
         <Avatar className="h-24 w-24 border-4 border-primary/10">
           {/* Karena data.profile null, kita pakai fallback name */}
-          <AvatarImage src="" />
+          <AvatarImage src={data?.profile?.photo_url} />
           <AvatarFallback className="text-2xl font-bold bg-[#168BAB] text-white">
             {getInitials(data?.name!)}
           </AvatarFallback>
@@ -53,12 +111,23 @@ export default function ProfilePage() {
             )}
           </div>
           <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2">
+            <Phone className="w-4 h-4" /> {data?.profile?.phone_number}
+          </p>
+          <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2">
             <Mail className="w-4 h-4" /> {data?.email}
           </p>
         </div>
 
         <div className="flex flex-col items-end gap-2 text-sm">
-          <div className="flex items-center gap-2 px-3 py-1 bg-secondary rounded-full">
+          <Button
+            color="warning"
+            size="sm"
+            startDecorator={<Edit />}
+            onClick={() => navigate("/my-profile/edit")}
+          >
+            Ubah
+          </Button>
+          <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-secondary rounded-full">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-medium capitalize">
               Status: {data?.work_status}
@@ -110,6 +179,74 @@ export default function ProfilePage() {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <div className="flex flex-col">
+                  <div className="flex gap-2">
+                    <Lock className="w-4 h-4 text-[#168BAB]" />
+                    Keamanan
+                  </div>
+                  <p className="font-semibold text-xs">Ganti Password</p>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="gap-4 flex flex-col">
+              <Controller
+                control={control}
+                name="old_password"
+                render={({ field }) => (
+                  <FormControl error={!!errors.old_password}>
+                    <FormLabel>Password Lama</FormLabel>
+                    <Password {...field} />
+                    {errors.old_password && (
+                      <FormHelperText>
+                        {errors.old_password.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+
+              {/* Password Baru */}
+              <Controller
+                control={control}
+                name="new_password"
+                render={({ field }) => (
+                  <FormControl error={!!errors.new_password}>
+                    <FormLabel>Password Baru</FormLabel>
+                    <Password {...field} />
+                    {errors.new_password && (
+                      <FormHelperText>
+                        {errors.new_password.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+
+              {/* Konfirmasi Password */}
+              <Controller
+                control={control}
+                name="confirm_password"
+                render={({ field }) => (
+                  <FormControl error={!!errors.confirm_password}>
+                    <FormLabel>Konfirmasi Password Baru</FormLabel>
+                    <Password {...field} />
+                    {errors.confirm_password && (
+                      <FormHelperText>
+                        {errors.confirm_password.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+              <Button disabled={loading} onClick={handleSubmit(onSubmit)}>
+                {loading ? "Sedang Menyimpan..." : "Simpan"}
+              </Button>
             </CardContent>
           </Card>
         </div>

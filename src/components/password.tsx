@@ -3,7 +3,7 @@ import { Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
 
 export default function Password({ ...props }: InputProps) {
-  const [isPassword, setPassword] = useState(false);
+  const [isPassword, setPassword] = useState(true);
 
   return (
     <Input

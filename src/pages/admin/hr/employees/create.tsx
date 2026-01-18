@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import AddRole from "../../settings/roles/components/add-role";
+
 import { formSchema } from "./schemas/create-schema";
 
 import { Button } from "@/components/ui/button";
@@ -52,6 +54,7 @@ interface Props {
 export default function CreateEmployeePage({ id, userForm }: Props) {
   const { roles } = useAppSelector((state) => state.role);
   const [isLoading, setLoading] = useState(false);
+  const [openAddRole, setOpenAddRole] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -66,6 +69,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
       status: "Permanent",
       join_date: new Date().toISOString(),
       birth_date: new Date().toISOString(),
+      emergency_name: "",
+      emergency_contact: "",
       ...userForm,
     },
   });
@@ -94,6 +99,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
 
   return (
     <div className="space-y-8 pb-20 bg-slate-50/30 min-h-screen">
+      <AddRole open={openAddRole} setOpen={setOpenAddRole} />
       <div className="flex items-center gap-4">
         <Button
           className="rounded-full hover:bg-white hover:shadow-md"
@@ -190,28 +196,35 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="role_ids"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Jabatan</FormLabel>
-                      <Combobox
-                        isMulti
-                        items={roles
-                          .filter((e) => ![1, 2].includes(e.id))
-                          .map((item) => ({
-                            label: item.name,
-                            value: item.id,
-                            description: item.description,
-                          }))}
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1">
+                    <FormField
+                      control={form.control}
+                      name="role_ids"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Jabatan</FormLabel>
+                          <Combobox
+                            isMulti
+                            items={roles
+                              .filter((e) => ![1, 2].includes(e.id))
+                              .map((item) => ({
+                                label: item.name,
+                                value: item.id,
+                                description: item.description,
+                              }))}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="mt-4.5">
+                    <Button onClick={() => setOpenAddRole(true)}>Tambah</Button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
@@ -409,7 +422,11 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     <FormItem>
                       <FormLabel>Nama Kontak Yang bisa di hubungi</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Masukan Nama" />
+                        <Input
+                          placeholder="Masukan Nama"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -422,7 +439,11 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     <FormItem>
                       <FormLabel>No Telp Kontak Yang bisa di hubungi</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Masukan No. Telp" />
+                        <Input
+                          placeholder="Masukan No. Telp"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
