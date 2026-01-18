@@ -63,6 +63,7 @@ export interface IProduct {
   category?: IProductCategory;
   uom?: IUom;
   images?: IProductImage[];
+  sold?: number;
 }
 
 export interface IReceipt {

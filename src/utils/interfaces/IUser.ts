@@ -85,6 +85,7 @@ export interface IUser {
   efficiency: number;
   specialty: string;
   theme: string;
+  total_work?: string;
 }
 
 export interface IUserForm {

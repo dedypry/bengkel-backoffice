@@ -1,19 +1,20 @@
 import {
-  Trophy,
   Star,
   Zap,
   BarChart3,
-  ChevronRight,
   UserCheck,
   ShieldCheck,
   Timer,
   Award,
 } from "lucide-react";
+import { useEffect } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import HeaderAction from "@/components/header-action";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
+import { getAvatarByName } from "@/utils/helpers/global";
+import { formatNumber } from "@/utils/helpers/format";
 
 const performanceData = [
   {
@@ -52,6 +53,14 @@ const performanceData = [
 ];
 
 export default function LaporanPerformaMekanik() {
+  const { mechanics } = useAppSelector((state) => state.mechanic);
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getMechanic());
+  }, []);
+
   return (
     <div className="space-y-8 pb-20 bg-slate-50/20">
       <HeaderAction
@@ -62,39 +71,40 @@ export default function LaporanPerformaMekanik() {
 
       {/* Podium Mekanik Terbaik (Top 3 Cards) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 relative z-20">
-        {performanceData.map((mec) => (
+        {mechanics.map((mec, i) => (
           <div
-            key={mec.rank}
-            className="bg-white rounded-xl p-8 shadow-xl shadow-slate-200/60 border-2 border-transparent hover:border-indigo-100 transition-all flex flex-col items-center"
+            key={i}
+            className="bg-white rounded-xl p-8 shadow-xl shadow-slate-200/60 border-2 border-transparent hover:border-primary transition-all flex flex-col items-center"
           >
             <div className="relative mb-6">
               <div
                 className={`absolute -top-4 -left-4 size-10 rounded-full flex items-center justify-center font-black text-white shadow-lg z-20 
-                ${mec.rank === 1 ? "bg-amber-400" : "bg-slate-300"}`}
+                ${i + 1 === 1 ? "bg-amber-400" : "bg-slate-300"}`}
               >
-                {mec.rank}
+                {i + 1}
               </div>
               <Avatar className="size-28 border-4 border-white shadow-2xl">
-                <AvatarImage src={mec.avatar} />
-                <AvatarFallback className="font-black text-xl">
-                  {mec.name.substring(0, 2)}
-                </AvatarFallback>
+                <AvatarImage
+                  src={mec.profile?.photo_url || getAvatarByName(mec.name)}
+                />
               </Avatar>
             </div>
 
-            <h3 className="text-2xl font-black text-slate-800 mb-1">
+            <h1 className="text-lg font-black text-slate-800 mb-1">
               {mec.name}
-            </h3>
+            </h1>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
-              {mec.role}
+              {mec.roles.map((role) => role.name).join(" | ")}
             </p>
 
-            <div className="grid grid-cols-2 gap-4 w-full mb-8">
+            <div className="grid grid-cols-2 gap-4 w-full">
               <div className="bg-slate-50 p-4 rounded-3xl text-center border border-slate-100">
                 <p className="text-[10px] font-black text-slate-400 uppercase mb-1">
                   Unit Selesai
                 </p>
-                <p className="text-xl font-black text-slate-800">{mec.jobs}</p>
+                <p className="text-xl font-black text-slate-800">
+                  {formatNumber(Number(mec.total_work || 0))}
+                </p>
               </div>
               <div className="bg-slate-50 p-4 rounded-3xl text-center border border-slate-100">
                 <p className="text-[10px] font-black text-slate-400 uppercase mb-1">
@@ -103,13 +113,13 @@ export default function LaporanPerformaMekanik() {
                 <div className="flex items-center justify-center gap-1">
                   <Star className="size-4 fill-amber-400 text-amber-400" />
                   <p className="text-xl font-black text-slate-800">
-                    {mec.rating}
+                    {mec.rating || 0}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="w-full space-y-4">
+            {/* <div className="w-full space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-[10px] font-black uppercase tracking-tighter">
                   <span className="text-slate-400">Efisiensi Kerja</span>
@@ -124,7 +134,7 @@ export default function LaporanPerformaMekanik() {
                 </div>
                 <Progress className="h-2 bg-slate-100" value={mec.onTime} />
               </div>
-            </div>
+            </div> */}
           </div>
         ))}
       </div>
@@ -216,7 +226,7 @@ export default function LaporanPerformaMekanik() {
         </div>
       </div>
 
-      {/* Footer Info Call to Action */}
+      {/* Footer Info Call to Action
       <div className="bg-white border-2 border-dashed border-indigo-200 p-8 rounded-[3rem] flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-6">
           <div className="size-16 bg-indigo-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-indigo-200">
@@ -234,7 +244,7 @@ export default function LaporanPerformaMekanik() {
         <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-8 py-6 rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-2">
           PROSES BONUS <ChevronRight size={18} />
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }
