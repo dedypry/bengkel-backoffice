@@ -6,10 +6,19 @@ import {
   Receipt,
   UserCircleIcon,
   Printer,
+  AlertCircle,
+  ClipboardCheck,
+  Save,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Button, CircularProgress, IconButton } from "@mui/joy";
+import {
+  Button,
+  Chip,
+  CircularProgress,
+  IconButton,
+  Typography,
+} from "@mui/joy";
 
 import ButtonStatus from "../components/button-status";
 import StatusQueue from "../components/status-queue";
@@ -48,10 +57,12 @@ import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 import { handleDownload } from "@/utils/helpers/global";
+import BlogEditor from "@/components/text-editor";
 
 export default function WorkOrderDetail() {
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [nextSugestion, setNextSugestion] = useState("");
 
   const {
     detail: data,
@@ -84,6 +95,8 @@ export default function WorkOrderDetail() {
 
       dispatch(setWoSparepart(dataSparepart));
       dispatch(setWoService(dataServices));
+
+      setNextSugestion(data.next_sugestion);
     }
   }, [data]);
 
@@ -114,6 +127,17 @@ export default function WorkOrderDetail() {
 
   function onClose() {
     dispatch(formWoClear());
+  }
+
+  function saveNextSugestion() {
+    http
+      .patch(`/work-order/${id}/sugestion`, {
+        next_sugestion: nextSugestion,
+      })
+      .then(({ data }) => {
+        notify(data.message);
+      })
+      .catch((err) => notifyError(err));
   }
 
   return (
@@ -216,6 +240,13 @@ export default function WorkOrderDetail() {
                   {data.vehicle.fuel_type}
                 </p>
               </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="whitespace-pre-line">
+              <p className="font-semibold">Keluhan</p>
+              <Separator className="my-2" />
+              {data.complaints}
             </CardContent>
           </Card>
         </div>
@@ -395,6 +426,44 @@ export default function WorkOrderDetail() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent>
+              <div className="flex flex-col gap-1 mb-3">
+                <Typography
+                  fontSize={16}
+                  fontWeight={600}
+                  startDecorator={<ClipboardCheck size={20} />}
+                >
+                  Rekomendasi Servis Selanjutnya
+                </Typography>
+                <Typography level="body-md" sx={{ color: "neutral.500" }}>
+                  Catat komponen yang perlu diperhatikan atau diganti pada
+                  kunjungan berikutnya.
+                </Typography>
+
+                <Chip
+                  color="warning"
+                  size="sm"
+                  startDecorator={<AlertCircle size={14} />}
+                  variant="soft"
+                >
+                  Akan tampil di Invoice Customer
+                </Chip>
+              </div>
+              <BlogEditor value={nextSugestion} onChange={setNextSugestion} />
+
+              <div className="flex justify-end">
+                <Button
+                  startDecorator={<Save />}
+                  sx={{ mt: 2 }}
+                  onClick={saveNextSugestion}
+                >
+                  Simpan
+                </Button>
               </div>
             </CardContent>
           </Card>

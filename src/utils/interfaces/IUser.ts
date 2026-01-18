@@ -210,4 +210,6 @@ export interface IWorkOrder {
     name: string;
     estimated: string;
   }[];
+  complaints: string;
+  next_sugestion: string;
 }

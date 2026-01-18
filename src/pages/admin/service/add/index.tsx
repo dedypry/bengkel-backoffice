@@ -26,15 +26,14 @@ import {
   Select,
   Button,
   IconButton,
-  Textarea,
   Alert,
+  Textarea,
 } from "@mui/joy";
 
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
 import ModalAddService from "./components/modal-add-service";
 import VehicleOption from "./components/vehicle-option";
 
-import { Label } from "@/components/ui/label";
 import CustomerSearch from "@/components/customer-search";
 import {
   Form,
@@ -71,6 +70,7 @@ import { http } from "@/utils/libs/axios";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { getCustomer } from "@/stores/features/customer/customer-action";
 import { PhoneMask } from "@/utils/mask/mask";
+import { Separator } from "@/components/ui/separator";
 
 export default function PendaftaranServis() {
   const { company } = useAppSelector((state) => state.auth);
@@ -109,7 +109,7 @@ export default function PendaftaranServis() {
     defaultValues: {
       priority: "normal",
       customer: {
-        birth_date: new Date().toISOString(),
+        birth_date: "",
       },
     },
   });
@@ -139,10 +139,13 @@ export default function PendaftaranServis() {
       .then(({ data }) => {
         setErrorService(false);
         notify(data.message);
+        form.setValue("complaints", "");
+        form.setValue("current_km", 0);
         form.reset();
         handleVehicleReset();
         handleResetCustomer();
         dispatch(formWoClear());
+        localStorage.removeItem("draft_wo");
       })
       .catch((err: AxiosError) => {
         notifyError(err);
@@ -156,19 +159,7 @@ export default function PendaftaranServis() {
   };
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      localStorage.setItem("draft_wo", JSON.stringify(form.getValues()));
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [form.watch()]);
-
-  useEffect(() => {
-    const savedData = localStorage.getItem("draft_wo");
-
-    if (savedData) {
-      form.reset(JSON.parse(savedData));
-    }
+    dispatch(formWoClear());
   }, []);
 
   function handleVehicleReset() {
@@ -195,7 +186,7 @@ export default function PendaftaranServis() {
       name: "",
       phone: "",
       email: "",
-      birth_date: new Date().toISOString(),
+      birth_date: "",
     });
     form.clearErrors("customer");
   }
@@ -221,8 +212,6 @@ export default function PendaftaranServis() {
         Object.entries(data).map(([key, val]) => [key, val ?? ""]),
       );
 
-      console.log(data);
-      // Set nilai sebagai object ke path "vehicle"
       form.setValue("vehicle", cleanedData as any, {
         shouldValidate: true,
         shouldDirty: true,
@@ -340,7 +329,7 @@ export default function PendaftaranServis() {
                         <FormControl>
                           <DatePicker
                             disabled={
-                              !!customer?.id && !!customer.profile.birth_date
+                              !!customer?.id && !!customer?.profile?.birth_date
                             }
                             setValue={field.onChange}
                             value={new Date(field.value as any)}
@@ -822,9 +811,27 @@ export default function PendaftaranServis() {
                     </TableBody>
                   </Table>
 
+                  <Separator className="my-3" />
+
                   <div className="space-y-2">
-                    <Label>Deskripsi Keluhan</Label>
-                    <Textarea placeholder="Contoh: Rem bunyi saat diinjak, AC tidak dingin..." />
+                    <FormField
+                      control={form.control}
+                      name="complaints"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-md font-semibold">
+                            Deskripsi Keluhan
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              value={field.value || ""}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
               </div>
@@ -904,7 +911,7 @@ export default function PendaftaranServis() {
 
                 <Card>
                   <CardContent>
-                    <p className="text-xs text-blue-800 leading-relaxed">
+                    <p className="text-xs text-primary leading-relaxed">
                       <strong>Tips:</strong> Pastikan Anda telah memeriksa
                       barang berharga di dalam kendaraan sebelum memulai servis.
                     </p>

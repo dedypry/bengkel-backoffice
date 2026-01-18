@@ -72,7 +72,9 @@ export async function handleDownload(
   setLoading?: (val: boolean) => void,
 ) {
   try {
-    setLoading!(true);
+    if (setLoading) {
+      setLoading(true);
+    }
     // 1. Lakukan request dengan responseType 'blob'
     const response = await http.get(linkUrl, {
       responseType: "blob",
@@ -99,6 +101,8 @@ export async function handleDownload(
     console.error("Download gagal:", error);
     notifyError("Gagal mendownload PDF");
   } finally {
-    setLoading!(false);
+    if (setLoading) {
+      setLoading(false);
+    }
   }
 }

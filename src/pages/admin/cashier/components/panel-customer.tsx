@@ -9,11 +9,11 @@ import {
   Alert,
   Box,
   Button,
+  CircularProgress,
   Divider,
   FormControl,
   FormLabel,
   IconButton,
-  Input,
   Typography,
 } from "@mui/joy";
 import {
@@ -46,6 +46,7 @@ export default function PanelCustomer() {
   const [promoData, setPromoData] = useState<IPromo | null>(null);
   const [totalPromo, setTotalPromo] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -200,10 +201,22 @@ export default function PanelCustomer() {
                   Detail
                 </Button>
                 <IconButton
+                  disabled={printLoading}
                   variant="outlined"
-                  onClick={() => handleDownload(`/invoices/${workOrder.id}`)}
+                  onClick={() =>
+                    handleDownload(
+                      `/invoices/${workOrder.id}`,
+                      workOrder.trx_no,
+                      true,
+                      setPrintLoading,
+                    )
+                  }
                 >
-                  <Printer className="size-5" />
+                  {printLoading ? (
+                    <CircularProgress />
+                  ) : (
+                    <Printer className="size-5" />
+                  )}
                 </IconButton>
               </div>
             </div>
@@ -249,8 +262,8 @@ export default function PanelCustomer() {
             </div>
 
             {/* Ringkasan Biaya & Diskon */}
-            <div className="space-y-3 border-t pt-2">
-              {workOrder.status != "closed" && (
+            <div className="space-y-3 border-t pt-5">
+              {/* {workOrder.status != "closed" && (
                 <div className="grid grid-cols-2 gap-4 py-2">
                   <Controller
                     control={control}
@@ -289,7 +302,7 @@ export default function PanelCustomer() {
                     )}
                   />
                 </div>
-              )}
+              )} */}
 
               {promoData && (
                 <Card>
@@ -329,10 +342,10 @@ export default function PanelCustomer() {
               </div>
 
               {/* Detail Pemotongan */}
-              <div className="flex justify-between text-red-500 text-sm italic">
+              {/* <div className="flex justify-between text-red-500 text-sm italic">
                 <span>Potongan Diskon</span>
                 <span>-{formatIDR(watch("discount"))}</span>
-              </div>
+              </div> */}
 
               {workOrder.promo_data?.map((item, index) => (
                 <div
