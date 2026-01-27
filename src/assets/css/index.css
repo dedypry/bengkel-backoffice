@@ -121,6 +121,22 @@
 }
 
 @layer base {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Menyembunyikan scrollbar untuk IE, Edge, dan Firefox */
+  html {
+    -ms-overflow-style: none; /* IE dan Edge */
+    scrollbar-width: none; /* Firefox */
+    scroll-behavior: smooth; /* Opsional: Agar scroll tetap terasa halus */
+  }
+
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   h1,
   h2,
   h3,

@@ -21,10 +21,10 @@ const configs: IConfigs = {
     gallery: "http://127.0.0.1:9876",
   },
   production: {
-    front: "https://90home.id",
-    api: "https://api-bengkel.90home.id",
-    socket: "https://socket.90home.id",
-    gallery: "https://gallery.90home.id",
+    front: "https://bengkel.dedypry.site",
+    api: "https://api-bengkel.dedypry.site",
+    socket: "https://socket.dedypry.site",
+    gallery: "https://gallery.dedypry.site",
   },
 };
 
