@@ -9,43 +9,6 @@ import { http } from "@/utils/libs/axios";
 import { notifyError } from "@/utils/helpers/notify";
 import { formatIDR, formatNumber } from "@/utils/helpers/format";
 
-const bestSellers = [
-  {
-    id: "PRD-001",
-    name: "Oli Shell Helix HX7 10W-40",
-    category: "Pelumas",
-    sold: 154,
-    revenue: 69300000,
-    stock: 12,
-    trend: "+12%",
-    image: "https://api.dicebear.com/7.x/shapes/svg?seed=oil",
-    color: "amber",
-  },
-  {
-    id: "PRD-002",
-    name: "Kampas Rem Depan Avanza",
-    category: "Brake System",
-    sold: 89,
-    revenue: 22250000,
-    stock: 5,
-    trend: "+8%",
-    image: "https://api.dicebear.com/7.x/shapes/svg?seed=brake",
-    color: "orange",
-  },
-  {
-    id: "PRD-003",
-    name: "Filter Udara Racing XL",
-    category: "Filter",
-    sold: 45,
-    revenue: 6750000,
-    stock: 25,
-    trend: "-3%",
-    image: "https://api.dicebear.com/7.x/shapes/svg?seed=filter",
-    color: "blue",
-  },
-];
-const colors = ["amber", "orange", "blue"];
-
 export default function LaporanBarangTerlaris() {
   const [products, setProduct] = useState<IProduct[]>([]);
 

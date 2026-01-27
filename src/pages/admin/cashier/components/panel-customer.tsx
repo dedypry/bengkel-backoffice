@@ -1,7 +1,7 @@
 import type { IPromo } from "@/utils/interfaces/IPromo";
 
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import dayjs from "dayjs";
@@ -44,7 +44,6 @@ import FileUploader from "@/components/drop-zone";
 export default function PanelCustomer() {
   const { workOrder } = useAppSelector((state) => state.wo);
   const [promoData, setPromoData] = useState<IPromo | null>(null);
-  const [totalPromo, setTotalPromo] = useState(0);
   const [loading, setLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -103,67 +102,6 @@ export default function PanelCustomer() {
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));
   }
-
-  function handleChekPromo() {
-    http
-      .get<IPromo>("/promos/check", {
-        params: {
-          code: watch("promoCode"),
-        },
-      })
-      .then(({ data }) => {
-        setPromoData(data);
-        setValue("isManualDiscount", false);
-        const subtotal = Number(workOrder.sub_total || 0);
-        let calculatedDiscount = 0;
-        const minPurchase = Number(data.min_purchase || 0);
-
-        if (subtotal < minPurchase) {
-          notifyError(
-            `Minimal pembelian untuk promo ini adalah Rp ${minPurchase.toLocaleString()}`,
-          );
-
-          return;
-        }
-
-        if (data.type === "percentage") {
-          const percentageValue = Number(data.value || 0);
-          const maxDiscount = Number(data.max_discount || 0);
-
-          // Hitung nominal persentase
-          const discountAmount = (subtotal * percentageValue) / 100;
-
-          // Jika ada max_discount dan lebih dari 0, lakukan pembatasan (limit)
-          if (maxDiscount > 0) {
-            calculatedDiscount = Math.min(discountAmount, maxDiscount);
-          } else {
-            calculatedDiscount = discountAmount;
-          }
-        } else {
-          // Jika tipe 'fix' atau nominal langsung
-          calculatedDiscount = Number(data.value || 0);
-        }
-
-        calculatedDiscount = Math.min(calculatedDiscount, subtotal);
-
-        if (calculatedDiscount > 0) {
-          setValue("discount", calculatedDiscount);
-          setTotalPromo(calculatedDiscount);
-        }
-      })
-      .catch((err) => {
-        notifyError(err);
-        setPromoData(null);
-      });
-  }
-
-  useEffect(() => {
-    if (Number(watch("discount")) != totalPromo) {
-      setPromoData(null);
-      setValue("promoCode", "");
-      setValue("isManualDiscount", true);
-    }
-  }, [watch("discount")]);
 
   return (
     <div className="w-full md:w-2/3 overflow-y-auto scrollbar-modern">

@@ -16,42 +16,6 @@ import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
 import { getAvatarByName } from "@/utils/helpers/global";
 import { formatNumber } from "@/utils/helpers/format";
 
-const performanceData = [
-  {
-    rank: 1,
-    name: "Agus Supriatna",
-    role: "Senior Lead",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Agus",
-    jobs: 142,
-    rating: 4.9,
-    efficiency: 96,
-    onTime: 98,
-    status: "Excellent",
-  },
-  {
-    rank: 2,
-    name: "Budi Hermawan",
-    role: "Technician",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Budi",
-    jobs: 118,
-    rating: 4.8,
-    efficiency: 89,
-    onTime: 92,
-    status: "Great",
-  },
-  {
-    rank: 3,
-    name: "Samsul Bahri",
-    role: "Technician",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Samsul",
-    jobs: 95,
-    rating: 4.7,
-    efficiency: 82,
-    onTime: 85,
-    status: "Good",
-  },
-];
-
 export default function LaporanPerformaMekanik() {
   const { mechanics } = useAppSelector((state) => state.mechanic);
 
