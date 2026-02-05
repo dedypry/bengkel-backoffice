@@ -67,6 +67,37 @@ export const calculateTotalEstimation = (services: IWo[]) => {
   };
 };
 
+export async function handleDownloadExcel(
+  url: string,
+  params?: any,
+  fileName: string = "export-data",
+) {
+  try {
+    const response = await http.get(url, {
+      responseType: "blob",
+      params,
+    });
+
+    const blob = new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = downloadUrl;
+    link.download = fileName + ".xlsx";
+
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
+  } catch (error) {
+    console.error("Gagal mendownload Excel:", error);
+  }
+}
+
 export async function handleDownload(
   linkUrl: string,
   fileName: string = "",

@@ -57,7 +57,7 @@ export default function ImportProduct() {
         variant="outline"
         onClick={() => setOpen(true)}
       >
-        <Import className="size-4" /> Inport Excel
+        <Import className="size-4" /> Import Excel
       </Button>
     </>
   );

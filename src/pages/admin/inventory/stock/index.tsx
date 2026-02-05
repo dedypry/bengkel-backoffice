@@ -3,17 +3,16 @@ import {
   Plus,
   Package,
   AlertCircle,
-  Filter,
   ArrowUpDown,
-  History,
+  Download,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { Button } from "@mui/joy";
 
 import SelectCategories from "./components/select-categories";
-import ImportProduct from "./components/import-product";
+import UpdateStock from "./components/update-stock";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import HeaderAction from "@/components/header-action";
@@ -36,6 +35,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function StokBarang() {
   const { company } = useAppSelector((state) => state.auth);
@@ -69,19 +69,32 @@ export default function StokBarang() {
       <HeaderAction
         actionContent={
           <>
-            <Button
+            {/* <Button
               className="gap-2"
               variant="outline"
               onClick={() => navigate("/inventory/stock/logs")}
             >
               <History className="size-4" /> Log Stok
-            </Button>
-            <ImportProduct />
+            </Button> */}
             <Button
-              className="gap-2 shadow-lg shadow-primary/20 "
+              color="success"
+              startDecorator={<Download className="size-4" />}
+              onClick={() =>
+                handleDownloadExcel(
+                  "/products/export/excel",
+                  productQuery,
+                  "product-list",
+                )
+              }
+            >
+              Export Excel
+            </Button>
+            {/* <ImportProduct /> */}
+            <Button
+              startDecorator={<Plus className="size-4" />}
               onClick={() => navigate("/inventory/stock/add")}
             >
-              <Plus className="size-4" /> Tambah Barang
+              Tambah Barang
             </Button>
           </>
         }
@@ -151,13 +164,8 @@ export default function StokBarang() {
               onChange={(e) => searchDebounce(e.target.value)}
             />
           </div>
-          <div className="flex gap-2">
-            <div className="w-60">
-              <SelectCategories />
-            </div>
-            <Button size="icon" variant="outline">
-              <Filter className="size-4" />
-            </Button>
+          <div className="flex gap-2 w-60">
+            <SelectCategories />
           </div>
         </div>
 
@@ -186,14 +194,23 @@ export default function StokBarang() {
                 </TableCell>
 
                 <TableCell className="text-center">
-                  <div className="font-semibold text-sm text-slate-700">
-                    {item.stock}{" "}
-                    <span className="text-[11px] text-slate-600 font-normal">
-                      {item.uom?.code}
-                    </span>
-                  </div>
-                  <div className="text-[10px] text-slate-600 italic">
-                    Min. {item.min_stock}
+                  <div className="flex gap-2">
+                    <div className="flex flex-col">
+                      <div className="font-semibold text-sm text-slate-700">
+                        {item.stock}{" "}
+                        <span className="text-[11px] text-slate-600 font-normal">
+                          {item.uom?.code}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-600 italic">
+                        Min. {item.min_stock}
+                      </div>
+                    </div>
+                    <UpdateStock
+                      currentStock={item.stock}
+                      id={item.id}
+                      name={item.name}
+                    />
                   </div>
                 </TableCell>
 

@@ -51,7 +51,7 @@ const navigation = [
         title: "Stok Barang",
         url: "stock",
       },
-      { title: "Barang Masuk", url: "in" },
+      // { title: "Barang Masuk", url: "in" },
       { title: "Kategori Produk", url: "categories" },
     ],
   },

@@ -23,6 +23,7 @@ import {
   Eye,
   Printer,
   Receipt,
+  Send,
   User,
   X,
 } from "lucide-react";
@@ -103,6 +104,15 @@ export default function PanelCustomer() {
       .finally(() => setLoading(false));
   }
 
+  function handleSendMail(id: number) {
+    http
+      .post(`/invoices/${id}/send`)
+      .then(({ data }) => {
+        notify(data.message);
+      })
+      .catch((err) => notifyError(err));
+  }
+
   return (
     <div className="w-full md:w-2/3 overflow-y-auto scrollbar-modern">
       {workOrder?.id ? (
@@ -130,32 +140,47 @@ export default function PanelCustomer() {
                 </p>
               </div>
 
-              <div className="flex gap-2 items-center">
-                <Button
-                  color="success"
-                  startDecorator={<Eye />}
-                  onClick={() => navigate(`/service/queue/${workOrder.id}`)}
-                >
-                  Detail
-                </Button>
-                <IconButton
-                  disabled={printLoading}
-                  variant="outlined"
-                  onClick={() =>
-                    handleDownload(
-                      `/invoices/${workOrder.id}`,
-                      workOrder.trx_no,
-                      true,
-                      setPrintLoading,
-                    )
-                  }
-                >
-                  {printLoading ? (
-                    <CircularProgress />
-                  ) : (
-                    <Printer className="size-5" />
-                  )}
-                </IconButton>
+              <div className="flex flex-col gap-1">
+                <div className="flex gap-2 items-center">
+                  <Button
+                    color="success"
+                    size="sm"
+                    startDecorator={<Eye />}
+                    onClick={() => navigate(`/service/queue/${workOrder.id}`)}
+                  >
+                    Detail
+                  </Button>
+
+                  <IconButton
+                    disabled={printLoading}
+                    size="sm"
+                    variant="outlined"
+                    onClick={() =>
+                      handleDownload(
+                        `/invoices/${workOrder.id}`,
+                        workOrder.trx_no,
+                        true,
+                        setPrintLoading,
+                      )
+                    }
+                  >
+                    {printLoading ? (
+                      <CircularProgress />
+                    ) : (
+                      <Printer className="size-5" />
+                    )}
+                  </IconButton>
+                </div>
+                {workOrder.customer?.email && (
+                  <Button
+                    color="warning"
+                    size="sm"
+                    startDecorator={<Send />}
+                    onClick={() => handleSendMail(workOrder.id)}
+                  >
+                    Kirim Invoice
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
