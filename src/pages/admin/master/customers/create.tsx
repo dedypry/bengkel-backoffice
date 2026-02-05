@@ -52,7 +52,7 @@ import { getCity, getDistrict } from "@/stores/features/region/region-action";
 import { DatePicker } from "@/components/date-picker";
 
 interface Props {
-  data: ICustomer;
+  data?: ICustomer;
 }
 export default function CustomerFormPage({ data }: Props) {
   const [isLoading, setLoading] = useState(false);
