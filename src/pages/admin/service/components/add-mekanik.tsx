@@ -29,7 +29,9 @@ interface Props {
   onRefresh?: () => void;
 }
 export default function AddMechanich({ open, setOpen, id, onRefresh }: Props) {
-  const { mechanics, mechanicIds } = useAppSelector((state) => state.mechanic);
+  const { mechanics, mechanicIds, mechanicQuery } = useAppSelector(
+    (state) => state.mechanic,
+  );
   const { company } = useAppSelector((state) => state.auth);
   const { woQuery } = useAppSelector((state) => state.wo);
   const [loading, setLoading] = useState(false);
@@ -38,7 +40,7 @@ export default function AddMechanich({ open, setOpen, id, onRefresh }: Props) {
 
   useEffect(() => {
     if (company && open) {
-      dispatch(getMechanic());
+      dispatch(getMechanic(mechanicQuery));
     }
   }, [company, open]);
 

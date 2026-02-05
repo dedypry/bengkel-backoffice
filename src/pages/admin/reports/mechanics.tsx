@@ -17,12 +17,14 @@ import { getAvatarByName } from "@/utils/helpers/global";
 import { formatNumber } from "@/utils/helpers/format";
 
 export default function LaporanPerformaMekanik() {
-  const { mechanics } = useAppSelector((state) => state.mechanic);
+  const { mechanics, mechanicQuery } = useAppSelector(
+    (state) => state.mechanic,
+  );
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getMechanic());
+    dispatch(getMechanic(mechanicQuery));
   }, []);
 
   return (

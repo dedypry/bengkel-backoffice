@@ -3,9 +3,21 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Typography } from "@mui/joy";
+import {
+  Settings2,
+  SquareTerminal,
+  CarFront,
+  Package,
+  ClipboardList,
+  FileBarChart,
+  Receipt,
+  Users,
+  ShoppingCart,
+  Book,
+  PanelLeftIcon,
+} from "lucide-react";
 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
 
@@ -24,7 +36,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { navigation } from "@/utils/navigation/sidebar-nav";
-import { hasRoles } from "@/utils/helpers/roles";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -539,7 +550,21 @@ const SidebarMenuButton = React.forwardRef<
     }
 
     if (typeof tooltip === "string") {
+      const iconMap: Record<string, React.ElementType> = {
+        Settings2: Settings2,
+        SquareTerminal: SquareTerminal,
+        CarFront: CarFront,
+        Package: Package,
+        ClipboardList: ClipboardList,
+        FileBarChart: FileBarChart,
+        Receipt: Receipt,
+        Users: Users,
+        ShoppingCart: ShoppingCart,
+        Book,
+      };
+
       const find = navigation.find((item) => item.title === tooltip);
+      const Icon = find?.icon ? iconMap[find.icon] : SquareTerminal;
 
       return (
         <HoverCard closeDelay={100} openDelay={100}>
@@ -554,7 +579,7 @@ const SidebarMenuButton = React.forwardRef<
             {/* Header: Judul Menu Utama */}
             <div className="flex gap-3 items-center px-2 py-1 mb-2">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
-                {find?.icon && <find.icon size={18} />}
+                {find?.icon && <Icon size={18} />}
               </div>
               <Typography className="font-bold" level="title-sm">
                 {tooltip}
@@ -567,8 +592,6 @@ const SidebarMenuButton = React.forwardRef<
             <div className="flex flex-col gap-1">
               {find?.items?.map((item, i) => {
                 // Role Check
-                if (item?.roles?.length! > 0 && !hasRoles(item.roles || []))
-                  return null;
 
                 return (
                   <Link
