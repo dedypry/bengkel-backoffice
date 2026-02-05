@@ -36,4 +36,4 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.REMOTE_PORT }}
           source: "dist/*"
-          target: "/www/wwwroot/bengkel.90home.id"
+          target: "/www/wwwroot/admin.pradanaautocare.id"
