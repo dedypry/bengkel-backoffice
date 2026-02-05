@@ -45,6 +45,7 @@ export default function SupplierList() {
   const { suppliers, supplierQuery } = useAppSelector(
     (state) => state.supplier,
   );
+  const { company } = useAppSelector((state) => state.auth);
   const [search, setSearch] = useState("");
 
   const [open, setOpen] = useState(false);
@@ -53,8 +54,10 @@ export default function SupplierList() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getSupplier(supplierQuery));
-  }, [supplierQuery]);
+    if (company) {
+      dispatch(getSupplier(supplierQuery));
+    }
+  }, [supplierQuery, company]);
 
   function handleDelete(id: number) {
     http
@@ -123,113 +126,170 @@ export default function SupplierList() {
                 </tr>
               </thead>
               <tbody>
-                {suppliers?.data.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <Typography fontWeight="bold" level="body-xs">
-                        {item.code}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Stack>
-                        <Typography level="title-sm">{item.name}</Typography>
-                        <Typography
-                          noWrap
-                          level="body-xs"
-                          startDecorator={<MapPin size={12} />}
-                          sx={{ display: "block" }}
-                        >
-                          {item.address || "Alamat belum diatur"}
-                        </Typography>
-                      </Stack>
-                    </td>
-                    <td>
-                      <Stack spacing={0.5}>
+                {suppliers?.data.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      style={{ textAlign: "center", padding: "80px 0" }}
+                    >
+                      <Stack alignItems="center" spacing={2}>
+                        {/* Ilustrasi Icon */}
                         <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 80,
+                            height: 80,
+                            backgroundColor:
+                              "var(--joy-palette-neutral-softBg)",
+                            borderRadius: "50%",
+                            color: "var(--joy-palette-neutral-tertiaryChannel)",
+                          }}
                         >
-                          <Phone className="text-slate-400" size={14} />
+                          <Search size={40} />
+                        </Box>
+
+                        <Box>
+                          <Typography level="title-lg" sx={{ mb: 1 }}>
+                            Supplier Tidak Ditemukan
+                          </Typography>
                           <Typography level="body-sm">
-                            {item.phone || "-"}
+                            {search
+                              ? `Tidak ada hasil untuk pencarian "${search}". Coba gunakan kata kunci lain.`
+                              : "Daftar supplier Anda masih kosong. Mulai tambahkan vendor untuk manajemen inventaris yang lebih baik."}
                           </Typography>
                         </Box>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Mail className="text-slate-400" size={14} />
-                          <Typography level="body-sm">
-                            {item.email || "-"}
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </td>
-                    <td>
-                      <Stack spacing={0.5}>
-                        <Typography level="body-xs">
-                          NPWP: {item.npwp || "-"}
-                        </Typography>
-                        {item.website && (
-                          <Typography
-                            color="primary"
-                            level="body-xs"
-                            startDecorator={<ExternalLink size={12} />}
+
+                        {!search && (
+                          <Button
+                            startDecorator={<Plus size={18} />}
+                            sx={{ mt: 1 }}
+                            onClick={() => setOpen(true)}
                           >
-                            {item.website}
-                          </Typography>
+                            Tambah Supplier Pertama
+                          </Button>
                         )}
                       </Stack>
                     </td>
-                    <td>
-                      <Chip
-                        color={item.is_active ? "success" : "neutral"}
-                        size="sm"
-                        variant="soft"
-                      >
-                        {item.is_active ? "Aktif" : "Non-Aktif"}
-                      </Chip>
-                    </td>
-                    <td>
-                      <Dropdown>
-                        <MenuButton
-                          slotProps={{
-                            root: {
-                              variant: "plain",
-                              color: "neutral",
-                              size: "sm",
-                            },
-                          }}
-                          slots={{ root: IconButton }}
-                        >
-                          <MoreVertical size={18} />
-                        </MenuButton>
-                        <Menu
-                          placement="bottom-end"
-                          size="sm"
-                          variant="outlined"
-                        >
-                          <MenuItem
-                            onClick={() => {
-                              seSupplier(item);
-                              setOpen(true);
+                  </tr>
+                ) : (
+                  suppliers?.data.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <Typography fontWeight="bold" level="body-xs">
+                          {item.code}
+                        </Typography>
+                      </td>
+                      <td>
+                        <Stack>
+                          <Typography level="title-sm">{item.name}</Typography>
+                          <Typography
+                            noWrap
+                            level="body-xs"
+                            startDecorator={<MapPin size={12} />}
+                            sx={{ display: "block" }}
+                          >
+                            {item.address || "Alamat belum diatur"}
+                          </Typography>
+                        </Stack>
+                      </td>
+                      <td>
+                        <Stack spacing={0.5}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
                             }}
                           >
-                            <Edit2 size={16} /> Edit Data
-                          </MenuItem>
-                          <Divider />
-                          <MenuItem
-                            color="danger"
-                            variant="soft"
-                            onClick={() =>
-                              confirmSweat(() => handleDelete(item.id))
-                            }
+                            <Phone className="text-slate-400" size={14} />
+                            <Typography level="body-sm">
+                              {item.phone || "-"}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
                           >
-                            <Trash2 size={16} /> Hapus
-                          </MenuItem>
-                        </Menu>
-                      </Dropdown>
-                    </td>
-                  </tr>
-                ))}
+                            <Mail className="text-slate-400" size={14} />
+                            <Typography level="body-sm">
+                              {item.email || "-"}
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </td>
+                      <td>
+                        <Stack spacing={0.5}>
+                          <Typography level="body-xs">
+                            NPWP: {item.npwp || "-"}
+                          </Typography>
+                          {item.website && (
+                            <Typography
+                              color="primary"
+                              level="body-xs"
+                              startDecorator={<ExternalLink size={12} />}
+                            >
+                              {item.website}
+                            </Typography>
+                          )}
+                        </Stack>
+                      </td>
+                      <td>
+                        <Chip
+                          color={item.is_active ? "success" : "neutral"}
+                          size="sm"
+                          variant="soft"
+                        >
+                          {item.is_active ? "Aktif" : "Non-Aktif"}
+                        </Chip>
+                      </td>
+                      <td>
+                        <Dropdown>
+                          <MenuButton
+                            slotProps={{
+                              root: {
+                                variant: "plain",
+                                color: "neutral",
+                                size: "sm",
+                              },
+                            }}
+                            slots={{ root: IconButton }}
+                          >
+                            <MoreVertical size={18} />
+                          </MenuButton>
+                          <Menu
+                            placement="bottom-end"
+                            size="sm"
+                            variant="outlined"
+                          >
+                            <MenuItem
+                              onClick={() => {
+                                seSupplier(item);
+                                setOpen(true);
+                              }}
+                            >
+                              <Edit2 size={16} /> Edit Data
+                            </MenuItem>
+                            <Divider />
+                            <MenuItem
+                              color="danger"
+                              variant="soft"
+                              onClick={() =>
+                                confirmSweat(() => handleDelete(item.id))
+                              }
+                            >
+                              <Trash2 size={16} /> Hapus
+                            </MenuItem>
+                          </Menu>
+                        </Dropdown>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </Table>
           </Sheet>

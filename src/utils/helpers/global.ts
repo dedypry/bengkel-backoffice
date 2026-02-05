@@ -1,5 +1,7 @@
 import type { IWo } from "@/stores/features/work-order/wo-slice";
 
+import dayjs from "dayjs";
+
 import { http } from "../libs/axios";
 
 import { notifyError } from "./notify";
@@ -106,3 +108,32 @@ export async function handleDownload(
     }
   }
 }
+
+export const calculatePerformance = (rating: any, totalWork: any) => {
+  // 1. Kualitas (Rating): Bobot 70%
+  // Kita asumsikan rating maksimal adalah 5
+  const ratingScore = (Number(rating) || 0) * 20; // 5 * 20 = 100
+  const weightedRating = ratingScore * 0.7;
+
+  // 2. Kuantitas (Jam Terbang): Bobot 30%
+  // Kita asumsikan "Target Senior" adalah 50 pekerjaan selesai untuk skor penuh
+  const targetWork = 50;
+  const workScore = Math.min((Number(totalWork) || 0) / targetWork, 1) * 100;
+  const weightedWork = workScore * 0.3;
+
+  // Total Skor
+  return Math.round(weightedRating + weightedWork);
+};
+
+export const getJoinDuration = (joinDate: string) => {
+  if (!joinDate) return "Tanggal tidak tersedia";
+
+  const join = dayjs(joinDate);
+  const now = dayjs();
+
+  // 2. Format detail (Tahun, Bulan, Hari)
+  const years = now.diff(join, "year");
+  const months = now.diff(join.add(years, "year"), "month");
+
+  return `${years} Tahun, ${months} Bulan`;
+};

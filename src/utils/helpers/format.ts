@@ -19,7 +19,7 @@ export const formatIDR = (price: number, type: "full" | "short" = "full") => {
   }).format(price);
 };
 
-export const formatNumber = (value: number | string): string => {
+export const formatNumber = (value: number | string | undefined): string => {
   if (value === null || value === undefined) return "0";
 
   // Konversi ke number jika input berupa string

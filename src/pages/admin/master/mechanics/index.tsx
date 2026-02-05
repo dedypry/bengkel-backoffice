@@ -1,27 +1,27 @@
 import {
   Wrench,
   Star,
-  Phone,
   Zap,
   ChevronRight,
-  Activity,
   Award,
   Clock,
-  Search,
-  Filter,
   Target,
 } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
-import { getInitials } from "@/utils/helpers/global";
+import {
+  calculatePerformance,
+  getInitials,
+  getJoinDuration,
+} from "@/utils/helpers/global";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Item,
@@ -31,6 +31,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { Separator } from "@/components/ui/separator";
+import { formatNumber } from "@/utils/helpers/format";
 
 const statusStyles = {
   ready: "bg-emerald-500 text-white shadow-emerald-200",
@@ -41,13 +42,17 @@ const statusStyles = {
 
 export default function MasterMekanikPencarian() {
   const { company } = useAppSelector((state) => state.auth);
-  const { mechanics } = useAppSelector((state) => state.mechanic);
+  const { mechanics, mechanicQuery } = useAppSelector(
+    (state) => state.mechanic,
+  );
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const bestMechanic = mechanics?.[0] || null;
 
   useEffect(() => {
-    dispatch(getMechanic());
-  }, [company]);
+    dispatch(getMechanic(mechanicQuery));
+  }, [company, mechanicQuery]);
 
   return (
     <div className="space-y-8 pb-20 px-4">
@@ -60,39 +65,44 @@ export default function MasterMekanikPencarian() {
             </Badge>
             <div className="flex items-center gap-6">
               <Avatar className="size-24 border border-white shadow-white]">
-                <AvatarImage src={mechanics?.[0]?.profile?.photo_url} />
+                <AvatarImage src={bestMechanic?.profile?.photo_url} />
               </Avatar>
               <div>
                 <h1 className="text-4xl font-semibold tracking-tight">
-                  {mechanics?.[0]?.name}
+                  {bestMechanic?.name}
                 </h1>
                 <p className="text-white font-bold uppercase text-sm tracking-widest flex items-center gap-2 mt-1">
-                  <Award className="size-4" /> Skor Performa: 9/100
+                  <Award className="size-4" /> Skor Performa:{" "}
+                  {calculatePerformance(
+                    bestMechanic?.rating,
+                    bestMechanic?.total_work,
+                  )}
+                  /100
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {[
               {
                 label: "Unit Selesai",
-                val: "347",
+                val: formatNumber(bestMechanic?.total_work),
                 icon: Target,
                 color: "text-blue-400",
               },
               {
                 label: "Avg Rating",
-                val: "4.8",
+                val: formatNumber(bestMechanic?.rating),
                 icon: Star,
                 color: "text-amber-400",
               },
-              {
-                label: "Efisiensi",
-                val: "89%",
-                icon: Zap,
-                color: "text-emerald-400",
-              },
+              // {
+              //   label: "Efisiensi",
+              //   val: "89%",
+              //   icon: Zap,
+              //   color: "text-emerald-400",
+              // },
             ].map((s, i) => (
               <div
                 key={i}
@@ -110,7 +120,7 @@ export default function MasterMekanikPencarian() {
       </div>
 
       {/* Control Center: Pencarian & Filter */}
-      <Card>
+      {/* <Card>
         <CardContent>
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="relative flex-1">
@@ -118,6 +128,7 @@ export default function MasterMekanikPencarian() {
               <Input
                 className="w-full h-14 pl-14 pr-6 rounded-md border-none bg-indigo-50/50 focus-visible:ring-2 focus-visible:ring-primary font-bold text-slate-700 placeholder:text-primary/60 transition-all"
                 placeholder="Cari mekanik (nama, spesialisasi, atau ID)..."
+                onChange={(e) => searchDebounce(e.target.value)}
               />
             </div>
             <div className="flex gap-3">
@@ -134,7 +145,7 @@ export default function MasterMekanikPencarian() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Statistik Cepat */}
       <div className="flex flex-wrap justify-center gap-4 mt-4">
@@ -172,7 +183,7 @@ export default function MasterMekanikPencarian() {
                     </span>
                     <span className="text-primary font-light">|</span>
                     <span className="text-[14px] font-semibold text-slate-400 uppercase tracking-widest">
-                      11
+                      5
                     </span>
                   </div>
                   <Badge
@@ -221,7 +232,7 @@ export default function MasterMekanikPencarian() {
                       Level
                     </span>
                     <span className="text-xs font-black text-slate-700">
-                      {mec.level} 1
+                      {mec.level || 1}
                     </span>
                   </div>
                   <div className="flex flex-col items-center p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
@@ -230,7 +241,9 @@ export default function MasterMekanikPencarian() {
                       Kerja
                     </span>
                     <span className="text-xs font-black text-slate-700">
-                      {mec.experience} 12 tahun
+                      {getJoinDuration(
+                        mec?.profile?.join_date || new Date().toISOString(),
+                      )}
                     </span>
                   </div>
                 </div>
@@ -240,24 +253,27 @@ export default function MasterMekanikPencarian() {
                   <div className="flex justify-between items-center px-1">
                     <span className="text-[11px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
                       <Zap className="size-4 fill-current text-primary" />{" "}
-                      Efisiensi
+                      Performa
                     </span>
                     <span className="text-sm font-black text-primary">
-                      {mec.efficiency || 60}%
+                      {calculatePerformance(mec?.rating, mec?.total_work)}%
                     </span>
                   </div>
                   <Progress
                     className="h-3 rounded-full bg-white border border-indigo-100"
-                    value={mec.efficiency || 60}
+                    value={calculatePerformance(mec?.rating, mec?.total_work)}
                   />
                 </div>
               </div>
               <Separator className="my-5" />
               <div className="flex items-center gap-2">
-                <Button variant="ghost">
+                {/* <Button variant="ghost">
                   <Phone className="size-6" />
-                </Button>
-                <Button className="flex-1 group">
+                </Button> */}
+                <Button
+                  className="flex-1 group"
+                  onClick={() => navigate(`/hr/employees/${mec.id}`)}
+                >
                   <span className="flex-1">PROFIL </span>
                   <ChevronRight className="ml-2 size-5 group-hover/btn:translate-x-2 transition-transform" />
                 </Button>

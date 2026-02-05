@@ -1,5 +1,17 @@
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import {
+  Settings2,
+  SquareTerminal,
+  CarFront,
+  Package,
+  ClipboardList,
+  FileBarChart,
+  Receipt,
+  Users,
+  ShoppingCart,
+  Book,
+} from "lucide-react";
 
 import {
   Collapsible,
@@ -17,24 +29,23 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { hasRoles } from "@/utils/helpers/roles";
+import { useAppSelector } from "@/stores/hooks";
 
-export function NavMain({
-  header,
-  items,
-}: {
-  header?: string;
-  items: {
-    roles?: string[];
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    items?: {
-      roles?: string[];
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
+const iconMap: Record<string, React.ElementType> = {
+  Settings2: Settings2,
+  SquareTerminal: SquareTerminal,
+  CarFront: CarFront,
+  Package: Package,
+  ClipboardList: ClipboardList,
+  FileBarChart: FileBarChart,
+  Receipt: Receipt,
+  Users: Users,
+  ShoppingCart: ShoppingCart,
+  Book,
+};
+
+export function NavMain({ header }: { header?: string }) {
+  const { navigations } = useAppSelector((state) => state.auth);
   const { pathname } = useLocation();
 
   return (
@@ -46,9 +57,10 @@ export function NavMain({
       )}
 
       <SidebarMenu>
-        {items.map((item) => {
+        {navigations.map((item) => {
           const isParentActive = pathname.startsWith(item.url);
           const hasSubItems = item.items && item.items.length > 0;
+          const Icon = item.icon ? iconMap[item.icon] : SquareTerminal;
 
           if (item.roles && item.roles.length > 0 && !hasRoles(item.roles)) {
             return;
@@ -68,10 +80,8 @@ export function NavMain({
                     isActive={isParentActive}
                     tooltip={item.title}
                   >
-                    {item.icon && (
-                      <item.icon
-                        className={isParentActive ? "text-gray-100" : ""}
-                      />
+                    {Icon && (
+                      <Icon className={isParentActive ? "text-gray-100" : ""} />
                     )}
                     <span
                       className={
@@ -124,7 +134,7 @@ export function NavMain({
                 isActive={pathname === item.url}
               >
                 <Link to={item.url}>
-                  {item.icon && <item.icon />}
+                  {Icon && <Icon />}
                   <span
                     className={pathname === item.url ? "font-semibold" : ""}
                   >

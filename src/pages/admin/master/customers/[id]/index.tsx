@@ -117,8 +117,8 @@ export default function CustomerDetailPage() {
                   <div className="col-span-2">
                     <p className="text-gray-500">Alamat Lengkap</p>
                     <p className="font-medium">
-                      {data.profile.address}, {data.profile.district.name},{" "}
-                      {data.profile.city.name}, {data.profile.province.name}
+                      {data.profile?.address}, {data.profile?.district?.name},{" "}
+                      {data.profile?.city?.name}, {data.profile?.province?.name}
                     </p>
                   </div>
                 </div>

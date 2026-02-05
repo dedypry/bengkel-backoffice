@@ -86,6 +86,7 @@ export interface IUser {
   specialty: string;
   theme: string;
   total_work?: string;
+  permissions?: string[];
 }
 
 export interface IUserForm {

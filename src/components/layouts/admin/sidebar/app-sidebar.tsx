@@ -14,7 +14,6 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { navigation } from "@/utils/navigation/sidebar-nav";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { open } = useSidebar();
@@ -52,7 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarHeader>
 
         <SidebarContent className="z-10 scroll-smooth scrollbar-modern">
-          <NavMain items={navigation} />
+          <NavMain />
         </SidebarContent>
 
         <SidebarFooter className="z-10 pb-4">

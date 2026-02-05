@@ -10,6 +10,7 @@ import {
   Award,
   Trash2,
   Edit,
+  PackageOpen,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -85,97 +86,117 @@ export default function MasterJasaLight() {
 
       {/* Grid Kartu Jasa */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {services?.data.map((srv) => {
-          const clr = statusServiceColor(srv.difficulty);
-
-          return (
-            <div
-              key={srv.id}
-              className={`group bg-white rounded-lg border border-slate-100 shadow-sm hover:shadow-2xl ${clr.border} transition-all duration-300 flex flex-col overflow-hidden`}
-            >
-              <div className="p-5">
-                {/* Kategori & Judul */}
-                <div className="space-y-2 mb-6">
-                  <Badge
-                    className="border-slate-300 text-slate-500 text-xs px-3 py-1"
-                    variant="outline"
-                  >
-                    {srv.category.name}
-                  </Badge>
-                  <h5
-                    className={`leading-tight ${clr.hover} transition-colors`}
-                  >
-                    {srv.name}
-                  </h5>
-                </div>
-
-                {/* Detail Estimasi & Kesulitan */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  <div className="bg-slate-50 p-3 rounded-2xl text-center border border-slate-100/50">
-                    <p className="text-[9px] font-semibold text-slate-500 uppercase mb-1 flex items-center justify-center gap-1">
-                      <Clock size={10} /> Durasi
-                    </p>
-                    <p className="text-sm font-black text-slate-700">
-                      {srv.estimated_duration}
-                    </p>
-                  </div>
-                  <div
-                    className={`${clr.lightBg} p-3 rounded-2xl text-center border border-slate-100/50`}
-                  >
-                    <p
-                      className={`text-[9px] font-black text-slate-500 uppercase mb-1 flex items-center justify-center gap-1`}
-                    >
-                      <Award size={10} /> Sulit
-                    </p>
-                    <p
-                      className={`text-sm font-black uppercase ${clr.textColor}`}
-                    >
-                      {srv.difficulty}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Panel Harga (Light Style) */}
-                <div
-                  className={`p-6 rounded-3xl text-center border-2 border-dashed ${clr.lightBg} ${clr.textColor} border-current opacity-80 group-hover:opacity-100 transition-opacity`}
-                >
-                  <p className="text-[10px] font-black uppercase tracking-widest mb-1">
-                    Biaya Layanan
-                  </p>
-                  <p className="text-lg font-semibold tracking-tighter">
-                    {formatIDR(Number(srv.price))}
-                  </p>
-                </div>
-              </div>
-
-              {/* Footer Kartu */}
-              <div className="p-6 bg-slate-50/50 border-t border-slate-50 flex gap-2 mt-auto">
-                <Button className="flex-1 shadow-red-50 font-semibold bg-white border border-slate-200 text-red-500 hover:bg-slate-100">
-                  <Trash2 />
-                  HAPUS
-                </Button>
-                <Button
-                  className={`flex-1 shadow-gray-50 font-semibold text-white shadow-lg ${clr.themeColor} hover:${clr.themeColor} hover:opacity-80`}
-                  onClick={() => {
-                    setDetail(srv);
-                    setOpenModal(true);
-                  }}
-                >
-                  <Edit />
-                  EDIT JASA
-                </Button>
-              </div>
+        {services?.data.length === 0 ? (
+          <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 items-center justify-center py-20 px-4 text-center bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-200">
+            <div className="bg-white p-6 rounded-full shadow-sm mb-4">
+              <PackageOpen className="text-slate-300" size={48} />
             </div>
-          );
-        })}
+            <h3 className="text-xl font-bold text-slate-700 mb-1">
+              Belum Ada Layanan
+            </h3>
+            <p className="text-slate-500 max-w-xs mx-auto mb-6">
+              Sepertinya daftar jasa Anda masih kosong. Silakan tambahkan
+              layanan baru untuk memulai.
+            </p>
+            <Button onClick={() => setOpenModal(true)}>
+              + Tambah Jasa Pertama
+            </Button>
+          </div>
+        ) : (
+          services?.data.map((srv) => {
+            const clr = statusServiceColor(srv.difficulty);
+
+            return (
+              <div
+                key={srv.id}
+                className={`group bg-white rounded-lg border border-slate-100 shadow-sm hover:shadow-2xl ${clr.border} transition-all duration-300 flex flex-col overflow-hidden`}
+              >
+                <div className="p-5">
+                  {/* Kategori & Judul */}
+                  <div className="space-y-2 mb-6">
+                    <Badge
+                      className="border-slate-300 text-slate-500 text-xs px-3 py-1"
+                      variant="outline"
+                    >
+                      {srv.category.name}
+                    </Badge>
+                    <h5
+                      className={`leading-tight ${clr.hover} transition-colors`}
+                    >
+                      {srv.name}
+                    </h5>
+                  </div>
+
+                  {/* Detail Estimasi & Kesulitan */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <div className="bg-slate-50 p-3 rounded-2xl text-center border border-slate-100/50">
+                      <p className="text-[9px] font-semibold text-slate-500 uppercase mb-1 flex items-center justify-center gap-1">
+                        <Clock size={10} /> Durasi
+                      </p>
+                      <p className="text-sm font-black text-slate-700">
+                        {srv.estimated_duration}
+                      </p>
+                    </div>
+                    <div
+                      className={`${clr.lightBg} p-3 rounded-2xl text-center border border-slate-100/50`}
+                    >
+                      <p
+                        className={`text-[9px] font-black text-slate-500 uppercase mb-1 flex items-center justify-center gap-1`}
+                      >
+                        <Award size={10} /> Sulit
+                      </p>
+                      <p
+                        className={`text-sm font-black uppercase ${clr.textColor}`}
+                      >
+                        {srv.difficulty}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Panel Harga (Light Style) */}
+                  <div
+                    className={`p-6 rounded-3xl text-center border-2 border-dashed ${clr.lightBg} ${clr.textColor} border-current opacity-80 group-hover:opacity-100 transition-opacity`}
+                  >
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1">
+                      Biaya Layanan
+                    </p>
+                    <p className="text-lg font-semibold tracking-tighter">
+                      {formatIDR(Number(srv.price))}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Footer Kartu */}
+                <div className="p-6 bg-slate-50/50 border-t border-slate-50 flex gap-2 mt-auto">
+                  <Button className="flex-1 shadow-red-50 font-semibold bg-white border border-slate-200 text-red-500 hover:bg-slate-100">
+                    <Trash2 />
+                    HAPUS
+                  </Button>
+                  <Button
+                    className={`flex-1 shadow-gray-50 font-semibold text-white shadow-lg ${clr.themeColor} hover:${clr.themeColor} hover:opacity-80`}
+                    onClick={() => {
+                      setDetail(srv);
+                      setOpenModal(true);
+                    }}
+                  >
+                    <Edit />
+                    EDIT JASA
+                  </Button>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
-      <div>
-        <CustomPagination
-          meta={services?.meta!}
-          onPageChange={(page) => dispatch(setServiceQuery({ page }))}
-        />
-      </div>
+      {services?.data?.length! > 0 && (
+        <div>
+          <CustomPagination
+            meta={services?.meta!}
+            onPageChange={(page) => dispatch(setServiceQuery({ page }))}
+          />
+        </div>
+      )}
 
       {/* Info Jaminan Kualitas */}
       <div className="flex justify-center mt-12">

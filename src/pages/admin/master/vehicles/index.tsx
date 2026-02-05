@@ -39,7 +39,7 @@ export default function MasterVehicles() {
       {/* Header */}
       <HeaderAction
         actionIcon={Plus}
-        actionTitle="Tambah Unit Baru"
+        // actionTitle="Tambah Unit Baru"
         leadIcon={Car}
         subtitle="Kelola spesifikasi unit dan histori pengerjaan kendaraan."
         title="Database Kendaraan"
@@ -75,7 +75,7 @@ export default function MasterVehicles() {
               <th className="p-4">Spesifikasi</th>
               <th className="p-4">Update Terakhir</th>
               <th className="p-4 text-center">Status</th>
-              <th className="p-4" />
+              {/* <th className="p-4" /> */}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -139,29 +139,9 @@ export default function MasterVehicles() {
                     <ShieldCheck className="size-3" /> {vh.status || "VERIFIED"}
                   </div>
                 </td>
-                <td className="p-4 text-right">
+                {/* <td className="p-4 text-right">
                   <TableAction />
-                  {/* <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost">
-                        <MoreHorizontal className="size-4 text-slate-400" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuLabel>Opsi Kendaraan</DropdownMenuLabel>
-                      <DropdownMenuItem className="gap-2">
-                        <History className="size-4" /> Riwayat Servis
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2">
-                        <Edit className="size-4" /> Edit Data Unit
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="gap-2 text-red-600 focus:text-red-600">
-                        <Trash2 className="size-4" /> Hapus Kendaraan
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu> */}
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>

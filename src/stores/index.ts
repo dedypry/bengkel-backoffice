@@ -26,6 +26,7 @@ import promo from "./features/promo/promo-slice";
 import supplier from "./features/supplier/supplier-slice";
 import payment from "./features/payments/payment-slice";
 import dashboard from "./features/dashboard/dashboard-slice";
+import booking from "./features/booking/booking-slice";
 
 const persistedWoReducer = persistReducer({ key: "wo", storage }, wo);
 const persistedAuthReducer = persistReducer({ key: "auth", storage }, auth);
@@ -48,6 +49,7 @@ export const store = configureStore({
     supplier,
     payment,
     dashboard,
+    booking,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

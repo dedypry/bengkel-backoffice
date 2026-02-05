@@ -1,6 +1,7 @@
 import type z from "zod";
 import type { AxiosError } from "axios";
 import type { IVehicle } from "@/utils/interfaces/IUser";
+import type { IBooking } from "@/utils/interfaces/IBooking";
 
 import {
   Car,
@@ -29,6 +30,7 @@ import {
   Alert,
   Textarea,
 } from "@mui/joy";
+import { useSearchParams } from "react-router-dom";
 
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
 import ModalAddService from "./components/modal-add-service";
@@ -80,6 +82,8 @@ export default function PendaftaranServis() {
   const [isLoading, setLoading] = useState(false);
   const [isNew, setNew] = useState(false);
   const [isErrorService, setErrorService] = useState(false);
+  const [searchParams] = useSearchParams();
+  const bookingId = searchParams.get("booking");
   const dispatch = useAppDispatch();
 
   const servicePrice = services.reduce(
@@ -106,6 +110,7 @@ export default function PendaftaranServis() {
 
   const form = useForm({
     resolver: zodResolver(ServiceRegistrationSchema),
+    mode: "onChange",
     defaultValues: {
       priority: "normal",
       customer: {
@@ -113,6 +118,29 @@ export default function PendaftaranServis() {
       },
     },
   });
+
+  useEffect(() => {
+    if (bookingId) {
+      getDetailBooking();
+    }
+  }, [bookingId]);
+
+  function getDetailBooking() {
+    http
+      .get<IBooking>(`/bookings/${bookingId}`)
+      .then(({ data }) => {
+        form.setValue("booking_id", data.id);
+        form.setValue("customer.name", data.customer.name);
+        form.setValue("customer.phone", data.customer.phone);
+        form.setValue("customer.email", data.customer.email || "");
+        form.setValue(
+          "customer.birth_date",
+          data.customer.profile.birth_date || "",
+        );
+        form.setValue("vehicle", data.vehicle);
+      })
+      .catch((err) => console.error(err));
+  }
 
   const isVehicleDisable = !!form.watch("vehicle.id") && !isEdit;
   const estimation = calculateTotalEstimation(services);

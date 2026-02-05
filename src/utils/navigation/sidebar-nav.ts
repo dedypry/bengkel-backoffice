@@ -1,49 +1,56 @@
-import {
-  Settings2,
-  SquareTerminal,
-  CarFront,
-  Package,
-  ClipboardList,
-  FileBarChart,
-  Receipt,
-  Users,
-  ShoppingCart,
-} from "lucide-react";
-
 const navigation = [
   {
     title: "Dashboard",
     url: "/",
-    icon: SquareTerminal,
+    icon: "SquareTerminal",
     isActive: true,
+    permissions: ["dashboard.view"],
   },
   {
     title: "Kasir",
     url: "/cashier",
-    icon: ShoppingCart,
+    icon: "ShoppingCart",
     isActive: true,
+    permissions: ["payment.create", "payment.view"],
+  },
+  {
+    title: "Booking",
+    url: "/booking",
+    icon: "Book",
+    isActive: true,
+    permissions: ["wo.create"],
   },
   {
     title: "Transaksi Utama",
     url: "/service",
-    icon: ClipboardList,
+    icon: "ClipboardList",
+    permissions: ["wo.view"],
     items: [
       {
         title: "Pendaftaran Servis",
         url: "add",
         roles: ["super-admin", "sa", "owner"],
+        permissions: ["wo.create"],
       },
-      { title: "Antrean Bengkel", url: "queue" },
-      { title: "Riwayat Servis", url: "history" },
+      {
+        title: "Antrean Bengkel",
+        url: "queue",
+        permissions: ["wo.view", "wo.create", "wo.update", "wo.delete"],
+      },
+      { title: "Riwayat Servis", url: "history", permissions: ["wo.view"] },
     ],
   },
   {
     roles: ["super-admin", "partsman", "owner"],
     title: "Inventaris Sparepart",
     url: "/inventory",
-    icon: Package,
+    icon: "Package",
+    permissions: ["product.view", "product.stock", "product.manage"],
     items: [
-      { title: "Stok Barang", url: "stock" },
+      {
+        title: "Stok Barang",
+        url: "stock",
+      },
       { title: "Barang Masuk", url: "in" },
       { title: "Kategori Produk", url: "categories" },
     ],
@@ -52,9 +59,14 @@ const navigation = [
     roles: ["super-admin", "owner", "cro"],
     title: "Data Master",
     url: "/master",
-    icon: CarFront,
+    icon: "CarFront",
+    permissions: ["master.manage"],
     items: [
-      { title: "Data Pelanggan", url: "customers" },
+      {
+        title: "Data Pelanggan",
+        url: "customers",
+        permissions: ["customer.view", "customer.manage"],
+      },
       { title: "Data Kendaraan", url: "vehicles" },
       {
         title: "Data Mekanik",
@@ -77,7 +89,8 @@ const navigation = [
     roles: ["super-admin", "owner", "cashier"],
     title: "Keuangan",
     url: "/finance",
-    icon: Receipt,
+    permissions: ["report.manage"],
+    icon: "Receipt",
     items: [
       { title: "Daftar (Invoicing)", url: "list" },
       { title: "Pengeluaran Operasional", url: "expenses" },
@@ -87,7 +100,8 @@ const navigation = [
     roles: ["super-admin", "owner"],
     title: "Laporan",
     url: "/reports",
-    icon: FileBarChart,
+    permissions: ["report.manage"],
+    icon: "FileBarChart",
     items: [
       { title: "Laporan Pendapatan", url: "revenue" },
       { title: "Performa Mekanik", url: "mechanics" },
@@ -98,12 +112,16 @@ const navigation = [
     roles: ["super-admin", "owner"],
     title: "Pengaturan",
     url: "/settings",
-    icon: Settings2,
+    icon: "Settings2",
     items: [
-      { title: "Profil Bengkel", url: "profile" },
-      { title: "Promo", url: "promo" },
+      {
+        title: "Profil Bengkel",
+        url: "profile",
+        permissions: ["profile.manage"],
+      },
+      { title: "Promo", url: "promo", permissions: ["promo.manage"] },
       // { title: "Manajemen User", url: "users" },
-      { title: "Management Role", url: "roles" },
+      { title: "Management Role", url: "roles", permissions: ["role.manage"] },
       { title: "Whastapp", url: "wa" },
     ],
   },
@@ -111,7 +129,8 @@ const navigation = [
     roles: ["super-admin", "owner", "hr"],
     title: "Human Resources",
     url: "/hr",
-    icon: Users,
+    icon: "Users",
+    permissions: ["user.manage"],
     items: [
       {
         title: "Data Karyawan",

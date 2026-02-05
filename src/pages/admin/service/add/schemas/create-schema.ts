@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const ServiceRegistrationSchema = z.object({
+  booking_id: z.number().optional(),
   customer: z.object({
     id: z.number().optional(),
     name: z
