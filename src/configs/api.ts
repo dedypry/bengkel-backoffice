@@ -22,7 +22,7 @@ const configs: IConfigs = {
   },
   production: {
     front: "https://pradanaautocare.id",
-    api: "https://api-bengkel.pradanaautocare.id",
+    api: "https://api.pradanaautocare.id",
     socket: "https://socket.pradanaautocare.id",
     gallery: "https://gallery.pradanaautocare.id",
   },
