@@ -55,7 +55,7 @@ interface Props {
   initialData?: any;
 }
 
-export default function FormStock({ initialData }: Props) {
+export default function FormAddStock({ initialData }: Props) {
   const { company } = useAppSelector((state) => state.auth);
   const { categories, categoryQuery, uoms } = useAppSelector(
     (state) => state.product,
