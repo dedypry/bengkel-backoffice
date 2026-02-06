@@ -1,0 +1,40 @@
+@import "tailwindcss";
+@plugin '../hero.ts';
+
+@source '../../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@custom-variant dark (&:is(.dark *));
+
+.link-anim {
+  @apply relative inline-block before:absolute before:bottom-0 before:left-1/2 before:h-[2px] before:w-0 before:-translate-x-1/2 before:bg-white before:transition-all before:duration-300 hover:before:w-full;
+}
+
+.link-member {
+  @apply py-2 hover:bg-primary-50 px-3 flex gap-2 items-center rounded-sm;
+}
+
+.sidebar-item {
+  @apply flex gap-4 rounded-sm px-2 py-2 hover:bg-gray-100/30 hover:text-white text-sm;
+}
+
+@layer utilities {
+  .scrollbar-modern::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-thumb {
+    background: rgba(244, 240, 240, 0.512);
+    border-radius: 20px;
+  }
+
+  .dark .scrollbar-modern::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.655);
+  }
+
+  .scrollbar-modern:hover::-webkit-scrollbar-thumb {
+    background: rgba(249, 248, 248, 0.51);
+  }
+}

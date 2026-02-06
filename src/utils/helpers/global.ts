@@ -168,3 +168,7 @@ export const getJoinDuration = (joinDate: string) => {
 
   return `${years} Tahun, ${months} Bulan`;
 };
+
+export function formatTime(data: string) {
+  return data.slice(0, 5);
+}

@@ -1,37 +1,47 @@
-import { IconButton } from "@mui/joy";
+import { Button } from "@heroui/react";
 
-import InputNumber from "./ui/input-number";
+import InputNumber from "./input-number";
 
 interface Props {
   value: number;
+  isDisabled?: boolean;
   handleQty: (qty: number) => void;
 }
-export default function InputQty({ value, handleQty }: Props) {
+export default function InputQty({ value, handleQty, isDisabled }: Props) {
   return (
     <InputNumber
-      endDecorator={
-        <IconButton onClick={() => handleQty(value + 1)}>+</IconButton>
-      }
-      slotProps={{
-        input: {
-          style: {
-            textAlign: "center", // Membuat teks value di tengah
-          },
-        },
+      classNames={{
+        input: "text-center font-bold text-xs",
+        inputWrapper: "px-0",
       }}
-      startDecorator={
-        <IconButton
-          onClick={() => {
+      endContent={
+        <Button
+          isIconOnly
+          size="sm"
+          variant="light"
+          onPress={() => handleQty(value + 1)}
+        >
+          +
+        </Button>
+      }
+      isDisabled={isDisabled}
+      size="sm"
+      startContent={
+        <Button
+          isIconOnly
+          size="sm"
+          variant="light"
+          onPress={() => {
             if (value >= 0) {
               handleQty(value - 1);
             }
           }}
         >
           -
-        </IconButton>
+        </Button>
       }
-      value={value}
-      onInput={(val: any) => handleQty(val)}
+      value={value as any}
+      onInput={(val) => handleQty(Number(val))}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { PlusCircle, FileText, UserPlus, ClipboardList } from "lucide-react";
 import { cloneElement } from "react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardBody, CardHeader } from "@heroui/react";
 
 export function QuickActions() {
   const actions = [
@@ -28,8 +29,8 @@ export function QuickActions() {
     {
       label: "Laporan Harian",
       icon: <ClipboardList />,
-      color: "text-slate-600",
-      bg: "bg-slate-50",
+      color: "text-default-600",
+      bg: "bg-default-100",
       to: "/reports/revenue",
     },
   ];
@@ -37,31 +38,36 @@ export function QuickActions() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white rounded-xl border shadow-sm p-5">
-      <h3 className="font-bold text-slate-800 mb-4">Aksi Cepat</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {actions.map((action, i) => (
-          <button
-            key={i}
-            className="flex cursor-pointer flex-col items-center justify-center p-4 rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-all group"
-            onClick={() => navigate(action.to)}
-          >
-            <div
-              className={`${action.bg} ${action.color} p-3 rounded-lg mb-2 group-hover:scale-110 transition-transform`}
+    <Card className="border-none bg-content1" shadow="sm">
+      <CardHeader className="pb-0 pt-5 px-5 flex-col items-start">
+        <h3 className="font-bold text-default-800">Aksi Cepat</h3>
+      </CardHeader>
+      <CardBody className="p-5">
+        <div className="grid grid-cols-2 gap-3">
+          {actions.map((action, i) => (
+            <Card
+              key={i}
+              isPressable
+              className="border border-default-100 hover:border-primary-200 bg-transparent shadow-none"
+              onPress={() => navigate(action.to)}
             >
-              {cloneElement(
-                action.icon as React.ReactElement,
-                { size: 20 } as any,
-              )}
-            </div>
-            <span className="text-[11px] font-semibold text-slate-600 text-center uppercase tracking-tight">
-              {action.label}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
+              <CardBody className="flex flex-col items-center justify-center p-4 group">
+                <div
+                  className={`${action.bg} ${action.color} p-3 rounded-xl mb-3 group-hover:scale-110 transition-transform`}
+                >
+                  {cloneElement(
+                    action.icon as React.ReactElement,
+                    { size: 22 } as any,
+                  )}
+                </div>
+                <span className="text-[10px] font-bold text-default-600 text-center uppercase tracking-wider">
+                  {action.label}
+                </span>
+              </CardBody>
+            </Card>
+          ))}
+        </div>
+      </CardBody>
+    </Card>
   );
 }
-
-// Note: Tambahkan import { cloneElement } from "react"; di bagian atas

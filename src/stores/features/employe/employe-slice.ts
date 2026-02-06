@@ -19,6 +19,7 @@ export const employeSlice = createSlice({
     searchQuery: {
       page: 1,
       pageSize: 10,
+      q: "",
     },
   },
   reducers: {
