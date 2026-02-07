@@ -1,11 +1,10 @@
 import { Input, InputProps } from "@heroui/react";
+import { forwardRef } from "react"; // 1. Import forwardRef
 
-export default function NpwpInput({ ...props }: InputProps) {
+const NpwpInput = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   // Fungsi format NPWP: 00.000.000.0-000.000
   const formatNPWP = (value: string = "") => {
-    // 1. Ambil hanya angka, maksimal 15 digit
     const digits = value.replace(/\D/g, "").slice(0, 15);
-
     let res = "";
 
     if (digits.length > 0) res += digits.substring(0, 2);
@@ -21,14 +20,12 @@ export default function NpwpInput({ ...props }: InputProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     const formatted = formatNPWP(rawValue);
-    const cleanValue = formatted.replace(/\D/g, ""); // Simpan hanya angka ke state form
+    const cleanValue = formatted.replace(/\D/g, "");
 
-    // Support HeroUI onValueChange
     if (props.onValueChange) {
       props.onValueChange(cleanValue);
     }
 
-    // Support React Hook Form onChange
     if (props.onChange) {
       const event = {
         ...e,
@@ -46,10 +43,24 @@ export default function NpwpInput({ ...props }: InputProps) {
 
   return (
     <Input
+      ref={ref} // 2. Teruskan ref ke komponen Input internal
+      classNames={{
+        inputWrapper:
+          "border-gray-200 group-data-[focus=true]:border-gray-900 shadow-none bg-white",
+        label: "text-[10px] font-black uppercase tracking-widest text-gray-500",
+      }}
+      labelPlacement="outside"
       placeholder="00.000.000.0-000.000"
+      radius="sm"
+      variant="bordered"
       {...props}
       value={displayValue}
       onChange={handleChange}
     />
   );
-}
+});
+
+// 3. Set display name untuk debugging
+NpwpInput.displayName = "NpwpInput";
+
+export default NpwpInput;

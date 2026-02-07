@@ -1,7 +1,7 @@
 import { Input, InputProps } from "@heroui/react";
+import { forwardRef } from "react";
 
-export default function PhoneInput({ ...props }: InputProps) {
-  // Fungsi untuk memformat angka menjadi 0000-0000-0000
+const PhoneInput = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const formatPhoneNumber = (value: string = "") => {
     const digits = value.replace(/\D/g, "");
     const limited = digits.slice(0, 13);
@@ -15,14 +15,11 @@ export default function PhoneInput({ ...props }: InputProps) {
     const formatted = formatPhoneNumber(rawValue);
     const cleanValue = formatted.replace(/-/g, "");
 
-    // 1. Jalankan onValueChange milik HeroUI jika ada
     if (props.onValueChange) {
       props.onValueChange(cleanValue);
     }
 
-    // 2. Jalankan onChange manual jika digunakan oleh React Hook Form
     if (props.onChange) {
-      // Kita buat tiruan event agar React Hook Form menerima nilai bersih
       const event = {
         ...e,
         target: {
@@ -35,17 +32,27 @@ export default function PhoneInput({ ...props }: InputProps) {
     }
   };
 
-  // Selalu format value yang datang dari props untuk ditampilkan
   const displayValue = formatPhoneNumber(String(props.value || ""));
 
   return (
     <Input
+      ref={ref}
+      classNames={{
+        inputWrapper:
+          "border-gray-200 group-data-[focus=true]:border-gray-900 shadow-none bg-white",
+        label: "text-[10px] font-black uppercase tracking-widest text-gray-500",
+      }}
       labelPlacement="outside"
       placeholder="08xx-xxxx-xxxx"
+      radius="sm"
       variant="bordered"
-      {...props} // Pindahkan ke atas agar tidak menimpa value & onChange di bawah
+      {...props}
       value={displayValue}
       onChange={handleChange}
     />
   );
-}
+});
+
+PhoneInput.displayName = "PhoneInput";
+
+export default PhoneInput;

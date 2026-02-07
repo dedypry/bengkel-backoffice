@@ -84,8 +84,8 @@ export default function ProfileSettingsPage() {
           setValue("name", data.name);
           setValue("logo_url", data.logo_url);
           setValue("email", data.email!);
-          setValue("phone_number", data.phone_number!);
-          setValue("fax", data.fax!);
+          setValue("phone_number", data.phone_number?.replace(/-/g, "") || "");
+          setValue("fax", data.fax || "");
           setValue("npwp", data.npwp!);
           setValue("is_ppn", data.is_ppn!);
           setValue("ppn", Number(data.ppn || 0));
@@ -103,7 +103,16 @@ export default function ProfileSettingsPage() {
             Number(data.total_discount_birth_day || 0),
           );
           if (data.address) {
-            setValue("address", data.address);
+            setValue("address.title", data.address?.title || "");
+            setValue(
+              "address.province_id",
+              data.address?.province_id || undefined,
+            );
+            setValue("address.city_id", data.address?.city_id || undefined);
+            setValue(
+              "address.district_id",
+              data.address?.district_id || undefined,
+            );
             if (data.address.province_id)
               dispatch(getCity(data.address.province_id));
             if (data.address.city_id)
@@ -208,10 +217,25 @@ export default function ProfileSettingsPage() {
                   name="phone_number"
                   render={({ field }) => (
                     <PhoneInput
-                      {...field}
                       errorMessage={errors.phone_number?.message}
                       isInvalid={!!errors.phone_number}
                       label="Nomor Telepon"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="fax"
+                  render={({ field }) => (
+                    <PhoneInput
+                      errorMessage={errors.fax?.message}
+                      isInvalid={!!errors.fax}
+                      label="Nomor Fax"
+                      placeholder="021xxxxxxx"
+                      value={field.value}
+                      onValueChange={field.onChange}
                     />
                   )}
                 />
