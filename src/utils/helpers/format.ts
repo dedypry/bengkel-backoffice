@@ -1,4 +1,9 @@
-export const formatIDR = (price: number, type: "full" | "short" = "full") => {
+export const formatIDR = (
+  price?: number | string,
+  type: "full" | "short" = "full",
+) => {
+  if (!price) return 0;
+  price = Number(price);
   if (type === "short") {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",

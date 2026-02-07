@@ -1,8 +1,17 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect, useState } from "react";
-import { Archive, DollarSign, Info, MapPin, Package, Save } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Archive,
+  Boxes,
+  ChevronRight,
+  DollarSign,
+  Info,
+  MapPin,
+  Package,
+  Save,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Input,
@@ -14,6 +23,10 @@ import {
   Divider,
   Select,
   SelectItem,
+  BreadcrumbItem,
+  Breadcrumbs,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -26,6 +39,7 @@ import FileUploader from "@/components/drop-zone";
 import { uploadFile } from "@/utils/helpers/upload-file";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import { IProductCategory } from "@/utils/interfaces/IProduct";
 
 const productSchema = z.object({
   id: z.number().optional(),
@@ -33,6 +47,7 @@ const productSchema = z.object({
   name: z.string().min(3, "Nama produk minimal 3 karakter"),
   description: z.string().optional(),
   category_id: z.coerce.number().min(1, "Pilih kategori"),
+  main_category_id: z.coerce.number().min(1, "Pilih Main kategori"),
   purchase_price: z.number().min(0),
   sell_price: z.number().min(0),
   stock: z.number().min(0),
@@ -49,12 +64,25 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
   const { company } = useAppSelector((state) => state.auth);
   const { categories, uoms } = useAppSelector((state) => state.product);
   const [isLoading, setLoading] = useState(false);
+  const [subCategories, setSubCategories] = useState<IProductCategory[]>([]);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const hasFetched = useRef(false);
+
   useEffect(() => {
-    dispatch(getCategories({}));
-    dispatch(getUoms());
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
+
+      dispatch(getCategories({}));
+      dispatch(getUoms());
+
+      const timer = setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
   }, [company, dispatch]);
 
   const { control, reset, handleSubmit } = useForm<ProductFormValues>({
@@ -73,10 +101,28 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
 
   useEffect(() => {
     if (initialData) {
+      const mainCatId =
+        initialData.category?.parent_id || initialData.category_id;
+
+      if (mainCatId) {
+        const find = categories.find((e) => e.id === mainCatId);
+
+        if (find) {
+          setSubCategories(find.children);
+        }
+      }
+
       reset({
         ...initialData,
+        main_category_id: mainCatId,
+        images: (initialData.images || []).map((e: any) => e.path),
         category_id: Number(initialData.category_id),
         uom_id: Number(initialData.uom_id),
+        purchase_price: Number(initialData.purchase_price || 0),
+        sell_price: Number(initialData.sell_price || 0),
+        ...(!initialData.category?.parent_id && {
+          category_id: "",
+        }),
       });
     }
   }, [initialData]);
@@ -95,7 +141,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
         ),
       );
 
-      const payload = { ...data, images };
+      const payload: any = { ...data, images };
+
+      delete payload.main_category_id;
       const response = await http.post("/products", payload);
 
       notify(response.data.message);
@@ -109,6 +157,25 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <Breadcrumbs
+        className="pt-5"
+        itemClasses={{ item: "text-gray-500 font-medium" }}
+        separator={<ChevronRight size={14} />}
+      >
+        <BreadcrumbItem
+          href="/inventory/stock"
+          startContent={<Package size={14} />}
+        >
+          Inventory
+        </BreadcrumbItem>
+        <BreadcrumbItem startContent={<Boxes size={14} />}>
+          Spareparts
+        </BreadcrumbItem>
+        <BreadcrumbItem isCurrent>
+          {initialData ? "Edit" : "Tambah"} Stok
+        </BreadcrumbItem>
+      </Breadcrumbs>
+
       <Card className="border border-gray-200" shadow="none">
         <CardBody className="p-6 space-y-8">
           {/* SECTION 1: INFORMASI DASAR */}
@@ -147,7 +214,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Kode / SKU"
-                    labelPlacement="outside"
                     placeholder="OLI-001"
                     variant="bordered"
                   />
@@ -163,7 +229,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Nama Produk"
-                    labelPlacement="outside"
                     placeholder="Contoh: Oli Toyota Motor Oil 10W-40"
                     variant="bordered"
                   />
@@ -172,24 +237,105 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
 
               <Controller
                 control={control}
+                name="main_category_id"
+                render={({ field, fieldState }) => (
+                  <Autocomplete
+                    defaultItems={categories}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                    label="Main Kategori"
+                    placeholder="Pilih Kategori"
+                    selectedKey={field.value}
+                    variant="bordered"
+                    onSelectionChange={(val) => {
+                      field.onChange(val);
+                      if (val) {
+                        const find = categories.find((e) => e.id == val);
+
+                        if (find) {
+                          setSubCategories(find.children);
+                        }
+                      }
+                    }}
+                  >
+                    {(item) => (
+                      <AutocompleteItem key={item.id} textValue={item.name}>
+                        {item.name}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                  // <Select
+                  //   {...field}
+                  //   errorMessage={fieldState.error?.message}
+                  //   isInvalid={!!fieldState.error}
+                  //   label="Main Kategori"
+                  //   placeholder="Pilih Kategori"
+                  //   selectedKeys={field.value ? [field.value.toString()] : []}
+                  //   variant="bordered"
+                  //   onSelectionChange={(key) => {
+                  //     const val = Array.from(key)[0];
+
+                  //     if (val) {
+                  //       const find = categories.find((e) => e.id == val);
+
+                  //       if (find) {
+                  //         setSubCategories(find.children);
+                  //       }
+                  //     }
+                  //   }}
+                  // >
+                  //   {categories.map((cat) => (
+                  //     <SelectItem key={cat.id} textValue={cat.name}>
+                  //       {cat.name}
+                  //     </SelectItem>
+                  //   ))}
+                  // </Select>
+                )}
+              />
+              <Controller
+                control={control}
                 name="category_id"
                 render={({ field, fieldState }) => (
-                  <Select
-                    {...field}
+                  <Autocomplete
+                    defaultItems={subCategories}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Kategori"
-                    labelPlacement="outside"
                     placeholder="Pilih Kategori"
-                    selectedKeys={field.value ? [field.value.toString()] : []}
+                    selectedKey={field.value}
                     variant="bordered"
+                    onSelectionChange={(val) => {
+                      field.onChange(val);
+                      if (val) {
+                        const find = categories.find((e) => e.id == val);
+
+                        if (find) {
+                          setSubCategories(find.children);
+                        }
+                      }
+                    }}
                   >
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} textValue={cat.name}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
+                    {(item) => (
+                      <AutocompleteItem key={item.id} textValue={item.name}>
+                        {item.name}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                  // <Select
+                  //   {...field}
+                  //   errorMessage={fieldState.error?.message}
+                  //   isInvalid={!!fieldState.error}
+                  //   label="Kategori"
+                  //   placeholder="Pilih Kategori"
+                  //   selectedKeys={field.value ? [field.value.toString()] : []}
+                  //   variant="bordered"
+                  // >
+                  //   {subCategories.map((cat) => (
+                  //     <SelectItem key={cat.id} textValue={cat.name}>
+                  //       {cat.name}
+                  //     </SelectItem>
+                  //   ))}
+                  // </Select>
                 )}
               />
 
@@ -202,7 +348,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Satuan"
-                    labelPlacement="outside"
                     placeholder="Pcs / Liter"
                     selectedKeys={field.value ? [field.value.toString()] : []}
                     variant="bordered"
@@ -223,7 +368,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Lokasi Rak"
-                    labelPlacement="outside"
                     placeholder="Gudang A / Rak 1"
                     startContent={
                       <MapPin className="text-gray-400" size={16} />
@@ -252,6 +396,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 render={({ field }) => (
                   <InputNumber
                     label="Harga Beli"
+                    labelPlacement="inside"
                     prefix="Rp."
                     value={field.value as any}
                     onInput={field.onChange}
@@ -264,6 +409,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 render={({ field }) => (
                   <InputNumber
                     label="Harga Jual"
+                    labelPlacement="inside"
                     prefix="Rp."
                     value={field.value as any}
                     onInput={field.onChange}
@@ -276,6 +422,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 render={({ field }) => (
                   <InputNumber
                     label="Stok Awal"
+                    labelPlacement="inside"
                     value={field.value as any}
                     onInput={field.onChange}
                   />
@@ -286,7 +433,8 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 name="min_stock"
                 render={({ field }) => (
                   <InputNumber
-                    label=" Stok Minimum"
+                    label="Stok Minimum"
+                    labelPlacement="inside"
                     value={field.value as any}
                     onInput={field.onChange}
                   />

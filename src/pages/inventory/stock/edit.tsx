@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import FormAddStock from "./add";
@@ -10,10 +10,17 @@ export default function EditProduct() {
   const { product } = useAppSelector((state) => state.product);
   const dispatch = useAppDispatch();
   const { id } = useParams();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (id) {
+    if (id && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getProductDetail(id));
+      const timer = setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+
+      return () => clearTimeout(timer);
     }
   }, [id]);
 

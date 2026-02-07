@@ -147,6 +147,7 @@ export interface ICustomer {
   total_vehicle: number;
   status: string;
   vehicles?: IVehicle[];
+  company?: ICompany;
 }
 
 export interface IPayment {
@@ -213,4 +214,5 @@ export interface IWorkOrder {
   }[];
   complaints: string;
   next_sugestion: string;
+  company?: ICompany;
 }

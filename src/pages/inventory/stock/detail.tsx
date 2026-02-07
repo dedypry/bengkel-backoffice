@@ -20,6 +20,7 @@ import {
   Edit,
   Package,
   ArrowLeft,
+  Boxes,
 } from "lucide-react";
 
 import { formatIDR } from "@/utils/helpers/format";
@@ -63,9 +64,19 @@ export default function ProductDetail() {
     <div className="container mx-auto p-6 max-w-7xl space-y-6">
       {/* HEADER NAVIGATION */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <Breadcrumbs separator={<ChevronRight size={14} />}>
-          <BreadcrumbItem href="/inventory/stock">Inventory</BreadcrumbItem>
-          <BreadcrumbItem>Spareparts</BreadcrumbItem>
+        <Breadcrumbs
+          itemClasses={{ item: "text-gray-500 font-medium" }}
+          separator={<ChevronRight size={14} />}
+        >
+          <BreadcrumbItem
+            href="/inventory/stock"
+            startContent={<Package size={14} />}
+          >
+            Inventory
+          </BreadcrumbItem>
+          <BreadcrumbItem startContent={<Boxes size={14} />}>
+            Spareparts
+          </BreadcrumbItem>
           <BreadcrumbItem isCurrent>{product.code}</BreadcrumbItem>
         </Breadcrumbs>
 

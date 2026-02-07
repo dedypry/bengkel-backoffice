@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import CustomerFormPage from "./create";
@@ -15,10 +15,15 @@ export default function EditCustomerPage() {
     (state) => state.customer,
   );
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (id) {
+    if (id && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getDetailCustomer(id));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [id]);
 

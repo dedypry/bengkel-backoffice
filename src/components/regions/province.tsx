@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -16,11 +16,17 @@ interface Props {
 export default function Province({ value, onChange, ...props }: Props & any) {
   const { provinces } = useAppSelector((state) => state.region);
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     // Hanya fetch jika data provinsi masih kosong
-    if (provinces.length === 0) {
+    if (provinces.length === 0 && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getProvince());
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [dispatch, provinces.length]);
 

@@ -154,6 +154,7 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
                   render={({ field, fieldState }) => (
                     <Input
                       {...field}
+                      className="pt-5"
                       errorMessage={fieldState.error?.message as string}
                       isInvalid={!!fieldState.error}
                       label="Nama Lengkap"

@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Alert,
@@ -73,6 +73,8 @@ export default function ServiceAddPage() {
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get("booking");
   const dispatch = useAppDispatch();
+  const hasFetchedService = useRef(false);
+  const hasFetchedBooking = useRef(false);
 
   const servicePrice = services.reduce(
     (sum, e) => sum + Number(e.price || 0) * Number(e.qty || 0),
@@ -84,8 +86,13 @@ export default function ServiceAddPage() {
   );
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetchedService.current) {
+      hasFetchedService.current = true;
       dispatch(getService(query));
+
+      setTimeout(() => {
+        hasFetchedService.current = false;
+      }, 1000);
     }
   }, [company]);
 
@@ -109,8 +116,13 @@ export default function ServiceAddPage() {
   });
 
   useEffect(() => {
-    if (bookingId) {
+    if (bookingId && !hasFetchedBooking.current) {
+      hasFetchedBooking.current = true;
       getDetailBooking();
+
+      setTimeout(() => {
+        hasFetchedBooking.current = false;
+      }, 1000);
     }
   }, [bookingId]);
 
@@ -202,6 +214,7 @@ export default function ServiceAddPage() {
       email: "",
       birth_date: "",
     });
+    handleVehicleReset();
     clearErrors("customer");
   }
 

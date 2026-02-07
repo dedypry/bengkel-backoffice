@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ListOrdered, Plus, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Input, Select, SelectItem, Card, CardBody } from "@heroui/react";
+import { useNavigate } from "react-router-dom";
 
 import AddMechanich from "../components/add-mekanik";
 
@@ -11,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWo } from "@/stores/features/work-order/wo-action";
 import debounce from "@/utils/helpers/debounce";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
+import HeaderAction from "@/components/header-action";
 
 export default function QueuePage() {
   const [openModal, setOpenModal] = useState(false);
@@ -19,10 +21,17 @@ export default function QueuePage() {
   const { company } = useAppSelector((state) => state.auth);
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getWo(woQuery));
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [company, woQuery]);
 
@@ -40,7 +49,14 @@ export default function QueuePage() {
   return (
     <div className="space-y-6 pb-10">
       <AddMechanich id={woId} open={openModal} setOpen={setOpenModal} />
-
+      <HeaderAction
+        actionIcon={Plus}
+        actionTitle="Pendaftaran Service"
+        leadIcon={ListOrdered}
+        subtitle="Monitoring pengerjaan unit secara real-time dan manajemen slot teknisi."
+        title="Antrian Unit"
+        onAction={() => navigate("/service/add")}
+      />
       {/* Top Header & Filter */}
       <Card className="shadow-sm border border-default-100">
         <CardBody className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4">

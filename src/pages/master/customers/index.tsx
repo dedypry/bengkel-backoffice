@@ -9,7 +9,7 @@ import {
   Info,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   Input,
   Chip,
@@ -44,9 +44,17 @@ export default function MasterCustomerPage() {
   const customers = cust as IPagination<ICustomer>;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    dispatch(getCustomer(query));
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getCustomer(query));
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [query, company, dispatch]);
 
   const searchDebounce = debounce((val) => {

@@ -32,10 +32,10 @@ import CustomerDetailPage from "./pages/master/customers/detail";
 import ProfilePage from "./pages/my-profile";
 import EditProfilePage from "./pages/my-profile/edit";
 import WorkOrderDetail from "./pages/service/queue/detail";
-
-import HomePage from "@/pages/dashboard/index";
 import ProductDetail from "./pages/inventory/stock/detail";
 import EditProduct from "./pages/inventory/stock/edit";
+
+import HomePage from "@/pages/dashboard/index";
 
 function App() {
   return (

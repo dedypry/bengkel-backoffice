@@ -5,6 +5,7 @@ import {
   AlertCircle,
   ArrowUpDown,
   Download,
+  ArrowRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -214,13 +215,19 @@ export default function InventoryStockPage() {
                   </div>
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   <Chip
-                    className="bg-gray-100 text-gray-600 border-none font-bold text-[10px] uppercase"
+                    classNames={{
+                      base: "bg-gray-100 border-none h-6",
+                      content:
+                        "flex items-center gap-2 text-gray-600 font-black text-[10px] uppercase whitespace-nowrap",
+                    }}
                     size="sm"
                     variant="flat"
                   >
-                    {item.category?.name}
+                    <span>{item.category?.parent?.name}</span>
+                    <ArrowRight className="flex-shrink-0" size={10} />
+                    <span>{item.category?.name}</span>
                   </Chip>
                 </TableCell>
 

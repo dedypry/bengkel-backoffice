@@ -2,7 +2,7 @@ import type { ICustomer } from "@/utils/interfaces/IUser";
 
 import { Autocomplete, AutocompleteItem, Avatar } from "@heroui/react";
 import { Users } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getCustomer } from "@/stores/features/customer/customer-action";
@@ -22,9 +22,11 @@ export default function CustomerSearch({
   const { company } = useAppSelector((state) => state.auth);
   const customers = (custom || []) as ICustomer[];
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(
         getCustomer({
           noStats: true,
@@ -32,6 +34,10 @@ export default function CustomerSearch({
           isVehicle: true,
         }),
       );
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [company]);
 
@@ -53,7 +59,11 @@ export default function CustomerSearch({
     //   !customers.some((c) => c.name.toLowerCase() === val.toLowerCase())
     // ) {
     // }
-    onChange({ name: val, isNew: true });
+    const find = customers.find(
+      (e) => e.name.toLowerCase() === val.toLowerCase(),
+    );
+
+    onChange(find ? find : { name: val, isNew: true });
 
     // if (!val) {
     //   onChange({ name: "", isNew: false });
