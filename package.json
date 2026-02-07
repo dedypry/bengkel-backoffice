@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && cross-env VITE_NODE_ENV=production vite build",
+    "build": "tsc && vite build",
     "lint": "eslint --fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prod": "npx serve -s dist"
   },
   "dependencies": {
     "@heroui/react": "^2.8.8",
