@@ -1,6 +1,6 @@
 import type { IService } from "@/utils/interfaces/IService";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEffect, useState } from "react";
@@ -30,13 +30,14 @@ import {
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { getSupplier } from "@/stores/features/supplier/supplier-action";
+import InputNumber from "@/components/input-number";
 
 const formSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(3, "Nama layanan minimal 3 karakter"),
   code: z.string().min(3, "Kode wajib diisi"),
-  price: z.string().min(1, "Harga harus diisi"),
-  estimated_duration: z.string().min(1, "Durasi harus diisi"),
+  price: z.number().min(1, "Harga harus diisi"),
+  estimated_duration: z.number().min(1, "Durasi harus diisi"),
   difficulty: z.string().min(1, "Pilih tingkat kesulitan"),
   category_id: z.string().min(1, "Pilih kategori"),
   description: z.string().optional(),
@@ -56,14 +57,9 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<z.infer<typeof formSchema>>({
+  const { control, handleSubmit, setValue, reset } = useForm<
+    z.infer<typeof formSchema>
+  >({
     resolver: zodResolver(formSchema),
     defaultValues: { difficulty: "easy" },
   });
@@ -79,8 +75,8 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
         id: detail.id,
         name: detail.name,
         code: detail.code,
-        price: detail.price.toString(),
-        estimated_duration: detail.estimated_duration?.toString(),
+        price: Number(detail.price),
+        estimated_duration: detail.estimated_duration,
         difficulty: detail.difficulty,
         category_id: detail.category?.id?.toString(),
         description: detail.description || "",
@@ -113,20 +109,10 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
   };
 
   return (
-    <Modal
-      backdrop="blur"
-      classNames={{
-        base: "border border-gray-100 shadow-2xl",
-        header: "border-b-[1px] border-gray-100",
-        footer: "border-t-[1px] border-gray-100",
-      }}
-      isOpen={open}
-      size="3xl"
-      onOpenChange={handleClose}
-    >
+    <Modal backdrop="blur" isOpen={open} size="3xl" onOpenChange={handleClose}>
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
-          <h2 className="text-xl font-black uppercase italic tracking-tight">
+          <h2 className="text-xl font-black uppercase">
             {detail?.id ? "Ubah Data Jasa" : "Tambah Jasa Baru"}
           </h2>
           <p className="text-tiny font-medium text-gray-400">
@@ -141,135 +127,170 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Nama Jasa"
-                labelPlacement="outside"
-                placeholder="Contoh: Ganti Oli Mesin"
-                variant="bordered"
-                {...register("name")}
-                errorMessage={errors.name?.message}
-                isInvalid={!!errors.name}
+              <Controller
+                control={control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <Input
+                    label="Nama Jasa"
+                    placeholder="Contoh: Ganti Oli Mesin"
+                    {...field}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                  />
+                )}
               />
-              <Input
-                label="Kode Jasa"
-                labelPlacement="outside"
-                placeholder="SRV-001"
-                variant="bordered"
-                {...register("code")}
-                errorMessage={errors.code?.message}
-                isInvalid={!!errors.code}
+              <Controller
+                control={control}
+                name="code"
+                render={({ field, fieldState }) => (
+                  <Input
+                    label="Kode Jasa"
+                    placeholder="SRV-001"
+                    {...field}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                  />
+                )}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Input
-                label="Harga"
-                labelPlacement="outside"
-                placeholder="0"
-                startContent={
-                  <span className="text-gray-400 text-tiny">Rp</span>
-                }
-                type="number"
-                variant="bordered"
-                {...register("price")}
-                errorMessage={errors.price?.message}
-                isInvalid={!!errors.price}
-              />
-              <Input
-                endContent={
-                  <span className="text-gray-400 text-tiny">Menit</span>
-                }
-                label="Estimasi Durasi"
-                labelPlacement="outside"
-                placeholder="0"
-                type="number"
-                variant="bordered"
-                {...register("estimated_duration")}
-                errorMessage={errors.estimated_duration?.message}
-                isInvalid={!!errors.estimated_duration}
-              />
-              <Autocomplete
-                defaultItems={suppliers?.data || []}
-                label="Supplier (Opsional)"
-                labelPlacement="outside"
-                placeholder="Cari Supplier"
-                selectedKey={watch("supplier_id")?.toString()}
-                variant="bordered"
-                onSelectionChange={(key) =>
-                  setValue("supplier_id", Number(key))
-                }
-              >
-                {(item) => (
-                  <AutocompleteItem key={item.id} textValue={item.name}>
-                    {item.name}
-                  </AutocompleteItem>
+              <Controller
+                control={control}
+                name="price"
+                render={({ field, fieldState }) => (
+                  <InputNumber
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                    label="Harga"
+                    labelPlacement="inside"
+                    placeholder="0"
+                    startContent={
+                      <span className="text-gray-400 text-tiny">Rp</span>
+                    }
+                    value={field.value as any}
+                    onInput={field.onChange}
+                  />
                 )}
-              </Autocomplete>
+              />
+              <Controller
+                control={control}
+                name="estimated_duration"
+                render={({ field, fieldState }) => (
+                  <InputNumber
+                    endContent={
+                      <span className="text-gray-400 text-tiny">Menit</span>
+                    }
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                    label="Estimasi Durasi"
+                    labelPlacement="inside"
+                    placeholder="0"
+                    value={field.value as any}
+                    onInput={field.onChange}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="supplier_id"
+                render={({ field, fieldState }) => (
+                  <Autocomplete
+                    defaultItems={suppliers?.data || []}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                    label="Supplier (Opsional)"
+                    placeholder="Cari Supplier"
+                    selectedKey={field.value}
+                    onSelectionChange={field.onChange}
+                  >
+                    {(item) => (
+                      <AutocompleteItem key={item.id} textValue={item.name}>
+                        {item.name}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                )}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Select
-                errorMessage={errors.difficulty?.message}
-                isInvalid={!!errors.difficulty}
-                label="Tingkat Kesulitan"
-                labelPlacement="outside"
-                selectedKeys={[watch("difficulty") || ""]}
-                variant="bordered"
-                onChange={(e) => setValue("difficulty", e.target.value)}
-              >
-                <SelectItem
-                  key="easy"
-                  startContent={
-                    <div className="w-2 h-2 rounded-full bg-success" />
-                  }
-                >
-                  Easy (Mudah)
-                </SelectItem>
-                <SelectItem
-                  key="medium"
-                  startContent={
-                    <div className="w-2 h-2 rounded-full bg-warning" />
-                  }
-                >
-                  Medium (Sedang)
-                </SelectItem>
-                <SelectItem
-                  key="hard"
-                  startContent={
-                    <div className="w-2 h-2 rounded-full bg-danger" />
-                  }
-                >
-                  Hard (Sulit)
-                </SelectItem>
-                <SelectItem
-                  key="extreme"
-                  startContent={
-                    <div className="w-2 h-2 rounded-full bg-gray-900" />
-                  }
-                >
-                  Extreme (Sangat Sulit)
-                </SelectItem>
-              </Select>
+              <Controller
+                control={control}
+                name="difficulty"
+                render={({ field, fieldState }) => (
+                  <Select
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                    label="Tingkat Kesulitan"
+                    placeholder="pilih tingkat kesulitan"
+                    selectedKeys={[field.value || ""]}
+                    onSelectionChange={(key) =>
+                      field.onChange(Array.from(key)[0])
+                    }
+                  >
+                    <SelectItem
+                      key="easy"
+                      startContent={
+                        <div className="w-2 h-2 rounded-full bg-success" />
+                      }
+                    >
+                      Easy (Mudah)
+                    </SelectItem>
+                    <SelectItem
+                      key="medium"
+                      startContent={
+                        <div className="w-2 h-2 rounded-full bg-warning" />
+                      }
+                    >
+                      Medium (Sedang)
+                    </SelectItem>
+                    <SelectItem
+                      key="hard"
+                      startContent={
+                        <div className="w-2 h-2 rounded-full bg-danger" />
+                      }
+                    >
+                      Hard (Sulit)
+                    </SelectItem>
+                    <SelectItem
+                      key="extreme"
+                      startContent={
+                        <div className="w-2 h-2 rounded-full bg-gray-900" />
+                      }
+                    >
+                      Extreme (Sangat Sulit)
+                    </SelectItem>
+                  </Select>
+                )}
+              />
 
               <div className="flex flex-col gap-2">
-                <div className="flex items-end gap-2">
-                  <Select
-                    className="flex-1"
-                    errorMessage={errors.category_id?.message}
-                    isInvalid={!!errors.category_id}
-                    label="Kategori"
-                    labelPlacement="outside"
-                    placeholder="Pilih kategori"
-                    selectedKeys={[watch("category_id") || ""]}
-                    variant="bordered"
-                    onChange={(e) => setValue("category_id", e.target.value)}
-                  >
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id.toString()} textValue={cat.name}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
+                <div className="flex items-center gap-2">
+                  <Controller
+                    control={control}
+                    name="category_id"
+                    render={({ field, fieldState }) => (
+                      <Autocomplete
+                        className="flex-1"
+                        defaultItems={categories}
+                        errorMessage={fieldState.error?.message}
+                        isInvalid={!!fieldState.error}
+                        label="Kategori"
+                        placeholder="Pilih kategori"
+                        selectedKey={field.value}
+                        onSelectionChange={field.onChange}
+                      >
+                        {(item) => (
+                          <AutocompleteItem key={item.id} textValue={item.name}>
+                            {item.name}
+                          </AutocompleteItem>
+                        )}
+                      </Autocomplete>
+                    )}
+                  />
+
                   <CategoryAdd
                     onFinish={(val) =>
                       setValue("category_id", val.id.toString())
@@ -278,23 +299,25 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                 </div>
               </div>
             </div>
-
-            <Textarea
-              disableAnimation
-              disableAutosize
-              classNames={{ input: "h-24" }}
-              label="Deskripsi Layanan"
-              labelPlacement="outside"
-              placeholder="Jelaskan detail apa saja yang dikerjakan..."
-              variant="bordered"
-              {...register("description")}
+            <Controller
+              control={control}
+              name="description"
+              render={({ field }) => (
+                <Textarea
+                  disableAnimation
+                  disableAutosize
+                  classNames={{ input: "h-24" }}
+                  label="Deskripsi Layanan"
+                  placeholder="Jelaskan detail apa saja yang dikerjakan..."
+                  {...field}
+                />
+              )}
             />
           </form>
         </ModalBody>
 
         <ModalFooter>
           <Button
-            className="font-bold uppercase italic tracking-widest text-tiny"
             color="danger"
             startContent={<X size={18} />}
             variant="flat"
@@ -303,7 +326,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
             Batal
           </Button>
           <Button
-            className="bg-gray-900 text-white font-black uppercase italic tracking-widest px-8"
+            color="primary"
             form="service-form"
             isLoading={isLoading}
             startContent={!isLoading && <Save size={18} />}

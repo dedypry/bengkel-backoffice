@@ -2,7 +2,7 @@ import type { IServiceCategory } from "@/utils/interfaces/IService";
 
 import { PlusIcon, Tag, AlignLeft, Save, X } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -24,7 +24,7 @@ import { getCategories } from "@/stores/features/service/service-action";
 
 const categorySchema = z.object({
   name: z.string().min(3, "Nama kategori minimal 3 karakter"),
-  description: z.string().min(5, "Deskripsi minimal 5 karakter"),
+  description: z.string().optional(),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -38,12 +38,7 @@ export default function CategoryAdd({ onFinish }: Props) {
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CategoryFormValues>({
+  const { control, handleSubmit, reset } = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
@@ -75,7 +70,8 @@ export default function CategoryAdd({ onFinish }: Props) {
       <Tooltip content="Tambah Kategori Baru" placement="top">
         <Button
           isIconOnly
-          className="shrink-0 bg-gray-800 text-white shadow-lg hover:bg-gray-700 h-10 w-10 min-w-10"
+          color="primary"
+          variant="shadow"
           onPress={() => setIsOpen(true)}
         >
           <PlusIcon size={18} />
@@ -84,20 +80,13 @@ export default function CategoryAdd({ onFinish }: Props) {
 
       <Modal
         backdrop="blur"
-        classNames={{
-          base: "border border-gray-100",
-          header: "border-b-[1px] border-gray-100",
-          footer: "border-t-[1px] border-gray-100",
-        }}
         isOpen={isOpen}
         size="md"
         onOpenChange={handleClose}
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            <h3 className="text-lg font-black uppercase italic tracking-tight">
-              Tambah Kategori
-            </h3>
+            <h3 className="text-lg font-black uppercase">Tambah Kategori</h3>
             <p className="text-tiny font-medium text-gray-400">
               Buat grup baru untuk layanan servis Anda.
             </p>
@@ -109,38 +98,44 @@ export default function CategoryAdd({ onFinish }: Props) {
               id="category-form"
               onSubmit={handleSubmit(onSubmit)}
             >
-              <Input
-                label="Nama Kategori"
-                labelPlacement="outside"
-                placeholder="Contoh: Mesin, Kelistrikan..."
-                startContent={<Tag className="text-gray-400" size={16} />}
-                variant="bordered"
-                {...register("name")}
-                errorMessage={errors.name?.message}
-                isInvalid={!!errors.name}
+              <Controller
+                control={control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <Input
+                    label="Nama Kategori"
+                    placeholder="Contoh: Mesin, Kelistrikan..."
+                    startContent={<Tag className="text-gray-400" size={16} />}
+                    {...field}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                  />
+                )}
               />
-
-              <Textarea
-                label="Deskripsi"
-                labelPlacement="outside"
-                placeholder="Penjelasan singkat mengenai kategori ini..."
-                startContent={
-                  <AlignLeft className="text-gray-400 mt-1" size={16} />
-                }
-                variant="bordered"
-                {...register("description")}
-                classNames={{
-                  input: "min-h-[100px]",
-                }}
-                errorMessage={errors.description?.message}
-                isInvalid={!!errors.description}
+              <Controller
+                control={control}
+                name="description"
+                render={({ field, fieldState }) => (
+                  <Textarea
+                    classNames={{
+                      input: "min-h-[100px]",
+                    }}
+                    label="Deskripsi"
+                    placeholder="Penjelasan singkat mengenai kategori ini..."
+                    startContent={
+                      <AlignLeft className="text-gray-400 mt-1" size={16} />
+                    }
+                    {...field}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                  />
+                )}
               />
             </form>
           </ModalBody>
 
           <ModalFooter>
             <Button
-              className="font-bold uppercase italic tracking-widest text-tiny"
               color="danger"
               startContent={<X size={16} />}
               variant="flat"
@@ -149,11 +144,10 @@ export default function CategoryAdd({ onFinish }: Props) {
               Batal
             </Button>
             <Button
-              className="bg-gray-900 text-white font-black uppercase italic tracking-widest px-6"
-              form="category-form"
+              color="primary"
               isLoading={isLoading}
               startContent={!isLoading && <Save size={16} />}
-              type="submit"
+              onPress={() => handleSubmit(onSubmit)()}
             >
               Simpan
             </Button>

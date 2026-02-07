@@ -1,6 +1,6 @@
 import type { ISupplier } from "@/utils/interfaces/ISupplier";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -14,6 +14,7 @@ import {
   DropdownMenu,
   DropdownItem,
   Chip,
+  Input,
 } from "@heroui/react";
 import {
   Search,
@@ -36,22 +37,27 @@ import { setSupplierQuery } from "@/stores/features/supplier/supplier-slice";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import HeaderAction from "@/components/header-action";
 import { http } from "@/utils/libs/axios";
+import debounce from "@/utils/helpers/debounce";
 
 export default function MasterSupplierPage() {
   const { suppliers, supplierQuery } = useAppSelector(
     (state) => state.supplier,
   );
   const { company } = useAppSelector((state) => state.auth);
-  const [search, setSearch] = useState("");
 
   const [open, setOpen] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<ISupplier>();
-
+  const [selectedSupplier, setSelectedSupplier] = useState<ISupplier | null>();
+  const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getSupplier(supplierQuery));
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [supplierQuery, company, dispatch]);
 
@@ -65,13 +71,17 @@ export default function MasterSupplierPage() {
       .catch((err) => notifyError(err));
   };
 
+  const searchDebounce = debounce((q) => {
+    dispatch(setSupplierQuery({ q }));
+  }, 1000);
+
   return (
     <div className="space-y-6 pb-20 px-4">
       <AddModal
         open={open}
         setOpen={setOpen}
         supplier={selectedSupplier}
-        onClose={() => setSelectedSupplier(undefined)}
+        onClose={() => setSelectedSupplier(null)}
       />
 
       <HeaderAction
@@ -83,27 +93,19 @@ export default function MasterSupplierPage() {
       />
 
       {/* Control Bar: Pencarian & Filter */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-        <div className="relative w-full md:max-w-md">
-          <input
-            className="w-full h-12 pl-12 pr-4 rounded-xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-gray-200 font-bold text-gray-600 placeholder:text-gray-400 text-sm transition-all"
-            placeholder="Cari nama, kode, atau email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) =>
-              e.key === "Enter" && dispatch(setSupplierQuery({ q: search }))
-            }
-          />
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-        </div>
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-md border border-gray-200 shadow-sm">
+        <Input
+          isClearable
+          defaultValue={supplierQuery.q}
+          placeholder="Cari nama, kode, atau email..."
+          startContent={<Search className=" text-gray-400" size={20} />}
+          onValueChange={searchDebounce}
+        />
 
         <div className="flex gap-2 w-full md:w-auto">
           <Button
-            className="flex-1 md:flex-none bg-gray-900 text-white font-bold uppercase italic tracking-wider px-8"
-            onPress={() => dispatch(setSupplierQuery({ q: search }))}
+            color="primary"
+            onPress={() => dispatch(setSupplierQuery({ q: supplierQuery.q }))}
           >
             Cari
           </Button>
@@ -122,8 +124,7 @@ export default function MasterSupplierPage() {
         isStriped
         aria-label="Tabel Supplier"
         classNames={{
-          th: "bg-gray-50 text-gray-500 font-black uppercase text-[11px] tracking-widest py-4 px-6",
-          td: "py-4 px-6 border-b border-gray-50",
+          td: "py-4 px-6 border-b border-gray-200",
         }}
       >
         <TableHeader>
@@ -142,7 +143,7 @@ export default function MasterSupplierPage() {
               <div className="p-6 bg-gray-50 rounded-full mb-4">
                 <Search className="text-gray-300" size={40} />
               </div>
-              <p className="font-black uppercase italic text-gray-400">
+              <p className="font-black uppercase text-gray-400">
                 Supplier Tidak Ditemukan
               </p>
             </div>
@@ -155,7 +156,7 @@ export default function MasterSupplierPage() {
             >
               <TableCell>
                 <Chip
-                  className="font-black text-gray-600 border-none"
+                  className="font-black text-gray-600s rounded-sm"
                   size="sm"
                   variant="flat"
                 >
@@ -164,12 +165,12 @@ export default function MasterSupplierPage() {
               </TableCell>
               <TableCell>
                 <div className="flex flex-col gap-1">
-                  <p className="font-black text-gray-600 uppercase text-xs">
+                  <p className="font-black text-gray-600 uppercase text-xs truncate">
                     {item.name}
                   </p>
-                  <div className="flex items-center gap-1 text-gray-400">
+                  <div className="flex items-center gap-1 text-gray-500">
                     <MapPin size={12} />
-                    <span className="text-[10px] font-bold truncate max-w-[200px]">
+                    <span className="text-[10px] truncate max-w-[200px]">
                       {item.address || "Alamat belum diatur"}
                     </span>
                   </div>
@@ -178,13 +179,13 @@ export default function MasterSupplierPage() {
               <TableCell>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-gray-600">
-                    <Phone className="text-gray-300" size={14} />
+                    <Phone className="text-gray-500" size={14} />
                     <span className="text-xs font-bold">
                       {item.phone || "-"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
-                    <Mail className="text-gray-300" size={14} />
+                    <Mail className="text-gray-500" size={14} />
                     <span className="text-xs font-bold">
                       {item.email || "-"}
                     </span>
@@ -193,7 +194,7 @@ export default function MasterSupplierPage() {
               </TableCell>
               <TableCell>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black text-gray-400 uppercase">
+                  <p className="text-[10px] font-black text-gray-500 uppercase">
                     NPWP: {item.npwp || "-"}
                   </p>
                   {item.website && (

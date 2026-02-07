@@ -31,6 +31,8 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { setServiceQuery } from "@/stores/features/service/service-slice";
 import debounce from "@/utils/helpers/debounce";
 import HeaderAction from "@/components/header-action";
+import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
+import { http } from "@/utils/libs/axios";
 
 export default function MasterServicePage() {
   const { services, query } = useAppSelector((state) => state.service);
@@ -60,6 +62,16 @@ export default function MasterServicePage() {
         return "default";
     }
   };
+
+  function handleDelete(id: number) {
+    http
+      .delete(`/services/${id}`)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(getService(query));
+      })
+      .catch((err) => notifyError(err));
+  }
 
   return (
     <div className="space-y-8 pb-20 px-4 max-w-[1600px] mx-auto">
@@ -127,8 +139,6 @@ export default function MasterServicePage() {
           </div>
         ) : (
           services?.data.map((srv) => {
-            // const clr = statusServiceColor(srv.difficulty);
-
             return (
               <Card
                 key={srv.id}
@@ -152,6 +162,9 @@ export default function MasterServicePage() {
                           color="danger"
                           size="sm"
                           variant="light"
+                          onPress={() =>
+                            confirmSweat(() => handleDelete(srv.id))
+                          }
                         >
                           <Trash2 size={16} />
                         </Button>
@@ -159,7 +172,7 @@ export default function MasterServicePage() {
                     </div>
                   </div>
 
-                  <h5 className="text-lg font-black uppercase italic tracking-tight text-gray-800 mb-6 leading-tight min-h-[3rem]">
+                  <h5 className="text-lg font-black uppercase text-gray-500 mb-6 leading-tight min-h-[3rem]">
                     {srv.name}
                   </h5>
 
@@ -189,12 +202,12 @@ export default function MasterServicePage() {
                   </div>
 
                   {/* Price Tag */}
-                  <div className="relative p-5 rounded-2xl bg-gray-900 overflow-hidden">
+                  <div className="relative p-5 rounded-2xl bg-gray-500 overflow-hidden">
                     <div className="relative z-10">
-                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                      <p className="text-[10px] font-black text-gray-200 uppercase mb-1">
                         Biaya Layanan
                       </p>
-                      <p className="text-xl font-black text-white italic tracking-tighter">
+                      <p className="text-xl font-black text-white">
                         {formatIDR(Number(srv.price))}
                       </p>
                     </div>
@@ -208,7 +221,7 @@ export default function MasterServicePage() {
                 <CardFooter className="p-4 pt-0">
                   <Button
                     fullWidth
-                    className="bg-gray-100 hover:bg-gray-800 hover:text-white font-black uppercase italic tracking-widest transition-all"
+                    className="bg-gray-100 hover:bg-gray-800 hover:text-white font-black uppercase transition-all"
                     endContent={<Edit size={16} />}
                     onPress={() => {
                       setDetail(srv);
