@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
+admin.pradanaautocare.id
 dist-ssr
 *.local
 
