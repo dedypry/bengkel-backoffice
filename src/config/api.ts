@@ -30,4 +30,5 @@ const configs: IConfigs = {
 
 const config: Config = configs[currentEnv];
 
+console.log("CONFIG", config);
 export default config;
