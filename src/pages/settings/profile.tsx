@@ -43,6 +43,7 @@ import { getCity, getDistrict } from "@/stores/features/region/region-action";
 import { getProfile } from "@/stores/features/auth/auth-action";
 import PhoneInput from "@/components/forms/phone-input";
 import NpwpInput from "@/components/forms/npwp-input";
+import InputNumber from "@/components/input-number";
 
 export default function ProfileSettingsPage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -147,8 +148,9 @@ export default function ProfileSettingsPage() {
       <HeaderAction
         actionContent={
           <Button
-            className="font-black italic uppercase text-xs"
+            className="font-black uppercase text-xs"
             color="danger"
+            size="sm"
             startContent={<Trash2 size={16} />}
             variant="flat"
             onPress={() => confirmSweat(() => {})}
@@ -174,7 +176,7 @@ export default function ProfileSettingsPage() {
                   <Store size={24} />
                 </div>
                 <div>
-                  <h3 className="font-black uppercase italic tracking-tighter">
+                  <h3 className="font-black uppercase text-gray-500">
                     Profil Bengkel
                   </h3>
                   <p className="text-xs text-gray-400 font-medium">
@@ -206,9 +208,7 @@ export default function ProfileSettingsPage() {
                       errorMessage={errors.name?.message}
                       isInvalid={!!errors.name}
                       label="Nama Cabang / Bengkel"
-                      labelPlacement="outside"
                       placeholder="Contoh: Bengkel Maju Jaya Jakarta"
-                      variant="bordered"
                     />
                   )}
                 />
@@ -246,13 +246,11 @@ export default function ProfileSettingsPage() {
                     <Input
                       {...field}
                       label="Email Operasional"
-                      labelPlacement="outside"
                       placeholder="admin@bengkel.com"
                       startContent={
                         <Mail className="text-gray-400" size={16} />
                       }
                       type="email"
-                      variant="bordered"
                     />
                   )}
                 />
@@ -260,12 +258,7 @@ export default function ProfileSettingsPage() {
                   control={control}
                   name="npwp"
                   render={({ field }) => (
-                    <NpwpInput
-                      {...field}
-                      label="NPWP Perusahaan"
-                      labelPlacement="outside"
-                      variant="bordered"
-                    />
+                    <NpwpInput {...field} label="NPWP Perusahaan" />
                   )}
                 />
               </div>
@@ -274,8 +267,8 @@ export default function ProfileSettingsPage() {
 
               <div className="space-y-6">
                 <div className="flex items-center gap-2">
-                  <MapPin className="text-rose-500" size={18} />
-                  <span className="text-sm font-black uppercase italic">
+                  <MapPin className="text-gray-500" size={18} />
+                  <span className="text-sm font-black uppercase text-gray-500">
                     Lokasi & Alamat
                   </span>
                 </div>
@@ -315,10 +308,8 @@ export default function ProfileSettingsPage() {
                     <Textarea
                       {...field}
                       label="Alamat Lengkap"
-                      labelPlacement="outside"
                       minRows={3}
                       placeholder="Jl. Raya Otomotif No. 10..."
-                      variant="bordered"
                     />
                   )}
                 />
@@ -334,10 +325,10 @@ export default function ProfileSettingsPage() {
             <CardBody className="p-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                  <div className="p-2 bg-primary-50 text-primary rounded-sm">
                     <Percent size={20} />
                   </div>
-                  <span className="font-black uppercase italic text-sm">
+                  <span className="font-black uppercase text-gray-500 text-sm">
                     Pajak (PPN)
                   </span>
                 </div>
@@ -364,10 +355,8 @@ export default function ProfileSettingsPage() {
                       <span className="text-gray-400 text-xs">%</span>
                     }
                     label="Besaran PPN (%)"
-                    labelPlacement="outside"
                     placeholder="11"
                     type="number"
-                    variant="bordered"
                   />
                 )}
               />
@@ -379,10 +368,10 @@ export default function ProfileSettingsPage() {
             <CardBody className="p-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-rose-50 text-rose-600 rounded-xl">
+                  <div className="p-2 bg-primary-50 text-primary rounded-sm">
                     <Tag size={20} />
                   </div>
-                  <span className="font-black uppercase italic text-sm">
+                  <span className="font-black uppercase text-gray-500 text-sm">
                     Promo Ultah
                   </span>
                 </div>
@@ -404,14 +393,13 @@ export default function ProfileSettingsPage() {
                   control={control}
                   name="total_discount_birth_day"
                   render={({ field }) => (
-                    <Input
-                      {...(field as any)}
+                    <InputNumber
                       className="flex-1"
                       label="Nilai Promo"
                       labelPlacement="outside"
                       placeholder="0"
-                      type="number"
-                      variant="bordered"
+                      value={field.value as any}
+                      onInput={field.onChange}
                     />
                   )}
                 />
@@ -424,7 +412,6 @@ export default function ProfileSettingsPage() {
                       aria-label="Tipe Diskon"
                       className="w-24"
                       selectedKeys={field.value ? [field.value] : []}
-                      variant="bordered"
                     >
                       <SelectItem key="percentage">%</SelectItem>
                       <SelectItem key="fixed">Rp</SelectItem>
@@ -438,21 +425,19 @@ export default function ProfileSettingsPage() {
                   control={control}
                   name="max_discount_birth_day"
                   render={({ field }) => (
-                    <Input
-                      {...(field as any)}
-                      label="Maksimal Potongan (Cap)"
-                      labelPlacement="outside"
-                      placeholder="Rp 50.000"
+                    <InputNumber
+                      label="Maksimal Potongan"
+                      placeholder="50.000"
                       startContent={
                         <span className="text-gray-400 text-xs">Rp</span>
                       }
-                      type="number"
-                      variant="bordered"
+                      value={field.value as any}
+                      onInput={field.onChange}
                     />
                   )}
                 />
               )}
-              <p className="text-[10px] text-gray-400 font-bold italic uppercase tracking-tighter">
+              <p className="text-[10px] text-rose-400 font-bold italic uppercase tracking-tighter">
                 *Otomatis muncul di kasir saat pelanggan berulang tahun.
               </p>
             </CardBody>

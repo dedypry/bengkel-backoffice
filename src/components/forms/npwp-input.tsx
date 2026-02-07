@@ -43,16 +43,8 @@ const NpwpInput = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
 
   return (
     <Input
-      ref={ref} // 2. Teruskan ref ke komponen Input internal
-      classNames={{
-        inputWrapper:
-          "border-gray-200 group-data-[focus=true]:border-gray-900 shadow-none bg-white",
-        label: "text-[10px] font-black uppercase tracking-widest text-gray-500",
-      }}
-      labelPlacement="outside"
+      ref={ref}
       placeholder="00.000.000.0-000.000"
-      radius="sm"
-      variant="bordered"
       {...props}
       value={displayValue}
       onChange={handleChange}

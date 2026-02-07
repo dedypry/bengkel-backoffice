@@ -16,11 +16,13 @@ import {
   PhoneCall,
   Mail,
   Trash2,
+  FilePlus2,
+  ChevronLeft,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -61,6 +63,7 @@ import { http } from "@/utils/libs/axios";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import InputNumber from "@/components/input-number";
 import CustomDatePicker from "@/components/forms/date-picker";
+import HeaderAction from "@/components/header-action";
 
 export default function ServiceAddPage() {
   const { company } = useAppSelector((state) => state.auth);
@@ -143,6 +146,7 @@ export default function ServiceAddPage() {
   const isVehicleDisable = !!watch("vehicle.id") && !isEdit;
   const estimation = calculateTotalEstimation(services);
   const isProduct = services.length > 0 || sparepart.length > 0;
+  const navigate = useNavigate();
 
   const onSubmit = (data: z.infer<typeof ServiceRegistrationSchema>) => {
     setLoading(true);
@@ -250,21 +254,15 @@ export default function ServiceAddPage() {
     <Form validationBehavior="native">
       <div className="pb-20 space-y-8">
         {/* Header */}
-        <div className="flex justify-between items-end border-b border-gray-300 pb-6">
-          <div>
-            <h4 className="font-bold ">Pendaftaran Servis Baru</h4>
-            <p className="text-slate-500 text-sm">
-              Input data kendaraan dan keluhan pelanggan untuk pembuatan Work
-              Order.
-            </p>
-          </div>
-          {/* <div className="text-right">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-                No. Antrean
-              </span>
-              <h2 className="text-primary">#A-124</h2>
-            </div> */}
-        </div>
+        <HeaderAction
+          actionIcon={ChevronLeft}
+          actionTitle="Kembali ke Antrian"
+          leadIcon={FilePlus2}
+          subtitle="Input data kendaraan dan keluhan pelanggan untuk pembuatan Work
+              Order."
+          title="Pendaftaran Servis Baru"
+          onAction={() => navigate("/service/queue")}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">

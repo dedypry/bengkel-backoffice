@@ -46,12 +46,9 @@ const City = forwardRef<HTMLInputElement, Props & any>(
         allowsCustomValue={false}
         isDisabled={!province_id || cities.length === 0}
         label="Kota/Kabupaten"
-        labelPlacement="outside"
         placeholder={province_id ? "CARI KOTA..." : "PILIH PROVINSI DAHULU"}
-        radius="sm"
         selectedKey={value?.toString()}
         showScrollIndicators={true}
-        variant="bordered"
         onSelectionChange={handleSelectionChange}
         {...props}
       >

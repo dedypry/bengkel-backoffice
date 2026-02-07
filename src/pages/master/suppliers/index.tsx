@@ -26,6 +26,7 @@ import {
   MapPin,
   ExternalLink,
   Plus,
+  Truck,
 } from "lucide-react";
 
 import AddModal from "./components/add-modal";
@@ -87,6 +88,7 @@ export default function MasterSupplierPage() {
       <HeaderAction
         actionIcon={Plus}
         actionTitle="Tambah Supplier"
+        leadIcon={Truck}
         subtitle="Kelola data vendor dan penyedia jasa bengkel Anda."
         title="Master Supplier"
         onAction={() => setOpen(true)}

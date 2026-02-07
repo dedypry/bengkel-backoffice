@@ -31,7 +31,7 @@ export default function HeaderAction({
       <CardBody className="flex flex-col md:flex-row items-center justify-between gap-5 p-5">
         <div className="flex items-center gap-5 w-full">
           {LeadIcon && (
-            <div className="flex items-center justify-center size-14 rounded-2xl bg-gray-50 text-gray-700 border border-gray-100 shrink-0">
+            <div className="flex items-center justify-center size-14 rounded-sm bg-gray-50 text-gray-700 border border-gray-100 shrink-0">
               <LeadIcon className="size-8" strokeWidth={1.5} />
             </div>
           )}

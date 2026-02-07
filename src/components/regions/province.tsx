@@ -58,11 +58,9 @@ const Province = forwardRef<HTMLInputElement, Props & any>(
         ref={ref}
         isClearable={false}
         label="Provinsi"
-        labelPlacement="outside"
         placeholder="CARI PROVINSI..."
         radius="sm"
         selectedKey={value?.toString()}
-        variant="bordered"
         onSelectionChange={handleSelectionChange}
         {...props}
       >

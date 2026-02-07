@@ -85,18 +85,14 @@ export default function InputNumber({
 
     setValue(formatIndonesianNumber(sanitizedInput));
     onInput?.(numericValue);
+    if (props.onValueChange) {
+      props.onValueChange(String(numericValue));
+    }
   }
 
   return (
     <Input
       {...props}
-      classNames={{
-        input: "text-right",
-        ...props.classNames,
-      }}
-      errorMessage={props.errorMessage}
-      isInvalid={props.isInvalid}
-      labelPlacement={props.labelPlacement || "outside"}
       value={value}
       onChange={(e) => handleInput(e.target.value)}
     />

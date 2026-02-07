@@ -37,15 +37,8 @@ const PhoneInput = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   return (
     <Input
       ref={ref}
-      classNames={{
-        inputWrapper:
-          "border-gray-200 group-data-[focus=true]:border-gray-900 shadow-none bg-white",
-        label: "text-[10px] font-black uppercase tracking-widest text-gray-500",
-      }}
-      labelPlacement="outside"
       placeholder="08xx-xxxx-xxxx"
       radius="sm"
-      variant="bordered"
       {...props}
       value={displayValue}
       onChange={handleChange}

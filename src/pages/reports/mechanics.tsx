@@ -53,13 +53,13 @@ export default function ReportMechanic() {
   }, [company, mechanicQuery, dispatch]);
 
   return (
-    <div className="space-y-8 pb-20 px-4 max-w-7xl mx-auto">
+    <div className="space-y-8">
       {/* Hero Section: Best Mechanic */}
       <Card
-        className="bg-gray-800 border-none overflow-hidden min-h-[240px] relative"
+        className="bg-primary border-none overflow-hidden relative"
         shadow="none"
       >
-        <CardBody className="z-10 p-8 md:p-12 flex flex-col md:flex-row justify-between items-center gap-8">
+        <CardBody className="z-10 p-10 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative">
               <Avatar
@@ -71,7 +71,7 @@ export default function ReportMechanic() {
               />
               <Chip
                 className="absolute -top-3 -right-3 font-black italic uppercase text-[10px]"
-                color="warning"
+                color="default"
                 size="sm"
                 variant="shadow"
               >
@@ -80,16 +80,16 @@ export default function ReportMechanic() {
             </div>
 
             <div className="text-center md:text-left">
-              <p className="text-warning font-black uppercase italic tracking-widest text-xs mb-2">
+              <p className="text-white font-black uppercase text-lg mb-2">
                 🏆 Mekanik Terbaik Bulan Ini
               </p>
-              <h1 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-2">
+              <h1 className="text-2xl font-black text-white uppercase mb-2">
                 {bestMechanic?.name || "No Data"}
               </h1>
               <div className="flex items-center justify-center md:justify-start gap-4">
                 <div className="flex items-center gap-2">
-                  <Award className="text-gray-400" size={16} />
-                  <span className="text-gray-300 text-tiny font-bold uppercase">
+                  <Award className="text-gray-200" size={18} />
+                  <span className="text-gray-200 font-bold uppercase">
                     Skor:{" "}
                     {calculatePerformance(
                       bestMechanic?.rating,
@@ -103,21 +103,21 @@ export default function ReportMechanic() {
           </div>
 
           <div className="flex gap-4">
-            <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 w-28 text-center">
-              <Target className="mx-auto mb-2 text-blue-400" size={20} />
+            <div className="bg-white/5 backdrop-blur-md p-4 rounded-sm border border-white/20 w-28 text-center">
+              <Target className="mx-auto mb-2 text-white" size={20} />
               <p className="text-2xl font-black text-white">
                 {formatNumber(bestMechanic?.total_work || 0)}
               </p>
-              <p className="text-[10px] text-gray-400 font-bold uppercase">
+              <p className="text-[10px] text-gray-200 font-bold uppercase">
                 Unit
               </p>
             </div>
-            <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 w-28 text-center">
+            <div className="bg-white/5 backdrop-blur-md p-4 rounded-sm border border-white/20 w-28 text-center">
               <Star className="mx-auto mb-2 text-warning" size={20} />
               <p className="text-2xl font-black text-white">
                 {formatNumber(bestMechanic?.rating || 0)}
               </p>
-              <p className="text-[10px] text-gray-400 font-bold uppercase">
+              <p className="text-[10px] text-gray-200 font-bold uppercase">
                 Rating
               </p>
             </div>
@@ -191,15 +191,15 @@ export default function ReportMechanic() {
               <div className="flex flex-col items-center mb-6">
                 <Avatar
                   isBordered
-                  className="w-24 h-24 mb-4 grayscale group-hover:grayscale-0 transition-all duration-500"
+                  className="w-24 h-24 mb-4 transition-all duration-500"
                   name={getInitials(mec.name)}
                   radius="lg"
                   src={mec.profile?.photo_url}
                 />
-                <h3 className="text-lg font-black uppercase italic tracking-tight text-gray-800 leading-none">
+                <h3 className="text-lg font-black uppercase text-gray-500">
                   {mec.name}
                 </h3>
-                <span className="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-widest">
+                <span className="text-[10px] font-bold text-gray-400 uppercase">
                   ID: MEC-{mec.id.toString().padStart(3, "0")}
                 </span>
               </div>
@@ -273,7 +273,8 @@ export default function ReportMechanic() {
 
               <Button
                 fullWidth
-                className="mt-6 bg-gray-800 text-white font-black uppercase italic tracking-wider"
+                className="mt-6 font-black uppercase"
+                color="primary"
                 endContent={<ChevronRight size={18} />}
                 onPress={() => navigate(`/hr/employees/${mec.id}`)}
               >

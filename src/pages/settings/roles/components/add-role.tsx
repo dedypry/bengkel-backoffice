@@ -1,11 +1,19 @@
 import type { IGroupedPermissions, IRole } from "@/utils/interfaces/IRole";
 
 import { useEffect, useState } from "react";
-import { Input, Textarea, Alert, Divider, Chip } from "@heroui/react";
+import {
+  Input,
+  Textarea,
+  Alert,
+  Divider,
+  Chip,
+  Card,
+  CardBody,
+} from "@heroui/react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ShieldAlert, Info, KeyRound } from "lucide-react";
+import { ShieldAlert, Info } from "lucide-react";
 
 import PermissionTable from "./permission-table";
 
@@ -97,128 +105,122 @@ export default function AddRole({ open, setOpen, data }: Props) {
       onOpenChange={setOpen}
       onSave={handleSubmit(onSubmit)}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Kolom Kiri: Metadata (Sticky) */}
         <div className="lg:col-span-1">
-          <div className="lg:sticky lg:top-4 space-y-6">
-            <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="bg-gray-900 p-2 rounded-xl text-white">
-                  <Info size={18} />
+          <div className="sticky top-0">
+            <Card className="border border-gray-200">
+              <CardBody className="space-y-6 p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="bg-gray-500 p-2 rounded-sm text-white">
+                    <Info size={18} />
+                  </div>
+                  <h4 className="text-sm font-black uppercase text-gray-500">
+                    Identitas Role
+                  </h4>
                 </div>
-                <h4 className="text-sm font-black uppercase italic tracking-widest text-gray-800">
-                  Identitas Role
-                </h4>
-              </div>
 
-              <Controller
-                control={control}
-                name="name"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    classNames={{
-                      label:
-                        "font-bold text-gray-700 uppercase text-[11px] tracking-widest",
-                    }}
-                    errorMessage={errors.name?.message}
-                    isInvalid={!!errors.name}
-                    label="Nama Role"
-                    labelPlacement="outside"
-                    placeholder="Contoh: Kepala Mekanik"
-                    variant="bordered"
-                  />
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      errorMessage={errors.name?.message}
+                      isInvalid={!!errors.name}
+                      label="Nama Role"
+                      placeholder="Contoh: Kepala Mekanik"
+                    />
+                  )}
+                />
 
-              <Controller
-                control={control}
-                name="description"
-                render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    classNames={{
-                      label:
-                        "font-bold text-gray-700 uppercase text-[11px] tracking-widest",
-                    }}
-                    label="Deskripsi Tanggung Jawab"
-                    labelPlacement="outside"
-                    minRows={4}
-                    placeholder="Jelaskan cakupan wewenang role ini..."
-                    variant="bordered"
-                  />
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      label="Deskripsi Tanggung Jawab"
+                      minRows={4}
+                      placeholder="Jelaskan cakupan wewenang role ini..."
+                    />
+                  )}
+                />
 
-              <Divider />
+                <Divider />
 
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase text-gray-400 italic">
-                    Total Hak Akses
-                  </span>
-                  <Chip
-                    className="font-black italic"
-                    color="primary"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {selectedIds.length} Selected
-                  </Chip>
-                </div>
-                {error && (
+                <div className="space-y-3">
                   <Alert
-                    classNames={{ base: "rounded-2xl" }}
-                    color="danger"
-                    icon={<ShieldAlert size={18} />}
-                    title="Akses Ditolak"
-                    variant="flat"
-                  >
-                    {error}
-                  </Alert>
-                )}
-              </div>
-            </div>
+                    classNames={{
+                      title: "text-xs font-semibold text-gray-400",
+                      description: "font-bold text-gray-700",
+                    }}
+                    color="warning"
+                    description={`${selectedIds.length} Hak Akses Diberikan`}
+                    title=" Status Konfigurasi"
+                  />
+                  {/* <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black uppercase text-gray-400">
+                      Total Hak Akses
+                    </span>
+                    <Chip color="primary" size="sm" variant="flat">
+                      {selectedIds.length} Terpilih
+                    </Chip>
+                  </div> */}
+                  {error && (
+                    <Alert
+                      classNames={{ base: "rounded-sm" }}
+                      color="danger"
+                      icon={<ShieldAlert size={18} />}
+                      title="Akses Ditolak"
+                      variant="flat"
+                    >
+                      {error}
+                    </Alert>
+                  )}
+                </div>
+              </CardBody>
+            </Card>
 
-            <div className="p-6 bg-rose-50 rounded-[2rem] border border-rose-100 hidden lg:block">
-              <div className="flex gap-3">
-                <KeyRound className="text-rose-500 shrink-0" size={20} />
-                <p className="text-[11px] text-rose-700 font-medium italic">
-                  Perubahan pada permission akan berdampak langsung pada semua
-                  pengguna yang memiliki role ini. Mohon lakukan verifikasi
-                  sebelum menyimpan.
-                </p>
-              </div>
-            </div>
+            <Alert
+              hideIcon
+              className="hidden lg:block mt-2"
+              classNames={{
+                title: "text-xs",
+                mainWrapper: "flex flex-row items-center gap-2",
+              }}
+              color="danger"
+              title={`Perubahan pada permission akan berdampak langsung pada semua
+                pengguna yang memiliki role ini. Mohon lakukan verifikasi
+                sebelum menyimpan.`}
+              variant="flat"
+            />
           </div>
         </div>
 
         {/* Kolom Kanan: Matriks Permission */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm">
-            <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
-              <h4 className="text-sm font-black uppercase italic tracking-widest text-gray-800">
-                Matriks Hak Akses
-              </h4>
-              <Chip
-                className="font-bold border-none"
-                color="success"
-                size="sm"
-                variant="dot"
-              >
-                System Live
-              </Chip>
-            </div>
-            <div className="p-4">
-              {permissions && (
-                <PermissionTable
-                  data={permissions}
-                  selectedIds={selectedIds}
-                  setSelectedIds={setSelectedIds}
-                />
-              )}
-            </div>
-          </div>
+          <Card className="border border-gray-200 overflow-hidden shadow-sm">
+            <CardBody className="p-4">
+              <div className="border-b pb-2 border-gray-200 flex items-center justify-between">
+                <h4 className="text-sm font-black uppercase  text-gray-500">
+                  Matriks Hak Akses
+                </h4>
+                <Chip color="success" size="sm" variant="dot">
+                  System Live
+                </Chip>
+              </div>
+              <div className="p-4">
+                {permissions && (
+                  <PermissionTable
+                    data={permissions}
+                    selectedIds={selectedIds}
+                    setSelectedIds={setSelectedIds}
+                  />
+                )}
+              </div>
+            </CardBody>
+          </Card>
         </div>
       </div>
     </Modal>

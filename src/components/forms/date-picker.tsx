@@ -32,14 +32,7 @@ export default function CustomDatePicker(props: DatePickerProps) {
 
   return (
     <DatePicker
-      formatOptions={{
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }}
-      labelPlacement="outside"
       placeholderValue=""
-      variant="bordered"
       {...(props as any)}
       showMonthAndYearPickers
       value={value as any}

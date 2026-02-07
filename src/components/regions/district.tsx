@@ -42,11 +42,8 @@ const District = forwardRef<HTMLInputElement, Props & any>(
         ref={ref}
         isDisabled={!city_id || district.length === 0}
         label="Kecamatan"
-        labelPlacement="outside"
         placeholder={city_id ? "PILIH KECAMATAN..." : "PILIH KOTA DAHULU"}
-        radius="sm"
         selectedKey={value?.toString()}
-        variant="bordered"
         onSelectionChange={handleSelectionChange}
         {...props}
       >

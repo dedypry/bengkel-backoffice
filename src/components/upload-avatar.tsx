@@ -27,7 +27,7 @@ export default function UploadAvatar({
 
   return (
     <div
-      className={`flex flex-col items-center gap-4 p-6 border-2 border-dashed transition-colors rounded-2xl ${
+      className={`flex flex-col items-center gap-4 p-6 border-2 border-dashed transition-colors rounded-sm ${
         isInvalid
           ? "border-danger bg-danger-50/20"
           : "border-default-200 bg-default-50/50 hover:border-primary-300"
@@ -65,7 +65,7 @@ export default function UploadAvatar({
 
         <p
           className={`text-tiny text-center ${
-            isInvalid ? "text-danger" : "text-default-500"
+            isInvalid ? "text-danger" : "text-gray-500"
           }`}
         >
           Format: JPG, PNG. Maksimal 5MB.

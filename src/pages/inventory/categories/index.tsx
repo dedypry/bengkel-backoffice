@@ -2,14 +2,7 @@ import type { IProductCategory } from "@/utils/interfaces/IProduct";
 
 import { Plus, Search, Layers, Package, Tags, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Input,
-  Card,
-  CardBody,
-  CardFooter,
-  Divider,
-} from "@heroui/react";
+import { Input, Card, CardBody, CardFooter, Divider } from "@heroui/react";
 
 import ModalAddCategory from "./components/add-category";
 
@@ -21,6 +14,7 @@ import { setCategoryQuery } from "@/stores/features/product/product-slice";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import TableAction from "@/components/table-action";
+import HeaderAction from "@/components/header-action";
 
 export default function InventoryCategoryPage() {
   const { categories, categoryQuery } = useAppSelector(
@@ -61,31 +55,17 @@ export default function InventoryCategoryPage() {
       />
 
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gray-100 rounded-xl">
-            <Tags className="size-6 text-gray-700" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black text-gray-500 tracking-tight uppercase italic">
-              Kategori Produk
-            </h1>
-            <p className="text-small text-gray-500 font-medium">
-              Kelola pengelompokan produk bengkel Anda.
-            </p>
-          </div>
-        </div>
-        <Button
-          color="primary"
-          startContent={<Plus className="size-4" />}
-          onPress={() => {
-            setDetail(undefined);
-            setModalOpen(true);
-          }}
-        >
-          Tambah Kategori
-        </Button>
-      </div>
+      <HeaderAction
+        actionIcon={Plus}
+        actionTitle="Tambah Kategori"
+        leadIcon={Tags}
+        subtitle="Kelola pengelompokan produk bengkel Anda."
+        title="Kategori Produk"
+        onAction={() => {
+          setDetail(undefined);
+          setModalOpen(true);
+        }}
+      />
 
       {/* Toolbar - Minimalist Gray */}
       <Card className="border border-gray-200 bg-gray-50/50" shadow="none">

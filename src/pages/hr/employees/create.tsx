@@ -113,10 +113,10 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
             {/* SECTION 1: PROFIL UTAMA */}
             <section className="space-y-8">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-400 rounded-xl text-white">
+                <div className="p-2 bg-gray-400 rounded-sm text-white">
                   <Briefcase size={18} />
                 </div>
-                <h4 className="text-sm font-black uppercase tracking-widest text-gray-500">
+                <h4 className="text-sm font-black uppercase text-gray-500">
                   Informasi Pekerjaan
                 </h4>
               </div>
@@ -150,9 +150,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         errorMessage={errors.name?.message}
                         isInvalid={!!errors.name}
                         label="Nama Lengkap"
-                        labelPlacement="outside"
                         placeholder="Sesuai KTP"
-                        variant="bordered"
                       />
                     )}
                   />
@@ -165,10 +163,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         errorMessage={errors.email?.message}
                         isInvalid={!!errors.email}
                         label="Email Kantor"
-                        labelPlacement="outside"
                         placeholder="name@company.com"
                         type="email"
-                        variant="bordered"
                       />
                     )}
                   />
@@ -176,14 +172,12 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     control={control}
                     name="phone"
                     render={({ field }) => (
-                      <Input
+                      <PhoneInput
                         {...field}
                         errorMessage={errors.phone?.message}
                         isInvalid={!!errors.phone}
                         label="Nomor Telepon"
-                        labelPlacement="outside"
                         placeholder="08xx-xxxx-xxxx"
-                        variant="bordered"
                       />
                     )}
                   />
@@ -195,9 +189,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       <Select
                         {...field}
                         label="Departemen"
-                        labelPlacement="outside"
                         placeholder="Pilih Divisi"
-                        variant="bordered"
                       >
                         {["Workshop", "Front Office", "Finance", "HR"].map(
                           (dept) => (
@@ -214,9 +206,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       <Select
                         {...field}
                         label="Status Kerja"
-                        labelPlacement="outside"
                         placeholder="Status Pekerjaan"
-                        variant="bordered"
                       >
                         {["Permanent", "Contract"].map((st) => (
                           <SelectItem key={st}>{st}</SelectItem>
@@ -235,7 +225,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       />
                     )}
                   />
-                  <div className="flex gap-2 items-end md:col-span-2">
+                  <div className="flex gap-2 items-center md:col-span-2">
                     <Controller
                       control={control}
                       name="role_ids"
@@ -243,10 +233,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         <Select
                           {...(field as any)}
                           label="Jabatan/Role"
-                          labelPlacement="outside"
                           placeholder="Pilih Role"
                           selectionMode="multiple"
-                          variant="bordered"
                           onSelectionChange={(keys) =>
                             field.onChange(Array.from(keys))
                           }
@@ -277,10 +265,10 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
             {/* SECTION 2: BIODATA & LOKASI */}
             <section className="space-y-8">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-500 rounded-xl text-white">
+                <div className="p-2 bg-gray-500 rounded-sm text-white">
                   <MapPin size={18} />
                 </div>
-                <h4 className="text-sm font-black uppercase tracking-widest text-gray-500">
+                <h4 className="text-sm font-black uppercase  text-gray-500">
                   Biodata & Alamat Tinggal
                 </h4>
               </div>
@@ -293,9 +281,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     <Input
                       {...field}
                       label="Tempat Lahir"
-                      labelPlacement="outside"
                       placeholder="Serang..."
-                      variant="bordered"
                     />
                   )}
                 />
@@ -317,9 +303,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     <Select
                       {...field}
                       label="Jenis Kelamin"
-                      labelPlacement="outside"
                       placeholder="Masukan Jenis Kelamin"
-                      variant="bordered"
                     >
                       <SelectItem key="male">Laki-laki</SelectItem>
                       <SelectItem key="female">Perempuan</SelectItem>
@@ -358,9 +342,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   <Textarea
                     {...field}
                     label="Alamat Lengkap (KTP)"
-                    labelPlacement="outside"
                     minRows={3}
-                    variant="bordered"
                   />
                 )}
               />
@@ -369,12 +351,12 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
             <Divider />
 
             {/* SECTION 3: KONTAK DARURAT */}
-            <section className="space-y-8 p-6 bg-rose-50/50 rounded-sm border border-rose-100">
+            <section className="space-y-8 p-6 rounded-sm border border-rose-400">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-rose-500 rounded-xl text-white">
+                <div className="p-2 bg-rose-500 rounded-sm text-white">
                   <Heart size={18} />
                 </div>
-                <h4 className="text-sm font-black uppercase italic tracking-widest text-rose-600">
+                <h4 className="text-sm font-black uppercase text-rose-600">
                   Kontak Darurat (Emergency)
                 </h4>
               </div>
@@ -386,9 +368,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     <Input
                       {...(field as any)}
                       label="Nama Kerabat"
-                      labelPlacement="outside"
                       placeholder="Nama Lengkap"
-                      variant="bordered"
                     />
                   )}
                 />
@@ -398,10 +378,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   render={({ field }) => (
                     <PhoneInput
                       label="No. Telepon Kerabat"
-                      labelPlacement="outside"
                       placeholder="08xx-xxxx-xxxx"
                       value={field.value as any}
-                      variant="bordered"
                       onValueChange={field.onChange}
                     />
                   )}

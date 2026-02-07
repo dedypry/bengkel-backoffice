@@ -92,20 +92,18 @@ export default function Modal({
       <ModalContent>
         {() => (
           <>
-            <ModalHeader className="flex flex-col gap-1">
-              <h3 className="text-xl font-black uppercase italic tracking-tighter text-gray-800 leading-none">
+            <ModalHeader className="flex flex-col">
+              <h3 className="text-lg font-black uppercase text-gray-500">
                 {title}
               </h3>
               {description && (
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                <p className="text-xs font-semibold text-gray-400">
                   {description}
                 </p>
               )}
             </ModalHeader>
 
-            <ModalBody>
-              <div className="py-2">{children}</div>
-            </ModalBody>
+            <ModalBody>{children}</ModalBody>
 
             <ModalFooter>
               {footer ? (
@@ -114,7 +112,6 @@ export default function Modal({
                 <div className="flex gap-3 w-full sm:w-auto">
                   {showCancel && (
                     <Button
-                      className="font-black uppercase italic text-xs tracking-widest h-12 px-8 rounded-2xl"
                       isDisabled={isLoading}
                       variant="flat"
                       onPress={handleClose}
@@ -123,7 +120,6 @@ export default function Modal({
                     </Button>
                   )}
                   <Button
-                    className="bg-gray-900 text-white font-black uppercase italic text-xs tracking-widest h-12 px-8 rounded-2xl shadow-lg shadow-gray-200"
                     color="primary"
                     isDisabled={disable}
                     isLoading={isLoading}

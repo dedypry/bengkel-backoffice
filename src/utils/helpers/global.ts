@@ -156,7 +156,7 @@ export const calculatePerformance = (rating: any, totalWork: any) => {
   return Math.round(weightedRating + weightedWork);
 };
 
-export const getJoinDuration = (joinDate: string) => {
+export const getJoinDuration = (joinDate: string, showMonth?: boolean) => {
   if (!joinDate) return "Tanggal tidak tersedia";
 
   const join = dayjs(joinDate);
@@ -166,7 +166,13 @@ export const getJoinDuration = (joinDate: string) => {
   const years = now.diff(join, "year");
   const months = now.diff(join.add(years, "year"), "month");
 
-  return `${years} Tahun, ${months} Bulan`;
+  let month = "";
+
+  if (showMonth) {
+    month = `, ${months} Bulan`;
+  }
+
+  return `${years} Tahun${month}`;
 };
 
 export function formatTime(data: string) {

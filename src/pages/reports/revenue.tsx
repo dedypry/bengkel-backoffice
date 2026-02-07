@@ -96,19 +96,19 @@ export default function RevenuePage() {
         {stats.map((item, i) => (
           <Card
             key={i}
-            className="border-none shadow-sm rounded-[2rem] p-2 hover:translate-y-[-4px] transition-transform"
+            className="border border-gray-200 shadow-sm hover:translate-y-[-4px] transition-transform"
           >
             <CardBody className="flex flex-row items-center gap-4">
               <div
-                className={`${item.bg} ${item.color} p-4 rounded-2xl shadow-inner`}
+                className={`${item.bg} ${item.color} p-3 rounded-sm shadow-inner`}
               >
                 <item.icon size={24} strokeWidth={2.5} />
               </div>
               <div className="flex flex-col">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">
+                <p className="text-[10px] font-black text-gray-400 uppercase">
                   {item.label}
                 </p>
-                <p className="text-xl font-black text-gray-800 tracking-tight italic uppercase">
+                <p className="text-md font-black text-gray-500 uppercase">
                   {typeof item.val === "number"
                     ? formatIDR(item.val)
                     : item.val}
@@ -121,13 +121,13 @@ export default function RevenuePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Section: Revenue Source */}
-        <Card className="lg:col-span-2 border-none shadow-sm rounded-[2.5rem] p-4">
+        <Card className="lg:col-span-2 border border-gray-200 shadow-sm p-4">
           <CardHeader className="flex justify-between items-center px-4 pb-0">
             <div className="flex items-center gap-3">
-              <div className="bg-gray-100 p-2 rounded-xl">
+              <div className="bg-gray-100 p-2 rounded-sm">
                 <PieChart className="text-gray-600" size={20} />
               </div>
-              <h3 className="text-xl font-black text-gray-800 uppercase italic">
+              <h3 className="text-lg font-black text-gray-500 uppercase">
                 Sumber Pendapatan
               </h3>
             </div>
@@ -146,14 +146,14 @@ export default function RevenuePage() {
                 <div key={i} className="space-y-3">
                   <div className="flex justify-between items-end">
                     <div className="flex flex-col">
-                      <span className="text-xs font-black uppercase text-gray-500 tracking-wider">
+                      <span className="text-xs font-black uppercase text-gray-500">
                         {cat.label}
                       </span>
-                      <span className="text-[10px] font-bold text-gray-400 italic">
+                      <span className="text-[10px] font-semibold text-gray-400 italic">
                         Distribusi Layanan
                       </span>
                     </div>
-                    <span className="text-lg font-black text-gray-800 italic">
+                    <span className="text-sm font-black text-gray-500">
                       {cat.percentage}%
                     </span>
                   </div>
@@ -173,51 +173,50 @@ export default function RevenuePage() {
         </Card>
 
         {/* Section: Monthly Target */}
-        <Card className="border-none shadow-sm bg-gray-900 text-white rounded-[2.5rem] p-4 relative overflow-hidden">
+        <Card className="border border-gray-200 shadow-sm p-4 relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
           <CardHeader className="flex gap-3 px-4">
-            <div className="bg-white/10 p-2 rounded-xl">
+            <div className="bg-gray-200 p-2 rounded-sm">
               <Target className="text-rose-400" size={20} />
             </div>
-            <h5 className="text-lg font-black uppercase italic tracking-tighter">
+            <h5 className="text-lg text-gray-500 font-black uppercase">
               Target Bulanan
             </h5>
           </CardHeader>
           <CardBody className="px-4 py-2 relative z-10">
             <p className="text-gray-400 text-xs mb-6 font-medium italic">
               Pencapaian{" "}
-              <span className="text-white font-bold">
+              <span className="font-bold text-gray-700">
                 {report?.reportMonthly.growth_formatted}
               </span>{" "}
               dari target bulan {report?.reportMonthly.last_month_name}.
             </p>
 
-            <div className="bg-white/5 rounded-3xl p-6 border border-white/10 backdrop-blur-sm">
+            <div className="bg-gray-200 rounded-sm p-6 border border-gray-200 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-2">
-                <p className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em]">
+                <p className="text-[10px] font-black uppercase text-gray-500">
                   Pencapaian Saat Ini
                 </p>
-                <TrendingUp className="text-emerald-400" size={14} />
+                <TrendingUp className="text-success" size={14} />
               </div>
-              <p className="text-3xl font-black mb-6 tracking-tighter text-white">
+              <p className="text-lg font-black mb-6 text-gray-500">
                 {formatIDR(report?.reportMonthly.current_revenue || 0)}
               </p>
               <Progress
                 aria-label="Monthly Target"
                 className="h-4"
                 classNames={{
-                  track: "bg-white/10",
-                  indicator:
-                    "bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.5)]",
+                  track: "bg-gray-100",
+                  indicator: "bg-danger shadow-[0_0_15px_rgba(244,63,94,0.5)]",
                 }}
                 color="danger"
                 value={report?.reportMonthly.growth_value}
               />
-              <div className="flex justify-between mt-3">
-                <span className="text-[9px] font-black text-gray-500 uppercase italic">
+              <div className="flex justify-between items-center mt-3">
+                <span className="text-sm font-black text-gray-500 uppercase">
                   0%
                 </span>
-                <span className="text-[9px] font-black text-rose-400 uppercase italic">
+                <span className="text-xs font-black text-danger uppercase">
                   {report?.reportMonthly.growth_value}% Achieved
                 </span>
               </div>
@@ -226,7 +225,7 @@ export default function RevenuePage() {
           <div className="p-4 pt-0">
             <Button
               fullWidth
-              className="bg-white text-black font-black uppercase italic tracking-widest text-xs h-12"
+              color="primary"
               endContent={<ArrowRight size={16} />}
             >
               Sesuaikan Target
@@ -238,8 +237,8 @@ export default function RevenuePage() {
       {/* List Invoice Integration */}
       <div className="pt-4">
         <div className="flex items-center gap-3 mb-6 px-2">
-          <div className="h-8 w-1.5 bg-rose-500 rounded-full" />
-          <h2 className="text-2xl font-black uppercase italic tracking-tighter text-gray-800">
+          <div className="h-8 w-1.5 bg-danger rounded-full" />
+          <h2 className="text-lg font-black uppercase  text-gray-500">
             Riwayat Transaksi Terakhir
           </h2>
         </div>
