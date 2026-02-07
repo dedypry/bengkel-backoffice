@@ -6,6 +6,7 @@ import {
   TableRow,
   TableCell,
   User,
+  Chip,
 } from "@heroui/react";
 
 import { useAppSelector } from "@/stores/hooks";
@@ -15,15 +16,7 @@ export function ServiceQueue() {
   const { dashboard } = useAppSelector((state) => state.dashboard);
 
   return (
-    <Table
-      aria-label="Tabel Antrean Service"
-      className="mt-6"
-      classNames={{
-        wrapper: "border border-default-100 shadow-sm",
-        th: "bg-default-50 text-default-600 font-semibold",
-      }}
-      shadow="sm"
-    >
+    <Table aria-label="Tabel Antrean Service" className="mt-6" shadow="sm">
       <TableHeader>
         <TableColumn>KENDARAAN</TableColumn>
         <TableColumn>CUSTOMER</TableColumn>
@@ -39,10 +32,10 @@ export function ServiceQueue() {
             {/* Kolom Kendaraan */}
             <TableCell>
               <div className="flex flex-col">
-                <span className="text-small font-bold text-default-700">
+                <span className="text-small font-bold text-gray-500">
                   {item.vehicle.brand}
                 </span>
-                <span className="text-tiny text-default-400">
+                <span className="text-tiny text-gray-400">
                   {item.vehicle.plate_number}
                 </span>
               </div>
@@ -58,7 +51,11 @@ export function ServiceQueue() {
                     item.customer?.profile?.photo_url ||
                     getAvatarByName(item.customer.name),
                 }}
-                description={item.customer.phone}
+                classNames={{
+                  name: "text-gray-500 uppercase font-semibold text-xs",
+                  description: "text-gray-400 text-[10px]",
+                }}
+                description={`+62 ${item.customer.phone}`}
                 name={item.customer.name}
               >
                 {item.customer.name}
@@ -70,15 +67,10 @@ export function ServiceQueue() {
               <div className="flex flex-col gap-1">
                 {item.mechanics?.length ? (
                   item.mechanics.map((mech) => (
-                    <span
-                      key={mech.id}
-                      className="text-tiny text-default-600 bg-default-100 px-2 py-0.5 rounded-full w-fit"
-                    >
-                      {mech.name}
-                    </span>
+                    <Chip key={mech.id}>{mech.name}</Chip>
                   ))
                 ) : (
-                  <span className="text-tiny text-default-300 italic">
+                  <span className="text-tiny text-gray-500 italic">
                     Belum ditentukan
                   </span>
                 )}

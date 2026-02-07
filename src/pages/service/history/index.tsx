@@ -12,6 +12,8 @@ import {
   Card,
   CardBody,
   Tooltip,
+  CardFooter,
+  CardHeader,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
@@ -68,163 +70,145 @@ export default function HistoryPage() {
         subtitle="Arsip seluruh pengerjaan unit dan transaksi selesai."
         title="Riwayat Servis"
       />
-
-      {/* Filter Bar */}
-      <Card className="border border-default-100" shadow="sm">
-        <CardBody className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4">
-          <div className="md:col-span-3">
-            <Input
-              isClearable
-              defaultValue={woQuery.q}
-              placeholder="Cari No. Invoice, Plat, atau Nama Pelanggan..."
-              startContent={<Search className="size-4 text-default-400" />}
-              variant="bordered"
-              onValueChange={searcDebounce}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <CustomDateRangePicker
-              value={{
-                start: woQuery.date_from,
-                end: woQuery.date_to,
-              }}
-              onChange={(val) => {
-                dispatch(
-                  setWoQuery({
-                    ...query,
-                    date_from: val?.start,
-                    date_to: val?.end,
-                  }),
-                );
-              }}
-            />
-          </div>
-          {/* <Button
-            className="font-bold"
-            color="secondary"
-            startContent={<Filter className="size-4" />}
-            variant="flat"
-          >
-            Filter Lanjut
-          </Button> */}
-        </CardBody>
-      </Card>
-
       {/* History Table */}
-      <Table
-        aria-label="Tabel Riwayat Servis"
-        classNames={{
-          wrapper: "border border-default-100 p-0 overflow-hidden",
-          th: "bg-default-50 text-default-600 font-bold h-12 uppercase text-tiny",
-          td: "py-4 border-b border-default-50 last:border-none",
-        }}
-        shadow="none"
-      >
-        <TableHeader>
-          <TableColumn>TANGGAL & ID</TableColumn>
-          <TableColumn>KENDARAAN</TableColumn>
-          <TableColumn>DETAIL LAYANAN</TableColumn>
-          <TableColumn align="end">TOTAL BIAYA</TableColumn>
-          <TableColumn align="center">STATUS</TableColumn>
-          <TableColumn align="center">AKSI</TableColumn>
-        </TableHeader>
-        <TableBody>
-          {(orders?.data || []).map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>
-                <div className="flex flex-col">
-                  <span className="font-semibold text-default-700">
-                    {dayjs(item.created_at).format("DD MMM YYYY")}
-                  </span>
-                  <span className="text-tiny text-gray-400 font-mono tracking-tighter">
-                    {item.trx_no}
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col">
-                  <span className="font-bold text-default-800 uppercase tracking-wide">
-                    {item.vehicle.plate_number}
-                  </span>
-                  <span className="text-[10px] text-gray-500 uppercase">
-                    {item.vehicle.brand} {item.vehicle.model} •{" "}
-                    {item.customer.name}
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col gap-1">
-                  <span className="text-small text-default-700 font-medium">
-                    {item.services.map((e) => e.name).join(", ")}
-                  </span>
-                  <Chip
-                    className="h-5 text-[10px] font-bold uppercase"
-                    color="primary"
-                    size="sm"
-                    variant="flat"
-                  >
-                    Mekanik: {item.mechanics?.map((e) => e.name).join(", ")}
-                  </Chip>
-                </div>
-              </TableCell>
-              <TableCell>
-                <span className="font-black text-default-900">
-                  {formatIDR(item.grand_total)}
-                </span>
-              </TableCell>
-              <TableCell>
-                <Chip
-                  className="font-bold"
-                  color={item.status === "closed" ? "success" : "danger"}
-                  variant="dot"
-                >
-                  {item.status === "closed" ? "Sukses" : "Batal"}
-                </Chip>
-              </TableCell>
-              <TableCell>
-                <div className="flex justify-center gap-1">
-                  <Tooltip content="Lihat Detail">
-                    <Button
-                      isIconOnly
-                      as={Link}
-                      color="primary"
-                      size="sm"
-                      to={`/service/queue/${item.id}`}
-                      variant="light"
+      <Card>
+        <CardHeader className="flex gap-5">
+          <Input
+            isClearable
+            defaultValue={woQuery.q}
+            placeholder="Cari No. Invoice, Plat, atau Nama Pelanggan..."
+            startContent={<Search className="size-4 text-default-400" />}
+            variant="bordered"
+            onValueChange={searcDebounce}
+          />
+          <CustomDateRangePicker
+            className="w-[300px]"
+            value={{
+              start: woQuery.date_from,
+              end: woQuery.date_to,
+            }}
+            onChange={(val) => {
+              dispatch(
+                setWoQuery({
+                  ...query,
+                  date_from: val?.start,
+                  date_to: val?.end,
+                }),
+              );
+            }}
+          />
+        </CardHeader>
+        <CardBody>
+          <Table removeWrapper aria-label="Tabel Riwayat Servis">
+            <TableHeader>
+              <TableColumn>TANGGAL & ID</TableColumn>
+              <TableColumn>KENDARAAN</TableColumn>
+              <TableColumn>DETAIL LAYANAN</TableColumn>
+              <TableColumn align="end">TOTAL BIAYA</TableColumn>
+              <TableColumn align="center">STATUS</TableColumn>
+              <TableColumn align="center">AKSI</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {(orders?.data || []).map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-default-700">
+                        {dayjs(item.created_at).format("DD MMM YYYY")}
+                      </span>
+                      <span className="text-tiny text-gray-400 font-mono tracking-tighter">
+                        {item.trx_no}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-default-800 uppercase tracking-wide">
+                        {item.vehicle.plate_number}
+                      </span>
+                      <span className="text-[10px] text-gray-500 uppercase">
+                        {item.vehicle.brand} {item.vehicle.model} •{" "}
+                        {item.customer.name}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-small text-default-700 font-medium">
+                        {item.services.map((e) => e.name).join(", ")}
+                      </span>
+                      <Chip
+                        className="h-5 text-[10px] font-bold uppercase"
+                        color="primary"
+                        size="sm"
+                        variant="flat"
+                      >
+                        Mekanik: {item.mechanics?.map((e) => e.name).join(", ")}
+                      </Chip>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-black text-default-900">
+                      {formatIDR(item.grand_total)}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      className="font-bold"
+                      color={item.status === "closed" ? "success" : "danger"}
+                      variant="dot"
                     >
-                      <Eye className="size-4" />
-                    </Button>
-                  </Tooltip>
-                  <Tooltip content="File Invoice">
-                    <Button
-                      isIconOnly
-                      color="default"
-                      isLoading={loading.includes(item.id)}
-                      size="sm"
-                      variant="light"
-                      onPress={() =>
-                        handleDownload(
-                          `/invoices/${item.id}`,
-                          item.trx_no,
-                          false,
-                          (val) => handleLoading(item.id, val),
-                        )
-                      }
-                    >
-                      <FileText className="size-4" />
-                    </Button>
-                  </Tooltip>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      <CustomPagination
-        meta={orders?.meta!}
-        onPageChange={(page) => dispatch(setWoQuery({ ...query, page }))}
-      />
+                      {item.status === "closed" ? "Sukses" : "Batal"}
+                    </Chip>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-center gap-1">
+                      <Tooltip content="Lihat Detail">
+                        <Button
+                          isIconOnly
+                          as={Link}
+                          color="primary"
+                          size="sm"
+                          to={`/service/queue/${item.id}`}
+                          variant="light"
+                        >
+                          <Eye className="size-4" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="File Invoice">
+                        <Button
+                          isIconOnly
+                          color="default"
+                          isLoading={loading.includes(item.id)}
+                          size="sm"
+                          variant="light"
+                          onPress={() =>
+                            handleDownload(
+                              `/invoices/${item.id}`,
+                              item.trx_no,
+                              false,
+                              (val) => handleLoading(item.id, val),
+                            )
+                          }
+                        >
+                          <FileText className="size-4" />
+                        </Button>
+                      </Tooltip>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardBody>
+        <CardFooter>
+          <CustomPagination
+            className="w-full"
+            meta={orders?.meta!}
+            onPageChange={(page) => dispatch(setWoQuery({ ...query, page }))}
+          />
+        </CardFooter>
+      </Card>
     </div>
   );
 }

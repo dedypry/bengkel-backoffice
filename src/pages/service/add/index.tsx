@@ -267,7 +267,7 @@ export default function ServiceAddPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             {/* Section 1: Data Pemilik */}
-            <Card className="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+            <Card className="p-6">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                   <User className="size-5" />
@@ -364,7 +364,7 @@ export default function ServiceAddPage() {
             </Card>
 
             {/* Section 2: Data Kendaraan */}
-            <Card className="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+            <Card className="p-6 space-y-4">
               <div className="flex justify-between items-center mb-5">
                 <div className="flex items-center gap-2 text-primary font-bold">
                   <Car className="size-5" />
@@ -628,7 +628,7 @@ export default function ServiceAddPage() {
 
             {/* Section 3: Keluhan & Layanan */}
             <Card
-              className={`bg-white p-6 border border-gray-200 ${isErrorService ? "border-red-500" : ""} shadow-sm space-y-4`}
+              className={`p-6 ${isErrorService ? "border border-red-500" : ""} space-y-4`}
             >
               {isErrorService ||
                 (!isProduct && (
@@ -833,7 +833,7 @@ export default function ServiceAddPage() {
           {/* Sidebar: Ringkasan & Action */}
           <div>
             <div className="space-y-6 sticky top-32">
-              <Card>
+              <Card className="p-4">
                 <CardBody>
                   <h5 className="font-bold border-b border-white/10 pb-3 flex items-center gap-2">
                     <ClipboardCheck className="size-5" />

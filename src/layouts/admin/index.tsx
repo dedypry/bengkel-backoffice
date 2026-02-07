@@ -68,7 +68,7 @@ export default function AdminLayout({ children }: Props) {
       <div
         className={`${!isOpen ? "pl-0" : "lg:pl-[266px]"} translation-all duration-300 ease-in-out`}
       >
-        <main className="px-5 pt-1">
+        <main className="px-5 pt-1 relative">
           <Navbar
             isBordered
             className="sticky top-1 h-[50px] rounded-md border shadow-md"

@@ -143,7 +143,6 @@ export default function MasterServicePage() {
               <Card
                 key={srv.id}
                 className="group border border-gray-200 hover:border-gray-800 transition-all duration-300 overflow-visible"
-                shadow="none"
               >
                 <CardBody className="p-6">
                   {/* Category & Action Menu */}

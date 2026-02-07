@@ -122,8 +122,8 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
   };
 
   return (
-    <>
-      <Card className="shadow-sm border border-gray-200" radius="sm">
+    <div className="space-y-3">
+      <Card>
         <CardBody className="p-6">
           <div className="flex justify-between items-center mb-6">
             <SectionHeader
@@ -160,15 +160,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             </div>
           </div>
 
-          <Table
-            removeWrapper
-            aria-label="Work Items"
-            className="mt-4"
-            classNames={{
-              th: "bg-gray-500 text-white font-black text-[12px] tracking-widest uppercase rounded-none h-12",
-              td: "py-4 text-[12px] font-bold uppercase border-b border-gray-200",
-            }}
-          >
+          <Table removeWrapper aria-label="Work Items" className="mt-4">
             <TableHeader>
               <TableColumn width={80}>QTY</TableColumn>
               <TableColumn>ITEM / DESC</TableColumn>
@@ -231,7 +223,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
         </CardBody>
       </Card>
 
-      <Card className="shadow-sm border-none" radius="sm">
+      <Card>
         <CardBody className="p-6 space-y-6">
           <div className="flex flex-wrap justify-between items-center gap-4">
             <SectionHeader
@@ -296,7 +288,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
         </CardBody>
       </Card>
 
-      <Card className="shadow-sm border-none" radius="sm">
+      <Card>
         <CardBody className="p-8 space-y-6">
           <div className="space-y-2">
             <SectionHeader
@@ -342,6 +334,6 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
           )}
         </CardBody>
       </Card>
-    </>
+    </div>
   );
 }

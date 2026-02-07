@@ -46,7 +46,7 @@ export default function WorkOrderDetail() {
   if (!data) return <Detail404 />;
 
   return (
-    <div className="container mx-auto py-8 space-y-6 px-4">
+    <div className="space-y-6">
       <AddMechanich
         id={id as any}
         open={openModal}
@@ -55,10 +55,7 @@ export default function WorkOrderDetail() {
       />
 
       {/* 1. HEADER & GRAND TOTAL */}
-      <Card
-        className="border border-gray-200 shadow-sm bg-white overflow-hidden"
-        radius="sm"
-      >
+      <Card>
         <CardBody className="p-0">
           <div className="flex flex-col md:flex-row">
             <div className="flex-1 p-8 space-y-4">
@@ -93,7 +90,7 @@ export default function WorkOrderDetail() {
         {/* LEFT COLUMN: CUSTOMER & VEHICLE */}
         <div className="lg:col-span-4 space-y-6">
           {/* CUSTOMER CARD */}
-          <Card className="shadow-sm border border-gray-200" radius="sm">
+          <Card>
             <CardBody className="p-6 space-y-6">
               <SectionHeader
                 icon={<User size={18} />}
@@ -119,7 +116,7 @@ export default function WorkOrderDetail() {
           </Card>
 
           {/* VEHICLE CARD */}
-          <Card className="shadow-sm border border-gray-200">
+          <Card>
             <CardBody className="p-6  space-y-6">
               <SectionHeader icon={<Car size={18} />} title="Unit Info" />
               <div className="space-y-4">
@@ -148,7 +145,7 @@ export default function WorkOrderDetail() {
           </Card>
 
           {/* COMPLAINTS */}
-          <Card className="shadow-sm border-none bg-amber-50/30" radius="sm">
+          <Card>
             <CardBody className="p-6 space-y-4">
               <SectionHeader icon={<AlertCircle size={18} />} title="Keluhan" />
               <p className="text-xs font-bold text-gray-700 leading-relaxed uppercase">

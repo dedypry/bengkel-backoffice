@@ -40,13 +40,9 @@ export default function HistoryTab({ id }: Props) {
   return (
     <div className="space-y-4">
       {/* GRID LAYOUT FOR CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
         {(orders?.data || []).map((item) => (
-          <Card
-            key={item.id}
-            className="border border-gray-200 rounded-sm hover:border-gray-400 transition-colors bg-white"
-            shadow="none"
-          >
+          <Card key={item.id}>
             <CardBody className="p-0">
               {/* TOP: STATUS & DATE */}
               <div className="p-4 flex justify-between items-start bg-gray-50/50">
