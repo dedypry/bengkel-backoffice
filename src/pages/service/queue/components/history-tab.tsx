@@ -53,16 +53,16 @@ export default function HistoryTab({ id }: Props) {
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2 text-gray-400">
                     <Calendar size={12} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">
+                    <span className="text-[11px] font-black uppercase">
                       {dayjs(item.created_at).format("DD MMMM YYYY")}
                     </span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-gray-900 tracking-tighter">
+                  <span className="text-xs font-mono font-bold text-gray-500">
                     #{item.trx_no}
                   </span>
                 </div>
                 <Chip
-                  className="font-black text-[9px] uppercase tracking-tighter h-6"
+                  className="font-bold uppercase h-6"
                   color={item.status === "closed" ? "success" : "danger"}
                   radius="sm"
                   size="sm"
@@ -82,7 +82,7 @@ export default function HistoryTab({ id }: Props) {
                     <Car size={16} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-black text-gray-900 leading-tight">
+                    <span className="text-sm font-black text-gray-500 leading-tight">
                       {item.vehicle.plate_number}
                     </span>
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
@@ -122,7 +122,7 @@ export default function HistoryTab({ id }: Props) {
                   <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                     Total Biaya
                   </span>
-                  <span className="text-sm font-black text-gray-900 tracking-tight">
+                  <span className="text-sm font-black text-gray-500 tracking-tight">
                     {formatIDR(item.grand_total)}
                   </span>
                 </div>

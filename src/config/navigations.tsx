@@ -79,12 +79,12 @@ export const navigation = [
         icon: "Users",
         permissions: ["customer.view", "customer.manage"],
       },
-      {
-        title: "Data Mekanik",
-        href: "mechanics",
-        icon: "Wrench",
-        roles: ["super-admin", "owner"],
-      },
+      // {
+      //   title: "Data Mekanik",
+      //   href: "mechanics",
+      //   icon: "Wrench",
+      //   roles: ["super-admin", "owner"],
+      // },
       {
         title: "Daftar Jasa Servis",
         href: "services",

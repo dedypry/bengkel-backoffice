@@ -8,10 +8,11 @@ import {
   Table,
   Button,
   Tooltip,
+  Input,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
-import { Eye, FileText } from "lucide-react";
+import { Eye, FileText, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { getWo } from "@/stores/features/work-order/wo-action";
@@ -21,6 +22,7 @@ import { handleDownload } from "@/utils/helpers/global";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
 import { CustomPagination } from "@/components/custom-pagination";
+import CustomDateRangePicker from "@/components/forms/date-range-picker";
 
 interface Props {
   id: number | string;
@@ -42,7 +44,7 @@ export default function DetailServiceTab({ id }: Props) {
         hasFetched.current = false;
       }, 1000);
     }
-  }, []);
+  }, [woQuery]);
 
   const searcDebounce = debounce(
     (q) => dispatch(setWoQuery({ ...query, q })),
@@ -59,6 +61,33 @@ export default function DetailServiceTab({ id }: Props) {
 
   return (
     <div>
+      <div className="flex flex:col md:flex-row gap-4">
+        <Input
+          isClearable
+          defaultValue={woQuery.q}
+          placeholder="Cari No. Invoice, Plat kendaraan..."
+          startContent={<Search className="size-4 text-default-400" />}
+          variant="bordered"
+          onValueChange={searcDebounce}
+        />
+        <div>
+          <CustomDateRangePicker
+            value={{
+              start: woQuery.date_from,
+              end: woQuery.date_to,
+            }}
+            onChange={(val) => {
+              dispatch(
+                setWoQuery({
+                  ...query,
+                  date_from: val?.start,
+                  date_to: val?.end,
+                }),
+              );
+            }}
+          />
+        </div>
+      </div>
       <Table aria-label="History Table" shadow="none">
         <TableHeader>
           <TableColumn>TANGGAL & ID</TableColumn>
