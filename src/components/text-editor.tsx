@@ -1,7 +1,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Box, IconButton, Tooltip, Sheet } from "@mui/joy";
+import { Button, Card, CardBody, Tooltip } from "@heroui/react";
 import {
   Bold,
   Italic,
@@ -19,96 +19,107 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
   const buttons = [
     {
-      icon: <Bold size={18} />,
+      icon: <Bold size={16} />,
       action: () => editor.chain().focus().toggleBold().run(),
       active: "bold",
-      label: "Tebal",
+      label: "TEBAL",
     },
     {
-      icon: <Italic size={18} />,
+      icon: <Italic size={16} />,
       action: () => editor.chain().focus().toggleItalic().run(),
       active: "italic",
-      label: "Miring",
+      label: "MIRING",
     },
     {
-      icon: <Heading2 size={18} />,
+      icon: <Heading2 size={16} />,
       action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
       active: "heading",
-      label: "Judul",
+      label: "JUDUL",
     },
     {
-      icon: <Quote size={18} />,
+      icon: <Quote size={16} />,
       action: () => editor.chain().focus().toggleBlockquote().run(),
       active: "blockquote",
-      label: "Kutipan",
+      label: "KUTIPAN",
     },
     {
-      icon: <List size={18} />,
+      icon: <List size={16} />,
       action: () => editor.chain().focus().toggleBulletList().run(),
       active: "bulletList",
-      label: "List",
+      label: "LIST BULLET",
     },
     {
-      icon: <ListOrdered size={18} />,
+      icon: <ListOrdered size={16} />,
       action: () => editor.chain().focus().toggleOrderedList().run(),
       active: "orderedList",
-      label: "List Angka",
+      label: "LIST ANGKA",
     },
     {
-      icon: <Code size={18} />,
+      icon: <Code size={16} />,
       action: () => editor.chain().focus().toggleCodeBlock().run(),
       active: "codeBlock",
-      label: "Kode",
+      label: "KODE",
     },
   ];
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        gap: 0.5,
-        p: 1,
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        flexWrap: "wrap",
-        bgcolor: "background.level1",
-      }}
-    >
+    <div className="flex flex-wrap items-center gap-1 p-2 border-b border-gray-200 bg-gray-50/50">
       {buttons.map((btn, index) => (
-        <Tooltip key={index} title={btn.label} variant="soft">
-          <IconButton
-            color={editor.isActive(btn.active) ? "primary" : "neutral"}
+        <Tooltip
+          key={index}
+          classNames={{
+            content: "text-[9px] font-black tracking-widest uppercase",
+          }}
+          content={btn.label}
+          radius="sm"
+        >
+          <Button
+            isIconOnly
+            className={
+              editor.isActive(btn.active)
+                ? "bg-gray-900 text-white"
+                : "text-gray-500"
+            }
+            radius="sm"
             size="sm"
-            variant={editor.isActive(btn.active) ? "solid" : "plain"}
-            onClick={btn.action}
+            variant={editor.isActive(btn.active) ? "solid" : "light"}
+            onPress={btn.action}
           >
             {btn.icon}
-          </IconButton>
+          </Button>
         </Tooltip>
       ))}
 
-      <Box sx={{ ml: "auto", display: "flex", gap: 0.5 }}>
-        <IconButton
+      <div className="ml-auto flex gap-1 border-l pl-2 border-gray-200">
+        <Button
+          isIconOnly
+          radius="sm"
           size="sm"
-          onClick={() => editor.chain().focus().undo().run()}
+          variant="light"
+          onPress={() => editor.chain().focus().undo().run()}
         >
-          <Undo size={18} />
-        </IconButton>
-        <IconButton
+          <Undo size={16} />
+        </Button>
+        <Button
+          isIconOnly
+          radius="sm"
           size="sm"
-          onClick={() => editor.chain().focus().redo().run()}
+          variant="light"
+          onPress={() => editor.chain().focus().redo().run()}
         >
-          <Redo size={18} />
-        </IconButton>
-      </Box>
-    </Box>
+          <Redo size={16} />
+        </Button>
+      </div>
+    </div>
   );
 };
 
 export default function BlogEditor({
+  disabled,
   value,
   onChange,
 }: {
+  disabled?: boolean;
   value: string;
   onChange: (val: string) => void;
 }) {
@@ -116,7 +127,7 @@ export default function BlogEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: "Tuliskan isi konten Anda di sini...",
+        placeholder: "Tuliskan rincian atau rekomendasi teknis di sini...",
       }),
     ],
     content: value,
@@ -125,56 +136,49 @@ export default function BlogEditor({
     },
   });
 
+  if (disabled) {
+    return (
+      <Card>
+        <CardBody>
+          <div
+            dangerouslySetInnerHTML={{ __html: value }}
+            className="text-sm text-gray-500"
+          />
+        </CardBody>
+      </Card>
+    );
+  }
+
   return (
-    <Sheet
-      sx={{
-        borderRadius: "md",
-        overflow: "hidden",
-        "&:focus-within": {
-          ring: "2px solid",
-          borderColor: "primary.500",
-        },
-      }}
-      variant="outlined"
-    >
+    <div className="w-full border border-gray-200 rounded-sm overflow-hidden focus-within:border-gray-900 transition-colors bg-white">
       <MenuBar editor={editor} />
-      <Box
-        sx={{
-          p: 2,
-          minHeight: "400px",
-          maxHeight: "600px",
-          overflowY: "auto",
-          "& .ProseMirror": {
-            outline: "none",
-            fontSize: "1rem",
-            lineHeight: 1.6,
-            fontFamily: "body",
-          },
-          "& .ProseMirror h2": {
-            fontSize: "1.75rem",
-            fontWeight: "bold",
-            mt: 2,
-            mb: 1,
-          },
-          "& .ProseMirror blockquote": {
-            borderLeft: "4px solid",
-            borderColor: "primary.300",
-            pl: 2,
-            fontStyle: "italic",
-            my: 2,
-            color: "neutral.600",
-          },
-          "& .ProseMirror ul, & .ProseMirror ol": { pl: 3 },
-          "& .ProseMirror code": {
-            bgcolor: "neutral.softBg",
-            p: "2px 4px",
-            borderRadius: "4px",
-            fontFamily: "code",
-          },
-        }}
-      >
+      <div className="p-4 min-h-[300px] max-h-[500px] overflow-y-auto">
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+          .ProseMirror { outline: none; }
+          .ProseMirror p { margin-bottom: 1rem; font-size: 13px; font-weight: 500; color: #374151; }
+          .ProseMirror h2 { font-size: 1.25rem; font-weight: 900; text-transform: uppercase; margin-top: 1.5rem; margin-bottom: 0.75rem; letter-spacing: -0.025em; color: #111827; }
+          .ProseMirror blockquote { border-left: 4px solid #111827; padding-left: 1rem; margin: 1.5rem 0; font-weight: 700; text-transform: uppercase; font-size: 12px; color: #4b5563; }
+          .ProseMirror ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+          .ProseMirror ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+          .ProseMirror code { background-color: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 2px; font-family: monospace; font-size: 0.875rem; color: #1f2937; }
+          .ProseMirror p.is-editor-empty:first-child::before {
+            content: attr(data-placeholder);
+            float: left;
+            color: #adb5bd;
+            pointer-events: none;
+            height: 0;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+        `,
+          }}
+        />
         <EditorContent editor={editor} />
-      </Box>
-    </Sheet>
+      </div>
+    </div>
   );
 }

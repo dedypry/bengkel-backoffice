@@ -8,13 +8,14 @@ import { getCustomer, getDetailCustomer } from "./customer-action";
 export const customerSlice = createSlice({
   name: "customer",
   initialState: {
-    customers: null as IPagination<ICustomer> | null,
+    customers: null as IPagination<ICustomer> | ICustomer[] | null,
     detail: null as ICustomer | null,
     detailLoading: false,
     query: {
       page: 1,
       pageSize: 10,
       q: "",
+      status: "all",
     },
   },
   reducers: {

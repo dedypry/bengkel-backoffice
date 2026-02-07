@@ -1,18 +1,14 @@
 import {
-  Box,
+  Modal as HeroModal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Button,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  ModalClose,
-  ModalDialog,
-  Modal as ModalJoi,
-  Typography,
-} from "@mui/joy";
-import { useRef, type ReactNode } from "react";
-import { Transition } from "react-transition-group";
+} from "@heroui/react";
+import { type ReactNode } from "react";
+import { Save } from "lucide-react";
 
-// Definisi tipe untuk ukuran modal
 type ModalSize =
   | "xs"
   | "sm"
@@ -33,11 +29,12 @@ interface ModalProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   showCancel?: boolean;
-  size?: ModalSize; // Tambahkan prop size
+  size?: ModalSize;
   onSave?: () => void;
   onClose?: () => void;
   isLoading?: boolean;
   disable?: boolean;
+  scrollBehavior?: "inside" | "outside";
 }
 
 export default function Modal({
@@ -48,155 +45,99 @@ export default function Modal({
   open,
   onOpenChange,
   showCancel = true,
-  size = "md", // Default size ke md
+  size = "md",
   onSave,
   isLoading,
   disable,
   onClose,
+  scrollBehavior = "inside",
 }: ModalProps) {
-  // Mapping ukuran ke class Tailwind
-  const sizeConfig: Record<ModalSize, any> = {
-    xs: 320,
-    sm: 400,
-    md: 500,
-    lg: 600,
-    xl: 800,
-    "2xl": 1000,
-    "3xl": 1200,
-    "4xl": 1400,
-    "5xl": 1600,
-    full: "95vw",
+  // Custom close handler untuk memastikan onClose terpanggil
+  const handleClose = () => {
+    if (onOpenChange) onOpenChange(false);
+    if (onClose) onClose();
   };
-  const nodeRef = useRef(null);
 
   return (
-    <Transition in={open} nodeRef={nodeRef} timeout={400}>
-      {(state: string) => {
-        return (
-          <ModalJoi
-            ref={nodeRef}
-            keepMounted
-            open={!["exited", "exiting"].includes(state)}
-            slotProps={{
-              backdrop: {
-                sx: {
-                  opacity: 0,
-                  backdropFilter: "none",
-                  transition: `opacity 400ms, backdrop-filter 400ms`,
-                  ...{
-                    entering: { opacity: 1, backdropFilter: "blur(8px)" },
-                    entered: { opacity: 1, backdropFilter: "blur(8px)" },
-                  }[state],
-                },
-              },
-            }}
-            sx={[
-              state === "exited"
-                ? { visibility: "hidden" }
-                : { visibility: "visible" },
-              size != "full" && {
-                "& .MuiModalDialog-root": {
-                  width: "100%",
-                  maxWidth: sizeConfig[size],
-                },
-              },
-            ]}
-            onClose={() => onOpenChange!(false)}
-          >
-            <ModalDialog
-              layout={size === "full" ? "fullscreen" : "center"}
-              sx={{
-                opacity: 0,
-                transition: `opacity 300ms`,
-                ...{
-                  entering: { opacity: 1 },
-                  entered: { opacity: 1 },
-                }[state],
-              }}
-            >
-              <ModalClose />
-              <DialogTitle sx={{ mb: 2 }}>
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  <Typography color="neutral" fontSize={18} fontWeight={700}>
-                    {title}
-                  </Typography>
-                  <Typography color="neutral" fontSize={12}>
-                    {description}
-                  </Typography>
-                </Box>
-              </DialogTitle>
-              <DialogContent>{children}</DialogContent>
-
-              <DialogActions>
-                {footer ? (
-                  footer
-                ) : (
-                  <>
-                    <Box sx={{ gap: 2, display: "flex" }}>
-                      {showCancel && (
-                        <Button
-                          color="neutral"
-                          disabled={isLoading}
-                          variant="outlined"
-                          onClick={() => {
-                            onOpenChange!(false);
-                            onClose!();
-                          }}
-                        >
-                          Batal
-                        </Button>
-                      )}
-
-                      <Button disabled={isLoading || disable} onClick={onSave}>
-                        Simpan
-                      </Button>
-                    </Box>
-                  </>
-                )}
-              </DialogActions>
-            </ModalDialog>
-          </ModalJoi>
-        );
+    <HeroModal
+      backdrop="blur"
+      classNames={{
+        base: "rounded-[2.5rem] border border-gray-100 shadow-2xl",
+        header: "border-b border-gray-50 px-8 py-6",
+        body: "p-8",
+        footer: "border-t border-gray-50 px-8 py-4 bg-gray-50/50",
+        closeButton:
+          "hover:bg-gray-100 active:scale-95 transition-transform top-6 right-6",
       }}
-    </Transition>
+      isOpen={open}
+      motionProps={{
+        variants: {
+          enter: {
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.3, ease: "easeOut" },
+          },
+          exit: {
+            y: 20,
+            opacity: 0,
+            transition: { duration: 0.2, ease: "easeIn" },
+          },
+        },
+      }}
+      scrollBehavior={scrollBehavior}
+      size={size}
+      onClose={onClose}
+      onOpenChange={onOpenChange}
+    >
+      <ModalContent>
+        {() => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+              <h3 className="text-xl font-black uppercase italic tracking-tighter text-gray-800 leading-none">
+                {title}
+              </h3>
+              {description && (
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                  {description}
+                </p>
+              )}
+            </ModalHeader>
+
+            <ModalBody>
+              <div className="py-2">{children}</div>
+            </ModalBody>
+
+            <ModalFooter>
+              {footer ? (
+                footer
+              ) : (
+                <div className="flex gap-3 w-full sm:w-auto">
+                  {showCancel && (
+                    <Button
+                      className="font-black uppercase italic text-xs tracking-widest h-12 px-8 rounded-2xl"
+                      isDisabled={isLoading}
+                      variant="flat"
+                      onPress={handleClose}
+                    >
+                      Batal
+                    </Button>
+                  )}
+                  <Button
+                    className="bg-gray-900 text-white font-black uppercase italic text-xs tracking-widest h-12 px-8 rounded-2xl shadow-lg shadow-gray-200"
+                    color="primary"
+                    isDisabled={disable}
+                    isLoading={isLoading}
+                    startContent={!isLoading && <Save size={18} />}
+                    onPress={onSave}
+                  >
+                    Simpan Perubahan
+                  </Button>
+                </div>
+              )}
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </HeroModal>
   );
-
-  // return (
-  //   <Dialog open={open} onOpenChange={onOpenChange}>
-  //     {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-
-  //     <DialogContent
-  //       className={cn(
-  //         sizeClasses[size],
-  //         "max-h-[calc(100vh-10px)] overflow-y-auto scrollbar-modern",
-  //       )}
-  //     >
-  //       <DialogHeader>
-  //         <DialogTitle>{title}</DialogTitle>
-  //         {description && <DialogDescription>{description}</DialogDescription>}
-  //       </DialogHeader>
-
-  //       <div className="py-4">{children}</div>
-
-  //       <DialogFooter>
-  //         {footer ? (
-  //           footer
-  //         ) : (
-  //           <>
-  //             {showCancel && (
-  //               <DialogClose asChild>
-  //                 <Button disabled={isLoading} type="button" variant="outline">
-  //                   Batal
-  //                 </Button>
-  //               </DialogClose>
-  //             )}
-  //             <Button disabled={isLoading} onClick={onSave}>
-  //               {isLoading ? "Menyimpan..." : "Simpan"}
-  //             </Button>
-  //           </>
-  //         )}
-  //       </DialogFooter>
-  //     </DialogContent>
-  //   </Dialog>
-  // );
 }

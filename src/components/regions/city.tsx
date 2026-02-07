@@ -1,6 +1,5 @@
-import { useEffect } from "react";
-
-import Combobox from "../ui/combobox";
+import { useEffect, useMemo, forwardRef } from "react";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getCity } from "@/stores/features/region/region-action";
@@ -10,26 +9,66 @@ interface Props {
   value: number | string | undefined;
   onChange: (val: number) => void;
 }
-export default function City({ value, onChange }: Props) {
-  const { province_id, cities } = useAppSelector((state) => state.region);
 
-  const dispatch = useAppDispatch();
+// Membungkus dengan forwardRef untuk menangani ref dari React Hook Form
+const City = forwardRef<HTMLInputElement, Props & any>(
+  ({ value, onChange, ...props }, ref) => {
+    const { province_id, cities } = useAppSelector((state) => state.region);
+    const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (province_id) {
-      dispatch(getCity(province_id!));
-    }
-  }, [province_id]);
+    useEffect(() => {
+      if (province_id) {
+        dispatch(getCity(province_id));
+      }
+    }, [province_id, dispatch]);
 
-  return (
-    <Combobox
-      items={cities.map((e) => ({ label: e.name, value: e.id }))}
-      placeholder="Pilih Kota"
-      value={value}
-      onChange={(val) => {
+    const mappedCities = useMemo(
+      () =>
+        cities.map((city) => ({
+          id: city.id,
+          name: city.name,
+        })),
+      [cities],
+    );
+
+    const handleSelectionChange = (key: React.Key | null) => {
+      if (key) {
+        const val = Number(key);
+
         onChange(val);
         dispatch(setCityId(val));
-      }}
-    />
-  );
-}
+      }
+    };
+
+    return (
+      <Autocomplete
+        ref={ref}
+        allowsCustomValue={false}
+        isDisabled={!province_id || cities.length === 0}
+        label="Kota/Kabupaten"
+        labelPlacement="outside"
+        placeholder={province_id ? "CARI KOTA..." : "PILIH PROVINSI DAHULU"}
+        radius="sm"
+        selectedKey={value?.toString()}
+        showScrollIndicators={true}
+        variant="bordered"
+        onSelectionChange={handleSelectionChange}
+        {...props}
+      >
+        {mappedCities.map((city) => (
+          <AutocompleteItem
+            key={city.id.toString()}
+            className="capitalize font-bold text-gray-700"
+            textValue={city.name}
+          >
+            {city.name}
+          </AutocompleteItem>
+        ))}
+      </Autocomplete>
+    );
+  },
+);
+
+City.displayName = "City";
+
+export default City;

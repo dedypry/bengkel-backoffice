@@ -1,14 +1,12 @@
 import { Edit, Eye, MoreVertical, Trash2 } from "lucide-react";
-
-import { Button } from "./ui/button";
 import {
+  Dropdown,
+  DropdownTrigger,
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+  DropdownItem,
+  Button,
+  DropdownSection,
+} from "@heroui/react";
 
 import { confirmSweat } from "@/utils/helpers/notify";
 
@@ -29,54 +27,63 @@ export default function TableAction({
   viewDetail = true,
   viewHeader,
   titleHeader,
-  isDeleteSeparator = true,
 }: Props) {
   return (
-    <>
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className="rounded-full hover:bg-white hover:shadow-md text-slate-400 hover:text-blue-600 data-[state=open]:bg-white data-[state=open]:shadow-sm"
-            size="icon"
-            variant="ghost"
-          >
-            <MoreVertical size={20} />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40">
-          {viewHeader && (
-            <>
-              <DropdownMenuLabel>{titleHeader || "Aksi"}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-            </>
-          )}
+    <Dropdown backdrop="transparent" placement="bottom-end">
+      <DropdownTrigger>
+        <Button
+          isIconOnly
+          className="text-gray-400 hover:text-gray-900 transition-colors"
+          radius="full"
+          variant="light"
+        >
+          <MoreVertical size={20} />
+        </Button>
+      </DropdownTrigger>
 
-          {viewDetail && (
-            <DropdownMenuItem onClick={onDetail}>
-              <Eye className="mr-2 h-4 w-4" />
+      <DropdownMenu
+        aria-label="Aksi Tabel"
+        disabledKeys={onDelete ? [] : ["delete"]}
+        variant="flat"
+      >
+        <DropdownSection
+          showDivider={viewHeader}
+          title={viewHeader ? titleHeader || "Aksi" : undefined}
+        >
+          {viewDetail ? (
+            <DropdownItem
+              key="detail"
+              startContent={<Eye className="text-gray-500" size={18} />}
+              onPress={onDetail}
+            >
               Lihat Detail
-            </DropdownMenuItem>
+            </DropdownItem>
+          ) : (
+            <DropdownItem key="spacer-detail" className="hidden" />
           )}
 
-          <DropdownMenuItem onClick={onEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Data
-          </DropdownMenuItem>
-          {isDeleteSeparator && <DropdownMenuSeparator />}
-
-          {/* Gunakan onSelect dan preventDefault agar dropdown tidak menutup dialog */}
-          <DropdownMenuItem
-            className="text-red-600 focus:text-red-600 focus:bg-red-50"
-            onSelect={(e) => {
-              e.preventDefault();
-              confirmSweat(onDelete!);
-            }}
+          <DropdownItem
+            key="edit"
+            startContent={<Edit className="text-gray-500" size={18} />}
+            onPress={onEdit}
           >
-            <Trash2 className="mr-2 h-4 w-4" />
+            Edit Data
+          </DropdownItem>
+        </DropdownSection>
+
+        <DropdownSection showDivider={false}>
+          <DropdownItem
+            key="delete"
+            className="text-danger"
+            color="danger"
+            description="Tindakan ini tidak dapat dibatalkan"
+            startContent={<Trash2 size={18} />}
+            onPress={() => confirmSweat(onDelete!)}
+          >
             Hapus
-          </DropdownMenuItem>
-        </DropdownMenuContent>
+          </DropdownItem>
+        </DropdownSection>
       </DropdownMenu>
-    </>
+    </Dropdown>
   );
 }

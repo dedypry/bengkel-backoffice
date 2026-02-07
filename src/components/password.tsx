@@ -1,20 +1,33 @@
-import { IconButton, Input, type InputProps } from "@mui/joy";
-import { Eye, EyeClosed } from "lucide-react";
+import { Input, type InputProps } from "@heroui/react";
+import { Eye, EyeOff } from "lucide-react"; // EyeOff lebih standar untuk Lucide
 import { useState } from "react";
 
 export default function Password({ ...props }: InputProps) {
-  const [isPassword, setPassword] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const toggleVisibility = () => setIsVisible(!isVisible);
 
   return (
     <Input
-      endDecorator={
-        <IconButton onClick={() => setPassword(!isPassword)}>
-          {isPassword ? <EyeClosed /> : <Eye />}
-        </IconButton>
-      }
+      labelPlacement="outside"
       placeholder="****"
-      type={isPassword ? "password" : "text"}
-      {...props}
+      variant="bordered"
+      {...props} // Pastikan props dari react-hook-form masuk ke sini
+      endContent={
+        <button
+          aria-label="toggle password visibility"
+          className="focus:outline-none"
+          type="button"
+          onClick={toggleVisibility}
+        >
+          {isVisible ? (
+            <EyeOff className="text-2xl text-gray-400 cursor-pointer" />
+          ) : (
+            <Eye className="text-2xl text-gray-400 cursor-pointer" />
+          )}
+        </button>
+      }
+      type={isVisible ? "text" : "password"}
     />
   );
 }

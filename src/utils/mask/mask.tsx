@@ -30,22 +30,32 @@ export const NpwpMask = React.forwardRef<HTMLInputElement, CustomProps>(
 );
 
 export const PhoneMask = React.forwardRef<HTMLInputElement, any>(
-  function PhoneMaskAdapter(props, ref) {
-    const { onChange, ...other } = props;
+  function PhoneMask(props, ref) {
+    const { onChange, onValueChange, name, value, ...other } = props;
 
     return (
       <IMaskInput
         {...other}
-        overwrite
-        definitions={{
-          "0": /[0-9]/,
-        }}
+        inputMode="numeric"
         inputRef={ref}
-        mask="0000-0000-00000"
-        onAccept={(value: any) => {
-          onChange({
-            target: { name: props.name, value: value?.replace(/\D/g, "") },
-          });
+        mask="0000-0000-0000[0]"
+        value={value ?? ""}
+        onAccept={(val) => {
+          const clean = val.replace(/\D/g, "");
+
+          // React Hook Form
+          if (typeof onChange === "function") {
+            onChange({
+              target: { name, value: clean },
+            });
+
+            return;
+          }
+
+          // HeroUI controlled input
+          if (typeof onValueChange === "function") {
+            onValueChange(clean);
+          }
         }}
       />
     );

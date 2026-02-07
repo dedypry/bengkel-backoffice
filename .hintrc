@@ -3,22 +3,9 @@
     "development"
   ],
   "hints": {
-    "typescript-config/consistent-casing": "off",
-    "typescript-config/strict": "off",
-    "no-inline-styles": "off",
-    "axe/forms": [
-      "default",
-      {
-        "select-name": "off"
-      }
-    ],
+    "axe/structure": "off",
+    "axe/forms": "off",
     "axe/name-role-value": "off",
-    "button-type": "off",
-    "axe/aria": [
-      "default",
-      {
-        "empty-table-header": "off"
-      }
-    ]
+    "no-inline-styles": "off"
   }
 }

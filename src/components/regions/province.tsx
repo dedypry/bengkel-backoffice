@@ -1,33 +1,85 @@
-import { useEffect } from "react";
-
-import Combobox from "../ui/combobox";
+import { useEffect, useMemo, useRef, forwardRef } from "react";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getProvince } from "@/stores/features/region/region-action";
-import { setProvinceId } from "@/stores/features/region/region-slice";
+import {
+  setProvinceId,
+  setCityId,
+} from "@/stores/features/region/region-slice";
 
 interface Props {
   value: number | string | undefined;
   onChange: (val: number) => void;
 }
-export default function Province({ value, onChange }: Props) {
-  const { provinces } = useAppSelector((state) => state.region);
 
-  const dispatch = useAppDispatch();
+const Province = forwardRef<HTMLInputElement, Props & any>(
+  ({ value, onChange, ...props }, ref) => {
+    const { provinces } = useAppSelector((state) => state.region);
+    const dispatch = useAppDispatch();
+    const hasFetched = useRef(false);
 
-  useEffect(() => {
-    dispatch(getProvince());
-  }, []);
+    useEffect(() => {
+      if (provinces.length === 0 && !hasFetched.current) {
+        hasFetched.current = true;
+        dispatch(getProvince());
 
-  return (
-    <Combobox
-      items={provinces.map((e) => ({ label: e.name, value: e.id }))}
-      placeholder="Pilih Provinsi"
-      value={value}
-      onChange={(val) => {
+        const timer = setTimeout(() => {
+          hasFetched.current = false;
+        }, 1000);
+
+        return () => clearTimeout(timer);
+      }
+    }, [dispatch, provinces.length]);
+
+    const mappedProvinces = useMemo(
+      () =>
+        provinces.map((p) => ({
+          id: p.id,
+          name: p.name,
+        })),
+      [provinces],
+    );
+
+    const handleSelectionChange = (key: React.Key | null) => {
+      if (key) {
+        const val = Number(key);
+
         onChange(val);
         dispatch(setProvinceId(val));
-      }}
-    />
-  );
-}
+
+        // Reset CityId di Redux agar dropdown Kota ikut ter-reset secara sistem
+        dispatch(setCityId(null));
+      }
+    };
+
+    return (
+      <Autocomplete
+        ref={ref}
+        isClearable={false}
+        label="Provinsi"
+        labelPlacement="outside"
+        placeholder="CARI PROVINSI..."
+        radius="sm"
+        selectedKey={value?.toString()}
+        variant="bordered"
+        onSelectionChange={handleSelectionChange}
+        {...props}
+      >
+        {mappedProvinces.map((prov) => (
+          <AutocompleteItem
+            key={prov.id.toString()}
+            className="capitalize font-bold text-gray-700"
+            textValue={prov.name}
+          >
+            {prov.name}
+          </AutocompleteItem>
+        ))}
+      </Autocomplete>
+    );
+  },
+);
+
+Province.displayName = "Province";
+
+export default Province;

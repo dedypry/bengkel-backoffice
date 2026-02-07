@@ -7,6 +7,7 @@ import { http } from "@/utils/libs/axios";
 interface CustomerQuery extends IQuery {
   noStats?: boolean;
   isVehicle?: boolean;
+  noPagination?: boolean;
 }
 export const getCustomer = createAsyncThunk(
   "get-customer",

@@ -24,6 +24,8 @@ const woSlice = createSlice({
       pageSize: 10,
       q: "",
       status: "all",
+      date_from: new Date().toISOString(),
+      date_to: new Date().toISOString(),
     },
     services: [] as IWo[],
     sparepart: [] as ISparepart[],

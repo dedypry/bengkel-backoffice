@@ -1,7 +1,5 @@
 import { Upload } from "lucide-react";
-
-import { Avatar, AvatarImage } from "./ui/avatar";
-import { Input } from "./ui/input";
+import { Avatar, Button } from "@heroui/react";
 
 import { getAvatarByName } from "@/utils/helpers/global";
 
@@ -12,12 +10,14 @@ interface Props {
   buttonTitle?: string;
   isInvalid?: boolean;
 }
+
 export default function UploadAvatar({
   value,
   onChange,
   buttonTitle,
   isInvalid,
 }: Props) {
+  // Logic preview tetap sama
   const photoPreview =
     value && typeof value === "string"
       ? value
@@ -27,30 +27,50 @@ export default function UploadAvatar({
 
   return (
     <div
-      className={`flex flex-col items-center gap-4 p-6 border-2 border-dashed ${isInvalid ? "border-red-200 bg-red-50/50" : "border-slate-200 bg-slate-50/50"} rounded-2xl `}
+      className={`flex flex-col items-center gap-4 p-6 border-2 border-dashed transition-colors rounded-2xl ${
+        isInvalid
+          ? "border-danger bg-danger-50/20"
+          : "border-default-200 bg-default-50/50 hover:border-primary-300"
+      }`}
     >
-      <Avatar className="size-24 border-4 border-white shadow-lg">
-        <AvatarImage src={photoPreview} />
-      </Avatar>
-      <label
-        className="flex gap-2 bg-primary py-1 px-4 rounded-md text-white items-center cursor-pointer"
-        htmlFor="avatar-upload"
-      >
-        <Upload size={18} />
-        <span className="text-sm">{buttonTitle ?? "Upload Foto"}</span>
-      </label>
-      <Input
-        accept="image/*"
-        className="hidden"
-        id="avatar-upload"
-        type="file"
-        onChange={(e) => onChange(e.target.files?.[0])}
+      {/* Avatar HeroUI dengan shadow dan border putih */}
+      <Avatar
+        isBordered
+        className="w-24 h-24 text-large shadow-md bg-white"
+        color={isInvalid ? "danger" : "primary"}
+        src={photoPreview}
       />
-      <p
-        className={`text-xs ${isInvalid ? "text-red-500" : "text-slate-500"} mt-2`}
-      >
-        Format: JPG, PNG. Maksimal 5MB.
-      </p>
+
+      <div className="flex flex-col items-center gap-2">
+        {/* Menggunakan Button HeroUI sebagai label trigger */}
+        <Button
+          as="label"
+          className="cursor-pointer"
+          color={isInvalid ? "danger" : "primary"}
+          htmlFor="avatar-upload"
+          radius="full"
+          size="sm"
+          startContent={<Upload size={18} />}
+          variant="flat"
+        >
+          {buttonTitle ?? "Upload Foto"}
+          <input
+            accept="image/*"
+            className="hidden"
+            id="avatar-upload"
+            type="file"
+            onChange={(e) => onChange(e.target.files?.[0])}
+          />
+        </Button>
+
+        <p
+          className={`text-tiny text-center ${
+            isInvalid ? "text-danger" : "text-default-500"
+          }`}
+        >
+          Format: JPG, PNG. Maksimal 5MB.
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,102 +1,121 @@
 import type { ICustomer } from "@/utils/interfaces/IUser";
 
-import {
-  Autocomplete,
-  AutocompleteOption,
-  createFilterOptions,
-  ListItemContent,
-  ListItemDecorator,
-  Typography,
-} from "@mui/joy";
-import { Search, User2 } from "lucide-react";
+import { Autocomplete, AutocompleteItem, Avatar } from "@heroui/react";
+import { Users } from "lucide-react";
+import { useEffect, useRef } from "react";
 
-import { useAppSelector } from "@/stores/hooks";
-import { getAvatarByName } from "@/utils/helpers/global";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getCustomer } from "@/stores/features/customer/customer-action";
 
 interface Props {
   value: any;
-  onChange: (val: ICustomer) => void;
+  onChange: (val: ICustomer | any) => void;
   placeholder?: string;
 }
-
-const filter = createFilterOptions<any>();
 
 export default function CustomerSearch({
   value,
   onChange,
   placeholder,
 }: Props) {
-  const { customers } = useAppSelector((state) => state.customer);
+  const { customers: custom } = useAppSelector((state) => state.customer);
+  const { company } = useAppSelector((state) => state.auth);
+  const customers = (custom || []) as ICustomer[];
+  const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
-  const getSelectedValue = () =>
-    customers?.data.find((item) => item.id === value) || {
-      name: value,
-    };
+  useEffect(() => {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(
+        getCustomer({
+          noStats: true,
+          noPagination: true,
+          isVehicle: true,
+        }),
+      );
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
+  }, [company]);
+
+  const handleSelectionChange = (key: string | number | null) => {
+    if (!key) return;
+
+    const selected = customers.find(
+      (item) => item.id.toString() === key.toString(),
+    );
+
+    if (selected) {
+      onChange(selected);
+    }
+  };
+
+  const handleInputChange = (val: string) => {
+    // if (
+    //   val &&
+    //   !customers.some((c) => c.name.toLowerCase() === val.toLowerCase())
+    // ) {
+    // }
+    const find = customers.find(
+      (e) => e.name.toLowerCase() === val.toLowerCase(),
+    );
+
+    onChange(find ? find : { name: val, isNew: true });
+
+    // if (!val) {
+    //   onChange({ name: "", isNew: false });
+    // }
+  };
 
   return (
     <Autocomplete
-      disableClearable
-      freeSolo
-      endDecorator={<Search />}
-      filterOptions={(options, params) => {
-        const filtered = filter(options, params);
-
-        const { inputValue } = params;
-        // Jika input tidak kosong dan tidak ada di list, tampilkan opsi "Add"
-        const isExisting = options.some((option) => inputValue === option.name);
-
-        if (inputValue !== "" && !isExisting) {
-          filtered.push({
-            name: inputValue,
-            label: `Tambah "${inputValue}"`,
-            isNew: true, // Flag untuk menandai ini data baru
-          });
-        }
-
-        return filtered;
+      allowsCustomValue
+      className="max-w-full"
+      defaultItems={customers || []}
+      inputValue={typeof value === "string" ? value : value?.name || ""}
+      label="Nama Pelanggan"
+      labelPlacement="outside"
+      listboxProps={{
+        emptyContent:
+          "Pelanggan tidak ditemukan, tekan Enter untuk tambah baru.",
       }}
-      getOptionLabel={(option: any) => {
-        if (typeof option === "string") return option;
-        if (option.isNew) return option.name;
-
-        return option.name || "";
+      placeholder={placeholder || "Cari nama pelanggan..."}
+      scrollShadowProps={{
+        isEnabled: false,
       }}
-      options={customers?.data || []}
-      placeholder={placeholder}
-      renderOption={(props, option: any) => {
-        return (
-          <AutocompleteOption {...props} key={option.id}>
-            {!option.isNew && (
-              <ListItemDecorator>
-                <img
-                  alt=""
-                  loading="lazy"
-                  src={
-                    option.profile?.photo_url || getAvatarByName(option.name)
-                  }
-                  width="20"
-                />
-              </ListItemDecorator>
-            )}
-
-            <ListItemContent sx={{ fontSize: "sm" }}>
-              {option.isNew ? option.label : option.name}
-              <Typography level="body-xs">{option.phone}</Typography>
-            </ListItemContent>
-          </AutocompleteOption>
-        );
-      }}
-      slotProps={{
-        input: {
-          autoComplete: "new-password", // disable autocomplete and autofill
-        },
-      }}
-      startDecorator={<User2 />}
-      type="search"
-      value={getSelectedValue()}
-      onChange={(_, val) => {
-        onChange(val as any);
-      }}
-    />
+      startContent={<Users />}
+      variant="bordered"
+      onInputChange={handleInputChange}
+      onSelectionChange={(key) => handleSelectionChange(key as string)}
+    >
+      {(item) => (
+        <AutocompleteItem
+          key={item.id}
+          className="capitalize"
+          textValue={item.name}
+        >
+          <div className="flex gap-3 items-center">
+            <Avatar
+              alt={item.name}
+              className="flex-shrink-0"
+              size="sm"
+              src={
+                item.profile?.photo_url ||
+                `https://ui-avatars.com/api/?name=${item.name}&background=random`
+              }
+            />
+            <div className="flex flex-col">
+              <span className="text-small font-bold">{item.name}</span>
+              <span className="text-tiny text-gray-500">
+                {item.phone || "Tidak ada nomor"}
+              </span>
+            </div>
+          </div>
+        </AutocompleteItem>
+      )}
+    </Autocomplete>
   );
 }

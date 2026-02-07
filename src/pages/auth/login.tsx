@@ -1,27 +1,28 @@
+/* eslint-disable import/order */
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  Input,
-  Link,
-  Typography,
-} from "@mui/joy";
 import { Lock, Mail } from "lucide-react";
-import { useState } from "react";
+
+// Import HeroUI Components
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Input,
+  Button,
+  Divider,
+  Link,
+} from "@heroui/react";
 
 import { http } from "@/utils/libs/axios";
 import GuestGuard from "@/utils/guard/guest-guard";
-import Password from "@/components/password";
 import { notifyError } from "@/utils/helpers/notify";
+import Password from "@/components/password";
 
 const formSchema = z.object({
   email: z
@@ -32,9 +33,10 @@ const formSchema = z.object({
     .min(1, { message: "Password wajib diisi." }),
 });
 
-export default function Login() {
+export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
   const {
     control,
     handleSubmit,
@@ -43,8 +45,8 @@ export default function Login() {
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
-      // email: "admin@bengkel.com",
-      // password: "password123",
+      email: "",
+      password: "",
     },
   });
 
@@ -53,7 +55,6 @@ export default function Login() {
     http
       .post("/auth/login", values)
       .then(({ data }) => {
-        console.log("DATA", data);
         Cookies.set("token", data.access_token, {
           expires: 1,
           path: "/",
@@ -67,68 +68,84 @@ export default function Login() {
 
   return (
     <GuestGuard>
-      <form className="w-full max-w-sm" onSubmit={handleSubmit(onSubmit)}>
-        <Card className="w-full">
-          <CardContent>
-            <Typography fontSize={18} fontWeight={700}>
-              Masuk ke Akun
-            </Typography>
-            <Typography fontSize={12}>
-              Masukkan email dan kata sandi Anda untuk mengakses panel admin
-              bengkel.
-            </Typography>
-          </CardContent>
-          <CardContent sx={{ gap: 3, mt: 2 }}>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field }) => (
-                <FormControl error={!!errors.email}>
-                  <FormLabel>Email</FormLabel>
+      <div className="flex items-center justify-center px-4">
+        <form className="w-full max-w-sm" onSubmit={handleSubmit(onSubmit)}>
+          <Card className="p-2">
+            <CardHeader className="flex flex-col items-start gap-1">
+              <h1 className="text-xl font-bold">Masuk ke Akun</h1>
+              <p className="text-gray-500 text-small">
+                Masukkan email dan kata sandi Anda untuk mengakses panel admin
+                bengkel.
+              </p>
+            </CardHeader>
+
+            <CardBody className="flex flex-col gap-4">
+              <Controller
+                control={control}
+                name="email"
+                render={({ field }) => (
                   <Input
-                    placeholder="contoh@bengkel.com"
-                    startDecorator={<Mail />}
                     {...field}
+                    errorMessage={errors.email?.message}
+                    isInvalid={!!errors.email}
+                    label="Email"
+                    labelPlacement="outside"
+                    placeholder="contoh@bengkel.com"
+                    startContent={<Mail className="text-gray-400" size={18} />}
+                    type="email"
+                    variant="bordered"
                   />
-                  <FormHelperText>{errors.email?.message}</FormHelperText>
-                </FormControl>
-              )}
-            />
-            <Controller
-              control={control}
-              name="password"
-              render={({ field }) => (
-                <FormControl error={!!errors.password}>
-                  <FormLabel className="flex justify-between w-full">
-                    <span>Kata Sandi</span>
-                    <Link>Lupa kata sandi?</Link>
-                  </FormLabel>
-                  <Password {...field} startDecorator={<Lock />} />
-                  <FormHelperText>{errors.password?.message}</FormHelperText>
-                </FormControl>
-              )}
-            />
-          </CardContent>
-          <CardActions sx={{ flexDirection: "column" }}>
-            <Button fullWidth disabled={loading} type="submit">
-              {loading ? "Sedang Masuk..." : "Masuk"}
-            </Button>
-            <div className="relative w-full my-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="password"
+                render={({ field }) => (
+                  <Password
+                    {...field}
+                    errorMessage={errors.password?.message}
+                    isInvalid={!!errors.password}
+                    label="Kata Sandi"
+                    startContent={<Lock className="text-gray-400" size={18} />}
+                  />
+                )}
+              />
+              <Link className="text-xs flex justify-end cursor-pointer">
+                Lupa Kata sandi ?
+              </Link>
+            </CardBody>
+
+            <CardFooter className="flex flex-col gap-3">
+              <Button
+                fullWidth
+                color="primary"
+                isLoading={loading}
+                type="submit"
+              >
+                Masuk
+              </Button>
+
+              <div className="relative flex items-center w-full py-2">
+                <Divider className="flex-grow" />
+                <span className="mx-2 text-xs text-default-400 uppercase">
                   Atau
                 </span>
+                <Divider className="flex-grow" />
               </div>
-            </div>
-            <Button fullWidth type="button" variant="outlined">
-              Masuk dengan Google
-            </Button>
-          </CardActions>
-        </Card>
-      </form>
+
+              <Button
+                fullWidth
+                startContent={<img alt="google" src="/google.png" width={16} />}
+                type="button"
+                variant="flat"
+              >
+                Masuk dengan Google
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </div>
     </GuestGuard>
   );
 }

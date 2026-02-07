@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import Dropzone from "react-dropzone";
 import { UploadCloud, X, Plus } from "lucide-react";
 
@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface FileUploaderProps {
   value?: any[];
-  onFileSelect: (files: File[]) => void;
+  onFileSelect: (files: any[]) => void;
   accept?: Record<string, string[]>;
   maxFiles?: number;
   maxSize?: number;
@@ -26,16 +26,7 @@ export default function FileUploader({
   label = "",
   placeholder = "Unggah berkas Anda di sini",
 }: FileUploaderProps) {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const safeValue = Array.isArray(value) ? value : [];
-
-  useEffect(() => {
-    const files = safeValue.filter((v) => v instanceof File) as File[];
-
-    if (files.length !== selectedFiles.length) {
-      setSelectedFiles(files);
-    }
-  }, [safeValue]);
 
   const previews = safeValue.map((e) => {
     if (!e) return null;
@@ -74,24 +65,21 @@ export default function FileUploader({
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      // Menghitung sisa slot yang tersedia
       const availableSlots = maxFiles - value.length;
       const filesToAdd = acceptedFiles.slice(0, availableSlots);
 
       if (filesToAdd.length === 0) return;
 
-      const newFiles = [...selectedFiles, ...filesToAdd];
+      const newFiles = [...safeValue, ...filesToAdd];
 
-      setSelectedFiles(newFiles);
       onFileSelect(newFiles);
     },
-    [onFileSelect, selectedFiles, maxFiles],
+    [maxFiles, safeValue, onFileSelect],
   );
 
   const removeFile = (index: number) => {
-    const newFiles = selectedFiles.filter((_, i) => i !== index);
+    const newFiles = safeValue.filter((_, i) => i !== index);
 
-    setSelectedFiles(newFiles);
     onFileSelect(newFiles);
   };
 
@@ -101,7 +89,9 @@ export default function FileUploader({
       <div
         className={cn(
           "grid grid-cols-2 md:grid-cols-4 gap-4  p-2 items-center",
-          selectedFiles.length > 0 ? "border-2 border-dashed rounded-xl" : "",
+          previews.length > 0
+            ? "border border-gray-300 border-dashed rounded-sm"
+            : "",
           "transition-all",
         )}
       >
@@ -109,7 +99,7 @@ export default function FileUploader({
         {previews?.map((file, index) => (
           <div
             key={index}
-            className="relative group aspect-square rounded-xl overflow-hidden border bg-slate-50"
+            className="relative group aspect-square rounded-sm overflow-hidden border border-gray-200 hover:border-primary bg-slate-50"
           >
             {file ? (
               <img

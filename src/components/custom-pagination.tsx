@@ -1,15 +1,7 @@
 import type { IMeta } from "@/utils/interfaces/IPagination";
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { cn } from "@/lib/utils";
+import { Pagination } from "@heroui/react";
+
 interface Props {
   meta: IMeta;
   onPageChange: (page: number) => void;
@@ -26,115 +18,58 @@ export function CustomPagination({
   className,
 }: Props) {
   if (!meta) return null;
-  // Hitung total halaman (Misal: total 100 / pageSize 10 = 10 halaman)
-  const total = Number(meta.total) || 0;
+  if (meta.total === 0) return null;
+
+  // Hitung total halaman
+  const totalItems = Number(meta.total) || 0;
   const pageSize = Number(meta.pageSize) || 10;
-  const totalPage = Math.ceil(total / pageSize);
+  const totalPage = Math.ceil(totalItems / pageSize);
 
-  // Objection.js biasanya pakai index 0, kita konversi ke index 1 untuk UI
+  // Pastikan currentPage adalah index 1 untuk HeroUI
   const currentPage = meta.page;
-
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-
-    if (totalPage <= 5) {
-      for (let i = 1; i <= totalPage; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (currentPage > 3) pages.push("ellipsis");
-
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPage - 1, currentPage + 1);
-
-      for (let i = start; i <= end; i++) pages.push(i);
-
-      if (currentPage < totalPage - 2) pages.push("ellipsis");
-      pages.push(totalPage);
-    }
-
-    return pages;
-  };
-
-  const handleNavigation = (page: number) => {
-    onPageChange(page);
-  };
 
   return (
     <div
-      className={cn(
-        "flex items-center justify-between px-2 py-4 flex-1",
-        className,
-      )}
+      className={`flex flex-col sm:flex-row items-center justify-between gap-4 px-2 py-4 ${className}`}
     >
-      {showDesc && (
-        <p className="text-sm text-muted-foreground">
-          Menampilkan <span className="font-medium">{meta.from}</span> sampai{" "}
-          <span className="font-medium">
-            {Math.min(
-              (meta.page + 1) * meta.pageSize - meta.pageSize,
-              meta.total,
-            )}
-          </span>{" "}
-          dari <span className="font-medium">{meta.total}</span> data
-        </p>
-      )}
-      {showTotal && (
-        <p className="text-sm text-muted-foreground">Total {meta.total}</p>
-      )}
+      {/* Bagian Deskripsi */}
+      <div className="flex flex-col gap-1">
+        {showDesc && (
+          <p className="text-tiny sm:text-small font-semibold text-gray-500">
+            Total Data {meta.total}
+            {/* Menampilkan{" "}
+            <span className="font-bold text-default-700">{meta.from}</span>{" "}
+            sampai{" "}
+            <span className="font-bold text-default-700">
+              {Math.min(currentPage * pageSize, totalItems)}
+            </span>{" "}
+            dari{" "}
+            <span className="font-bold text-default-700">{totalItems}</span>{" "}
+            data */}
+          </p>
+        )}
+        {showTotal && !showDesc && (
+          <p className="text-small text-default-500">Total {totalItems} data</p>
+        )}
+      </div>
 
-      <Pagination className="w-auto mx-0">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              className={
-                currentPage === 1
-                  ? "pointer-events-none opacity-50"
-                  : "cursor-pointer"
-              }
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage > 1) handleNavigation(currentPage - 1);
-              }}
-            />
-          </PaginationItem>
-
-          {getPageNumbers().map((page, index) => (
-            <PaginationItem key={index}>
-              {page === "ellipsis" ? (
-                <PaginationEllipsis />
-              ) : (
-                <PaginationLink
-                  className="cursor-pointer"
-                  href="#"
-                  isActive={currentPage === page}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigation(page as number);
-                  }}
-                >
-                  {page}
-                </PaginationLink>
-              )}
-            </PaginationItem>
-          ))}
-
-          <PaginationItem>
-            <PaginationNext
-              className={
-                currentPage === totalPage
-                  ? "pointer-events-none opacity-50"
-                  : "cursor-pointer"
-              }
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage < totalPage) handleNavigation(currentPage + 1);
-              }}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      {/* Komponen Pagination HeroUI */}
+      <Pagination
+        isCompact
+        showControls
+        showShadow
+        classNames={{
+          wrapper: "gap-1",
+          item: "w-8 h-8 text-small rounded-lg",
+          prev: "w-8 h-8 rounded-lg",
+          next: "w-8 h-8 rounded-lg",
+          cursor: "bg-primary shadow-primary/30 text-white font-bold",
+        }}
+        color="primary"
+        page={currentPage}
+        total={totalPage}
+        onChange={(page) => onPageChange(page)}
+      />
     </div>
   );
 }

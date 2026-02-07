@@ -2,7 +2,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import { useState } from "react";
 import { Star } from "lucide-react";
-import { Typography } from "@mui/joy";
 
 interface InteractiveRatingProps {
   initialValue?: number;
@@ -26,7 +25,7 @@ export const Rating = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-1">
         {Array.from({ length: 5 }).map((_, index) => {
           const starValue = index + 1;
 
@@ -39,37 +38,47 @@ export const Rating = ({
           return (
             <div
               key={index}
-              className={`relative ${!readOnly ? "cursor-pointer transition-transform active:scale-90" : ""}`}
+              className={`relative ${
+                !readOnly
+                  ? "cursor-pointer transition-transform hover:scale-110 active:scale-90"
+                  : ""
+              }`}
               onClick={() => handleAction(starValue)}
               onMouseEnter={() => !readOnly && setHover(starValue)}
               onMouseLeave={() => !readOnly && setHover(null)}
             >
-              {/* Layer 1: Background (Empty) */}
-              <Star className="text-slate-200 fill-slate-200" size={24} />
+              {/* Layer 1: Background (Empty) - Menggunakan warna default HeroUI */}
+              <Star
+                className="text-default-200 fill-default-200"
+                size={22}
+                strokeWidth={1.5}
+              />
 
-              {/* Layer 2: Fill (Kuning) */}
+              {/* Layer 2: Fill (Warning/Kuning) */}
               <div
-                className="absolute top-0 left-0 overflow-hidden transition-all duration-200"
+                className="absolute top-0 left-0 overflow-hidden transition-all duration-300 ease-soft-spring"
                 style={{ width: isFilled ? "100%" : `${fillPercentage}%` }}
               >
-                <Star className="text-yellow-400 fill-yellow-400" size={24} />
+                <Star
+                  className="text-warning fill-warning"
+                  size={22}
+                  strokeWidth={1.5}
+                />
               </div>
             </div>
           );
         })}
 
-        <Typography
-          level="title-md"
-          sx={{ ml: 1, minWidth: "2rem", fontWeight: "800" }}
-        >
+        {/* HeroUI-style Label */}
+        <span className="ml-2 min-w-[1.5rem] text-medium font-black text-gray-700 tracking-tight">
           {hover !== null ? hover : rating.toFixed(1)}
-        </Typography>
+        </span>
       </div>
 
       {!readOnly && (
-        <Typography level="body-xs" sx={{ color: "text.tertiary" }}>
+        <p className="text-tiny text-gray-400">
           Ketuk bintang untuk memberi nilai
-        </Typography>
+        </p>
       )}
     </div>
   );

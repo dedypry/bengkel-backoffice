@@ -23,7 +23,6 @@ const resources = {
   },
 };
 
-console.log("LANG", lang);
 i18n.use(initReactI18next).init({
   resources,
   lng: lang,

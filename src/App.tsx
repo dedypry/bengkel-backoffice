@@ -1,86 +1,100 @@
 import { Route, Routes } from "react-router-dom";
 
-import AuthLayout from "./components/layouts/auth";
-import AdminLayout from "./components/layouts/admin";
-import HomePage from "./pages/admin";
-import Cashier from "./pages/admin/cashier";
-import BookingPage from "./pages/admin/booking";
-import PendaftaranServis from "./pages/admin/service/add";
-import AntreanBengkel from "./pages/admin/service/queue";
-import RiwayatServis from "./pages/admin/service/history";
-import StokBarang from "./pages/admin/inventory/stock";
-import CategoryProduk from "./pages/admin/inventory/categories";
-import MasterPelanggan from "./pages/admin/master/customers";
-import CustomerFormPage from "./pages/admin/master/customers/create";
-import MasterVehicles from "./pages/admin/master/vehicles";
-import MasterMekanikPencarian from "./pages/admin/master/mechanics";
-import MasterJasaLight from "./pages/admin/master/services";
-import SupplierList from "./pages/admin/master/suppliers";
-import InvoiceListPage from "./pages/admin/finance/list";
-import FinancePage from "./pages/admin/finance/expenses";
-import LaporanPendapatan from "./pages/admin/reports/revenue";
-import LaporanPerformaMekanik from "./pages/admin/reports/mechanics";
-import LaporanBarangTerlaris from "./pages/admin/reports/top-parts";
-import WorkshopSettings from "./pages/admin/settings/profile";
-import PromoPage from "./pages/admin/settings/promo";
-import RolesPage from "./pages/admin/settings/roles";
-import WaPage from "./pages/admin/settings/wa";
-import EmployeesPage from "./pages/admin/hr/employees";
-import CreateEmployeePage from "./pages/admin/hr/employees/create";
-import AttendancePage from "./pages/admin/hr/attendance";
-import PerformancePage from "./pages/admin/hr/performance";
-import FormStock from "./pages/admin/inventory/stock/add";
-import Login from "./pages/auth/login";
+import LayoutAdmin from "./layouts/admin";
+import AuthLayout from "./layouts/auth";
+import LoginPage from "./pages/auth/login";
+import CashierPage from "./pages/cashier";
+import BookingPage from "./pages/booking";
+import ServiceAddPage from "./pages/service/add";
+import QueuePage from "./pages/service/queue";
+import HistoryPage from "./pages/service/history";
+import InventoryStockPage from "./pages/inventory/stock";
+import FormAddStock from "./pages/inventory/stock/add";
+import InventoryCategoryPage from "./pages/inventory/categories";
+import MasterCustomerPage from "./pages/master/customers";
+import CustomerFormPage from "./pages/master/customers/create";
+import MasterMechanicPage from "./pages/master/mechanics";
+import MasterServicePage from "./pages/master/services";
+import MasterSupplierPage from "./pages/master/suppliers";
+import InvoiceListPage from "./pages/finance/list";
+import FinanceExpensePage from "./pages/finance/expenses";
+import RevenuePage from "./pages/reports/revenue";
+import ReportMechanic from "./pages/reports/mechanics";
+import ReportTopPart from "./pages/reports/top-parts";
+import ProfileSettingsPage from "./pages/settings/profile";
+import RolesPage from "./pages/settings/roles";
+import EmployeesPage from "./pages/hr/employees";
+import CreateEmployeePage from "./pages/hr/employees/create";
+import EmployeesDetailPage from "./pages/hr/employees/detail";
+import EmployeesEditPage from "./pages/hr/employees/edit";
+import EditCustomerPage from "./pages/master/customers/edit";
+import CustomerDetailPage from "./pages/master/customers/detail";
+import ProfilePage from "./pages/my-profile";
+import EditProfilePage from "./pages/my-profile/edit";
+import WorkOrderDetail from "./pages/service/queue/detail";
+import ProductDetail from "./pages/inventory/stock/detail";
+import EditProduct from "./pages/inventory/stock/edit";
+
+import HomePage from "@/pages/dashboard/index";
 
 function App() {
   return (
     <Routes>
       <Route element={<AuthLayout />}>
-        <Route element={<Login />} path="/login" />
+        <Route element={<LoginPage />} path="/login" />
       </Route>
-      <Route element={<AdminLayout />}>
+      <Route element={<LayoutAdmin />}>
         <Route element={<HomePage />} path="/" />
-        <Route element={<Cashier />} path="/cashier" />
+        <Route element={<CashierPage />} path="/cashier" />
         <Route element={<BookingPage />} path="/booking" />
+        <Route element={<ProfilePage />} path="/my-profile" />
+        <Route element={<EditProfilePage />} path="/my-profile/edit" />
         <Route path="/service">
-          <Route element={<PendaftaranServis />} path="add" />
-          <Route element={<AntreanBengkel />} path="queue" />
-          <Route element={<RiwayatServis />} path="history" />
+          <Route element={<ServiceAddPage />} path="add" />
+          <Route element={<QueuePage />} path="queue" />
+          <Route element={<WorkOrderDetail />} path="queue/:id" />
+          <Route element={<HistoryPage />} path="history" />
         </Route>
+
         <Route path="/inventory">
-          <Route element={<StokBarang />} path="stock" />
-          <Route element={<FormStock />} path="stock/add" />
-          <Route element={<CategoryProduk />} path="categories" />
+          <Route element={<InventoryStockPage />} path="stock" />
+          <Route element={<FormAddStock />} path="stock/add" />
+          <Route element={<ProductDetail />} path="stock/:id" />
+          <Route element={<EditProduct />} path="stock/:id/edit" />
+          <Route element={<InventoryCategoryPage />} path="categories" />
         </Route>
+
         <Route path="/master">
-          <Route element={<MasterPelanggan />} path="customers" />
+          <Route element={<MasterCustomerPage />} path="customers" />
           <Route element={<CustomerFormPage />} path="customers/create" />
-          <Route element={<MasterVehicles />} path="vehicles" />
-          <Route element={<MasterMekanikPencarian />} path="mechanics" />
-          <Route element={<MasterJasaLight />} path="services" />
-          <Route element={<SupplierList />} path="suppliers" />
+          <Route element={<EditCustomerPage />} path="customers/:id/edit" />
+          <Route element={<CustomerDetailPage />} path="customers/:id" />
+          <Route element={<MasterMechanicPage />} path="mechanics" />
+          <Route element={<MasterServicePage />} path="services" />
+          <Route element={<MasterSupplierPage />} path="suppliers" />
         </Route>
+
         <Route path="/finance">
           <Route element={<InvoiceListPage />} path="list" />
-          <Route element={<FinancePage />} path="expenses" />
+          <Route element={<FinanceExpensePage />} path="expenses" />
         </Route>
+
         <Route path="/reports">
-          <Route element={<LaporanPendapatan />} path="revenue" />
-          <Route element={<FinancePage />} path="expenses" />
-          <Route element={<LaporanPerformaMekanik />} path="mechanics" />
-          <Route element={<LaporanBarangTerlaris />} path="top-parts" />
+          <Route element={<RevenuePage />} path="revenue" />
+          <Route element={<ReportMechanic />} path="mechanics" />
+          <Route element={<ReportTopPart />} path="top-parts" />
         </Route>
+
         <Route path="/settings">
-          <Route element={<WorkshopSettings />} path="profile" />
-          <Route element={<PromoPage />} path="promo" />
+          <Route element={<ProfileSettingsPage />} path="profile" />
           <Route element={<RolesPage />} path="roles" />
-          <Route element={<WaPage />} path="wa" />
         </Route>
         <Route path="/hr">
           <Route element={<EmployeesPage />} path="employees" />
           <Route element={<CreateEmployeePage />} path="employees/create" />
-          <Route element={<AttendancePage />} path="attendance" />
-          <Route element={<PerformancePage />} path="performance" />
+          <Route element={<EmployeesDetailPage />} path="employees/:id" />
+          <Route element={<EmployeesEditPage />} path="employees/:id/edit" />
+          <Route element={<RolesPage />} path="roles" />
         </Route>
       </Route>
     </Routes>

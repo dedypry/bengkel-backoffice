@@ -4,17 +4,18 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 import { getProfile, setStoreCompany } from "./auth-action";
 
-import { navigation } from "@/utils/navigation/sidebar-nav";
+import { navigation } from "@/config/navigations";
 
 interface INav {
   roles?: string[];
+  header: string;
   title: string;
-  url: string;
+  href: string;
   icon?: string;
   items?: {
     roles?: string[];
     title: string;
-    url: string;
+    href: string;
   }[];
 }
 const initialState = {
