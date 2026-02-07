@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import ListOrder from "./components/list-order";
 import PanelCustomer from "./components/panel-customer";
@@ -10,12 +10,16 @@ import { getWo } from "@/stores/features/work-order/wo-action";
 export default function CashierPage() {
   const { woQuery, tabCashier } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
-
+  const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getWo({ ...woQuery, pageSize: 100 }));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [company, woQuery]);
 

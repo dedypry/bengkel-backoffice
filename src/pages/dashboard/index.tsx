@@ -1,6 +1,6 @@
 /* eslint-disable import/order */
 import { Car, CalendarDays, Plus } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
@@ -18,9 +18,17 @@ import { getDashboard } from "@/stores/features/dashboard/dashboard-action";
 export default function HomePage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    dispatch(getDashboard());
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getDashboard());
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [dispatch]);
 
   return (

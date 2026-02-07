@@ -28,7 +28,7 @@ import {
   Edit2,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
@@ -67,10 +67,16 @@ export default function BookingPage() {
   const [data, setData] = useState<IBooking>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getBooking(bookingQuery));
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [company, bookingQuery, dispatch]);
 

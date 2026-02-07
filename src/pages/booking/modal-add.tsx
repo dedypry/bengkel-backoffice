@@ -18,7 +18,7 @@ import {
 } from "@heroui/react";
 import { today, getLocalTimeZone } from "@internationalized/date";
 import { CalendarDays, Building, Clock, Toolbox, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { BookingFormValues, bookingSchema } from "./schema";
 
@@ -44,10 +44,12 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState<IVehicle[]>([]);
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
   const customers = (cust || []) as ICustomer[];
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(
         getCustomer({
           noStats: true,
@@ -55,6 +57,9 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
           isVehicle: true,
         }),
       );
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [company]);
 

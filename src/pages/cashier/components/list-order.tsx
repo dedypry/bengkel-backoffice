@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Tabs,
   Tab,
@@ -29,10 +29,17 @@ export default function ListOrder() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
   const isProduct = tabCashier === "product";
 
   useEffect(() => {
-    dispatch(getProduct({ ...productQuery, pageSize: 50 }));
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getProduct({ ...productQuery, pageSize: 50 }));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [productQuery]);
 
   const debounceSearch = debounce(
