@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -34,10 +34,15 @@ export default function EmployeesDetailPage() {
   const { detail, detailLoading: loading } = useAppSelector(
     (state) => state.employe,
   );
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (id) {
+    if (id && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getEmployeDetail(id));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [id, dispatch]);
 

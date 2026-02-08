@@ -8,7 +8,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   Button,
   Input,
@@ -45,9 +45,16 @@ export default function InventoryStockPage() {
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    dispatch(getProduct(productQuery));
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getProduct(productQuery));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [company, productQuery, dispatch]);
 
   const searchDebounce = debounce((q) => dispatch(setProductQuery({ q })), 800);
@@ -123,8 +130,7 @@ export default function InventoryStockPage() {
         ].map((stat, i) => (
           <Card
             key={i}
-            className={`border-l-4 ${stat.color} border-y border-r border-gray-100`}
-            shadow="none"
+            className={`border-l-4 ${stat.color} border-y border-r border-primary`}
           >
             <CardBody className="flex flex-row items-center gap-4 p-4">
               <div className="bg-gray-50 p-3 rounded-xl">{stat.icon}</div>
@@ -147,7 +153,7 @@ export default function InventoryStockPage() {
       </div>
 
       {/* Filter & Table Area */}
-      <Card className="border border-gray-200" shadow="none">
+      <Card>
         <div className="p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
           <Input
             isClearable

@@ -12,7 +12,7 @@ import {
   PackageOpen,
   Search,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Card,
@@ -40,9 +40,16 @@ export default function MasterServicePage() {
   const [openModal, setOpenModal] = useState(false);
   const [detail, setDetail] = useState<IService>();
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    dispatch(getService(query));
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getService(query));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [company, query, dispatch]);
 
   const handleSearch = debounce((search) => {

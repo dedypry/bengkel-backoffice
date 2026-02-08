@@ -1,6 +1,6 @@
 import type { IReport } from "@/utils/interfaces/IReport";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DollarSign,
   ArrowUpRight,
@@ -31,9 +31,16 @@ import { notifyError } from "@/utils/helpers/notify";
 
 export default function RevenuePage() {
   const [report, setReport] = useState<IReport>();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    getReport();
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      getReport();
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, []);
 
   async function getReport() {
@@ -96,7 +103,7 @@ export default function RevenuePage() {
         {stats.map((item, i) => (
           <Card
             key={i}
-            className="border border-gray-200 shadow-sm hover:translate-y-[-4px] transition-transform"
+            className="hover:translate-y-[-4px] transition-transform"
           >
             <CardBody className="flex flex-row items-center gap-4">
               <div
@@ -121,7 +128,7 @@ export default function RevenuePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Section: Revenue Source */}
-        <Card className="lg:col-span-2 border border-gray-200 shadow-sm p-4">
+        <Card className="lg:col-span-2 p-4">
           <CardHeader className="flex justify-between items-center px-4 pb-0">
             <div className="flex items-center gap-3">
               <div className="bg-gray-100 p-2 rounded-sm">
@@ -173,7 +180,7 @@ export default function RevenuePage() {
         </Card>
 
         {/* Section: Monthly Target */}
-        <Card className="border border-gray-200 shadow-sm p-4 relative">
+        <Card className=" p-4 relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
           <CardHeader className="flex gap-3 px-4">
             <div className="bg-gray-200 p-2 rounded-sm">

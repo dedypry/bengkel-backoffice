@@ -6,7 +6,7 @@ import {
   AlertTriangle,
   PackageSearch,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardBody, CardHeader, Button, Chip } from "@heroui/react";
 
 import HeaderAction from "@/components/header-action";
@@ -16,9 +16,16 @@ import { formatIDR, formatNumber } from "@/utils/helpers/format";
 
 export default function ReportTopPart() {
   const [products, setProduct] = useState<IProduct[]>([]);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    getProduct();
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      getProduct();
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, []);
 
   function getProduct() {
@@ -52,7 +59,7 @@ export default function ReportTopPart() {
             <Card
               key={item.id}
               isPressable
-              className="border border-gray-200 shadow-sm p-4 bg-white hover:shadow-xl hover:translate-y-[-8px] transition-all duration-300"
+              className="p-4 hover:translate-y-[-8px] transition-all duration-300"
             >
               <CardHeader className="flex flex-col items-start px-4 pt-6 relative">
                 {/* Floating Rank Indicator */}

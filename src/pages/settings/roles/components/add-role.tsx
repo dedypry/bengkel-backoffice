@@ -1,6 +1,6 @@
 import type { IGroupedPermissions, IRole } from "@/utils/interfaces/IRole";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Input,
   Textarea,
@@ -43,6 +43,7 @@ export default function AddRole({ open, setOpen, data }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   const {
     control,
@@ -55,10 +56,17 @@ export default function AddRole({ open, setOpen, data }: Props) {
   });
 
   useEffect(() => {
-    http
-      .get("/permissions")
-      .then(({ data }) => setPermission(data))
-      .catch(notifyError);
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      http
+        .get("/permissions")
+        .then(({ data }) => setPermission(data))
+        .catch(notifyError);
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, []);
 
   useEffect(() => {

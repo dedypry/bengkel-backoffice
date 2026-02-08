@@ -8,7 +8,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   Input,
   Chip,
@@ -45,13 +45,29 @@ export default function EmployeesPage() {
   const { company } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
+  const hasEmployeeFetched = useRef(false);
 
   useEffect(() => {
-    dispatch(getEmployeSummary());
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getEmployeSummary());
+
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [company, dispatch]);
 
   useEffect(() => {
-    dispatch(getEmploye(searchQuery));
+    if (!hasEmployeeFetched.current) {
+      hasEmployeeFetched.current = true;
+      dispatch(getEmploye(searchQuery));
+
+      setTimeout(() => {
+        hasEmployeeFetched.current = false;
+      }, 1000);
+    }
   }, [searchQuery, company, dispatch]);
 
   const handleDelete = (id: number) => {

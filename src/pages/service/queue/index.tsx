@@ -72,10 +72,7 @@ export default function QueuePage() {
             barColor: "bg-emerald-600",
           },
         ].map((stat, i) => (
-          <Card
-            key={i}
-            className="shadow-sm border border-default-100 overflow-hidden"
-          >
+          <Card key={i}>
             <CardBody className="p-4 relative">
               {/* Indikator Warna di Samping */}
               <div

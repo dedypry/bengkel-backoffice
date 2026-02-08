@@ -21,8 +21,6 @@ import {
   Card,
   CardBody,
   Divider,
-  Select,
-  SelectItem,
   BreadcrumbItem,
   Breadcrumbs,
   Autocomplete,
@@ -107,6 +105,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
       if (mainCatId) {
         const find = categories.find((e) => e.id === mainCatId);
 
+        console.log(find);
         if (find) {
           setSubCategories(find.children);
         }
@@ -176,13 +175,13 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
         </BreadcrumbItem>
       </Breadcrumbs>
 
-      <Card className="border border-gray-200" shadow="none">
+      <Card>
         <CardBody className="p-6 space-y-8">
           {/* SECTION 1: INFORMASI DASAR */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 text-gray-800">
               <Package className="size-5" />
-              <h2 className="text-lg font-black tracking-tight uppercase italic">
+              <h2 className="text-lg font-black  uppercase ">
                 Informasi Dasar
               </h2>
             </div>
@@ -215,7 +214,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     isInvalid={!!fieldState.error}
                     label="Kode / SKU"
                     placeholder="OLI-001"
-                    variant="bordered"
                   />
                 )}
               />
@@ -230,7 +228,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     isInvalid={!!fieldState.error}
                     label="Nama Produk"
                     placeholder="Contoh: Oli Toyota Motor Oil 10W-40"
-                    variant="bordered"
                   />
                 )}
               />
@@ -245,8 +242,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     isInvalid={!!fieldState.error}
                     label="Main Kategori"
                     placeholder="Pilih Kategori"
-                    selectedKey={field.value}
-                    variant="bordered"
+                    selectedKey={field.value?.toString()}
                     onSelectionChange={(val) => {
                       field.onChange(val);
                       if (val) {
@@ -264,32 +260,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       </AutocompleteItem>
                     )}
                   </Autocomplete>
-                  // <Select
-                  //   {...field}
-                  //   errorMessage={fieldState.error?.message}
-                  //   isInvalid={!!fieldState.error}
-                  //   label="Main Kategori"
-                  //   placeholder="Pilih Kategori"
-                  //   selectedKeys={field.value ? [field.value.toString()] : []}
-                  //   variant="bordered"
-                  //   onSelectionChange={(key) => {
-                  //     const val = Array.from(key)[0];
-
-                  //     if (val) {
-                  //       const find = categories.find((e) => e.id == val);
-
-                  //       if (find) {
-                  //         setSubCategories(find.children);
-                  //       }
-                  //     }
-                  //   }}
-                  // >
-                  //   {categories.map((cat) => (
-                  //     <SelectItem key={cat.id} textValue={cat.name}>
-                  //       {cat.name}
-                  //     </SelectItem>
-                  //   ))}
-                  // </Select>
                 )}
               />
               <Controller
@@ -302,8 +272,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     isInvalid={!!fieldState.error}
                     label="Kategori"
                     placeholder="Pilih Kategori"
-                    selectedKey={field.value}
-                    variant="bordered"
+                    selectedKey={field.value?.toString()}
                     onSelectionChange={(val) => {
                       field.onChange(val);
                       if (val) {
@@ -321,21 +290,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       </AutocompleteItem>
                     )}
                   </Autocomplete>
-                  // <Select
-                  //   {...field}
-                  //   errorMessage={fieldState.error?.message}
-                  //   isInvalid={!!fieldState.error}
-                  //   label="Kategori"
-                  //   placeholder="Pilih Kategori"
-                  //   selectedKeys={field.value ? [field.value.toString()] : []}
-                  //   variant="bordered"
-                  // >
-                  //   {subCategories.map((cat) => (
-                  //     <SelectItem key={cat.id} textValue={cat.name}>
-                  //       {cat.name}
-                  //     </SelectItem>
-                  //   ))}
-                  // </Select>
                 )}
               />
 
@@ -343,21 +297,21 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 control={control}
                 name="uom_id"
                 render={({ field, fieldState }) => (
-                  <Select
-                    {...field}
+                  <Autocomplete
+                    defaultItems={uoms}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Satuan"
                     placeholder="Pcs / Liter"
-                    selectedKeys={field.value ? [field.value.toString()] : []}
-                    variant="bordered"
+                    selectedKey={field.value?.toString()}
+                    onSelectionChange={field.onChange}
                   >
-                    {uoms.map((uom) => (
-                      <SelectItem key={uom.id} textValue={uom.name}>
-                        {uom.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
+                    {(item) => (
+                      <AutocompleteItem key={item.id} textValue={item.name}>
+                        {item.name}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
                 )}
               />
               <Controller
@@ -372,7 +326,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     startContent={
                       <MapPin className="text-gray-400" size={16} />
                     }
-                    variant="bordered"
                     {...field}
                   />
                 )}
@@ -384,9 +337,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
           <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
             <div className="flex items-center gap-2 text-gray-500 font-bold">
               <DollarSign className="size-5" />
-              <h2 className="text-lg tracking-tight uppercase italic">
-                Harga & Inventori
-              </h2>
+              <h2 className="text-lg  uppercase ">Harga & Inventori</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -448,9 +399,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-2 text-gray-500">
                 <Info className="size-5" />
-                <h2 className="text-lg font-black tracking-tight uppercase italic">
-                  Deskripsi
-                </h2>
+                <h2 className="text-lg font-black  uppercase ">Deskripsi</h2>
               </div>
               <Controller
                 control={control}
@@ -460,7 +409,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     {...field}
                     minRows={4}
                     placeholder="Masukkan detail spesifikasi produk..."
-                    variant="bordered"
                   />
                 )}
               />
@@ -469,9 +417,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-gray-500">
                 <Archive className="size-5" />
-                <h2 className="text-lg font-black tracking-tight uppercase italic">
-                  Pengaturan
-                </h2>
+                <h2 className="text-lg font-black  uppercase ">Pengaturan</h2>
               </div>
               <Card className="bg-gray-50 border border-gray-100" shadow="none">
                 <CardBody className="flex flex-row items-center justify-between p-4">

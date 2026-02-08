@@ -1,6 +1,6 @@
 import type { IRole } from "@/utils/interfaces/IRole";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -15,15 +15,9 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Alert,
 } from "@heroui/react";
-import {
-  Edit,
-  Search,
-  Trash2,
-  UserPlus2,
-  Users2,
-  ShieldCheck,
-} from "lucide-react";
+import { Edit, Search, Trash2, UserPlus2, Users2 } from "lucide-react";
 
 import AddRole from "./components/add-role";
 
@@ -38,11 +32,17 @@ export default function RolesPage() {
   const { roles } = useAppSelector((state) => state.role);
   const [open, setOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<IRole | undefined>();
-
+  const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getRole());
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getRole());
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [dispatch]);
 
   const handleDelete = (id: number) => {
@@ -177,18 +177,15 @@ export default function RolesPage() {
       </Card>
 
       {/* Policy Tip */}
-      <div className="bg-gray-50 border border-gray-200 p-6 rounded-sm flex items-center gap-4">
-        <div className="size-10 bg-white rounded-sm shadow-sm flex items-center justify-center">
-          <ShieldCheck className="text-rose-500" size={20} />
-        </div>
-        <p className="text-xs text-gray-500 font-medium italic">
-          <strong className="text-gray-900 uppercase tracking-widest">
-            Tips:
-          </strong>{" "}
-          Pastikan setiap role memiliki hak akses minimum (Principle of Least
-          Privilege) untuk menjaga keamanan data bengkel.
-        </p>
-      </div>
+      <Alert
+        classNames={{
+          description: "text-xs text-gray-500 italic",
+          iconWrapper: "text-warning",
+        }}
+        description="Pastikan setiap role memiliki hak akses minimum (Principle of Least
+          Privilege) untuk menjaga keamanan data bengkel."
+        title="Tips:"
+      />
     </div>
   );
 }

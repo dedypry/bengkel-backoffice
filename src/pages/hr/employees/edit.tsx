@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import Detail404 from "./components/detail-404";
 import DetailSkeleton from "./components/detail-skeleton";
@@ -19,18 +19,29 @@ export default function EmployeesEditPage() {
   const { detail, detailLoading: loading } = useAppSelector(
     (state) => state.employe,
   );
+  const hasFetched = useRef(false);
+  const hasRegionFetched = useRef(false);
 
   useEffect(() => {
-    if (id) {
+    if (id && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getEmployeDetail(id));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [id]);
 
   useEffect(() => {
-    if (detail) {
+    if (detail && !hasRegionFetched.current) {
+      hasRegionFetched.current = true;
       dispatch(setProvinceId(detail.profile?.province_id));
       dispatch(setCityId(detail.profile?.city_id));
       dispatch(setDistrictId(detail.profile?.district_id));
+
+      setTimeout(() => {
+        hasRegionFetched.current = false;
+      }, 1000);
     }
   }, [detail]);
 

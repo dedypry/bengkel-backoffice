@@ -3,7 +3,7 @@ import type { IService } from "@/utils/interfaces/IService";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Input,
   Select,
@@ -56,6 +56,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
   const { suppliers } = useAppSelector((state) => state.supplier);
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   const { control, handleSubmit, setValue, reset } = useForm<
     z.infer<typeof formSchema>
@@ -65,8 +66,14 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
   });
 
   useEffect(() => {
-    dispatch(getCategories());
-    dispatch(getSupplier({ pageSize: 100 }));
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getCategories());
+      dispatch(getSupplier({ pageSize: 100 }));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [dispatch]);
 
   useEffect(() => {

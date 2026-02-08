@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -43,10 +43,15 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getPayment(paymentQuery));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [company, paymentQuery, dispatch]);
 
@@ -71,7 +76,7 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
       )}
 
       {/* Action Bar (Industrial Search Style) */}
-      <Card className="flex flex-col md:flex-row gap-4 items-center  p-4 rounded-sm border border-gray-200 shadow-sm">
+      <Card className="flex flex-col md:flex-row gap-4 items-center  p-4 ">
         <div className="relative flex-1 group">
           <Input
             placeholder="Cari nomor invoice atau nama pelanggan..."

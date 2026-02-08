@@ -3,7 +3,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus, Heart, MapPin, Briefcase } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Input,
@@ -42,9 +42,16 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
   const [openAddRole, setOpenAddRole] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    dispatch(getRole());
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getRole());
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [dispatch]);
 
   const {

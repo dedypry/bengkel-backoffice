@@ -1,7 +1,7 @@
 import type { IProductCategory } from "@/utils/interfaces/IProduct";
 
 import { Plus, Search, Layers, Package, Tags, AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input, Card, CardBody, CardFooter, Divider } from "@heroui/react";
 
 import ModalAddCategory from "./components/add-category";
@@ -24,9 +24,16 @@ export default function InventoryCategoryPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [detail, setDetail] = useState<IProductCategory>();
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    dispatch(getCategories(categoryQuery));
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getCategories(categoryQuery));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, [categoryQuery, company, dispatch]);
 
   const searchBounce = debounce((q) => dispatch(setCategoryQuery({ q })), 800);
@@ -68,7 +75,7 @@ export default function InventoryCategoryPage() {
       />
 
       {/* Toolbar - Minimalist Gray */}
-      <Card className="border border-gray-200 bg-gray-50/50" shadow="none">
+      <Card>
         <CardBody className="flex flex-col md:flex-row gap-4 p-4">
           <div className="flex-1">
             <Input
@@ -97,7 +104,6 @@ export default function InventoryCategoryPage() {
           <Card
             key={cat.id}
             className="group border relative border-gray-200 hover:border-gray-400 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300"
-            shadow="none"
           >
             <CardBody className="p-5 flex flex-row items-start">
               <div className="flex gap-4">
@@ -161,7 +167,7 @@ export default function InventoryCategoryPage() {
       </div>
 
       {/* Info Note - Subtle Gray Alert */}
-      <Card className="bg-gray-50 border border-gray-200" shadow="none">
+      <Card>
         <CardBody className="flex flex-row gap-3 p-4">
           <AlertCircle className="size-5 text-gray-500 shrink-0" />
           <p className="text-tiny text-gray-600 leading-relaxed font-medium">

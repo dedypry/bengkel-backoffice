@@ -7,7 +7,7 @@ import {
   Clock,
   Target,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
@@ -45,12 +45,19 @@ export default function ReportMechanic() {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   const bestMechanic = mechanics?.[0] || null;
 
   useEffect(() => {
-    dispatch(getMechanic(mechanicQuery));
-  }, [company, mechanicQuery, dispatch]);
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getMechanic(mechanicQuery));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
+  }, [company, mechanicQuery]);
 
   return (
     <div className="space-y-8">
@@ -163,8 +170,7 @@ export default function ReportMechanic() {
         {mechanics.map((mec) => (
           <Card
             key={mec.id}
-            className="border border-gray-200 hover:border-gray-400 transition-all group"
-            shadow="none"
+            className="border border-gray-100 hover:border-primary transition-all group"
           >
             <CardHeader className="flex justify-between items-start p-5 pb-0">
               <div className="flex gap-2 items-center bg-gray-50 px-3 py-1 rounded-full">
@@ -176,7 +182,6 @@ export default function ReportMechanic() {
                 <span className="text-gray-400 font-bold text-[10px]">5.0</span>
               </div>
               <Chip
-                className="font-black uppercase text-[10px]"
                 color={
                   statusColors[mec.work_status as keyof typeof statusColors]
                 }

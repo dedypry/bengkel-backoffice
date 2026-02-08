@@ -23,7 +23,7 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   companySchema,
@@ -49,6 +49,7 @@ export default function ProfileSettingsPage() {
   const { user } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   const {
     control,
@@ -73,7 +74,13 @@ export default function ProfileSettingsPage() {
   });
 
   useEffect(() => {
-    getCompany();
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      getCompany();
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
+    }
   }, []);
 
   function getCompany() {
@@ -169,7 +176,7 @@ export default function ProfileSettingsPage() {
       >
         {/* Kolom Kiri: Profil Utama */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="border-gray-300 border shadow-sm p-4">
+          <Card className=" p-4">
             <CardBody className="space-y-8">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-gray-100 rounded-2xl text-gray-500">
@@ -321,7 +328,7 @@ export default function ProfileSettingsPage() {
         {/* Kolom Kanan: Kebijakan Keuangan */}
         <div className="space-y-4">
           {/* Card Pajak */}
-          <Card className="border border-gray-200 shadow-sm bg-white">
+          <Card>
             <CardBody className="p-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -364,7 +371,7 @@ export default function ProfileSettingsPage() {
           </Card>
 
           {/* Card Promo */}
-          <Card className="border border-gray-200 shadow-sm bg-white">
+          <Card>
             <CardBody className="p-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

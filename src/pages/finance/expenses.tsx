@@ -93,7 +93,7 @@ export default function FinanceExpensePage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border border-gray-200 shadow-sm">
+        <Card>
           <CardBody className="flex flex-row items-center gap-5">
             <div className="bg-rose-50 p-4 rounded-md text-rose-600">
               <ArrowDownCircle size={32} />
@@ -109,7 +109,7 @@ export default function FinanceExpensePage() {
           </CardBody>
         </Card>
 
-        <Card className="border border-gray-200 shadow-sm p-4">
+        <Card>
           <CardBody className="space-y-3">
             <div className="flex justify-between items-center">
               <p className="text-[10px] font-black text-gray-400 uppercase flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Select, SelectItem } from "@heroui/react";
 import { Layers } from "lucide-react";
 
@@ -9,14 +9,18 @@ import { setProductQuery } from "@/stores/features/product/product-slice";
 export default function SelectCategories() {
   const { company } = useAppSelector((state) => state.auth);
   const { categories } = useAppSelector((state) => state.product);
-
+  const hasFetched = useRef(false);
   // Menggunakan string "all" untuk initial state agar sesuai dengan key Select HeroUI
   const [selectedKey, setSelectedKey] = useState<string>("all");
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (company) {
+    if (company && !hasFetched.current) {
+      hasFetched.current = true;
       dispatch(getCategories({}));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
   }, [company, dispatch]);
 
