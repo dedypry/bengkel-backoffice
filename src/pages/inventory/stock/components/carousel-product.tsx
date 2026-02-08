@@ -1,6 +1,6 @@
 import { Image } from "@heroui/react";
 
-import Carousel from "@/components/Carousel";
+import Carousel from "@/components/carousel";
 
 interface Props {
   images: any[];

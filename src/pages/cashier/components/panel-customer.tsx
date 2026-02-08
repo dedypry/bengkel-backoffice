@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import type { IPromo } from "@/utils/interfaces/IPromo";
 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -32,7 +31,6 @@ import FileUploader from "@/components/drop-zone";
 
 export default function PanelCustomer() {
   const { workOrder } = useAppSelector((state) => state.wo);
-  const [promoData, setPromoData] = useState<IPromo | null>(null);
   const [loading, setLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();

@@ -1,4 +1,4 @@
-import { User, LogOut, Wrench, Car } from "lucide-react";
+import { User, LogOut, Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import {
