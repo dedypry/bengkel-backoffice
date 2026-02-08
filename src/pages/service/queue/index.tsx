@@ -17,6 +17,7 @@ export default function QueuePage() {
   const { orders, woQuery } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
 
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
@@ -50,8 +51,8 @@ export default function QueuePage() {
           {
             label: "Total Antrean",
             count: orders?.stats?.total || 0,
-            color: "text-blue-600",
-            barColor: "bg-blue-600",
+            color: "text-primary",
+            barColor: "bg-primary",
           },
           {
             label: "Menunggu",

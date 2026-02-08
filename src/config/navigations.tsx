@@ -140,11 +140,11 @@ export const navigation = [
         icon: "ShieldAlert",
         permissions: ["role.manage"],
       },
-      {
-        title: "Whatsapp",
-        href: "wa",
-        icon: "MessageSquare",
-      },
+      // {
+      //   title: "Whatsapp",
+      //   href: "wa",
+      //   icon: "MessageSquare",
+      // },
     ],
   },
   {

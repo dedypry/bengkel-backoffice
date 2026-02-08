@@ -1,5 +1,5 @@
 import { Input, type InputProps } from "@heroui/react";
-import { Eye, EyeOff } from "lucide-react"; // EyeOff lebih standar untuk Lucide
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 export default function Password({ ...props }: InputProps) {
@@ -9,10 +9,8 @@ export default function Password({ ...props }: InputProps) {
 
   return (
     <Input
-      labelPlacement="outside"
       placeholder="****"
-      variant="bordered"
-      {...props} // Pastikan props dari react-hook-form masuk ke sini
+      {...props}
       endContent={
         <button
           aria-label="toggle password visibility"

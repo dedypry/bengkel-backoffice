@@ -86,7 +86,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
         <CardHeader className="flex justify-between gap-2">
           <PageSize
             label="Page Size"
-            selectedKeys={[woQuery.pageSize]}
+            selectedKeys={[woQuery.pageSize.toString()]}
             onSelectionChange={(key) => {
               const val = Array.from(key)[0];
 
@@ -188,6 +188,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                             <Chip
                               avatar={
                                 <Avatar
+                                  className="uppercase"
                                   name={mc.name}
                                   src={
                                     mc.profile?.photo_url ||
@@ -195,7 +196,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                                   }
                                 />
                               }
-                              size="sm"
+                              color="success"
                               variant="flat"
                             >
                               {mc.name.split(" ")[0]}
@@ -204,9 +205,13 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                         ))}
                       </div>
                     ) : (
-                      <span className="text-gray-500 italic text-tiny">
+                      <Chip
+                        className="text-danger border-danger text-xs italic"
+                        color="danger"
+                        variant="dot"
+                      >
                         Belum ada mekanik
-                      </span>
+                      </Chip>
                     )}
                   </TableCell>
 

@@ -68,6 +68,8 @@ export default function EditProfilePage() {
     },
   });
 
+  console.log(errors);
+
   useEffect(() => {
     if (user) {
       setValue("name", user.name);
@@ -121,10 +123,7 @@ export default function EditProfilePage() {
       </Breadcrumbs>
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         {/* SECTION 1: PERSONAL INFO */}
-        <Card
-          className="rounded-sm shadow-sm  border border-gray-200"
-          radius="sm"
-        >
+        <Card>
           <CardBody className="p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-gray-500 rounded-sm text-white">
@@ -234,9 +233,11 @@ export default function EditProfilePage() {
                 <Controller
                   control={control}
                   name="place_birth"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <Input
                       {...field}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
                       label="TEMPAT LAHIR"
                       placeholder="Contoh: Jakarta"
                     />
@@ -246,8 +247,10 @@ export default function EditProfilePage() {
                 <Controller
                   control={control}
                   name="birth_date"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <CustomDatePicker
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
                       label="Tanggal Lahir"
                       labelPlacement="inside"
                       value={
@@ -264,10 +267,7 @@ export default function EditProfilePage() {
         </Card>
 
         {/* SECTION 2: ADDRESS & EMERGENCY */}
-        <Card
-          className="rounded-sm  shadow-sm border border-gray-200"
-          radius="sm"
-        >
+        <Card>
           <CardBody className="p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-gray-500 rounded-sm text-white">
@@ -284,8 +284,10 @@ export default function EditProfilePage() {
               <Controller
                 control={control}
                 name="province_id"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <Province
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
                     labelPlacement="inside"
                     value={field.value}
                     variant="faded"
@@ -296,8 +298,10 @@ export default function EditProfilePage() {
               <Controller
                 control={control}
                 name="city_id"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <City
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
                     labelPlacement="inside"
                     value={field.value}
                     variant="faded"
@@ -308,8 +312,10 @@ export default function EditProfilePage() {
               <Controller
                 control={control}
                 name="district_id"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <District
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
                     labelPlacement="inside"
                     value={field.value}
                     variant="faded"
@@ -323,9 +329,11 @@ export default function EditProfilePage() {
               <Controller
                 control={control}
                 name="address"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <Textarea
                     {...field}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
                     label="ALAMAT LENGKAP"
                     minRows={3}
                     placeholder="Nama jalan, nomor rumah, RT/RW..."
@@ -333,7 +341,7 @@ export default function EditProfilePage() {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border border-danger/60 p-5 rounded-md">
                 <Controller
                   control={control}
                   name="emergency_name"

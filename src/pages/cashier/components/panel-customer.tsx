@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardBody,
 } from "@heroui/react";
-import { Car, Eye, Printer, Receipt, Send, User, X } from "lucide-react";
+import { Car, Eye, Printer, Receipt, Send, User } from "lucide-react";
 
 import PaymentMethod from "./payment-method";
 import { paymentSchema, type PaymentForm } from "./order-schema";
@@ -104,9 +104,9 @@ export default function PanelCustomer() {
   return (
     <div className="w-full md:w-2/3 overflow-y-auto scrollbar-modern">
       {workOrder?.id ? (
-        <Card className="min-h-full flex flex-col border-[#168BAB]/20 shadow-lg">
-          <CardHeader className="bg-slate-50/50 border-b">
-            <div className="flex justify-between items-center w-full">
+        <Card className="h-full">
+          <CardHeader>
+            <div className="flex justify-between items-center w-full border-b border-gray-500 pb-5">
               <div>
                 <h3 className="mb-1 font-bold">Rincian Tagihan</h3>
                 <p
@@ -131,6 +131,7 @@ export default function PanelCustomer() {
               <div className="flex flex-col gap-1">
                 <div className="flex gap-2 items-center">
                   <Button
+                    className="text-white font-semibold uppercase"
                     color="success"
                     size="sm"
                     startContent={<Eye size={18} />}
@@ -162,6 +163,7 @@ export default function PanelCustomer() {
                 </div>
                 {workOrder.customer?.email && (
                   <Button
+                    className="text-white font-semibold uppercase"
                     color="warning"
                     size="sm"
                     startContent={<Send size={18} />}
@@ -176,14 +178,14 @@ export default function PanelCustomer() {
 
           <CardBody className="flex-1 flex flex-col gap-3">
             {/* Info Pelanggan */}
-            <div className="grid grid-cols-2 gap-4 p-2 rounded-xl bg-slate-50">
+            <div className="grid grid-cols-2 gap-4 p-2 rounded-sm bg-slate-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white rounded-full shadow-sm">
-                  <User className="w-4 h-4 text-[#168BAB]" />
+                  <User className="w-4 h-4 text-primary" />
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 italic">Pelanggan</p>
-                  <p className="font-semibold text-sm">
+                  <p className="font-semibold text-sm uppercase">
                     {workOrder.customer.name}
                     {workOrder?.customer?.profile?.birth_date && (
                       <span className="font-normal text-xs italic">
@@ -201,7 +203,7 @@ export default function PanelCustomer() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white rounded-full shadow-sm">
-                  <Car className="w-4 h-4 text-[#168BAB]" />
+                  <Car className="w-4 h-4 text-primary" />
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 italic">Kendaraan</p>
@@ -215,90 +217,12 @@ export default function PanelCustomer() {
 
             {/* Ringkasan Biaya & Diskon */}
             <div className="space-y-3 border-t pt-5">
-              {/* {workOrder.status != "closed" && (
-                <div className="grid grid-cols-2 gap-4 py-2">
-                  <Controller
-                    control={control}
-                    name="discount"
-                    render={({ field }) => (
-                      <FormControl>
-                        <FormLabel>Diskon Manual</FormLabel>
-                        <InputNumber
-                          startDecorator="Rp"
-                          value={field.value}
-                          onInput={field.onChange}
-                        />
-                      </FormControl>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="promoCode"
-                    render={({ field }) => (
-                      <FormControl>
-                        <FormLabel>Kode Promo</FormLabel>
-                        <Input
-                          endDecorator={
-                            <Button
-                              color="neutral"
-                              size="sm"
-                              onClick={handleChekPromo}
-                            >
-                              Cek
-                            </Button>
-                          }
-                          placeholder="Masukan Kode Promo"
-                          {...field}
-                        />
-                      </FormControl>
-                    )}
-                  />
-                </div>
-              )} */}
-
-              {promoData && (
-                <Card>
-                  <CardBody className="flex">
-                    <div className="flex-1">
-                      <p className="text-success text-sm font-semibold">
-                        Promo Berhasil Digunakan: <b>{promoData.code}</b>
-                      </p>
-                      <p className="text-xs">
-                        Potongan:{" "}
-                        {promoData.type === "percentage"
-                          ? `${Number(promoData.value)}% (Maks. Rp ${Number(promoData.max_discount).toLocaleString()})`
-                          : formatIDR(Number(promoData.value))}
-                      </p>
-                    </div>
-                    <Button
-                      isIconOnly
-                      color="danger"
-                      size="sm"
-                      variant="light"
-                      onClick={() => {
-                        setPromoData(null);
-                        setValue("promoCode", "");
-                        setValue("discount", 0);
-                      }}
-                    >
-                      <X size={18} />
-                    </Button>
-                  </CardBody>
-                </Card>
-              )}
-
-              <div className="flex justify-between text-slate-600 text-sm">
+              <div className="flex justify-between text-gray-600 text-sm">
                 <span>Subtotal Jasa & Part</span>
                 <span className="font-semibold">
                   {formatIDR(Number(workOrder.sub_total))}
                 </span>
               </div>
-
-              {/* Detail Pemotongan */}
-              {/* <div className="flex justify-between text-red-500 text-sm italic">
-                <span>Potongan Diskon</span>
-                <span>-{formatIDR(watch("discount"))}</span>
-              </div> */}
 
               {workOrder.promo_data?.map((item, index) => (
                 <div
@@ -437,7 +361,7 @@ export default function PanelCustomer() {
                 </Button>
               </>
             ) : (
-              <>
+              <div className="pt-10">
                 <Alert className="mb-2 mt-auto" color="success" variant="faded">
                   <div className="w-full">
                     <p className="font-semibold text-lg">Pembayaran Berhasil</p>
@@ -482,17 +406,17 @@ export default function PanelCustomer() {
                       src={workOrder?.payment?.proof_image}
                     />
                   )}
-              </>
+              </div>
             )}
           </CardBody>
         </Card>
       ) : (
-        <div className="h-full flex flex-col items-center justify-center text-slate-400 border-2 border-dashed rounded-xl">
-          <div className="p-6 bg-slate-50 rounded-full mb-4">
-            <Receipt className="w-12 h-12 opacity-20" />
+        <Card className="h-full flex flex-col items-center justify-center text-gray-500 border border-dashed rounded-xl">
+          <div className="p-6 bg-slate-100 rounded-full mb-4">
+            <Receipt className="w-12 h-12" />
           </div>
           <p>Pilih antrean di sebelah kiri untuk memproses pembayaran</p>
-        </div>
+        </Card>
       )}
     </div>
   );

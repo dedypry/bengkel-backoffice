@@ -62,6 +62,7 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
           isLoading={isLoading}
           size="sm"
           startContent={<Play fill="currentColor" size={16} />}
+          variant="shadow"
           onPress={() => handleUpdateStatus(item.id, "on_progress")}
         >
           MULAI KERJA

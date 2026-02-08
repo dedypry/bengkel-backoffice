@@ -28,7 +28,6 @@ import payment from "./features/payments/payment-slice";
 import dashboard from "./features/dashboard/dashboard-slice";
 import booking from "./features/booking/booking-slice";
 
-const persistedWoReducer = persistReducer({ key: "wo", storage }, wo);
 const persistedAuthReducer = persistReducer({ key: "auth", storage }, auth);
 const persistedLayoutReducer = persistReducer({ key: "auth", storage }, layout);
 
@@ -43,7 +42,7 @@ export const store = configureStore({
     vehicle,
     mechanic,
     product,
-    wo: persistedWoReducer,
+    wo,
     layout: persistedLayoutReducer,
     promo,
     supplier,

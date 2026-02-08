@@ -699,7 +699,7 @@ export default function ServiceAddPage() {
                                     <span className="text-sm font-medium">
                                       {item.name}
                                     </span>
-                                    <span className="text-default-400 text-xs font-mono">
+                                    <span className="text-gray-400 text-xs font-mono">
                                       {item.code}
                                     </span>
                                   </div>
@@ -765,7 +765,7 @@ export default function ServiceAddPage() {
                                     <span className="text-sm font-medium">
                                       {item.name}
                                     </span>
-                                    <span className="text-default-400 text-xs font-mono">
+                                    <span className="text-gray-400 text-xs font-mono">
                                       {item.code}
                                     </span>
                                   </div>

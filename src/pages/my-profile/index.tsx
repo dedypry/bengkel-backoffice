@@ -1,11 +1,9 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import {
   Mail,
   Building2,
   ShieldCheck,
   MapPin,
   Phone,
-  BadgeCheck,
   Globe,
   Lock,
   Edit,
@@ -18,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Alert,
   Avatar,
   BreadcrumbItem,
   Breadcrumbs,
@@ -26,13 +25,15 @@ import {
   CardBody,
   Chip,
   Divider,
+  Image,
 } from "@heroui/react";
 
 import { useAppSelector } from "@/stores/hooks";
-import { getInitials } from "@/utils/helpers/global";
+import { getAvatarByName, getInitials } from "@/utils/helpers/global";
 import Password from "@/components/password";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import { formatNPWP } from "@/components/forms/npwp-input";
 
 export const changePasswordSchema = z
   .object({
@@ -60,12 +61,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<ChangePasswordType>({
+  const { control, handleSubmit, reset } = useForm<ChangePasswordType>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: { old_password: "", new_password: "", confirm_password: "" },
   });
@@ -95,24 +91,25 @@ export default function ProfilePage() {
         <BreadcrumbItem>My Profile</BreadcrumbItem>
       </Breadcrumbs>
       {/* HEADER SECTION */}
-      <Card className="rounded-sm border border-gray-200 shadow-sm" radius="sm">
+      <Card>
         <CardBody className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <Avatar
-              className="w-28 h-28 rounded-md text-2xl font-bold bg-gray-500 text-white border-4 border-gray-50"
+              className="w-28 h-28 rounded-md text-xl font-bold"
+              color="primary"
               name={getInitials(data?.name!)}
-              src={data?.profile?.photo_url}
+              src={data?.profile?.photo_url || getAvatarByName(data?.name!)}
             />
 
             <div className="flex-1 text-center md:text-left space-y-4">
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-3">
-                <h1 className="text-4xl font-black uppercase tracking-tighter text-gray-500 leading-none">
+                <h1 className="text-4xl font-black uppercase  text-gray-500">
                   {data?.name!}
                 </h1>
                 <Chip
-                  className="font-bold uppercase text-[10px] tracking-widest px-3"
+                  classNames={{ content: "font-bold uppercase" }}
                   color="primary"
-                  radius="sm"
+                  radius="md"
                   variant="flat"
                 >
                   {data?.type}
@@ -120,11 +117,11 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex flex-wrap justify-center md:justify-start gap-6">
-                <div className="flex items-center gap-2 text-gray-500 font-bold text-[11px] uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-gray-500 font-bold text-[11px] uppercase ">
                   <Phone className="text-gray-400" size={14} />{" "}
                   {data?.profile?.phone_number || "NO PHONE"}
                 </div>
-                <div className="flex items-center gap-2 text-gray-500 font-bold text-[11px] uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-gray-500 font-bold text-[11px] uppercase ">
                   <Mail className="text-gray-400" size={14} /> {data?.email}
                 </div>
               </div>
@@ -132,18 +129,16 @@ export default function ProfilePage() {
 
             <div className="flex flex-col gap-3 min-w-[180px]">
               <Button
+                className="text-white"
                 color="warning"
                 startContent={<Edit size={16} />}
                 onPress={() => navigate("/my-profile/edit")}
               >
                 Ubah Profil
               </Button>
-              <div className="flex items-center justify-center gap-2 py-2 border border-gray-100 bg-gray-50 rounded-sm">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="font-bold text-[10px] uppercase text-gray-600 tracking-widest">
-                  Status: {data?.work_status}
-                </span>
-              </div>
+              <Chip color="success" radius="md" variant="dot">
+                Status: {data?.work_status}
+              </Chip>
             </div>
           </div>
         </CardBody>
@@ -153,11 +148,11 @@ export default function ProfilePage() {
         {/* LEFT COLUMN: SECURITY & ROLES */}
         <div className="lg:col-span-4 space-y-6">
           {/* Security Card */}
-          <Card className="rounded-sm border-none shadow-sm" radius="sm">
+          <Card>
             <CardBody className="p-6 space-y-6">
               <div className="flex items-center gap-2">
                 <Lock className="text-gray-900" size={18} />
-                <h3 className="font-black uppercase text-xs tracking-[0.2em] text-gray-800">
+                <h3 className="font-black uppercase text-xs text-gray-500">
                   Keamanan Akun
                 </h3>
               </div>
@@ -166,52 +161,37 @@ export default function ProfilePage() {
                 <Controller
                   control={control}
                   name="old_password"
-                  render={({ field }) => (
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase text-gray-400 tracking-widest">
-                        Password Lama
-                      </label>
-                      <Password {...field} className="rounded-sm" radius="sm" />
-                      {errors.old_password && (
-                        <p className="text-[9px] font-bold text-red-500 uppercase">
-                          {errors.old_password.message}
-                        </p>
-                      )}
-                    </div>
+                  render={({ field, fieldState }) => (
+                    <Password
+                      label="Password Lama"
+                      {...field}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
+                    />
                   )}
                 />
                 <Controller
                   control={control}
                   name="new_password"
-                  render={({ field }) => (
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase text-gray-400 tracking-widest">
-                        Password Baru
-                      </label>
-                      <Password {...field} className="rounded-sm" radius="sm" />
-                      {errors.new_password && (
-                        <p className="text-[9px] font-bold text-red-500 uppercase">
-                          {errors.new_password.message}
-                        </p>
-                      )}
-                    </div>
+                  render={({ field, fieldState }) => (
+                    <Password
+                      label="Password Baru"
+                      {...field}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
+                    />
                   )}
                 />
                 <Controller
                   control={control}
                   name="confirm_password"
-                  render={({ field }) => (
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase text-gray-400 tracking-widest">
-                        Konfirmasi
-                      </label>
-                      <Password {...field} className="rounded-sm" radius="sm" />
-                      {errors.confirm_password && (
-                        <p className="text-[9px] font-bold text-red-500 uppercase">
-                          {errors.confirm_password.message}
-                        </p>
-                      )}
-                    </div>
+                  render={({ field, fieldState }) => (
+                    <Password
+                      label="Konfirmasi"
+                      {...field}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
+                    />
                   )}
                 />
                 <Button
@@ -227,11 +207,11 @@ export default function ProfilePage() {
           </Card>
 
           {/* Role Card */}
-          <Card className="rounded-sm border-none shadow-sm" radius="sm">
+          <Card>
             <CardBody className="p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="text-gray-900" size={18} />
-                <h3 className="font-black uppercase text-xs tracking-[0.2em] text-gray-800">
+                <h3 className="font-black uppercase text-xs text-gray-500">
                   Privilese Sistem
                 </h3>
               </div>
@@ -239,12 +219,12 @@ export default function ProfilePage() {
               {data?.roles.map((role: any) => (
                 <div
                   key={role.id}
-                  className="p-4 bg-gray-50 border-l-4 border-gray-900 rounded-sm"
+                  className="p-4 bg-gray-50 border-l-4 border-primary rounded-sm"
                 >
-                  <p className="font-black uppercase text-[10px] text-gray-900 mb-1">
+                  <p className="font-black uppercase text-xs text-gray-500 mb-1">
                     {role.name}
                   </p>
-                  <p className="text-[10px] font-medium text-gray-500 leading-relaxed uppercase">
+                  <p className="text-[10px] font-medium text-gray-500">
                     {role.description}
                   </p>
                 </div>
@@ -256,26 +236,22 @@ export default function ProfilePage() {
         {/* RIGHT COLUMN: COMPANIES */}
         <div className="lg:col-span-8 space-y-4">
           <div className="flex items-center gap-3 px-2 mb-2">
-            <Building2 className="text-gray-900" size={20} />
-            <h3 className="font-black uppercase text-sm tracking-[0.3em] text-gray-800">
+            <Building2 className="text-gray-500" size={20} />
+            <h3 className="font-black uppercase text-sm text-gray-500">
               Unit Bisnis Terdaftar
             </h3>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
             {data?.companies.map((company: any) => (
-              <Card
-                key={company.id}
-                className="rounded-sm border border-gray-200 shadow-sm overflow-hidden"
-                radius="sm"
-              >
+              <Card key={company.id}>
                 <CardBody className="p-0">
                   <div className="flex flex-col sm:flex-row">
                     <div className="w-full sm:w-40 h-40 bg-gray-50 flex items-center justify-center border-r border-gray-100">
                       {company.logo_url ? (
-                        <img
+                        <Image
                           alt={company.name}
-                          className="object-contain w-24 h-24 grayscale"
+                          className="object-contain w-24 h-24"
                           src={company.logo_url}
                         />
                       ) : (
@@ -285,17 +261,22 @@ export default function ProfilePage() {
                     <div className="p-6 flex-1 space-y-4">
                       <div className="flex justify-between items-start">
                         <div className="space-y-1">
-                          <h4 className="text-xl font-black uppercase tracking-tighter text-gray-900">
+                          <h4 className="text-lg font-black uppercase  text-gray-500">
                             {company.name}
                           </h4>
-                          <p className="font-mono text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                          <p className="text-[9px] font-bold text-gray-400 uppercase">
                             {company.slug}
                           </p>
                         </div>
                         {data.company_id === company.id && (
                           <Chip
-                            className="bg-emerald-500 text-white font-black text-[9px] uppercase tracking-widest"
-                            radius="sm"
+                            className="text-white uppercase"
+                            classNames={{
+                              content: "font-bold",
+                            }}
+                            color="success"
+                            radius="md"
+                            size="sm"
                           >
                             Sesi Aktif
                           </Chip>
@@ -322,22 +303,16 @@ export default function ProfilePage() {
                       </div>
 
                       {company.npwp && (
-                        <div className="mt-4 flex items-center gap-3 p-3 bg-gray-50/50 border border-gray-100 rounded-sm group transition-colors hover:bg-gray-50">
-                          <div className="flex items-center justify-center size-6 bg-white border border-gray-200 rounded-sm shadow-sm">
-                            <BadgeCheck
-                              className="text-gray-400 group-hover:text-[#168BAB] transition-colors"
-                              size={14}
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">
-                              Nomor Pokok Wajib Pajak
-                            </span>
-                            <span className="font-mono text-[11px] font-bold text-gray-600 tracking-wider">
-                              {company.npwp}
-                            </span>
-                          </div>
-                        </div>
+                        <Alert
+                          classNames={{
+                            title:
+                              "text-[10px] font-black text-gray-500 uppercase",
+                            description: "text-[11px] font-bold text-gray-600",
+                            iconWrapper: "text-primary rounded-md",
+                          }}
+                          description={formatNPWP(company.npwp)}
+                          title="Nomor Pokok Wajib Pajak"
+                        />
                       )}
                     </div>
                   </div>
@@ -365,11 +340,9 @@ function InfoItem({
 }) {
   return (
     <div className={`${fullWidth ? "md:col-span-2" : ""} space-y-1`}>
-      <div className="flex items-center gap-2 opacity-40">
+      <div className="flex items-center gap-2 text-gray-500">
         {icon}
-        <span className="text-[9px] font-black uppercase tracking-[0.2em]">
-          {label}
-        </span>
+        <span className="text-[9px] font-black uppercase">{label}</span>
       </div>
       <p className="text-[11px] font-bold uppercase text-gray-700">
         {value || "-"}

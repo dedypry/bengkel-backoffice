@@ -34,7 +34,7 @@ export default function HistoryPage() {
   const { company } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState<number[]>([]);
   const dispatch = useAppDispatch();
-  const query = { ...woQuery, isHistory: true };
+  const query = { ...woQuery, isHistory: 1 };
   const hasFetched = useRef(false);
 
   useEffect(() => {

@@ -1,21 +1,22 @@
 import { Input, InputProps } from "@heroui/react";
 import { forwardRef } from "react"; // 1. Import forwardRef
 
+export const formatNPWP = (value: string = "") => {
+  const digits = value.replace(/\D/g, "").slice(0, 15);
+  let res = "";
+
+  if (digits.length > 0) res += digits.substring(0, 2);
+  if (digits.length > 2) res += "." + digits.substring(2, 5);
+  if (digits.length > 5) res += "." + digits.substring(5, 8);
+  if (digits.length > 8) res += "." + digits.substring(8, 9);
+  if (digits.length > 9) res += "-" + digits.substring(9, 12);
+  if (digits.length > 12) res += "." + digits.substring(12, 15);
+
+  return res;
+};
+
 const NpwpInput = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   // Fungsi format NPWP: 00.000.000.0-000.000
-  const formatNPWP = (value: string = "") => {
-    const digits = value.replace(/\D/g, "").slice(0, 15);
-    let res = "";
-
-    if (digits.length > 0) res += digits.substring(0, 2);
-    if (digits.length > 2) res += "." + digits.substring(2, 5);
-    if (digits.length > 5) res += "." + digits.substring(5, 8);
-    if (digits.length > 8) res += "." + digits.substring(8, 9);
-    if (digits.length > 9) res += "-" + digits.substring(9, 12);
-    if (digits.length > 12) res += "." + digits.substring(12, 15);
-
-    return res;
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;

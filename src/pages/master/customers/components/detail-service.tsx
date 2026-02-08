@@ -34,7 +34,7 @@ export default function DetailServiceTab({ id }: Props) {
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
 
-  const query = { ...woQuery, isHistory: true, noAuth: true, customerId: id };
+  const query = { ...woQuery, isHistory: 1, noAuth: 1, customerId: id };
 
   useEffect(() => {
     if (!hasFetched.current) {
