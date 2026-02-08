@@ -515,7 +515,9 @@ export default function ServiceAddPage() {
                   render={({ field, fieldState }) => (
                     <InputNumber
                       errorMessage={fieldState.error?.message}
-                      isInvalid={fieldState.invalid || field.value === 0}
+                      isInvalid={
+                        fieldState.invalid || !field.value || field.value === 0
+                      }
                       label="KM Terakhir"
                       labelPlacement="outside"
                       placeholder="Masukan KM Terakhir"
@@ -869,8 +871,8 @@ export default function ServiceAddPage() {
                         render={({ field }) => (
                           <Select
                             placeholder="Pilih Prioritas"
+                            selectedKeys={[field.value]}
                             size="sm"
-                            value={field.value}
                             onSelectionChange={(keys) =>
                               field.onChange(Array.from(keys)[0])
                             }

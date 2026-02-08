@@ -87,7 +87,6 @@ export default function CustomerSearch({
         isEnabled: false,
       }}
       startContent={<Users />}
-      variant="bordered"
       onInputChange={handleInputChange}
       onSelectionChange={(key) => handleSelectionChange(key as string)}
     >
