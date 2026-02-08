@@ -36,6 +36,7 @@ import ProductDetail from "./pages/inventory/stock/detail";
 import EditProduct from "./pages/inventory/stock/edit";
 
 import HomePage from "@/pages/dashboard/index";
+import PaymentDetailPage from "./pages/finance/detail";
 
 function App() {
   return (
@@ -76,6 +77,7 @@ function App() {
 
         <Route path="/finance">
           <Route element={<InvoiceListPage />} path="list" />
+          <Route element={<PaymentDetailPage />} path=":id" />
           <Route element={<FinanceExpensePage />} path="expenses" />
         </Route>
 

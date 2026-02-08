@@ -31,6 +31,9 @@ import {
   TableColumn,
   TableRow,
 } from "@heroui/react";
+import { useState } from "react";
+
+import ExpenseModal from "./components/add-expense";
 
 import { formatIDR } from "@/utils/helpers/format";
 import HeaderAction from "@/components/header-action";
@@ -80,15 +83,19 @@ const expenses = [
 ];
 
 export default function FinanceExpensePage() {
+  const [modalAdd, setModalAdd] = useState(false);
+
   return (
-    <div className="space-y-8 pb-20 px-4 max-w-7xl mx-auto">
+    <div className="space-y-8 pb-20">
       {/* Header Finance - Hero Style */}
+      <ExpenseModal isOpen={modalAdd} onClose={() => setModalAdd(false)} />
       <HeaderAction
         actionIcon={Plus}
         actionTitle="Catat Baru"
         leadIcon={TrendingDown}
         subtitle=" Pantau setiap rupiah yang keluar untuk operasional bengkel Anda."
         title="Cash Flow Management"
+        onAction={() => setModalAdd(true)}
       />
 
       {/* Stats Cards */}
