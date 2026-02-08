@@ -107,7 +107,9 @@ export default function LoginPage() {
                     errorMessage={errors.password?.message}
                     isInvalid={!!errors.password}
                     label="Kata Sandi"
+                    labelPlacement="outside"
                     startContent={<Lock className="text-gray-400" size={18} />}
+                    variant="bordered"
                   />
                 )}
               />
