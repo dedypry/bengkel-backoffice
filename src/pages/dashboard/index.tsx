@@ -32,7 +32,7 @@ export default function HomePage() {
   }, [dispatch]);
 
   return (
-    <div className="max-w-[1400px] mx-auto pb-10 space-y-8 px-4">
+    <div className="pb-10 space-y-8">
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-default-100 pb-6">
         <div>

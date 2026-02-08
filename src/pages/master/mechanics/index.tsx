@@ -53,7 +53,7 @@ export default function MasterMechanicPage() {
   }, [company, mechanicQuery, dispatch]);
 
   return (
-    <div className="space-y-8 pb-20 px-4 max-w-7xl mx-auto">
+    <div className="space-y-8 pb-20">
       {/* Hero Section: Best Mechanic */}
       <Card
         className="bg-gray-800 border-none overflow-hidden min-h-[240px] relative"

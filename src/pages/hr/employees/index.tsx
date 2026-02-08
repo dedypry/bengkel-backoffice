@@ -81,7 +81,7 @@ export default function EmployeesPage() {
   };
 
   return (
-    <div className="space-y-10 pb-20 px-4 max-w-7xl mx-auto">
+    <div className="space-y-10 pb-20">
       <HeaderAction
         actionIcon={UserPlus}
         actionTitle="Tambah Karyawan"

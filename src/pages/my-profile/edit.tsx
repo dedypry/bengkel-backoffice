@@ -109,7 +109,7 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       <Breadcrumbs
         className="pb-5"
         itemClasses={{ item: "text-gray-500 font-medium" }}

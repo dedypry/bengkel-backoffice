@@ -81,7 +81,7 @@ export default function MasterServicePage() {
   }
 
   return (
-    <div className="space-y-8 pb-20 px-4 max-w-[1600px] mx-auto">
+    <div className="space-y-8 pb-20">
       <ModalAdd
         detail={detail}
         open={openModal}

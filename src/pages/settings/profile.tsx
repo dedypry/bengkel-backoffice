@@ -6,7 +6,6 @@ import {
   Save,
   Percent,
   Settings,
-  Trash2,
   Mail,
   MapPin,
 } from "lucide-react";
@@ -37,7 +36,7 @@ import City from "@/components/regions/city";
 import District from "@/components/regions/district";
 import { http } from "@/utils/libs/axios";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
+import { notify, notifyError } from "@/utils/helpers/notify";
 import { uploadFile } from "@/utils/helpers/upload-file";
 import { getCity, getDistrict } from "@/stores/features/region/region-action";
 import { getProfile } from "@/stores/features/auth/auth-action";
@@ -153,18 +152,18 @@ export default function ProfileSettingsPage() {
   return (
     <div className="space-y-4 pb-20">
       <HeaderAction
-        actionContent={
-          <Button
-            className="font-black uppercase text-xs"
-            color="danger"
-            size="sm"
-            startContent={<Trash2 size={16} />}
-            variant="flat"
-            onPress={() => confirmSweat(() => {})}
-          >
-            Hapus Bengkel
-          </Button>
-        }
+        // actionContent={
+        //   <Button
+        //     className="font-black uppercase text-xs"
+        //     color="danger"
+        //     size="sm"
+        //     startContent={<Trash2 size={16} />}
+        //     variant="flat"
+        //     onPress={() => confirmSweat(() => {})}
+        //   >
+        //     Hapus Bengkel
+        //   </Button>
+        // }
         leadIcon={Settings}
         subtitle="Kelola identitas bengkel dan kebijakan promo."
         title="Pengaturan Bengkel"

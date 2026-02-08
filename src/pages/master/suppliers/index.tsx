@@ -77,7 +77,7 @@ export default function MasterSupplierPage() {
   }, 1000);
 
   return (
-    <div className="space-y-6 pb-20 px-4">
+    <div className="space-y-6 pb-20">
       <AddModal
         open={open}
         setOpen={setOpen}

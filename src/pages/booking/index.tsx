@@ -81,7 +81,7 @@ export default function BookingPage() {
   }, [company, bookingQuery, dispatch]);
 
   return (
-    <div className="flex-1 w-full space-y-6">
+    <div className="space-y-6">
       <ModalAdd data={data} isOpen={modalAdd} setOpen={setModalAdd} />
 
       {/* Header Halaman */}

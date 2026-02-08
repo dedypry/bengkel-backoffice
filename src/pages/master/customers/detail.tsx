@@ -35,7 +35,7 @@ export default function CustomerDetailPage() {
   if (!data) return <Detail404 id={id} />;
 
   return (
-    <div className="space-y-8 pb-20 px-4 max-w-7xl mx-auto">
+    <div className="space-y-8 pb-20">
       {/* Header Profile Industrial */}
       <Card className="border border-gray-200 shadow-sm overflow-hidden">
         <CardBody>

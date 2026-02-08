@@ -27,7 +27,7 @@ import {
 import { formatIDR } from "@/utils/helpers/format";
 import { useAppSelector, useAppDispatch } from "@/stores/hooks";
 import { getProductDetail } from "@/stores/features/product/product-action";
-import Carousel from "@/components/Carousel";
+import Carousel from "@/components/carousel";
 
 export default function ProductDetail() {
   const { product } = useAppSelector((state) => state.product);
@@ -67,7 +67,7 @@ export default function ProductDetail() {
   const status = getStockStatus(product.stock, product.min_stock);
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl space-y-6">
+    <div className="space-y-6">
       {/* HEADER NAVIGASI */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <Breadcrumbs

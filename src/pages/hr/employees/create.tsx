@@ -91,7 +91,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
   };
 
   return (
-    <div className="space-y-8 pb-20 px-4 max-w-5xl mx-auto">
+    <div className="space-y-8 pb-20">
       <AddRole open={openAddRole} setOpen={setOpenAddRole} />
 
       {/* Top Navigation */}

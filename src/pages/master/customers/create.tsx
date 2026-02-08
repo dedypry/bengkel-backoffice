@@ -94,7 +94,7 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-20">
+    <div className="space-y-6 pb-20">
       {/* Sticky Header Action */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20 bg-white/80 backdrop-blur-md py-4 border-b border-gray-100">
         <div className="flex items-center gap-4">

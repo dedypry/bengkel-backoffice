@@ -49,22 +49,18 @@ export default function UserMenu() {
         itemClasses={{
           base: [
             "rounded-sm",
-            "text-default-600",
-            "data-[hover=true]:text-gray-950",
-            "data-[hover=true]:bg-gray-50",
-            "py-3",
+            "text-gray-500",
+            "data-[hover=true]:text-primary",
+            "data-[hover=true]:bg-primary-50",
+            "py-2",
             "px-4",
           ],
-          title: "font-bold uppercase text-[10px] tracking-wider",
+          title: "font-semibold text-xs uppercase",
         }}
         variant="flat"
       >
         <DropdownSection showDivider>
-          <DropdownItem
-            key="profile_info"
-            isReadOnly
-            className="h-16 gap-2 opacity-100"
-          >
+          <DropdownItem key="profile_info" isReadOnly className="h-16 gap-2">
             <UserHero
               avatarProps={{
                 size: "sm",
@@ -83,34 +79,25 @@ export default function UserMenu() {
 
         <DropdownSection
           classNames={{
-            heading:
-              "px-4 pt-2 text-[9px] font-bold uppercase text-gray-400 tracking-[0.2em]",
+            heading: "px-4 pt-2 text-xs font-bold uppercase text-gray-500",
           }}
           title="Akses Cepat"
         >
           <DropdownItem
             key="my-profile"
-            startContent={<User className="text-blue-600" size={16} />}
+            startContent={<User size={20} />}
             onPress={() => navigate("/my-profile")}
           >
             Profil Saya
           </DropdownItem>
           <DropdownItem
-            key="vehicles"
-            startContent={<Car className="text-orange-600" size={16} />}
-            onPress={() => navigate("/master/vehicles")}
-          >
-            Daftar Kendaraan
-          </DropdownItem>
-          <DropdownItem
             key="settings"
-            startContent={<Wrench className="text-gray-500" size={16} />}
+            startContent={<Wrench size={20} />}
             onPress={() => navigate("/settings/profile")}
           >
             Konfigurasi Bengkel
           </DropdownItem>
         </DropdownSection>
-
         <DropdownSection>
           <DropdownItem
             key="logout"
