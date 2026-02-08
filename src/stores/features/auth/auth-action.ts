@@ -17,11 +17,13 @@ export const getProfile = createAsyncThunk("get-profile", async () => {
 
 export const setStoreCompany = createAsyncThunk(
   "store-company",
-  async (id: number) => {
+  async (id: number, { dispatch }) => {
     try {
       const { data } = await http.post("/user/company", {
         company_id: id,
       });
+
+      dispatch(getProfile());
 
       return data;
     } catch (error) {

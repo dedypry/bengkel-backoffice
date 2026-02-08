@@ -1,5 +1,3 @@
-import type { ICompany } from "@/utils/interfaces/IUser";
-
 import {
   Store,
   Tag,
@@ -45,7 +43,7 @@ import NpwpInput from "@/components/forms/npwp-input";
 import InputNumber from "@/components/input-number";
 
 export default function ProfileSettingsPage() {
-  const { user } = useAppSelector((state) => state.auth);
+  const { company } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
@@ -73,60 +71,55 @@ export default function ProfileSettingsPage() {
   });
 
   useEffect(() => {
-    if (!hasFetched.current) {
+    if (company && !hasFetched.current) {
       hasFetched.current = true;
       getCompany();
       setTimeout(() => {
         hasFetched.current = false;
       }, 1000);
     }
-  }, []);
+  }, [company]);
 
   function getCompany() {
-    if (user) {
-      http
-        .get<ICompany>(`/companies/${user.company_id}`)
-        .then(({ data }) => {
-          setValue("id", data.id);
-          setValue("name", data.name);
-          setValue("logo_url", data.logo_url);
-          setValue("email", data.email!);
-          setValue("phone_number", data.phone_number?.replace(/-/g, "") || "");
-          setValue("fax", data.fax || "");
-          setValue("npwp", data.npwp!);
-          setValue("is_ppn", data.is_ppn!);
-          setValue("ppn", Number(data.ppn || 0));
-          setValue("is_discount_birth_day", data.is_discount_birth_day!);
-          setValue(
-            "type_discount_birth_day",
-            data.type_discount_birth_day || "percentage",
-          );
-          setValue(
-            "max_discount_birth_day",
-            Number(data.max_discount_birth_day || 0),
-          );
-          setValue(
-            "total_discount_birth_day",
-            Number(data.total_discount_birth_day || 0),
-          );
-          if (data.address) {
-            setValue("address.title", data.address?.title || "");
-            setValue(
-              "address.province_id",
-              data.address?.province_id || undefined,
-            );
-            setValue("address.city_id", data.address?.city_id || undefined);
-            setValue(
-              "address.district_id",
-              data.address?.district_id || undefined,
-            );
-            if (data.address.province_id)
-              dispatch(getCity(data.address.province_id));
-            if (data.address.city_id)
-              dispatch(getDistrict(data.address.city_id));
-          }
-        })
-        .catch(notifyError);
+    if (company) {
+      setValue("id", company.id);
+      setValue("name", company.name);
+      setValue("logo_url", company.logo_url);
+      setValue("email", company.email!);
+      setValue("phone_number", company.phone_number?.replace(/-/g, "") || "");
+      setValue("fax", company.fax || "");
+      setValue("npwp", company.npwp!);
+      setValue("is_ppn", company.is_ppn!);
+      setValue("ppn", Number(company.ppn || 0));
+      setValue("is_discount_birth_day", company.is_discount_birth_day!);
+      setValue(
+        "type_discount_birth_day",
+        company.type_discount_birth_day || "percentage",
+      );
+      setValue(
+        "max_discount_birth_day",
+        Number(company.max_discount_birth_day || 0),
+      );
+      setValue(
+        "total_discount_birth_day",
+        Number(company.total_discount_birth_day || 0),
+      );
+      if (company.address) {
+        setValue("address.title", company.address?.title || "");
+        setValue(
+          "address.province_id",
+          company.address?.province_id || undefined,
+        );
+        setValue("address.city_id", company.address?.city_id || undefined);
+        setValue(
+          "address.district_id",
+          company.address?.district_id || undefined,
+        );
+        if (company.address.province_id)
+          dispatch(getCity(company.address.province_id));
+        if (company.address.city_id)
+          dispatch(getDistrict(company.address.city_id));
+      }
     }
   }
 
@@ -354,7 +347,7 @@ export default function ProfileSettingsPage() {
                 control={control}
                 name="ppn"
                 render={({ field }) => (
-                  <Input
+                  <InputNumber
                     {...(field as any)}
                     disabled={!watch("is_ppn")}
                     endContent={
@@ -362,7 +355,6 @@ export default function ProfileSettingsPage() {
                     }
                     label="Besaran PPN (%)"
                     placeholder="11"
-                    type="number"
                   />
                 )}
               />
@@ -401,6 +393,7 @@ export default function ProfileSettingsPage() {
                   render={({ field }) => (
                     <InputNumber
                       className="flex-1"
+                      isDisabled={!watch("is_discount_birth_day")}
                       label="Nilai Promo"
                       labelPlacement="outside"
                       placeholder="0"
@@ -417,6 +410,7 @@ export default function ProfileSettingsPage() {
                       {...field}
                       aria-label="Tipe Diskon"
                       className="w-24"
+                      isDisabled={!watch("is_discount_birth_day")}
                       selectedKeys={field.value ? [field.value] : []}
                     >
                       <SelectItem key="percentage">%</SelectItem>
@@ -432,6 +426,7 @@ export default function ProfileSettingsPage() {
                   name="max_discount_birth_day"
                   render={({ field }) => (
                     <InputNumber
+                      isDisabled={!watch("is_discount_birth_day")}
                       label="Maksimal Potongan"
                       placeholder="50.000"
                       startContent={
