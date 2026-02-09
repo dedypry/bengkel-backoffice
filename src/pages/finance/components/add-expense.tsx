@@ -6,18 +6,23 @@ import {
   ModalFooter,
   Button,
   Input,
-  Select,
-  SelectItem,
   Textarea,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save, X, Receipt } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { ExpenseFormValues, ExpenseSchema } from "./schemas";
 
 import InputNumber from "@/components/input-number";
 import CustomDatePicker from "@/components/forms/date-picker";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getExpenseCategories } from "@/stores/features/expense/expense-action";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
 interface Props {
   isOpen: boolean;
@@ -25,6 +30,18 @@ interface Props {
 }
 
 export default function ExpenseModal({ isOpen, onClose }: Props) {
+  const { categories } = useAppSelector((state) => state.expense);
+  const hasFetched = useRef(false);
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getExpenseCategories());
+    }
+  }, []);
+
   const {
     control,
     handleSubmit,
@@ -39,14 +56,14 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
   });
 
   const onSubmit = async (data: ExpenseFormValues) => {
-    try {
-      console.log("Data Pengeluaran:", data);
-      // Panggil API di sini
-      reset();
-      onClose();
-    } catch (error) {
-      console.error(error);
-    }
+    http
+      .post("/expense", data)
+      .then(({ data }) => {
+        notify(data.message);
+        reset();
+        onClose();
+      })
+      .catch((err) => notifyError(err));
   };
 
   return (
@@ -80,23 +97,21 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
                 control={control}
                 name="category_id"
                 render={({ field, fieldState }) => (
-                  <Select
-                    {...field}
+                  <Autocomplete
+                    defaultItems={categories}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Kategori"
                     placeholder="Pilih Kategori"
+                    selectedKey={field.value}
+                    onSelectionChange={field.onChange}
                   >
-                    <SelectItem key="operasional" textValue="Operasional">
-                      Operasional
-                    </SelectItem>
-                    <SelectItem key="gaji" textValue="Gaji Karyawan">
-                      Gaji Karyawan
-                    </SelectItem>
-                    <SelectItem key="part" textValue="Pembelian Part">
-                      Pembelian Part
-                    </SelectItem>
-                  </Select>
+                    {(item) => (
+                      <AutocompleteItem key={item.id} textValue={item.name}>
+                        {item.name}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
                 )}
               />
             </div>

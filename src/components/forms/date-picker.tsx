@@ -1,45 +1,56 @@
 import { DatePicker, DatePickerProps } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { parseDate, CalendarDate } from "@internationalized/date";
 
-export default function CustomDatePicker(props: DatePickerProps) {
-  // Fungsi helper untuk mengubah objek Date JS ke CalendarDate (format HeroUI)
-  const convertToCalendarDate = (dateInput: any): CalendarDate | null => {
-    if (!dateInput) return null;
+const CustomDatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
+  (props, ref) => {
+    const convertToCalendarDate = (dateInput: any): CalendarDate | null => {
+      if (!dateInput) return null;
 
-    // Jika input adalah instance dari Date
-    if (dateInput instanceof Date) {
-      return new CalendarDate(
-        dateInput.getFullYear(),
-        dateInput.getMonth() + 1, // JS Month itu 0-indexed
-        dateInput.getDate(),
-      );
-    }
+      if (dateInput instanceof Date) {
+        return new CalendarDate(
+          dateInput.getFullYear(),
+          dateInput.getMonth() + 1,
+          dateInput.getDate(),
+        );
+      }
 
-    // Jika input adalah string (ISO format), gunakan parseDate
-    if (typeof dateInput === "string") {
-      return parseDate(dateInput.split("T")[0]);
-    }
+      if (typeof dateInput === "string" && dateInput.includes("-")) {
+        // Pastikan format string yyyy-mm-dd
+        return parseDate(dateInput.split("T")[0]);
+      }
 
-    return dateInput; // Return as is jika sudah sesuai format internationalized
-  };
+      return dateInput;
+    };
 
-  const [value, setValue] = useState(convertToCalendarDate(props.value));
+    const [value, setValue] = useState<CalendarDate | null>(
+      convertToCalendarDate(props.value),
+    );
 
-  useEffect(() => {
-    setValue(convertToCalendarDate(props.value));
-  }, [props.value]);
+    useEffect(() => {
+      setValue(convertToCalendarDate(props.value));
+    }, [props.value]);
 
-  return (
-    <DatePicker
-      placeholderValue=""
-      {...(props as any)}
-      showMonthAndYearPickers
-      value={value as any}
-      onChange={(val: any) => {
-        setValue(val);
-        if (props.onChange) props.onChange(val?.toString());
-      }}
-    />
-  );
-}
+    return (
+      <DatePicker
+        {...(props as any)}
+        ref={ref} // 3. Teruskan ref ke HeroUI DatePicker
+        showMonthAndYearPickers
+        placeholderValue={undefined}
+        value={value as any}
+        onChange={(val: any) => {
+          setValue(val);
+          // Teruskan nilai string ke Hook Form / parent agar konsisten dengan DTO Backend
+          if (props.onChange) {
+            props.onChange(val ? val.toString() : null);
+          }
+        }}
+      />
+    );
+  },
+);
+
+// 4. Set display name
+CustomDatePicker.displayName = "CustomDatePicker";
+
+export default CustomDatePicker;

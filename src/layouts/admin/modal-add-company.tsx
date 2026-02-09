@@ -47,6 +47,7 @@ export default function ModalAddCompany({ open, setOpen, initialData }: Props) {
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
 
+
   const {
     control,
     handleSubmit,
@@ -104,7 +105,7 @@ export default function ModalAddCompany({ open, setOpen, initialData }: Props) {
   return (
     <Modal
       isOpen={open}
-      scrollBehavior="inside"
+      scrollBehavior="outside"
       size="lg"
       onOpenChange={setOpen}
     >
