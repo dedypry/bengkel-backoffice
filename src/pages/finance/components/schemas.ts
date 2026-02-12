@@ -7,6 +7,7 @@ export const ExpenseSchema = z.object({
   date: z.string().min(1, "Pilih tanggal transaksi"),
   supplier_id: z.string().optional(),
   notes: z.string().optional(),
+  attachment_path: z.any().optional(),
 });
 
 export type ExpenseFormValues = z.infer<typeof ExpenseSchema>;

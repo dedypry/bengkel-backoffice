@@ -16,3 +16,15 @@ export const getExpenseCategories = createAsyncThunk(
     }
   },
 );
+
+export const getExpense = createAsyncThunk("get-expense", async () => {
+  try {
+    const { data } = await http.get("/expense");
+
+    return data;
+  } catch (error) {
+    console.error(error);
+
+    return [];
+  }
+});

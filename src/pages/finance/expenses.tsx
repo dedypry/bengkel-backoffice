@@ -31,13 +31,16 @@ import {
   TableColumn,
   TableRow,
 } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
 
 import ExpenseModal from "./components/add-expense";
 
 import { formatIDR } from "@/utils/helpers/format";
 import HeaderAction from "@/components/header-action";
 import CustomDateRangePicker from "@/components/forms/date-range-picker";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getExpense } from "@/stores/features/expense/expense-action";
 
 const expenses = [
   {
@@ -83,7 +86,14 @@ const expenses = [
 ];
 
 export default function FinanceExpensePage() {
+  const { expense } = useAppSelector((state) => state.expense);
   const [modalAdd, setModalAdd] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getExpense());
+  }, []);
 
   return (
     <div className="space-y-8 pb-20">
@@ -183,7 +193,7 @@ export default function FinanceExpensePage() {
           </TableColumn>
         </TableHeader>
         <TableBody>
-          {expenses.map((exp) => (
+          {(expense?.data || []).map((exp) => (
             <TableRow
               key={exp.id}
               className="group hover:bg-gray-50/50 transition-colors"
@@ -193,15 +203,14 @@ export default function FinanceExpensePage() {
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-[10px] font-black text-gray-500 uppercase">
-                        {exp.id}
+                        {exp.expense_code}
                       </span>
                       <Chip
                         className="font-black text-[10px] uppercase px-1"
-                        color={exp.color as any}
                         size="sm"
                         variant="flat"
                       >
-                        {exp.category}
+                        {exp.category?.name}
                       </Chip>
                     </div>
                     <p className="text-xs font-black text-gray-500 uppercase">
@@ -214,18 +223,18 @@ export default function FinanceExpensePage() {
               <TableCell>
                 <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase">
                   <Calendar className="text-primary" size={14} />
-                  {exp.date}
+                  {dayjs(exp.date).format("DD MMM YYYY")}
                 </div>
               </TableCell>
 
               <TableCell>
                 <Chip
                   className="font-black uppercase"
-                  color={exp.status === "Proses" ? "warning" : "success"}
+                  color="warning"
                   size="sm"
                   variant="dot"
                 >
-                  {exp.status}
+                  {exp.updated?.name}
                 </Chip>
               </TableCell>
 

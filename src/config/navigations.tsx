@@ -99,17 +99,17 @@ export const navigation = [
       },
     ],
   },
-  {
-    roles: ["super-admin", "owner", "cashier"],
-    header: "Keuangan",
-    href: "/finance",
-    permissions: ["report.manage"],
-    icon: "Receipt",
-    items: [
-      { title: "Daftar (Invoicing)", href: "list", icon: "FileText" },
-      { title: "Pengeluaran Operasional", href: "expenses", icon: "Wallet" },
-    ],
-  },
+  // {
+  //   roles: ["super-admin", "owner", "cashier"],
+  //   header: "Keuangan",
+  //   href: "/finance",
+  //   permissions: ["report.manage"],
+  //   icon: "Receipt",
+  //   items: [
+  //     { title: "Daftar (Invoicing)", href: "list", icon: "FileText" },
+  //     { title: "Pengeluaran Operasional", href: "expenses", icon: "Wallet" },
+  //   ],
+  // },
   {
     roles: ["super-admin", "owner"],
     header: "Laporan",

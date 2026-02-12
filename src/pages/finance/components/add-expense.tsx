@@ -23,6 +23,8 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getExpenseCategories } from "@/stores/features/expense/expense-action";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import FileUploader from "@/components/drop-zone";
+import { uploadFile } from "@/utils/helpers/upload-file";
 
 interface Props {
   isOpen: boolean;
@@ -31,7 +33,9 @@ interface Props {
 
 export default function ExpenseModal({ isOpen, onClose }: Props) {
   const { categories } = useAppSelector((state) => state.expense);
+
   const hasFetched = useRef(false);
+  const isLoading = useRef(false);
 
   const dispatch = useAppDispatch();
 
@@ -42,12 +46,7 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
     }
   }, []);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting },
-  } = useForm<ExpenseFormValues>({
+  const { control, handleSubmit, reset } = useForm<ExpenseFormValues>({
     resolver: zodResolver(ExpenseSchema),
     defaultValues: {
       amount: 0,
@@ -55,19 +54,37 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
     },
   });
 
-  const onSubmit = async (data: ExpenseFormValues) => {
-    http
-      .post("/expense", data)
-      .then(({ data }) => {
-        notify(data.message);
-        reset();
-        onClose();
-      })
-      .catch((err) => notifyError(err));
+  const onSubmit = async (payload: ExpenseFormValues) => {
+    isLoading.current = true;
+    try {
+      if (
+        payload.attachment_path?.length > 0 &&
+        payload.attachment_path[0] instanceof File
+      ) {
+        const photo = await uploadFile(payload.attachment_path[0]);
+
+        payload.attachment_path = photo;
+      }
+
+      const { data } = await http.post("/expense", payload);
+
+      notify(data.message);
+      reset();
+      onClose();
+    } catch (error) {
+      notifyError(error);
+    } finally {
+      isLoading.current = false;
+    }
   };
 
   return (
-    <Modal isOpen={isOpen} size="2xl" onClose={onClose}>
+    <Modal
+      isOpen={isOpen}
+      scrollBehavior="outside"
+      size="2xl"
+      onClose={onClose}
+    >
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader className="flex gap-2 items-center">
@@ -161,6 +178,17 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
                 />
               )}
             />
+            <Controller
+              control={control}
+              name="attachment_path"
+              render={({ field }) => (
+                <FileUploader
+                  maxFiles={1}
+                  value={field.value}
+                  onFileSelect={field.onChange}
+                />
+              )}
+            />
           </ModalBody>
 
           <ModalFooter className="border-t border-gray-100 bg-gray-50/50">
@@ -173,9 +201,9 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
             </Button>
             <Button
               color="primary"
-              isLoading={isSubmitting}
+              isLoading={isLoading.current}
               radius="sm"
-              startContent={!isSubmitting && <Save size={18} />}
+              startContent={!isLoading.current && <Save size={18} />}
               type="submit"
             >
               Simpan Transaksi
