@@ -13,11 +13,13 @@ import {
   Card,
   CardHeader,
   CardBody,
+  CardFooter,
 } from "@heroui/react";
 import { Car, Eye, Printer, Receipt, Send, User } from "lucide-react";
 
 import PaymentMethod from "./payment-method";
 import { paymentSchema, type PaymentForm } from "./order-schema";
+import { BillingSkeleton } from "./billing-skeleton";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { notify, notifyError } from "@/utils/helpers/notify";
@@ -30,7 +32,7 @@ import { formatIDR } from "@/utils/helpers/format";
 import FileUploader from "@/components/drop-zone";
 
 export default function PanelCustomer() {
-  const { workOrder } = useAppSelector((state) => state.wo);
+  const { workOrder, isLoadingDetail } = useAppSelector((state) => state.wo);
   const [loading, setLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -98,6 +100,8 @@ export default function PanelCustomer() {
       })
       .catch((err) => notifyError(err));
   }
+
+  if (isLoadingDetail) return <BillingSkeleton />;
 
   return (
     <div className="w-full md:w-2/3 overflow-y-auto scrollbar-modern">
@@ -342,21 +346,6 @@ export default function PanelCustomer() {
                     />
                   )}
                 </div>
-                <Button
-                  fullWidth
-                  color="primary"
-                  isDisabled={
-                    !isValid ||
-                    loading ||
-                    (selectedMethod === "CASH" && changeAmount < 0)
-                  }
-                  isLoading={loading}
-                  onPress={() => handleSubmit(onSubmit)()}
-                >
-                  {loading
-                    ? "Pembayaran sedang di proses"
-                    : "Konfirmasi Pembayaran"}
-                </Button>
               </>
             ) : (
               <div className="pt-10">
@@ -407,6 +396,26 @@ export default function PanelCustomer() {
               </div>
             )}
           </CardBody>
+          {workOrder.status !== "closed" && (
+            <CardFooter>
+              <Button
+                fullWidth
+                className="z-50"
+                color="primary"
+                isDisabled={
+                  !isValid ||
+                  loading ||
+                  (selectedMethod === "CASH" && changeAmount < 0)
+                }
+                isLoading={loading}
+                onPress={() => handleSubmit(onSubmit)()}
+              >
+                {loading
+                  ? "Pembayaran sedang di proses"
+                  : "Konfirmasi Pembayaran"}
+              </Button>
+            </CardFooter>
+          )}
         </Card>
       ) : (
         <Card className="h-full flex flex-col items-center justify-center text-gray-500 border border-dashed rounded-xl">
