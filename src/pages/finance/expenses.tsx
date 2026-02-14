@@ -3,10 +3,6 @@ import {
   Plus,
   Search,
   TrendingDown,
-  Receipt,
-  ShoppingCart,
-  Zap,
-  Users,
   MoreVertical,
   Calendar,
   ChevronRight,
@@ -41,49 +37,6 @@ import HeaderAction from "@/components/header-action";
 import CustomDateRangePicker from "@/components/forms/date-range-picker";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getExpense } from "@/stores/features/expense/expense-action";
-
-const expenses = [
-  {
-    id: "EXP-8801",
-    title: "Restock Oli Shell Helix",
-    category: "Inventory",
-    amount: 4500000,
-    date: "24 Des 2025",
-    status: "Selesai",
-    color: "primary",
-    icon: ShoppingCart,
-  },
-  {
-    id: "EXP-8802",
-    title: "Gaji Mekanik (Desember)",
-    category: "Gaji/Payroll",
-    amount: 12400000,
-    date: "25 Des 2025",
-    status: "Proses",
-    color: "secondary",
-    icon: Users,
-  },
-  {
-    id: "EXP-8803",
-    title: "Tagihan Listrik & Air",
-    category: "Utilitas",
-    amount: 1200000,
-    date: "20 Des 2025",
-    status: "Selesai",
-    color: "warning",
-    icon: Zap,
-  },
-  {
-    id: "EXP-8804",
-    title: "Beli Toolkit Kunci Pas",
-    category: "Alat Bengkel",
-    amount: 850000,
-    date: "15 Des 2025",
-    status: "Selesai",
-    color: "danger",
-    icon: Receipt,
-  },
-];
 
 export default function FinanceExpensePage() {
   const { expense } = useAppSelector((state) => state.expense);
