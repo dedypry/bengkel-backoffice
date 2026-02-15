@@ -2,14 +2,20 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import dayjs from "dayjs";
 
+import { OrderListSkeleton } from "./list-customer-skeleton";
+
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
 import StatusQueue from "@/components/status-queue";
 
 export default function ListCustomer() {
-  const { orders, workOrder } = useAppSelector((state) => state.wo);
+  const { orders, workOrder, isLoadingOrder } = useAppSelector(
+    (state) => state.wo,
+  );
   const dispatch = useAppDispatch();
+
+  if (isLoadingOrder) return <OrderListSkeleton />;
 
   return (
     <div className="space-y-3">

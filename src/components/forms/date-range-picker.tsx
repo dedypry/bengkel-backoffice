@@ -1,100 +1,168 @@
-import { Button, DateRangePicker, DateRangePickerProps } from "@heroui/react";
-import { useEffect, useState } from "react";
-import { parseDate, CalendarDate } from "@internationalized/date";
-import { RangeValue } from "@react-types/shared";
-import { X } from "lucide-react";
+/* eslint-disable import/order */
+import {
+  Button,
+  Input,
+  InputProps,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  TimeInput,
+} from "@heroui/react";
+import { forwardRef, useEffect, useState } from "react";
+import { DateRangePicker, RangeKeyDict } from "react-date-range";
+import { parseAbsoluteToLocal, ZonedDateTime } from "@internationalized/date";
 
-interface CustomDateRangePickerProps
-  extends Omit<DateRangePickerProps, "onChange" | "value"> {
-  value?: { start: string | Date; end: string | Date } | null;
-  onChange?: (value: { start: string; end: string } | null) => void;
-}
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import { Calendar1Icon } from "lucide-react";
 
-export default function CustomDateRangePicker({
-  value: propsValue,
-  onChange,
-  ...props
-}: CustomDateRangePickerProps) {
-  // Helper untuk konversi input ke CalendarDate (format HeroUI/Internationalized)
-  const toCalendarDate = (dateInput: any): CalendarDate | null => {
-    if (!dateInput) return null;
-    if (dateInput instanceof Date) {
-      return new CalendarDate(
-        dateInput.getFullYear(),
-        dateInput.getMonth() + 1,
-        dateInput.getDate(),
-      );
-    }
-    if (typeof dateInput === "string") {
-      return parseDate(dateInput.split("T")[0]);
-    }
+import id from "date-fns/locale/id";
+import dayjs from "dayjs";
+import { dateFormat } from "@/utils/helpers/formater";
 
-    return dateInput;
+interface Props {
+  value: {
+    start?: Date;
+    end?: Date;
   };
+  format?: string;
+  showTime?: boolean;
+}
+function CustomDateRangePicker(
+  {
+    value: dates,
+    format = "DD MMM YY",
+    showTime,
+    ...props
+  }: Props & InputProps,
+  ref: React.Ref<HTMLInputElement>,
+) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const now = new Date();
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(now.getFullYear(), now.getMonth(), 1),
+    endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0),
+    key: "target",
+  });
 
-  // State internal untuk RangeValue
-  const [innerValue, setInnerValue] = useState<RangeValue<CalendarDate> | null>(
-    () => {
-      if (propsValue?.start && propsValue?.end) {
-        return {
-          start: toCalendarDate(propsValue.start) as CalendarDate,
-          end: toCalendarDate(propsValue.end) as CalendarDate,
-        };
-      }
+  function handleChooseDateRange(event: RangeKeyDict) {
+    const dateR = {
+      startDate: event.target.startDate!,
+      endDate: event.target.endDate!,
+    };
 
-      return null;
-    },
-  );
-
-  // Sync state jika prop value dari parent berubah
-  useEffect(() => {
-    if (propsValue?.start && propsValue?.end) {
-      setInnerValue({
-        start: toCalendarDate(propsValue.start) as CalendarDate,
-        end: toCalendarDate(propsValue.end) as CalendarDate,
-      });
-    } else {
-      setInnerValue(null);
-    }
-  }, [propsValue]);
-
-  function handleClear() {
-    setInnerValue(null);
-    if (onChange) {
-      onChange({
-        start: "",
-        end: "",
-      });
+    setDateRange({
+      ...dateRange,
+      ...dateR,
+    });
+    if (props.onChange) {
+      props.onChange({
+        start: dayjs(dateR.startDate).format("YYYY-MM-DD"),
+        end: dayjs(dateR.endDate).format("YYYY-MM-DD"),
+      } as any);
     }
   }
 
-  return (
-    <DateRangePicker
-      startContent={
-        <Button isIconOnly radius="full" size="sm" onPress={handleClear}>
-          <X size={12} />
-        </Button>
+  useEffect(() => {
+    if (dates.start || dates.end) {
+      setDateRange({
+        startDate: dates.start
+          ? dayjs(dates.start).toDate()
+          : dateRange.startDate,
+        endDate: dates.end ? dayjs(dates.end).toDate() : dateRange.endDate,
+        key: "target",
+      });
+    }
+  }, [dates]);
+
+  useEffect(() => {
+    const value = `${dateFormat(dateRange.startDate as any, format)} - ${dateFormat(dateRange.endDate as any, format)}`;
+
+    setValue(value);
+  }, [dateRange]);
+
+  function handleTimeInput(
+    key: "startDate" | "endDate",
+    val?: ZonedDateTime | null,
+  ) {
+    setDateRange((state) => {
+      const dateR = {
+        ...state,
+        [key]: dayjs(val?.toDate()).toDate(),
+      };
+
+      if (props.onChange) {
+        props.onChange(dateR as any);
       }
+
+      return dateR;
+    });
+  }
+
+  return (
+    <Input
+      ref={ref}
       {...props}
-      labelPlacement="outside"
-      radius="sm"
-      value={innerValue as any}
-      variant="bordered"
-      visibleMonths={3}
-      onChange={(val: any) => {
-        setInnerValue(val);
-        if (onChange) {
-          if (val) {
-            // Mengirim balik string ISO ke parent
-            onChange({
-              start: val.start.toString(),
-              end: val.end.toString(),
-            });
-          } else {
-            onChange(null);
-          }
-        }
-      }}
+      endContent={
+        <Popover
+          isOpen={open}
+          placement="bottom"
+          onOpenChange={(open) => setOpen(open)}
+        >
+          <PopoverTrigger>
+            <Calendar1Icon className="text-secondary-600 cursor-pointer" />
+          </PopoverTrigger>
+          <PopoverContent className="mt-3">
+            <div className="px-1 py-2">
+              <DateRangePicker
+                color="#077fb6"
+                editableDateInputs={true}
+                locale={id}
+                moveRangeOnFirstSelection={false}
+                rangeColors={["#077fb6"]}
+                ranges={[dateRange]}
+                retainEndDateOnFirstSelection={false}
+                onChange={handleChooseDateRange}
+              />
+              {showTime && (
+                <div className="flex gap-2">
+                  <TimeInput
+                    hourCycle={24}
+                    label="Waktu Mulai"
+                    value={parseAbsoluteToLocal(
+                      dayjs(dateRange.startDate).toISOString(),
+                    )}
+                    onChange={(val) => handleTimeInput("startDate", val)}
+                  />
+                  <TimeInput
+                    hourCycle={24}
+                    label="Waktu Berakhir"
+                    value={parseAbsoluteToLocal(
+                      dayjs(dateRange.endDate).toISOString(),
+                    )}
+                    onChange={(val) => handleTimeInput("endDate", val)}
+                  />
+                </div>
+              )}
+
+              <div className="text-right py-5">
+                <Button
+                  color="primary"
+                  variant="shadow"
+                  onPress={() => setOpen(false)}
+                >
+                  Simpan/Tutup
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      }
+      value={value}
+      onClick={() => setOpen(true)}
     />
   );
 }
+
+export default forwardRef(CustomDateRangePicker);

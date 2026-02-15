@@ -42,6 +42,7 @@ import CustomDatePicker from "@/components/forms/date-picker";
 import HeaderAction from "@/components/header-action";
 import { IBooking } from "@/utils/interfaces/IBooking";
 import { formatTime } from "@/utils/helpers/global";
+import debounce from "@/utils/helpers/debounce";
 
 const getStatusColor = (
   status: string,
@@ -80,6 +81,11 @@ export default function BookingPage() {
     }
   }, [company, bookingQuery, dispatch]);
 
+  const searchDebounce = debounce(
+    (q) => dispatch(setBookingQuery({ q })),
+    1000,
+  );
+
   return (
     <div className="space-y-6">
       <ModalAdd data={data} isOpen={modalAdd} setOpen={setModalAdd} />
@@ -97,21 +103,33 @@ export default function BookingPage() {
         <CardHeader className="flex gap-4">
           <Input
             className="flex-1 min-w-[240px]"
+            defaultValue={bookingQuery.q}
             label="Cari Customer / Kendaraan"
             placeholder="Ketik nama atau plat nomor..."
             startContent={<Search className="text-default-400" size={18} />}
+            onValueChange={searchDebounce}
           />
           <Select
             className="w-full md:w-[180px]"
-            defaultSelectedKeys={["all"]}
+            defaultSelectedKeys={[bookingQuery.status]}
             label="Status"
+            onSelectionChange={(key) => {
+              const status = Array.from(key)[0];
+
+              dispatch(setBookingQuery({ status }));
+            }}
           >
             <SelectItem key="all">Semua Status</SelectItem>
             <SelectItem key="pending">Pending</SelectItem>
             <SelectItem key="confirmed">Confirmed</SelectItem>
           </Select>
 
-          <CustomDatePicker className="w-full md:w-[200px]" label="Tanggal" />
+          <CustomDatePicker
+            className="w-full md:w-[200px]"
+            label="Tanggal"
+            value={bookingQuery.date as any}
+            onChange={(date) => dispatch(setBookingQuery({ date }))}
+          />
         </CardHeader>
         <CardBody>
           <Table removeWrapper aria-label="Tabel Data Booking">

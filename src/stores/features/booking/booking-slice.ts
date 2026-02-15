@@ -13,6 +13,8 @@ const bookingSlice = createSlice({
       page: 1,
       pageSize: 10,
       q: "",
+      status: "all",
+      date: new Date().toISOString(),
     },
   },
   reducers: {

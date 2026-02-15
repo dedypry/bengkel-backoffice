@@ -17,7 +17,6 @@ export default function QueuePage() {
   const { orders, woQuery } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
 
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const hasFetched = useRef(false);

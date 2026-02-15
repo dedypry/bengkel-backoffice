@@ -34,6 +34,7 @@ const productSlice = createSlice({
     },
     recepipts: null as IPagination<IReceipt> | null,
     recepipt: null as IReceipt | null,
+    isLoadingProduct: false,
   },
   reducers: {
     setCategoryQuery: (state, action) => {
@@ -62,6 +63,10 @@ const productSlice = createSlice({
       })
       .addCase(getProductDetail.fulfilled, (state, action) => {
         state.product = action.payload;
+        state.isLoadingProduct = false;
+      })
+      .addCase(getProductDetail.pending, (state) => {
+        state.isLoadingProduct = true;
       })
       .addCase(getProductReceiptDetail.fulfilled, (state, action) => {
         state.recepipt = action.payload;

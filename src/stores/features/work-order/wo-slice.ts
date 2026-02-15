@@ -26,6 +26,7 @@ const woSlice = createSlice({
       status: "all",
       date_from: "",
       date_to: "",
+      date: new Date().toISOString(),
     },
     services: [] as IWo[],
     sparepart: [] as ISparepart[],
@@ -34,6 +35,8 @@ const woSlice = createSlice({
     customer: null as ICustomer | null,
     detail: null as IWorkOrder | null,
     isLoadingDetail: false,
+    isLoadingOrder: false,
+    isLoadingProduct: false,
     tabCashier: "customer",
   },
   reducers: {
@@ -108,6 +111,10 @@ const woSlice = createSlice({
     builder
       .addCase(getWo.fulfilled, (state, action) => {
         state.orders = action.payload;
+        state.isLoadingOrder = false;
+      })
+      .addCase(getWo.pending, (state) => {
+        state.isLoadingOrder = true;
       })
       .addCase(getWoDetail.fulfilled, (state, action) => {
         state.detail = action.payload;

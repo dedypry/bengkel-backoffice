@@ -1,15 +1,21 @@
 import { Card, CardBody, Chip, ScrollShadow, Divider } from "@heroui/react";
 import { Package, MapPin, Tag } from "lucide-react"; // Ikon tambahan agar lebih pro
 
+import { ProductListSkeleton } from "./product-list-skeleton";
+
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
 import { setWoProducts } from "@/stores/features/work-order/wo-slice";
 
 export default function ListProduct() {
-  const { products } = useAppSelector((state) => state.product);
+  const { products, isLoadingProduct } = useAppSelector(
+    (state) => state.product,
+  );
   const { products: datas } = useAppSelector((state) => state.wo);
 
   const dispatch = useAppDispatch();
+
+  if (isLoadingProduct) return <ProductListSkeleton />;
 
   return (
     <ScrollShadow className="px-1 scrollbar-modern">

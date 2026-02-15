@@ -48,6 +48,7 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import debounce from "@/utils/helpers/debounce";
 import PageSize from "@/components/page-size";
+import CustomDatePicker from "@/components/forms/date-picker";
 
 interface Props {
   setOpenModal: (val: boolean) => void;
@@ -121,6 +122,11 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                 </SelectItem>
               ))}
             </Select>
+            <CustomDatePicker
+              label="Tanggal"
+              value={woQuery.date}
+              onChange={(date) => dispatch(setWoQuery({ date }))}
+            />
           </div>
         </CardHeader>
         <CardBody>
