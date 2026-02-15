@@ -72,11 +72,13 @@ export default function DetailServiceTab({ id }: Props) {
         />
         <div>
           <CustomDateRangePicker
-            value={{
-              start: woQuery.date_from,
-              end: woQuery.date_to,
-            }}
-            onChange={(val) => {
+            value={
+              {
+                start: woQuery.date_from,
+                end: woQuery.date_to,
+              } as any
+            }
+            onChange={(val: any) => {
               dispatch(
                 setWoQuery({
                   ...query,

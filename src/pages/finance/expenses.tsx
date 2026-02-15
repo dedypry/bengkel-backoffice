@@ -34,7 +34,6 @@ import ExpenseModal from "./components/add-expense";
 
 import { formatIDR } from "@/utils/helpers/format";
 import HeaderAction from "@/components/header-action";
-import CustomDateRangePicker from "@/components/forms/date-range-picker";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getExpense } from "@/stores/features/expense/expense-action";
 
@@ -126,7 +125,7 @@ export default function FinanceExpensePage() {
               placeholder="Cari transaksi, supplier, atau kategori..."
               startContent={<Search className="text-gray-400" size={20} />}
             />
-            <CustomDateRangePicker className="w-80" />
+            {/* <CustomDateRangePicker className="w-80" /> */}
             <Button color="primary" startContent={<Search size={20} />}>
               Cari
             </Button>
