@@ -16,7 +16,7 @@ export default function CashierPage() {
   useEffect(() => {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
-      dispatch(getWo({ ...woQuery, pageSize: 100 }));
+      dispatch(getWo({ ...woQuery, pageSize: 100, date: "" } as any));
       setTimeout(() => {
         hasFetched.current = false;
       }, 1000);
