@@ -11,6 +11,8 @@ import { getDetailCustomer } from "@/stores/features/customer/customer-action";
 import { getInitials } from "@/utils/helpers/global";
 import Detail404 from "@/pages/hr/employees/components/detail-404";
 import DetailSkeleton from "@/pages/hr/employees/components/detail-skeleton";
+import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
+import { http } from "@/utils/libs/axios";
 
 export default function CustomerDetailPage() {
   const { id } = useParams();
@@ -33,6 +35,16 @@ export default function CustomerDetailPage() {
 
   if (detailLoading) return <DetailSkeleton />;
   if (!data) return <Detail404 id={id} />;
+
+  function handleDelete() {
+    http
+      .delete(`/customers/${id}`)
+      .then(({ data }) => {
+        notify(data.message);
+        navigate("/master/customers");
+      })
+      .catch((err) => notifyError(err));
+  }
 
   return (
     <div className="space-y-8 pb-20">
@@ -77,6 +89,7 @@ export default function CustomerDetailPage() {
                 color="danger"
                 startContent={<Trash2 size={18} />}
                 variant="flat"
+                onPress={() => confirmSweat(handleDelete)}
               >
                 Hapus
               </Button>
