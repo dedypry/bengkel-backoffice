@@ -6,9 +6,10 @@ import {
   MapPin,
   Car,
   Users,
-  Info,
+  EyeIcon,
+  Download,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import {
   Input,
@@ -21,17 +22,21 @@ import {
   TableRow,
   TableCell,
   Card,
-  Select,
-  SelectItem,
   CardBody,
   CardFooter,
   CardHeader,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Button,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getCustomer } from "@/stores/features/customer/customer-action";
-import { getInitials } from "@/utils/helpers/global";
+import { getInitials, handleDownloadExcel } from "@/utils/helpers/global";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setCustomerQuery } from "@/stores/features/customer/customer-slice";
 import debounce from "@/utils/helpers/debounce";
@@ -46,14 +51,17 @@ export default function MasterCustomerPage() {
   const { company } = useAppSelector((state) => state.auth);
   const { customers: cust, query } = useAppSelector((state) => state.customer);
   const customers = cust as IPagination<ICustomer>;
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
 
+  const custQuery = { ...query, isVehicle: true };
+
   useEffect(() => {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
-      dispatch(getCustomer(query));
+      dispatch(getCustomer(custQuery));
 
       setTimeout(() => {
         hasFetched.current = false;
@@ -70,7 +78,7 @@ export default function MasterCustomerPage() {
       .delete(`/customers/${id}`)
       .then(({ data }) => {
         notify(data.message);
-        dispatch(getCustomer(query));
+        dispatch(getCustomer(custQuery));
       })
       .catch((err) => notifyError(err));
   }
@@ -79,12 +87,37 @@ export default function MasterCustomerPage() {
     <div className="space-y-6 pb-10">
       {/* Header - Menggunakan komponen yang sudah kita refaktor sebelumnya */}
       <HeaderAction
-        actionIcon={UserPlus}
-        actionTitle="Tambah Pelanggan"
+        actionContent={
+          <div className="flex gap-2">
+            <Button
+              className="text-white"
+              color="success"
+              size="sm"
+              startContent={<Download size={15} />}
+              onPress={() =>
+                handleDownloadExcel(
+                  "/customers/export-excel",
+                  custQuery,
+                  "list-customer",
+                )
+              }
+            >
+              Download Excel
+            </Button>
+            <Button
+              as={Link}
+              color="primary"
+              size="sm"
+              startContent={<UserPlus size={15} />}
+              to="/master/customers/create"
+            >
+              Tambah Pelanggan
+            </Button>
+          </div>
+        }
         leadIcon={Users}
         subtitle="Kelola informasi kontak dan profil pemilik kendaraan bengkel."
         title="Database Pelanggan"
-        onAction={() => navigate("/master/customers/create")}
       />
 
       {/* Filters Area */}
@@ -107,57 +140,75 @@ export default function MasterCustomerPage() {
           />
           <div className="flex flex-col md:flex-row gap-4">
             <Input
+              fullWidth
               isClearable
-              className="flex-1"
               placeholder="Cari nama, email, atau nomor telepon..."
               startContent={<Search className="text-gray-400" size={18} />}
-              variant="bordered"
               onChange={(e) => searchDebounce(e.target.value)}
             />
-            <Select
+            <Autocomplete
+              classNames={{
+                clearButton: "text-gray-500",
+              }}
+              defaultItems={customers?.stats?.vehicles || []}
+              placeholder="Pilih Jenis Kendaraan"
+              selectedKey={query.model}
+              onSelectionChange={(val) => {
+                const find = customers?.stats?.vehicles.find(
+                  (e: any) => e.model === val,
+                );
+
+                dispatch(
+                  setCustomerQuery({
+                    model: find?.model,
+                    brand: find?.brand,
+                  }),
+                );
+              }}
+            >
+              {(item: any) => (
+                <AutocompleteItem
+                  key={item.model}
+                  textValue={`${item.brand} ${item.model}`}
+                >
+                  {item?.brand?.toUpperCase()} {item?.model?.toUpperCase()}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
+            {/* <Select
               aria-label="Filter Status"
-              className="w-full md:w-48"
+              className="w-full md:w-56"
               classNames={{
                 trigger:
                   "border-gray-200 hover:border-gray-400 focus-within:border-gray-800 shadow-none",
                 value: "text-small font-bold text-gray-600",
               }}
-              placeholder="Status: Semua"
-              selectedKeys={[query.status || "all"]}
+              placeholder="Pilih Jenis Kendaraan"
+              selectedKeys={[vehileIndex.toString()]}
               startContent={<Info className="text-gray-400" size={16} />}
               variant="bordered"
-              onChange={(e) => {
-                const val = e.target.value;
+              onSelectionChange={(key) => {
+                const val = Array.from(key)[0];
+                const find = customers?.stats?.vehicles?.[val];
 
+                console.log(find);
                 dispatch(
                   setCustomerQuery({
-                    status: val === "all" ? undefined : val,
+                    model: find.model,
+                    brand: find.brand,
                   }),
                 );
+                setVehicleIndex(Number(val));
               }}
             >
-              <SelectItem key="all" textValue="Semua Status">
-                <span className="text-small font-medium text-gray-600 italic">
-                  Semua Status
-                </span>
-              </SelectItem>
-              <SelectItem key="active" textValue="Aktif">
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-emerald-500" />
-                  <span className="text-small font-bold text-gray-800 uppercase tracking-tight">
-                    Aktif
-                  </span>
-                </div>
-              </SelectItem>
-              <SelectItem key="inactive" textValue="Non-Aktif">
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-gray-300" />
-                  <span className="text-small font-bold text-gray-800 uppercase tracking-tight">
-                    Non-Aktif
-                  </span>
-                </div>
-              </SelectItem>
-            </Select>
+              {(customers?.stats?.vehicles || []).map(
+                (item: IVehicle, i: number) => (
+                  <SelectItem key={i} textValue={`${item.brand} ${item.model}`}>
+                    {item.brand.toUpperCase()} {item.model.toUpperCase()}
+                  </SelectItem>
+                ),
+              )}
+            </Select> */}
           </div>
         </CardHeader>
         <CardBody>
@@ -167,7 +218,7 @@ export default function MasterCustomerPage() {
               <TableColumn>KONTAK</TableColumn>
               <TableColumn>ALAMAT</TableColumn>
               <TableColumn align="center">UNIT KENDARAAN</TableColumn>
-              <TableColumn align="center">STATUS</TableColumn>
+              {/* <TableColumn align="center">STATUS</TableColumn> */}
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
             <TableBody emptyContent="Data pelanggan tidak ditemukan">
@@ -216,17 +267,61 @@ export default function MasterCustomerPage() {
                     </div>
                   </TableCell>
 
-                  <TableCell>
-                    <Chip
-                      className="bg-gray-100 text-gray-700 font-bold text-tiny border-none"
-                      startContent={<Car size={12} />}
-                      variant="flat"
-                    >
-                      {customer.total_vehicle} Unit
-                    </Chip>
+                  <TableCell className="text-start">
+                    {customer.vehicles?.map((e, i) => {
+                      if (i === 0) {
+                        return (
+                          <div key={e.id} className="flex flex-col gap-2">
+                            <p>
+                              {e.brand.toUpperCase()} {e.model.toUpperCase()}
+                            </p>
+                            <div className="flex w-full gap-2">
+                              <Chip
+                                startContent={<Car size={18} />}
+                                variant="flat"
+                              >
+                                {e.plate_number}
+                              </Chip>
+                              {customer.total_vehicle > 1 && (
+                                <Popover>
+                                  <PopoverTrigger>
+                                    <Chip
+                                      className="cursor-pointer text-white"
+                                      color="warning"
+                                      size="sm"
+                                    >
+                                      + {customer.total_vehicle - 1}
+                                    </Chip>
+                                  </PopoverTrigger>
+                                  <PopoverContent>
+                                    {customer.vehicles?.map((ve) => (
+                                      <div
+                                        key={ve.id}
+                                        className="flex gap-2 p-1 justify-start items-start text-start w-xs"
+                                      >
+                                        <p>
+                                          {ve.brand.toUpperCase()}{" "}
+                                          {ve.model.toUpperCase()}
+                                        </p>
+                                        <Chip
+                                          startContent={<Car size={18} />}
+                                          variant="flat"
+                                        >
+                                          {ve.plate_number}
+                                        </Chip>
+                                      </div>
+                                    ))}
+                                  </PopoverContent>
+                                </Popover>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }
+                    })}
                   </TableCell>
 
-                  <TableCell>
+                  {/* <TableCell>
                     <Chip
                       className="font-bold text-[10px] uppercase"
                       color={
@@ -237,9 +332,20 @@ export default function MasterCustomerPage() {
                     >
                       {customer.status}
                     </Chip>
-                  </TableCell>
+                  </TableCell> */}
 
                   <TableCell>
+                    <Button
+                      isIconOnly
+                      as={Link}
+                      color="success"
+                      radius="full"
+                      size="sm"
+                      to={`/master/customers/${customer.id}`}
+                      variant="light"
+                    >
+                      <EyeIcon size={16} />
+                    </Button>
                     <TableAction
                       onDelete={() => handleDelete(customer.id)}
                       onDetail={() =>

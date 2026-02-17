@@ -16,6 +16,8 @@ export const customerSlice = createSlice({
       pageSize: 10,
       q: "",
       status: "all",
+      model: "",
+      brand: "",
     },
   },
   reducers: {

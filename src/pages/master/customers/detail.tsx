@@ -42,10 +42,10 @@ export default function CustomerDetailPage() {
           <div className="flex flex-col md:flex-row items-center gap-8">
             <Avatar
               className="w-24 h-24 border-4 border-gray-50 shadow-md font-black italic text-gray-400 text-2xl"
-              fallback={getInitials(data.name)}
+              fallback={getInitials(data?.name)}
               src={
                 data?.profile?.photo_url ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.name}`
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${data?.name}`
               }
             />
 
@@ -64,10 +64,10 @@ export default function CustomerDetailPage() {
               </div>
               <div className="flex flex-col justify-center md:justify-start gap-1 text-gray-400">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase">
-                  <Phone className="text-primary" size={14} /> {data.phone}
+                  <Phone className="text-primary" size={14} /> {data?.phone}
                 </div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase">
-                  <Mail className="text-primary" size={14} /> {data.email}
+                  <Mail className="text-primary" size={14} /> {data?.email}
                 </div>
               </div>
             </div>

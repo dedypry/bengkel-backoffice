@@ -1,4 +1,14 @@
-import { Card, CardBody, Chip } from "@heroui/react";
+import {
+  Card,
+  CardBody,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@heroui/react";
 import dayjs from "dayjs";
 import { UserIcon, Car } from "lucide-react";
 
@@ -25,16 +35,16 @@ export default function DetailCustomerTab({ data }: Props) {
               </h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
-              <DetailField label="NIK KTP" value={data.nik_ktp} />
+              <DetailField label="NIK KTP" value={data?.nik_ktp} />
               <DetailField
                 label="Tanggal Lahir"
                 value={
-                  data?.profile.birth_date
-                    ? dayjs(data?.profile.birth_date).format("DD MMMM YYYY")
+                  data?.profile?.birth_date
+                    ? dayjs(data?.profile?.birth_date).format("DD MMMM YYYY")
                     : "-"
                 }
               />
-              <DetailField label="Tipe Pelanggan" value={data.customer_type} />
+              <DetailField label="Tipe Pelanggan" value={data?.customer_type} />
               <DetailField
                 isFullWidth
                 label="Alamat Lengkap"
@@ -57,34 +67,57 @@ export default function DetailCustomerTab({ data }: Props) {
                 Gudang Kendaraan ({data.vehicles?.length})
               </h4>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(data?.vehicles || []).map((v) => (
-                <Card
-                  key={v.id}
-                  className="border border-gray-200 hover:border-primary transition-all shadow-none"
-                >
-                  <CardBody className="p-5 flex flex-row items-center justify-between">
-                    <div>
-                      <p className="text-lg font-black text-gray-500 uppercase leading-none mb-1">
-                        {v.plate_number}
-                      </p>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">
-                        {v.brand} {v.model} • {v.year}
-                      </p>
-                    </div>
-                    <div className="text-right">
+            <Table aria-label="Daftar Kendaraan">
+              <TableHeader>
+                <TableColumn>PLAT NOMOR</TableColumn>
+                <TableColumn>BRAND & MODEL</TableColumn>
+                <TableColumn>TAHUN</TableColumn>
+                <TableColumn>TRANSMISI</TableColumn>
+                <TableColumn>BAHAN BAKAR</TableColumn>
+                <TableColumn>UKURAN BAN</TableColumn>
+                <TableColumn>WARNA</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {(data?.vehicles || []).map((car) => (
+                  <TableRow key={car.id}>
+                    <TableCell>
+                      <span className="font-bold text-primary">
+                        {car.plate_number}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <p className="text-bold text-sm capitalize">
+                          {car.brand}
+                        </p>
+                        <p className="text-bold text-tiny capitalize text-gray-500">
+                          {car.model}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>{car.year}</TableCell>
+                    <TableCell>
                       <Chip
-                        className="font-black text-[10px] uppercase tracking-tighter rounded-sm"
+                        color={
+                          car.transmission_type === "AT"
+                            ? "secondary"
+                            : "warning"
+                        }
                         size="sm"
                         variant="flat"
                       >
-                        {v.transmission_type} • {v.engine_capacity}CC
+                        {car.transmission_type}
                       </Chip>
-                    </div>
-                  </CardBody>
-                </Card>
-              ))}
-            </div>
+                    </TableCell>
+                    <TableCell className="capitalize">
+                      {car.fuel_type}
+                    </TableCell>
+                    <TableCell className="uppercase">{car.tire_size}</TableCell>
+                    <TableCell className="capitalize">{car.color}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardBody>
         </Card>
       </div>
