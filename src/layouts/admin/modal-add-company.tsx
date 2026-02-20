@@ -47,7 +47,6 @@ export default function ModalAddCompany({ open, setOpen, initialData }: Props) {
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
 
-
   const {
     control,
     handleSubmit,
