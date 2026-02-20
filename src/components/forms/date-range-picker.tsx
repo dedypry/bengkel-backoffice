@@ -14,7 +14,7 @@ import { parseAbsoluteToLocal, ZonedDateTime } from "@internationalized/date";
 
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { Calendar1Icon } from "lucide-react";
+import { Calendar1Icon, X } from "lucide-react";
 
 import id from "date-fns/locale/id";
 import dayjs from "dayjs";
@@ -105,59 +105,82 @@ function CustomDateRangePicker(
       ref={ref}
       {...props}
       endContent={
-        <Popover
-          isOpen={open}
-          placement="bottom"
-          onOpenChange={(open) => setOpen(open)}
-        >
-          <PopoverTrigger>
-            <Calendar1Icon className="text-secondary-600 cursor-pointer" />
-          </PopoverTrigger>
-          <PopoverContent className="mt-3">
-            <div className="px-1 py-2">
-              <DateRangePicker
-                color="#077fb6"
-                editableDateInputs={true}
-                locale={id}
-                moveRangeOnFirstSelection={false}
-                rangeColors={["#077fb6"]}
-                ranges={[dateRange]}
-                retainEndDateOnFirstSelection={false}
-                onChange={handleChooseDateRange}
-              />
-              {showTime && (
-                <div className="flex gap-2">
-                  <TimeInput
-                    hourCycle={24}
-                    label="Waktu Mulai"
-                    value={parseAbsoluteToLocal(
-                      dayjs(dateRange.startDate).toISOString(),
-                    )}
-                    onChange={(val) => handleTimeInput("startDate", val)}
-                  />
-                  <TimeInput
-                    hourCycle={24}
-                    label="Waktu Berakhir"
-                    value={parseAbsoluteToLocal(
-                      dayjs(dateRange.endDate).toISOString(),
-                    )}
-                    onChange={(val) => handleTimeInput("endDate", val)}
-                  />
-                </div>
-              )}
+        <div className="flex items-center">
+          <Button
+            isIconOnly
+            radius="full"
+            size="sm"
+            variant="light"
+            onPress={() => {
+              setDateRange({
+                startDate: null,
+                endDate: null,
+                key: "target",
+              } as any);
+              if (props.onChange) {
+                props.onChange({
+                  start: "",
+                  end: "",
+                } as any);
+              }
+            }}
+          >
+            <X className="text-gray-600" size={18} />
+          </Button>
+          <Popover
+            isOpen={open}
+            placement="bottom"
+            onOpenChange={(open) => setOpen(open)}
+          >
+            <PopoverTrigger>
+              <Calendar1Icon className="text-secondary-600 cursor-pointer" />
+            </PopoverTrigger>
+            <PopoverContent className="mt-3">
+              <div className="px-1 py-2">
+                <DateRangePicker
+                  color="#077fb6"
+                  editableDateInputs={true}
+                  locale={id}
+                  moveRangeOnFirstSelection={false}
+                  rangeColors={["#077fb6"]}
+                  ranges={[dateRange]}
+                  retainEndDateOnFirstSelection={false}
+                  onChange={handleChooseDateRange}
+                />
+                {showTime && (
+                  <div className="flex gap-2">
+                    <TimeInput
+                      hourCycle={24}
+                      label="Waktu Mulai"
+                      value={parseAbsoluteToLocal(
+                        dayjs(dateRange.startDate).toISOString(),
+                      )}
+                      onChange={(val) => handleTimeInput("startDate", val)}
+                    />
+                    <TimeInput
+                      hourCycle={24}
+                      label="Waktu Berakhir"
+                      value={parseAbsoluteToLocal(
+                        dayjs(dateRange.endDate).toISOString(),
+                      )}
+                      onChange={(val) => handleTimeInput("endDate", val)}
+                    />
+                  </div>
+                )}
 
-              <div className="text-right py-5">
-                <Button
-                  color="primary"
-                  variant="shadow"
-                  onPress={() => setOpen(false)}
-                >
-                  Simpan/Tutup
-                </Button>
+                <div className="text-right py-5">
+                  <Button
+                    color="primary"
+                    variant="shadow"
+                    onPress={() => setOpen(false)}
+                  >
+                    Simpan/Tutup
+                  </Button>
+                </div>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
+        </div>
       }
       value={value}
       onClick={() => setOpen(true)}

@@ -1,5 +1,6 @@
 /* eslint-disable import/order */
 import {
+  Button,
   Input,
   InputProps,
   Popover,
@@ -11,7 +12,7 @@ import { Calendar } from "react-date-range";
 
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { Calendar1Icon } from "lucide-react";
+import { Calendar1Icon, X } from "lucide-react";
 
 import dayjs from "dayjs";
 import id from "date-fns/locale/id";
@@ -32,33 +33,52 @@ function CustomDatePicker(
       {...props}
       readOnly
       endContent={
-        <Popover
-          isOpen={open}
-          placement="bottom"
-          onOpenChange={(open) => setOpen(open)}
-        >
-          <PopoverTrigger>
-            <Calendar1Icon className="text-secondary-600 cursor-pointer" />
-          </PopoverTrigger>
-          <PopoverContent className="mt-3">
-            <div className="px-1 py-2">
-              <Calendar
-                color="#077fb6"
-                date={dayjs(props.value || new Date()).toDate()}
-                locale={id}
-                maxDate={maxDate}
-                minDate={minDate}
-                onChange={(e) => {
-                  if (props.onChange) {
-                    props.onChange(dayjs(e).format("YYYY-MM-DD") as any);
-                  }
-                }}
-              />
-            </div>
-          </PopoverContent>
-        </Popover>
+        <div className="flex items-center">
+          <Button
+            isIconOnly
+            radius="full"
+            size="sm"
+            variant="light"
+            onPress={() => {
+              if (props.onChange) {
+                props.onChange("" as any);
+              }
+            }}
+          >
+            <X className="text-gray-600" size={18} />
+          </Button>
+          <Popover
+            isOpen={open}
+            placement="bottom"
+            onOpenChange={(open) => setOpen(open)}
+          >
+            <PopoverTrigger>
+              <Calendar1Icon className="text-secondary-600 cursor-pointer" />
+            </PopoverTrigger>
+            <PopoverContent className="mt-3">
+              <div className="px-1 py-2">
+                <Calendar
+                  color="#077fb6"
+                  date={dayjs(props.value || new Date()).toDate()}
+                  locale={id}
+                  maxDate={maxDate}
+                  minDate={minDate}
+                  onChange={(e) => {
+                    if (props.onChange) {
+                      props.onChange(dayjs(e).format("YYYY-MM-DD") as any);
+                    }
+                  }}
+                />
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       }
-      value={dayjs(props.value || new Date()).format("DD MMMM YYYY")}
+      value={
+        props.value
+          ? dayjs(props.value || new Date()).format("DD MMMM YYYY")
+          : "-"
+      }
       onClick={() => setOpen(true)}
     />
   );

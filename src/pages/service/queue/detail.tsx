@@ -74,8 +74,8 @@ export default function WorkOrderDetail() {
                 </div>
               </div>
             </div>
-            <div className="bg-gray-500 p-8 flex flex-col justify-center items-end min-w-[300px]">
-              <span className="text-gray-200 font-black text-[10px] tracking-[0.3em] uppercase mb-1">
+            <div className="bg-primary p-8 flex flex-col justify-center items-end min-w-[300px]">
+              <span className="text-gray-200 font-black text-[12px] uppercase mb-1">
                 Total Biaya Estimasi
               </span>
               <span className="text-2xl font-black text-white tracking-[0.1em]">
@@ -191,7 +191,7 @@ export default function WorkOrderDetail() {
                 </div>
               }
             >
-              <HistoryTab id={data.customer_id as any} />
+              <HistoryTab id={data.customer_id as any} isNoDate={true} />
             </Tab>
           </Tabs>
         </div>

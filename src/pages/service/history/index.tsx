@@ -28,26 +28,16 @@ import debounce from "@/utils/helpers/debounce";
 import CustomDateRangePicker from "@/components/forms/date-range-picker";
 import { handleDownload } from "@/utils/helpers/global";
 import HeaderAction from "@/components/header-action";
-import { dateFormat } from "@/utils/helpers/formater";
 
 export default function HistoryPage() {
   const { orders, woQuery } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState<number[]>([]);
   const dispatch = useAppDispatch();
-  const now = new Date();
   const query = {
     ...woQuery,
     isHistory: 1,
     date: "",
-    date_from: dateFormat(
-      new Date(now.getFullYear(), now.getMonth(), 1) as any,
-      "YYYY-MM-DD",
-    ),
-    date_to: dateFormat(
-      new Date(now.getFullYear(), now.getMonth() + 1, 0) as any,
-      "YYYY-MM-DD",
-    ),
   };
   const hasFetched = useRef(false);
 
