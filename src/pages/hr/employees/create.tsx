@@ -402,7 +402,11 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
           <Button variant="flat" onPress={() => navigate("/hr/employees")}>
             Batalkan
           </Button>
-          <Button color="primary" isLoading={isLoading} type="submit">
+          <Button
+            color="primary"
+            isLoading={isLoading}
+            onPress={() => handleSubmit(onSubmit)()}
+          >
             {id ? "Update Data Karyawan" : "Simpan Karyawan Baru"}
           </Button>
         </div>
