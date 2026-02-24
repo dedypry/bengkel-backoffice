@@ -71,6 +71,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log("SUBMIT", values);
     setLoading(true);
     try {
       if (values.photo instanceof File) {
@@ -81,6 +82,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
 
       const response = await http.post("/employees", { id, ...values });
 
+      console.log("SUBMIT", response);
       notify(response.data.message);
       navigate("/hr/employees");
     } catch (err) {
@@ -94,7 +96,6 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
     <div className="space-y-8 pb-20">
       <AddRole open={openAddRole} setOpen={setOpenAddRole} />
 
-      {/* Top Navigation */}
       <div className="flex items-center gap-6">
         <Button
           isIconOnly
