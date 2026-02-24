@@ -151,7 +151,35 @@ export default function MasterCustomerPage() {
                 clearButton: "text-gray-500",
               }}
               defaultItems={customers?.stats?.vehicles || []}
-              placeholder="Pilih Jenis Kendaraan"
+              placeholder="Pilih Brand Kendaraan"
+              selectedKey={query.brand}
+              onSelectionChange={(val) => {
+                const find = customers?.stats?.vehicles.find(
+                  (e: any) => e.brand === val,
+                );
+
+                dispatch(
+                  setCustomerQuery({
+                    brand: find?.brand,
+                    model: "",
+                  }),
+                );
+              }}
+            >
+              {(item: any) => (
+                <AutocompleteItem key={item.brand} textValue={item.brand}>
+                  {item?.brand?.toUpperCase()}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
+            <Autocomplete
+              classNames={{
+                clearButton: "text-gray-500",
+              }}
+              defaultItems={(customers?.stats?.vehicles || []).filter(
+                (e: any) => e.brand === query.brand,
+              )}
+              placeholder="Pilih Model Kendaraan"
               selectedKey={query.model}
               onSelectionChange={(val) => {
                 const find = customers?.stats?.vehicles.find(
@@ -161,54 +189,16 @@ export default function MasterCustomerPage() {
                 dispatch(
                   setCustomerQuery({
                     model: find?.model,
-                    brand: find?.brand,
                   }),
                 );
               }}
             >
               {(item: any) => (
-                <AutocompleteItem
-                  key={item.model}
-                  textValue={`${item.brand} ${item.model}`}
-                >
-                  {item?.brand?.toUpperCase()} {item?.model?.toUpperCase()}
+                <AutocompleteItem key={item.model} textValue={item.model}>
+                  {item?.model?.toUpperCase()}
                 </AutocompleteItem>
               )}
             </Autocomplete>
-            {/* <Select
-              aria-label="Filter Status"
-              className="w-full md:w-56"
-              classNames={{
-                trigger:
-                  "border-gray-200 hover:border-gray-400 focus-within:border-gray-800 shadow-none",
-                value: "text-small font-bold text-gray-600",
-              }}
-              placeholder="Pilih Jenis Kendaraan"
-              selectedKeys={[vehileIndex.toString()]}
-              startContent={<Info className="text-gray-400" size={16} />}
-              variant="bordered"
-              onSelectionChange={(key) => {
-                const val = Array.from(key)[0];
-                const find = customers?.stats?.vehicles?.[val];
-
-                console.log(find);
-                dispatch(
-                  setCustomerQuery({
-                    model: find.model,
-                    brand: find.brand,
-                  }),
-                );
-                setVehicleIndex(Number(val));
-              }}
-            >
-              {(customers?.stats?.vehicles || []).map(
-                (item: IVehicle, i: number) => (
-                  <SelectItem key={i} textValue={`${item.brand} ${item.model}`}>
-                    {item.brand.toUpperCase()} {item.model.toUpperCase()}
-                  </SelectItem>
-                ),
-              )}
-            </Select> */}
           </div>
         </CardHeader>
         <CardBody>
