@@ -1,35 +1,27 @@
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, UserPlus, Heart, MapPin, Briefcase } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import {
-  Button,
-  Input,
-  Card,
-  CardBody,
-  Select,
-  SelectItem,
-  Textarea,
-  Divider,
-} from "@heroui/react";
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, UserPlus, Heart, MapPin, Briefcase } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Input, Card, CardBody, Select, SelectItem, Textarea, Divider } from '@heroui/react';
 
-import AddRole from "../../settings/roles/components/add-role";
+import AddRole from '../../settings/roles/components/add-role';
 
-import { formSchema } from "./schemas/create-schema";
+import { formSchema } from './schemas/create-schema';
 
-import Province from "@/components/regions/province";
-import City from "@/components/regions/city";
-import District from "@/components/regions/district";
-import UploadAvatar from "@/components/upload-avatar";
-import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { getRole } from "@/stores/features/role/role-action";
-import { http } from "@/utils/libs/axios";
-import { notify, notifyError } from "@/utils/helpers/notify";
-import { uploadFile } from "@/utils/helpers/upload-file";
-import CustomDatePicker from "@/components/forms/date-picker";
-import PhoneInput from "@/components/forms/phone-input";
+import Province from '@/components/regions/province';
+import City from '@/components/regions/city';
+import District from '@/components/regions/district';
+import UploadAvatar from '@/components/upload-avatar';
+import { useAppDispatch, useAppSelector } from '@/stores/hooks';
+import { getRole } from '@/stores/features/role/role-action';
+import { http } from '@/utils/libs/axios';
+import { notify, notifyError } from '@/utils/helpers/notify';
+import { uploadFile } from '@/utils/helpers/upload-file';
+import CustomDatePicker from '@/components/forms/date-picker';
+import PhoneInput from '@/components/forms/phone-input';
+import { AxiosError } from 'axios';
 
 interface Props {
   id?: string;
@@ -58,20 +50,22 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
     control,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
     defaultValues: {
-      status: "Permanent",
+      status: 'Permanent',
       join_date: new Date().toISOString(),
       birth_date: new Date().toISOString(),
-      emergency_name: "",
-      emergency_contact: "",
+      emergency_name: '',
+      emergency_contact: '',
       ...userForm,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log("SUBMIT", values);
+    console.log('SUBMIT', values);
     setLoading(true);
     try {
       if (values.photo instanceof File) {
@@ -80,12 +74,20 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
         values.photo = photo;
       }
 
-      const response = await http.post("/employees", { id, ...values });
+      const response = await http.post('/employees', { id, ...values });
 
-      console.log("SUBMIT", response);
+      console.log('SUBMIT', response);
       notify(response.data.message);
-      navigate("/hr/employees");
-    } catch (err) {
+      navigate('/hr/employees');
+    } catch (err: AxiosError | any) {
+      if (err.response.status === 402) {
+        const errors = err.response.data.data;
+        Object.keys(errors).forEach((key) => {
+          setError(key as any, {
+            message: errors[key][0],
+          });
+        });
+      }
       notifyError(err);
     } finally {
       setLoading(false);
@@ -93,130 +95,138 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
   };
 
   return (
-    <div className="space-y-8 pb-20">
-      <AddRole open={openAddRole} setOpen={setOpenAddRole} />
+    <div className='space-y-8 pb-20'>
+      <AddRole
+        open={openAddRole}
+        setOpen={setOpenAddRole}
+      />
 
-      <div className="flex items-center gap-6">
+      <div className='flex items-center gap-6'>
         <Button
           isIconOnly
-          className="rounded-full bg-white shadow-sm"
-          variant="flat"
-          onPress={() => navigate("/hr/employees")}
+          className='rounded-full bg-white shadow-sm'
+          variant='flat'
+          onPress={() => navigate('/hr/employees')}
         >
           <ArrowLeft size={20} />
         </Button>
         <div>
-          <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-500">
-            {id ? "Update Personil" : "Registrasi Karyawan"}
-          </h3>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-            {id ? "ID KARYAWAN: #" + id : "PENDAFTARAN TIM BARU"}
-          </p>
+          <h3 className='text-2xl font-black uppercase tracking-tighter text-gray-500'>{id ? 'Update Personil' : 'Registrasi Karyawan'}</h3>
+          <p className='text-xs font-bold text-gray-400 uppercase tracking-widest'>{id ? 'ID KARYAWAN: #' + id : 'PENDAFTARAN TIM BARU'}</p>
         </div>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <Card className="border border-gray-200 shadow-sm overflow-hidden bg-white">
-          <CardBody className="p-8 space-y-12">
+      <form
+        className='space-y-6'
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <Card className='border border-gray-200 shadow-sm overflow-hidden bg-white'>
+          <CardBody className='p-8 space-y-12'>
             {/* SECTION 1: PROFIL UTAMA */}
-            <section className="space-y-8">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-400 rounded-sm text-white">
+            <section className='space-y-8'>
+              <div className='flex items-center gap-3'>
+                <div className='p-2 bg-gray-400 rounded-sm text-white'>
                   <Briefcase size={18} />
                 </div>
-                <h4 className="text-sm font-black uppercase text-gray-500">
-                  Informasi Pekerjaan
-                </h4>
+                <h4 className='text-sm font-black uppercase text-gray-500'>Informasi Pekerjaan</h4>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-10 items-start">
-                <div className="w-full md:w-1/3 flex flex-col items-center p-6">
+              <div className='flex flex-col md:flex-row gap-10 items-start'>
+                <div className='w-full md:w-1/3 flex flex-col items-center p-6'>
                   <Controller
                     control={control}
-                    name="photo"
+                    name='photo'
                     render={({ field }) => (
                       <UploadAvatar
-                        buttonTitle="Upload Foto"
+                        buttonTitle='Upload Foto'
                         field={field}
                         value={field.value}
                         onChange={field.onChange}
                       />
                     )}
                   />
-                  <p className="text-[10px] text-gray-400 font-bold uppercase mt-4 italic">
-                    Format: JPG, PNG (Maks 2MB)
-                  </p>
+                  <p className='text-[10px] text-gray-400 font-bold uppercase mt-4 italic'>Format: JPG, PNG (Maks 2MB)</p>
                 </div>
 
-                <div className="w-full md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className='w-full md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6'>
                   <Controller
                     control={control}
-                    name="name"
+                    name='name'
                     render={({ field }) => (
                       <Input
                         {...field}
                         errorMessage={errors.name?.message}
                         isInvalid={!!errors.name}
-                        label="Nama Lengkap"
-                        placeholder="Sesuai KTP"
+                        label='Nama Lengkap'
+                        placeholder='Sesuai KTP'
                       />
                     )}
                   />
                   <Controller
                     control={control}
-                    name="email"
+                    name='email'
                     render={({ field }) => (
                       <Input
                         {...field}
                         errorMessage={errors.email?.message}
                         isInvalid={!!errors.email}
-                        label="Email Kantor"
-                        placeholder="name@company.com"
-                        type="email"
+                        label='Email Kantor'
+                        placeholder='name@company.com'
+                        type='email'
                       />
                     )}
                   />
                   <Controller
                     control={control}
-                    name="phone"
+                    name='phone'
                     render={({ field }) => (
                       <PhoneInput
                         {...field}
                         errorMessage={errors.phone?.message}
                         isInvalid={!!errors.phone}
-                        label="Nomor Telepon"
-                        placeholder="08xx-xxxx-xxxx"
+                        label='Nomor Telepon'
+                        placeholder='08xx-xxxx-xxxx'
                       />
                     )}
                   />
 
                   <Controller
                     control={control}
-                    name="department"
-                    render={({ field }) => (
+                    name='department'
+                    render={({ field, fieldState }) => (
                       <Select
-                        {...field}
-                        label="Departemen"
-                        placeholder="Pilih Divisi"
+                        selectedKeys={[field.value]}
+                        errorMessage={fieldState.error?.message}
+                        isInvalid={!!fieldState.error}
+                        label='Departemen'
+                        placeholder='Pilih Divisi'
+                        onSelectionChange={(key) => {
+                          const val = Array.from(key)[0];
+                          field.onChange(val);
+                        }}
                       >
-                        {["Workshop", "Front Office", "Finance", "HR"].map(
-                          (dept) => (
-                            <SelectItem key={dept}>{dept}</SelectItem>
-                          ),
-                        )}
+                        {['Workshop', 'Front Office', 'Finance', 'HR'].map((dept) => (
+                          <SelectItem key={dept}>{dept}</SelectItem>
+                        ))}
                       </Select>
                     )}
                   />
                   <Controller
                     control={control}
-                    name="status"
-                    render={({ field }) => (
+                    name='status'
+                    render={({ field, fieldState }) => (
                       <Select
-                        {...field}
-                        label="Status Kerja"
-                        placeholder="Status Pekerjaan"
+                        selectedKeys={[field.value]}
+                        errorMessage={fieldState.error?.message}
+                        isInvalid={!!fieldState.error}
+                        label='Status Kerja'
+                        placeholder='Status Pekerjaan'
+                        onSelectionChange={(key) => {
+                          const val = Array.from(key)[0];
+                          field.onChange(val);
+                        }}
                       >
-                        {["Permanent", "Contract"].map((st) => (
+                        {['Permanent', 'Contract'].map((st) => (
                           <SelectItem key={st}>{st}</SelectItem>
                         ))}
                       </Select>
@@ -224,41 +234,47 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   />
                   <Controller
                     control={control}
-                    name="join_date"
-                    render={({ field }) => (
+                    name='join_date'
+                    render={({ field, fieldState }) => (
                       <CustomDatePicker
-                        label="Tanggal Bergabung"
+                        label='Tanggal Bergabung'
                         value={field.value as any}
                         onChange={field.onChange}
+                        errorMessage={fieldState.error?.message}
+                        isInvalid={!!fieldState.error}
                       />
                     )}
                   />
-                  <div className="flex gap-2 items-center md:col-span-2">
+                  <div className='flex gap-2 items-center md:col-span-2'>
                     <Controller
                       control={control}
-                      name="role_ids"
-                      render={({ field }) => (
+                      name='role_ids'
+                      render={({ field, fieldState }) => (
                         <Select
-                          {...(field as any)}
-                          label="Jabatan/Role"
-                          placeholder="Pilih Role"
-                          selectionMode="multiple"
-                          onSelectionChange={(keys) =>
-                            field.onChange(Array.from(keys))
-                          }
+                          aria-label='Pilih Jabatan'
+                          label='Jabatan/Role'
+                          placeholder='Pilih Role'
+                          selectedKeys={field.value.map(String) || []}
+                          errorMessage={fieldState.error?.message}
+                          isInvalid={!!fieldState.error}
+                          selectionMode='multiple'
+                          onSelectionChange={(keys) => field.onChange(Array.from(keys).map(Number))}
                         >
-                          {roles
-                            .filter((r) => ![1, 2].includes(r.id))
-                            .map((role) => (
-                              <SelectItem key={role.id}>{role.name}</SelectItem>
-                            ))}
+                          {roles.map((role) => (
+                            <SelectItem
+                              key={role.id}
+                              textValue={role.name}
+                            >
+                              {role.name}
+                            </SelectItem>
+                          ))}
                         </Select>
                       )}
                     />
                     <Button
                       isIconOnly
-                      className="mb-0.5"
-                      variant="flat"
+                      className='mb-0.5'
+                      variant='flat'
                       onPress={() => setOpenAddRole(true)}
                     >
                       <UserPlus size={18} />
@@ -271,85 +287,106 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
             <Divider />
 
             {/* SECTION 2: BIODATA & LOKASI */}
-            <section className="space-y-8">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-500 rounded-sm text-white">
+            <section className='space-y-8'>
+              <div className='flex items-center gap-3'>
+                <div className='p-2 bg-gray-500 rounded-sm text-white'>
                   <MapPin size={18} />
                 </div>
-                <h4 className="text-sm font-black uppercase  text-gray-500">
-                  Biodata & Alamat Tinggal
-                </h4>
+                <h4 className='text-sm font-black uppercase  text-gray-500'>Biodata & Alamat Tinggal</h4>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
                 <Controller
                   control={control}
-                  name="place_birth"
-                  render={({ field }) => (
+                  name='place_birth'
+                  render={({ field, fieldState }) => (
                     <Input
                       {...field}
-                      label="Tempat Lahir"
-                      placeholder="Serang..."
+                      label='Tempat Lahir'
+                      placeholder='Serang...'
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
                     />
                   )}
                 />
                 <Controller
                   control={control}
-                  name="birth_date"
-                  render={({ field }) => (
+                  name='birth_date'
+                  render={({ field, fieldState }) => (
                     <CustomDatePicker
-                      label="Tanggal Lahir"
+                      label='Tanggal Lahir'
                       value={field.value as any}
                       onChange={field.onChange}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
                     />
                   )}
                 />
                 <Controller
                   control={control}
-                  name="gender"
-                  render={({ field }) => (
+                  name='gender'
+                  render={({ field, fieldState }) => (
                     <Select
                       {...field}
-                      label="Jenis Kelamin"
-                      placeholder="Masukan Jenis Kelamin"
+                      label='Jenis Kelamin'
+                      placeholder='Masukan Jenis Kelamin'
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
                     >
-                      <SelectItem key="male">Laki-laki</SelectItem>
-                      <SelectItem key="female">Perempuan</SelectItem>
+                      <SelectItem key='male'>Laki-laki</SelectItem>
+                      <SelectItem key='female'>Perempuan</SelectItem>
                     </Select>
                   )}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
                 <Controller
                   control={control}
-                  name="province_id"
-                  render={({ field }) => (
-                    <Province value={field.value} onChange={field.onChange} />
+                  name='province_id'
+                  render={({ field, fieldState }) => (
+                    <Province
+                      value={field.value}
+                      onChange={field.onChange}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
+                    />
                   )}
                 />
                 <Controller
                   control={control}
-                  name="city_id"
-                  render={({ field }) => (
-                    <City value={field.value} onChange={field.onChange} />
+                  name='city_id'
+                  render={({ field, fieldState }) => (
+                    <City
+                      value={field.value}
+                      onChange={field.onChange}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
+                    />
                   )}
                 />
                 <Controller
                   control={control}
-                  name="district_id"
-                  render={({ field }) => (
-                    <District value={field.value} onChange={field.onChange} />
+                  name='district_id'
+                  render={({ field, fieldState }) => (
+                    <District
+                      value={field.value}
+                      onChange={field.onChange}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
+                    />
                   )}
                 />
               </div>
               <Controller
                 control={control}
-                name="address"
-                render={({ field }) => (
+                name='address'
+                render={({ field, fieldState }) => (
                   <Textarea
                     {...field}
-                    label="Alamat Lengkap (KTP)"
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
+                    label='Alamat Lengkap (KTP)'
                     minRows={3}
                   />
                 )}
@@ -359,34 +396,32 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
             <Divider />
 
             {/* SECTION 3: KONTAK DARURAT */}
-            <section className="space-y-8 p-6 rounded-sm border border-rose-400">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-rose-500 rounded-sm text-white">
+            <section className='space-y-8 p-6 rounded-sm border border-rose-400'>
+              <div className='flex items-center gap-3'>
+                <div className='p-2 bg-rose-500 rounded-sm text-white'>
                   <Heart size={18} />
                 </div>
-                <h4 className="text-sm font-black uppercase text-rose-600">
-                  Kontak Darurat (Emergency)
-                </h4>
+                <h4 className='text-sm font-black uppercase text-rose-600'>Kontak Darurat (Emergency)</h4>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 <Controller
                   control={control}
-                  name="emergency_name"
+                  name='emergency_name'
                   render={({ field }) => (
                     <Input
                       {...(field as any)}
-                      label="Nama Kerabat"
-                      placeholder="Nama Lengkap"
+                      label='Nama Kerabat'
+                      placeholder='Nama Lengkap'
                     />
                   )}
                 />
                 <Controller
                   control={control}
-                  name="emergency_contact"
+                  name='emergency_contact'
                   render={({ field }) => (
                     <PhoneInput
-                      label="No. Telepon Kerabat"
-                      placeholder="08xx-xxxx-xxxx"
+                      label='No. Telepon Kerabat'
+                      placeholder='08xx-xxxx-xxxx'
                       value={field.value as any}
                       onValueChange={field.onChange}
                     />
@@ -398,16 +433,19 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
         </Card>
 
         {/* Action Footer */}
-        <div className="flex gap-4 justify-end">
-          <Button variant="flat" onPress={() => navigate("/hr/employees")}>
+        <div className='flex gap-4 justify-end'>
+          <Button
+            variant='flat'
+            onPress={() => navigate('/hr/employees')}
+          >
             Batalkan
           </Button>
           <Button
-            color="primary"
+            color='primary'
             isLoading={isLoading}
-            onPress={() => handleSubmit(onSubmit)()}
+            type='submit'
           >
-            {id ? "Update Data Karyawan" : "Simpan Karyawan Baru"}
+            {id ? 'Update Data Karyawan' : 'Simpan Karyawan Baru'}
           </Button>
         </div>
       </form>
