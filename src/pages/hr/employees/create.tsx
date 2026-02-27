@@ -79,7 +79,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
       console.log('SUBMIT', response);
       notify(response.data.message);
       navigate('/hr/employees');
-    } catch (err: AxiosError | any) {
+    } catch (err: any) {
       if (err.response.status === 402) {
         const errors = err.response.data.data;
         Object.keys(errors).forEach((key) => {
