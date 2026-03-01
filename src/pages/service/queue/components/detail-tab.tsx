@@ -187,7 +187,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               </Button>
             )}
 
-            {!["closed", "cancel"].includes(data.status) && (
+            {!["cancel"].includes(data.status) && (
               <ModalAddService
                 isSave
                 onClose={() => dispatch(formWoClear())}
@@ -543,13 +543,13 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
 
           <div className="border border-gray-100 rounded-sm overflow-hidden">
             <BlogEditor
-              disabled={["cancel", "closed"].includes(data.status)}
+              disabled={["cancel"].includes(data.status)}
               value={nextSugestion}
               onChange={setNextSugestion}
             />
           </div>
 
-          {!["cancel", "closed"].includes(data.status) && (
+          {!["cancel"].includes(data.status) && (
             <div className="flex justify-end pt-4">
               <Button
                 className="uppercase"

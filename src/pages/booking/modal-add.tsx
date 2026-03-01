@@ -16,7 +16,7 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { CalendarDays, Building, Clock, Toolbox, Users } from "lucide-react";
+import { CalendarDays, Clock, Toolbox, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { BookingFormValues, bookingSchema } from "./schema";
@@ -25,7 +25,7 @@ import { http } from "@/utils/libs/axios";
 import CustomDatePicker from "@/components/forms/date-picker";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { formatTime, getAvatarByName } from "@/utils/helpers/global";
+import { formatTime } from "@/utils/helpers/global";
 import { getCustomer } from "@/stores/features/customer/customer-action";
 import { ICustomer, IVehicle } from "@/utils/interfaces/IUser";
 import { getBooking } from "@/stores/features/booking/booking-action";
@@ -46,6 +46,22 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
   const hasFetched = useRef(false);
   const customers = (cust || []) as ICustomer[];
 
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<BookingFormValues>({
+    resolver: zodResolver(bookingSchema),
+    mode: "onChange",
+    defaultValues: {
+      booking_time: "08:00",
+      booking_date: dayjs().add(1, "day").toISOString(),
+    },
+  });
+
   useEffect(() => {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
@@ -60,22 +76,9 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
         hasFetched.current = false;
       }, 1000);
     }
-  }, [company]);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<BookingFormValues>({
-    resolver: zodResolver(bookingSchema),
-    defaultValues: {
-      booking_time: "08:00",
-      booking_date: dayjs().add(1, "day").toISOString(),
-    },
-  });
+    setValue("branch_id", company?.id.toString() || "");
+  }, [company]);
 
   useEffect(() => {
     if (data) {
@@ -138,10 +141,12 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                   <Controller
                     control={control}
                     name="customer_id"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <Autocomplete
                         allowsCustomValue
                         defaultItems={customers || []}
+                        errorMessage={fieldState.error?.message}
+                        isInvalid={!!fieldState.error}
                         label="Nama Pelanggan"
                         labelPlacement="outside"
                         placeholder="Cari nama pelanggan..."
@@ -211,10 +216,12 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                   <Controller
                     control={control}
                     name="vehicle_id"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <Autocomplete
                         allowsCustomValue
                         defaultItems={vehicles || []}
+                        errorMessage={fieldState.error?.message}
+                        isInvalid={!!fieldState.error}
                         label="No. Polisi (Nopol)"
                         labelPlacement="outside"
                         placeholder="Cari Kendaraan..."
@@ -243,54 +250,17 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                   />
                   <Controller
                     control={control}
-                    name="branch_id"
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        errorMessage={errors.branch_id?.message}
-                        isInvalid={!!errors.branch_id}
-                        label="Cabang"
-                        labelPlacement="outside"
-                        placeholder="Pilih Cabang Terdekat"
-                        selectedKeys={[field.value]}
-                        startContent={
-                          <Building className="text-default-400" size={18} />
-                        }
-                        variant="bordered"
-                      >
-                        {(user?.companies || []).map((v) => (
-                          <SelectItem key={v.id.toString()} textValue={v.name}>
-                            <div className="flex gap-2 items-center">
-                              <Avatar
-                                alt={v.name}
-                                className="shrink-0"
-                                size="sm"
-                                src={v.logo_url || getAvatarByName(v.name)}
-                              />
-                              <div className="flex flex-col">
-                                <span className="text-small">{v.name}</span>
-                                <span className="text-tiny text-gray-400">
-                                  {v.address?.title || v.phone_number}
-                                </span>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </Select>
-                    )}
-                  />
-                  <Controller
-                    control={control}
                     name="booking_date"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <CustomDatePicker
-                        errorMessage={errors.booking_date?.message}
-                        isInvalid={!!errors.booking_date}
+                        errorMessage={fieldState.error?.message}
+                        isInvalid={!!fieldState.error}
                         label="Tanggal Kedatangan"
                         labelPlacement="outside"
                         // minDate={
                         //   today(getLocalTimeZone()).add({ days: 1 }) as any
                         // }
+                        minDate={dayjs().add(1, "day").toDate()}
                         value={field?.value as any}
                         variant="bordered"
                         onChange={field.onChange}
@@ -349,6 +319,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                       <SelectItem key="General Repair">
                         Perbaikan Umum
                       </SelectItem>
+                      <SelectItem key="Body Repair">Body Repair</SelectItem>
                     </Select>
                   )}
                 />

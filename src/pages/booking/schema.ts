@@ -19,12 +19,20 @@ export type VehicleFormValues = z.infer<typeof vehicleSchema>;
 
 export const bookingSchema = z.object({
   id: z.number().optional(),
-  customer_id: z.string().min(1, "Silahkan pilih pelanggan"),
-  vehicle_id: z.string().min(1, "Silahkan pilih kendaraan"),
-  branch_id: z.string().min(1, "Silahkan pilih Cabang"),
-  booking_date: z.string().min(1, "Tanggal booking wajib diisi"),
-  booking_time: z.string().min(1, "Jam booking wajib diisi"),
-  service_type: z.string().min(1, "Pilih jenis servis"),
+  customer_id: z
+    .string("Silahkan pilih pelanggan")
+    .min(1, "Silahkan pilih pelanggan"),
+  vehicle_id: z
+    .string("Silahkan pilih kendaraan")
+    .min(1, "Silahkan pilih kendaraan"),
+  branch_id: z.string("Silahkan pilih Cabang").min(1, "Silahkan pilih Cabang"),
+  booking_date: z
+    .string("Tanggal booking wajib diisi")
+    .min(1, "Tanggal booking wajib diisi"),
+  booking_time: z
+    .string("Jam booking wajib diisi")
+    .min(1, "Jam booking wajib diisi"),
+  service_type: z.string("Pilih jenis servis").min(1, "Pilih jenis servis"),
   complaint: z.string().optional(),
 });
 
