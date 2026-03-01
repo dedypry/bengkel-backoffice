@@ -8,7 +8,7 @@ import { getSupplier } from "./supplier-action";
 const supplierSlice = createSlice({
   name: "supplier",
   initialState: {
-    suppliers: null as IPagination<ISupplier> | ISupplier[] | null,
+    suppliers: null as IPagination<ISupplier> | null,
     supplierQuery: {
       q: "",
       page: 1,

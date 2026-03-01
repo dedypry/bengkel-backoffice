@@ -62,7 +62,7 @@ interface Props {
 }
 export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
   const { sparepart, services } = useAppSelector((state) => state.wo);
-  const { suppliers } = useAppSelector((state) => state.supplier);
+  const { suppliers }: any = useAppSelector((state) => state.supplier);
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [nextSugestion, setNextSugestion] = useState("");
