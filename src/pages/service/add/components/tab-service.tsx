@@ -12,6 +12,8 @@ import {
   TableCell,
   Checkbox,
   Chip,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 
 import {
@@ -19,16 +21,19 @@ import {
   removeWoService,
 } from "@/stores/features/work-order/wo-slice";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { formatIDR } from "@/utils/helpers/format";
 import { CustomPagination } from "@/components/custom-pagination";
 import { getService } from "@/stores/features/service/service-action";
 import debounce from "@/utils/helpers/debounce";
 // Menggunakan InputNumber HeroUI kita
 import InputQty from "@/components/input-qty";
+import { ISupplier } from "@/utils/interfaces/ISupplier";
+import InputNumber from "@/components/input-number";
 
 export default function TabService() {
   const { services } = useAppSelector((state) => state.service);
   const { services: selectedServices } = useAppSelector((state) => state.wo);
+  const { suppliers } = useAppSelector((state) => state.supplier);
+
   const [search, setSearch] = useState("");
 
   const selectedIds = selectedServices.map((e) => e.id);
@@ -50,13 +55,34 @@ export default function TabService() {
     }
   }
 
+  function handleSupplier(val: any, item: IService) {
+    dispatch(
+      addWoService({
+        ...item,
+        supplier_id: +val,
+        qty: (item as any)?.qty || 1,
+      }),
+    );
+  }
+
+  const handlePrice = debounce((val: number, item: IService) => {
+    dispatch(
+      addWoService({
+        ...item,
+        price: val as any,
+      }),
+    );
+  }, 1000);
+
   function findQty(item: IService) {
     const find = selectedServices.find((e) => e.id === item.id);
 
-    return find?.qty || 0;
+    return find;
   }
 
   const searchDebounce = debounce((q) => dispatch(getService({ q })), 500);
+
+  // console.log("SERVICE", services.data);
 
   return (
     <div className="space-y-4">
@@ -89,6 +115,7 @@ export default function TabService() {
         <TableHeader>
           <TableColumn width={40}>PILIH</TableColumn>
           <TableColumn>NAMA JASA</TableColumn>
+          <TableColumn>SUPPLIER</TableColumn>
           <TableColumn align="end">HARGA SATUAN</TableColumn>
           <TableColumn align="center" width={160}>
             QTY / DURASI
@@ -96,8 +123,10 @@ export default function TabService() {
         </TableHeader>
         <TableBody emptyContent="Layanan jasa tidak ditemukan">
           {(services?.data || []).map((item) => {
-            const currentQty = findQty(item);
+            const find = findQty(item);
             const isSelected = selectedIds.includes(item.id);
+            const price = Number(find?.price || item.price).toString();
+            const itemData = { ...item, ...find };
 
             return (
               <TableRow
@@ -133,15 +162,43 @@ export default function TabService() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="text-small font-bold text-default-700">
-                    {formatIDR(Number(item.price))}
-                  </span>
+                  <Autocomplete
+                    classNames={{
+                      clearButton: "text-gray-500",
+                    }}
+                    defaultItems={(suppliers || []) as ISupplier[]}
+                    placeholder="Cari Supplier"
+                    selectedKey={find?.supplier_id?.toString()}
+                    size="sm"
+                    onSelectionChange={(val) => handleSupplier(val, itemData)}
+                  >
+                    {(supplier) => (
+                      <AutocompleteItem
+                        key={supplier.id.toString()}
+                        textValue={supplier.name}
+                      >
+                        {supplier.name}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                </TableCell>
+                <TableCell>
+                  <InputNumber
+                    classNames={{
+                      input: "text-right",
+                    }}
+                    isDisabled={!isSelected}
+                    size="sm"
+                    startContent="Rp"
+                    value={price}
+                    onInput={(val) => handlePrice(val, itemData)}
+                  />
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-center">
                     <InputQty
-                      handleQty={(newVal) => handleQty(item, newVal)}
-                      value={currentQty}
+                      handleQty={(newVal) => handleQty(itemData, newVal)}
+                      value={find?.qty || 0}
                     />
                   </div>
                 </TableCell>

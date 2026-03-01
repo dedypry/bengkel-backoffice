@@ -17,7 +17,7 @@ export default function VehicleOption({ value, onChange }: Props) {
   const vehicles = customer?.vehicles || [];
 
   const handleSelectionChange = (key: string | number | null) => {
-    if (!key) return;
+    if (!key) return null;
 
     const selected = vehicles.find((v) => v.plate_number === key);
 
@@ -28,12 +28,18 @@ export default function VehicleOption({ value, onChange }: Props) {
 
   const handleInputChange = (val: string) => {
     // Jika mengetik plat nomor baru yang tidak ada di list
+
     if (
       val &&
       !vehicles.some((v) => v.plate_number.toLowerCase() === val.toLowerCase())
     ) {
       onChange({
-        plate_number: val.toUpperCase(), // Standarisasi plat nomor ke uppercase
+        plate_number: val.toUpperCase(),
+        isNew: true,
+      });
+    } else {
+      onChange({
+        plate_number: "",
         isNew: true,
       });
     }

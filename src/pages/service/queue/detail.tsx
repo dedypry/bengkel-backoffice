@@ -21,12 +21,11 @@ import HistoryTab from "./components/history-tab";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import { formatIDR } from "@/utils/helpers/format";
-import Detail404 from "@/pages/hr/employees/components/detail-404";
 
 export default function WorkOrderDetail() {
   const [openModal, setOpenModal] = useState(false);
 
-  const { detail: data, isLoadingDetail } = useAppSelector((state) => state.wo);
+  const { detail: data } = useAppSelector((state) => state.wo);
 
   const dispatch = useAppDispatch();
   const { id } = useParams();
@@ -42,8 +41,7 @@ export default function WorkOrderDetail() {
     }
   }, [id, dispatch]);
 
-  if (isLoadingDetail) return <WODetailSkeleton />;
-  if (!data) return <Detail404 />;
+  if (!data) return <WODetailSkeleton />;
 
   return (
     <div className="space-y-6">
@@ -75,7 +73,7 @@ export default function WorkOrderDetail() {
               </div>
             </div>
             <div className="bg-primary p-8 flex flex-col justify-center items-end min-w-[300px]">
-              <span className="text-gray-200 font-black text-[12px] uppercase mb-1">
+              <span className="text-gray-100 font-black text-[12px] uppercase mb-1">
                 Total Biaya Estimasi
               </span>
               <span className="text-2xl font-black text-white tracking-[0.1em]">
@@ -133,12 +131,15 @@ export default function WorkOrderDetail() {
                     label="Brand/Model"
                     value={`${data.vehicle.brand} ${data.vehicle.model}`}
                   />
-                  <InfoBlock label="Year" value={data.vehicle.year} />
+                  <InfoBlock label="Tahun" value={data.vehicle.year} />
                   <InfoBlock
-                    label="Current KM"
+                    label="KM Masuk"
                     value={`${data.current_km?.toLocaleString()} KM`}
                   />
-                  <InfoBlock label="Fuel" value={data.vehicle.fuel_type} />
+                  <InfoBlock
+                    label="KM Kembali"
+                    value={`${data.next_km?.toLocaleString()} KM`}
+                  />
                 </div>
               </div>
             </CardBody>

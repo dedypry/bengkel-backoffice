@@ -18,6 +18,7 @@ import {
   Trash2,
   FilePlus2,
   ChevronLeft,
+  Settings,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,7 +69,9 @@ import HeaderAction from "@/components/header-action";
 export default function ServiceAddPage() {
   const { company } = useAppSelector((state) => state.auth);
   const { query } = useAppSelector((state) => state.service);
-  const { services, sparepart, customer } = useAppSelector((state) => state.wo);
+  const { services, sparepart, customer, settings } = useAppSelector(
+    (state) => state.wo,
+  );
   const [isEdit, setEdit] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isNew, setNew] = useState(false);
@@ -99,24 +102,17 @@ export default function ServiceAddPage() {
     }
   }, [company]);
 
-  const {
-    control,
-    setValue,
-    watch,
-    reset,
-    clearErrors,
-    handleSubmit,
-    formState: { isValid },
-  } = useForm({
-    resolver: zodResolver(ServiceRegistrationSchema),
-    mode: "onChange",
-    defaultValues: {
-      priority: "normal",
-      customer: {
-        birth_date: "",
+  const { control, setValue, watch, reset, clearErrors, handleSubmit } =
+    useForm({
+      resolver: zodResolver(ServiceRegistrationSchema),
+      mode: "onChange",
+      defaultValues: {
+        priority: "normal",
+        customer: {
+          birth_date: "",
+        },
       },
-    },
-  });
+    });
 
   useEffect(() => {
     if (bookingId && !hasFetchedBooking.current) {
@@ -128,6 +124,14 @@ export default function ServiceAddPage() {
       }, 1000);
     }
   }, [bookingId]);
+
+  useEffect(() => {
+    const current = Number(watch("current_km"));
+
+    if (current > 0) {
+      setValue("next_km", current + settings.next_km);
+    }
+  }, [watch("current_km")]);
 
   function getDetailBooking() {
     http
@@ -156,6 +160,7 @@ export default function ServiceAddPage() {
         id: item.id,
         qty: item.qty,
         price: Number(item.price),
+        supplier_id: Number(item.supplier_id),
       })),
       sparepart: sparepart.map((item) => ({
         id: item.id,
@@ -171,11 +176,15 @@ export default function ServiceAddPage() {
         notify(data.message);
         setValue("complaints", "");
         setValue("current_km", 0);
+        setValue("next_km", 0);
         reset();
         handleVehicleReset();
         handleResetCustomer();
         dispatch(formWoClear());
         localStorage.removeItem("draft_wo");
+        if (data?.data?.id) {
+          navigate(`/service/queue/${data.data.id}`);
+        }
       })
       .catch((err: AxiosError) => {
         notifyError(err);
@@ -255,13 +264,24 @@ export default function ServiceAddPage() {
       <div className="pb-20 space-y-8">
         {/* Header */}
         <HeaderAction
-          actionIcon={ChevronLeft}
-          actionTitle="Kembali ke Antrian"
+          actionContent={
+            <div className="flex gap-2">
+              <Button isIconOnly>
+                <Settings />
+              </Button>
+              <Button
+                color="primary"
+                startContent={<ChevronLeft />}
+                onPress={() => navigate("/service/queue")}
+              >
+                Kembali ke Antrian
+              </Button>
+            </div>
+          }
           leadIcon={FilePlus2}
           subtitle="Input data kendaraan dan keluhan pelanggan untuk pembuatan Work
               Order."
           title="Pendaftaran Servis Baru"
-          onAction={() => navigate("/service/queue")}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -518,9 +538,27 @@ export default function ServiceAddPage() {
                       isInvalid={
                         fieldState.invalid || !field.value || field.value === 0
                       }
-                      label="KM Terakhir"
+                      label="KM Sekarang"
                       labelPlacement="outside"
                       placeholder="Masukan KM Terakhir"
+                      value={(field.value || 0) as any}
+                      onInput={field.onChange}
+                    />
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="next_km"
+                  render={({ field, fieldState }) => (
+                    <InputNumber
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={
+                        fieldState.invalid || !field.value || field.value === 0
+                      }
+                      label="KM Berikutnya"
+                      labelPlacement="outside"
+                      placeholder="Masukan KM Berikutnya"
                       value={(field.value || 0) as any}
                       onInput={field.onChange}
                     />
@@ -889,7 +927,6 @@ export default function ServiceAddPage() {
                   <Button
                     fullWidth
                     color="primary"
-                    isDisabled={!isValid || !isProduct}
                     isLoading={isLoading}
                     startContent={<Save />}
                     onPress={() => handleSubmit(onSubmit)()}

@@ -202,7 +202,7 @@ export default function BookingPage() {
                               variant="light"
                             >
                               <MoreVertical
-                                className="text-default-400"
+                                className="text-gray-500"
                                 size={20}
                               />
                             </Button>

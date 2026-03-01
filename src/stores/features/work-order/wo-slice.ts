@@ -9,10 +9,13 @@ import { getWo, getWoDetail } from "./wo-action";
 
 export interface IWo extends IService {
   qty?: number;
+  suplier_name?: string;
 }
-interface ISparepart extends IProduct {
+export interface ISparepart extends IProduct {
   qty?: number;
   price?: number;
+  total_price?: number;
+  suplier_name?: string;
 }
 
 const woSlice = createSlice({
@@ -38,6 +41,9 @@ const woSlice = createSlice({
     isLoadingOrder: false,
     isLoadingProduct: false,
     tabCashier: "customer",
+    settings: {
+      next_km: 7000,
+    },
   },
   reducers: {
     setWoQuery: (state, action) => {

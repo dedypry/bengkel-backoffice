@@ -179,6 +179,7 @@ export interface IWorkOrder {
   trx_no: string;
   queue_no: string | null;
   current_km?: number;
+  next_km?: number;
   priority: "normal" | "high" | "low"; // Sesuaikan dengan opsi priority Anda
   status: "draft" | "open" | "closed" | "cancel"; // Sesuaikan dengan opsi status Anda
   company_id?: number;

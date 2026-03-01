@@ -2,7 +2,6 @@ import {
   Card,
   CardBody,
   Button,
-  CircularProgress,
   TableHeader,
   TableColumn,
   TableBody,
@@ -11,6 +10,9 @@ import {
   Chip,
   Avatar,
   Table,
+  Divider,
+  CardFooter,
+  Tooltip,
 } from "@heroui/react";
 import {
   Receipt,
@@ -21,8 +23,10 @@ import {
   ClipboardCheck,
   AlertCircle,
   Save,
+  Edit,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import ModalAddService from "../../add/components/modal-add-service";
 
@@ -33,7 +37,10 @@ import BlogEditor from "@/components/text-editor";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import {
+  addSparepartService,
+  addWoService,
   formWoClear,
+  ISparepart,
   setWoService,
   setWoSparepart,
 } from "@/stores/features/work-order/wo-slice";
@@ -43,6 +50,10 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { IWorkOrder } from "@/utils/interfaces/IUser";
+import InputNumber from "@/components/input-number";
+import debounce from "@/utils/helpers/debounce";
+import { ISupplier } from "@/utils/interfaces/ISupplier";
+import SelectSupplierPopover from "@/components/select-supplier-popover";
 
 interface Props {
   id: any;
@@ -51,9 +62,11 @@ interface Props {
 }
 export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
   const { sparepart, services } = useAppSelector((state) => state.wo);
+  const { suppliers } = useAppSelector((state) => state.supplier);
   const [loading, setLoading] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
   const [nextSugestion, setNextSugestion] = useState("");
-
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -81,11 +94,13 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
         id: e.id,
         qty: e.qty,
         price: e.price,
+        supplier_id: e?.supplier_id,
       })),
       sparepart: sparepartData.map((e) => ({
         id: e.id,
         qty: e.qty,
         price: e.sell_price,
+        supplier_id: e?.supplier_id,
       })),
     };
   }
@@ -97,6 +112,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
         notify(data.message);
         dispatch(formWoClear());
         dispatch(getWoDetail(id as any));
+        setIsEdit(false);
       })
       .catch((err) => notifyError(err));
   };
@@ -121,50 +137,79 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
       .catch((err) => notifyError(err));
   };
 
+  const editPart = debounce((price: number, qty: number, item: ISparepart) => {
+    dispatch(
+      addSparepartService({
+        ...item,
+        price,
+        qty,
+        sell_price: price.toString(),
+        total_price: qty * price,
+      }),
+    );
+  }, 1000);
+
+  const editService = debounce((price: number, item: any) => {
+    dispatch(
+      addWoService({
+        ...item,
+        price: price.toString(),
+      }),
+    );
+  }, 1000);
+
   return (
     <div className="space-y-3">
       <Card>
         <CardBody className="p-6">
+          <div className="flex gap-2 mb-2 justify-end">
+            <Button
+              isIconOnly
+              isLoading={loading}
+              radius="sm"
+              size="sm"
+              variant="bordered"
+              onPress={() =>
+                handleDownload(`/invoices/${id}`, data.trx_no, true, setLoading)
+              }
+            >
+              <Printer size={18} />
+            </Button>
+            {!isEdit && (
+              <Button
+                className="text-white"
+                color="warning"
+                size="sm"
+                startContent={<Edit size={18} />}
+                onPress={() => setIsEdit(true)}
+              >
+                Edit Tabel
+              </Button>
+            )}
+
+            {!["closed", "cancel"].includes(data.status) && (
+              <ModalAddService
+                isSave
+                onClose={() => dispatch(formWoClear())}
+                onSave={() => handleSave(generateData(services, sparepart))}
+              />
+            )}
+          </div>
           <div className="flex justify-between items-center mb-6">
             <SectionHeader
               icon={<Receipt size={18} />}
               title="Rincian Pekerjaan & Part"
             />
-            <div className="flex gap-2">
-              <Button
-                isIconOnly
-                radius="sm"
-                variant="bordered"
-                onPress={() =>
-                  handleDownload(
-                    `/invoices/${id}`,
-                    data.trx_no,
-                    true,
-                    setLoading,
-                  )
-                }
-              >
-                {loading ? (
-                  <CircularProgress color="success" size="sm" />
-                ) : (
-                  <Printer size={18} />
-                )}
-              </Button>
-              {!["closed", "cancel"].includes(data.status) && (
-                <ModalAddService
-                  isSave
-                  onClose={() => dispatch(formWoClear())}
-                  onSave={() => handleSave(generateData(services, sparepart))}
-                />
-              )}
-            </div>
           </div>
 
-          <Table removeWrapper aria-label="Work Items" className="mt-4">
+          <h1 className="text-sm uppercase font-bold text-gray-700">
+            Sparepart
+          </h1>
+          <Table removeWrapper aria-label="Work Items" className="mt-1">
             <TableHeader>
-              <TableColumn width={80}>QTY</TableColumn>
               <TableColumn>ITEM / DESC</TableColumn>
               <TableColumn align="end">HARGA</TableColumn>
+              <TableColumn width={80}>QTY</TableColumn>
               <TableColumn align="end">SUBTOTAL</TableColumn>
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
@@ -174,53 +219,238 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                   ...e,
                   type: "pr",
                 })),
-                ...data.services.map((e) => ({ ...e, type: "srv" })),
-              ].map((item: any, idx: number) => (
-                <TableRow key={idx}>
-                  <TableCell>
-                    <Chip
-                      className="font-black"
-                      radius="sm"
-                      size="sm"
-                      variant="flat"
-                    >
-                      {item.qty}
-                    </Chip>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="text-gray-500">{item.data.name}</span>
-                      <span className="text-[9px] text-gray-400 font-mono tracking-tighter">
-                        {item.data.code}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-500">
-                    {formatIDR(item.price)}
-                  </TableCell>
-                  <TableCell className="text-gray-500 text-right">
-                    {formatIDR(item.total_price)}
-                  </TableCell>
-                  <TableCell>
-                    {!["cancel", "closed"].includes(data.status) && (
-                      <Button
-                        isIconOnly
-                        color="danger"
-                        size="sm"
-                        variant="flat"
-                        onPress={() =>
-                          confirmSweat(() => handleDelete(item.data, item.type))
-                        }
+              ].map((item: any, idx: number) => {
+                const find = sparepart.find((e) => e.id === item.data.id);
+
+                return (
+                  <TableRow key={idx}>
+                    <TableCell>
+                      <div
+                        className={`flex flex-col max-w-[${isEdit ? "100px" : "200px"}]`}
                       >
-                        <Trash2 size={18} />
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+                        <Tooltip content={item.data.name}>
+                          <span className="text-gray-600 text-xs truncate block">
+                            {item.data.name}
+                          </span>
+                        </Tooltip>
+                        <div className=" flex gap-2 items-center truncate block">
+                          <span className="text-[11px] text-gray-600">
+                            {find?.suplier_name ||
+                              item.supplier_name ||
+                              item.data.code}
+                          </span>
+                          {isEdit && (
+                            <SelectSupplierPopover
+                              suppliers={suppliers as ISupplier[]}
+                              value={find?.supplier_id || item.supplier_id}
+                              onSelectionChange={(val) => {
+                                console.log(val);
+                                dispatch(
+                                  addSparepartService({
+                                    ...item,
+                                    ...item.data,
+                                    supplier_id: val.id,
+                                    suplier_name: val.name,
+                                  }),
+                                );
+                              }}
+                            >
+                              <Edit
+                                className="text-amber-600 cursor-pointer w-4"
+                                size={15}
+                              />
+                            </SelectSupplierPopover>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-gray-500">
+                      {isEdit ? (
+                        <InputNumber
+                          classNames={{
+                            input: "text-right",
+                          }}
+                          size="sm"
+                          value={Number(item.price || 0).toString()}
+                          onInput={(val) => editPart(val, item.qty, item.data)}
+                        />
+                      ) : (
+                        formatIDR(item.price)
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {isEdit ? (
+                        <InputNumber
+                          classNames={{
+                            input: "text-center",
+                          }}
+                          size="sm"
+                          value={Number(item.qty || 0).toString()}
+                          onInput={(val) =>
+                            editPart(item.price, val, item.data)
+                          }
+                        />
+                      ) : (
+                        formatIDR(item.qty)
+                      )}
+                    </TableCell>
+                    <TableCell className="text-gray-500 text-right">
+                      {formatIDR(item.total_price)}
+                    </TableCell>
+                    <TableCell>
+                      {!["cancel"].includes(data.status) && (
+                        <Tooltip color="danger" content="Hapus Item">
+                          <Button
+                            isIconOnly
+                            color="danger"
+                            radius="full"
+                            size="sm"
+                            variant="flat"
+                            onPress={() =>
+                              confirmSweat(() =>
+                                handleDelete(item.data, item.type),
+                              )
+                            }
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </Tooltip>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+          <Divider className="mb-4" />
+          <h1 className="text-sm uppercase font-bold text-gray-700">Jasa</h1>
+          <Table removeWrapper aria-label="Work Items" className="mt-2">
+            <TableHeader>
+              <TableColumn>ITEM / DESC</TableColumn>
+              <TableColumn align="end">HARGA</TableColumn>
+              <TableColumn width={80}>ESTIMASI</TableColumn>
+              <TableColumn align="end">SUBTOTAL</TableColumn>
+              <TableColumn align="end"> </TableColumn>
+            </TableHeader>
+            <TableBody>
+              {[...data.services.map((e) => ({ ...e, type: "srv" }))].map(
+                (item: any, idx: number) => {
+                  const find = services.find((e) => e.id === item.data.id);
+
+                  return (
+                    <TableRow key={idx}>
+                      <TableCell>
+                        <div
+                          className={`flex flex-col max-w-[${isEdit ? "100px" : "170px"}]`}
+                        >
+                          <Tooltip content={item.data.name}>
+                            <span className="text-gray-600 text-xs truncate block">
+                              {item.data.name}
+                            </span>
+                          </Tooltip>
+                          <div className=" flex gap-2 items-center">
+                            <span className="text-[11px] text-gray-600 truncate block">
+                              {find?.suplier_name ||
+                                item.supplier_name ||
+                                item.data.code}
+                            </span>
+                            {isEdit && (
+                              <SelectSupplierPopover
+                                suppliers={suppliers as ISupplier[]}
+                                value={find?.supplier_id || item.supplier_id}
+                                onSelectionChange={(val) => {
+                                  console.log(val);
+                                  dispatch(
+                                    addWoService({
+                                      ...item,
+                                      ...item.data,
+                                      supplier_id: val.id,
+                                      suplier_name: val.name,
+                                    }),
+                                  );
+                                }}
+                              >
+                                <Edit
+                                  className="text-amber-600 cursor-pointer w-4"
+                                  size={15}
+                                />
+                              </SelectSupplierPopover>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-500">
+                        {isEdit ? (
+                          <InputNumber
+                            classNames={{
+                              input: "text-right",
+                            }}
+                            size="sm"
+                            value={Number(item.price || 0).toString()}
+                            onInput={(val) =>
+                              editService(val, { ...item.data, qty: item.qty })
+                            }
+                          />
+                        ) : (
+                          formatIDR(item.price)
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-500 ">
+                        {item?.data?.estimated_duration * item.qty}{" "}
+                        {t(item?.data?.estimated_type)}
+                      </TableCell>
+                      <TableCell className="text-gray-500 text-right">
+                        {formatIDR(item.total_price)}
+                      </TableCell>
+                      <TableCell>
+                        {!["cancel"].includes(data.status) && (
+                          <Tooltip
+                            showArrow
+                            color="danger"
+                            content="Hapus Item"
+                          >
+                            <Button
+                              isIconOnly
+                              color="danger"
+                              radius="full"
+                              size="sm"
+                              variant="flat"
+                              onPress={() =>
+                                confirmSweat(() =>
+                                  handleDelete(item.data, item.type),
+                                )
+                              }
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </Tooltip>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                },
+              )}
             </TableBody>
           </Table>
         </CardBody>
+        {isEdit && (
+          <CardFooter className="flex gap-2 justify-end">
+            <Button
+              size="sm"
+              variant="bordered"
+              onPress={() => setIsEdit(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              color="primary"
+              size="sm"
+              onPress={() => handleSave(generateData(services, sparepart))}
+            >
+              Simpan Perubahan
+            </Button>
+          </CardFooter>
+        )}
       </Card>
 
       <Card>

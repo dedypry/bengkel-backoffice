@@ -36,6 +36,9 @@ export const ServiceRegistrationSchema = z.object({
     engine_number: z.string().optional(), // No. Mesin
     tire_size: z.string().optional(), // misal: 185/65 R15
   }),
+  next_km: z.coerce
+    .number({ message: "Kilometer tidak boleh negatif" })
+    .min(0, "Kilometer tidak boleh negatif"),
   current_km: z.coerce
     .number({ message: "Kilometer tidak boleh negatif" })
     .min(0, "Kilometer tidak boleh negatif"),

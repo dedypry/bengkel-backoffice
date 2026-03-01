@@ -21,10 +21,11 @@ import {
 } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
 import { getProduct } from "@/stores/features/product/product-action";
-import { formatIDR, formatNumber } from "@/utils/helpers/format";
+import { formatNumber } from "@/utils/helpers/format";
 // Menggunakan InputNumber HeroUI yang kita buat di awal
 import { CustomPagination } from "@/components/custom-pagination";
 import InputQty from "@/components/input-qty";
+import InputNumber from "@/components/input-number";
 
 export default function TabSparepart() {
   const { products } = useAppSelector((state) => state.product);
@@ -64,10 +65,19 @@ export default function TabSparepart() {
   function findQty(item: IProduct) {
     const find = sparepart.find((e) => e.id === item.id);
 
-    return find?.qty || 0;
+    return find;
   }
 
   const searchDebounce = debounce((q) => dispatch(getProduct({ q })), 500);
+  const handlePrice = debounce((val: number, item: IProduct) => {
+    dispatch(
+      addSparepartService({
+        ...item,
+        price: val,
+        sell_price: val?.toString(),
+      }),
+    );
+  }, 1000);
 
   return (
     <div className="space-y-4">
@@ -107,9 +117,14 @@ export default function TabSparepart() {
         </TableHeader>
         <TableBody emptyContent="Sparepart tidak ditemukan">
           {(products?.data || []).map((item) => {
-            const currentQty = findQty(item);
-            const remainingStock = Number(item.stock - currentQty);
+            const find = findQty(item);
+            const remainingStock = Number(item.stock - (find?.qty || 0));
             const isOutOfStock = item.stock < 1;
+            const itemData: any = {
+              ...item,
+              qty: find?.qty || 0,
+              sell_price: find?.price || item.sell_price || 0,
+            };
 
             return (
               <TableRow
@@ -121,7 +136,7 @@ export default function TabSparepart() {
                     isDisabled={isOutOfStock}
                     isSelected={selectedIds.includes(item.id)}
                     onValueChange={(isSelected) =>
-                      handleCheck(isSelected, item)
+                      handleCheck(isSelected, itemData)
                     }
                   />
                 </TableCell>
@@ -152,16 +167,26 @@ export default function TabSparepart() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="text-small font-bold text-success">
+                  <InputNumber
+                    classNames={{
+                      input: "text-right",
+                    }}
+                    isDisabled={!selectedIds.includes(item.id)}
+                    size="sm"
+                    startContent="Rp"
+                    value={Number(itemData.sell_price || 0).toString()}
+                    onInput={(val) => handlePrice(val, itemData)}
+                  />
+                  {/* <span className="text-small font-bold text-success">
                     {formatIDR(Number(item.sell_price))}
-                  </span>
+                  </span> */}
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-center">
                     <InputQty
                       handleQty={(newVal) => handleQty(item, newVal)} // Menggunakan prop dari InputNumber refactor kita
                       isDisabled={isOutOfStock}
-                      value={currentQty}
+                      value={find?.qty || 0}
                     />
                   </div>
                 </TableCell>

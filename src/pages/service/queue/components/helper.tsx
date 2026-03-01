@@ -24,9 +24,7 @@ export function SectionHeader({
 export function InfoBlock({ label, value }: { label: string; value: any }) {
   return (
     <div className="space-y-1">
-      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">
-        {label}
-      </p>
+      <p className="text-[9px] font-black text-gray-500 uppercase">{label}</p>
       <p className="text-[11px] font-bold text-gray-700 uppercase">
         {value || "-"}
       </p>

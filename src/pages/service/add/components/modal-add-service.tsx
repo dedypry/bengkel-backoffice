@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   Button,
   Modal,
@@ -18,6 +18,7 @@ import TabSparepart from "./tab-sparepart";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getService } from "@/stores/features/service/service-action";
 import { getProduct } from "@/stores/features/product/product-action";
+import { getSupplier } from "@/stores/features/supplier/supplier-action";
 
 interface Props {
   isSave?: boolean;
@@ -33,6 +34,18 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
   // HeroUI hook untuk kontrol modal yang lebih clean
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const dispatch = useAppDispatch();
+  const hasFetch = useRef(false);
+
+  useEffect(() => {
+    if (!hasFetch.current) {
+      hasFetch.current = true;
+      dispatch(getSupplier({}));
+
+      setTimeout(() => {
+        hasFetch.current = false;
+      }, 1000);
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -95,7 +108,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                   <Tab
                     key="service"
                     title={
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 cursor-pointer">
                         <Wrench size={18} />
                         <span>Jasa / Servis</span>
                       </div>
@@ -108,7 +121,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                   <Tab
                     key="sparepart"
                     title={
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 cursor-pointer">
                         <Package size={18} />
                         <span>Suku Cadang (Sparepart)</span>
                       </div>

@@ -21,5 +21,8 @@
     "low": "Low",
     "normal": "Normal",
     "high": "High",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "hours": "Hourse",
+    "minute": "Minute",
+    "day": "Day"
 }
