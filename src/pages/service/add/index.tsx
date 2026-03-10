@@ -18,7 +18,6 @@ import {
   Trash2,
   FilePlus2,
   ChevronLeft,
-  Settings,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,6 +45,7 @@ import {
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
 import ModalAddService from "./components/modal-add-service";
 import VehicleOption from "./components/vehicle-option";
+import DefaultSettingService from "./components/default-setting-service";
 
 import CustomerSearch from "@/components/customer-search";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -266,9 +266,7 @@ export default function ServiceAddPage() {
         <HeaderAction
           actionContent={
             <div className="flex gap-2">
-              <Button isIconOnly>
-                <Settings />
-              </Button>
+              <DefaultSettingService />
               <Button
                 color="primary"
                 startContent={<ChevronLeft />}
