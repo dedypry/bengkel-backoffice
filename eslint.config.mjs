@@ -89,7 +89,6 @@ export default defineConfig([
       },
     },
 
-
     files: ["**/*.ts", "**/*.tsx"],
 
     rules: {
@@ -108,9 +107,12 @@ export default defineConfig([
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
+          vars: "all",
+          varsIgnorePattern: "^_",
           args: "after-used",
-          ignoreRestSiblings: false,
-          argsIgnorePattern: "^_.*?$",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
         },
       ],
 

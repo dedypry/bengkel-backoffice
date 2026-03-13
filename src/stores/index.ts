@@ -28,6 +28,7 @@ import payment from "./features/payments/payment-slice";
 import dashboard from "./features/dashboard/dashboard-slice";
 import booking from "./features/booking/booking-slice";
 import expense from "./features/expense/expense-slice";
+import vendor from "./features/vendor/vendor-slice";
 
 const persistedAuthReducer = persistReducer({ key: "auth", storage }, auth);
 const persistedLayoutReducer = persistReducer({ key: "auth", storage }, layout);
@@ -51,6 +52,7 @@ export const store = configureStore({
     dashboard,
     booking,
     expense,
+    vendor,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

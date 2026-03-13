@@ -217,3 +217,20 @@ export interface IWorkOrder {
   next_sugestion: string;
   company?: ICompany;
 }
+
+export interface IWOItems<DATA> {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  data: DATA;
+  qty: number;
+  price: string; // Karena di JSON berbentuk string "200000.00"
+  total_price: string;
+  priority: string | null;
+  status: "pending" | "completed" | "in_progress" | string;
+  work_order_id: number;
+  updated_by: number | null;
+  type: "service" | "part" | string;
+  supplier_id: number;
+}

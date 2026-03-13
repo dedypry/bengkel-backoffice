@@ -45,6 +45,12 @@ export const navigation = [
         icon: "History",
         permissions: ["wo.view"],
       },
+      {
+        title: "Jasa divendorkan",
+        href: "vendor-transaction",
+        icon: "Handshake",
+        permissions: ["wo.view"],
+      },
     ],
   },
   {

@@ -37,6 +37,7 @@ import EditProduct from "./pages/inventory/stock/edit";
 import PaymentDetailPage from "./pages/finance/detail";
 
 import HomePage from "@/pages/dashboard/index";
+import VendorTrxPage from "./pages/service/vendor-transaction";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route element={<QueuePage />} path="queue" />
           <Route element={<WorkOrderDetail />} path="queue/:id" />
           <Route element={<HistoryPage />} path="history" />
+          <Route element={<VendorTrxPage />} path="vendor-transaction" />
         </Route>
 
         <Route path="/inventory">
