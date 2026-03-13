@@ -14,12 +14,13 @@ import {
   CheckboxGroup,
   Checkbox,
   Textarea,
+  Button,
 } from "@heroui/react";
 import { useEffect, useState } from "react";
-import { Selection } from "@heroui/react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
+import { BanknoteArrowUp } from "lucide-react";
 
 import { IPurchaseVendorForm, PurchaseVendorSchema } from "./schema";
 
@@ -34,56 +35,97 @@ interface Props {
   setOpen: (val: boolean) => void;
 }
 
-const schema = "";
-
 export default function DetailTrx({ open, setOpen }: Props) {
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const [ids, setIds] = useState<number[]>([]);
   const { trxDetail } = useAppSelector((state) => state.vendor);
-  const [subTotal, setSubTotal] = useState(0);
-  const [discount, setDiscount] = useState(0);
-  const [grandTotal, setGrantTotal] = useState(0);
+  const [selectAll, setSelectAll] = useState(false);
+  const [isIndeterminate, setIsIndeterminate] = useState(false);
 
-  useEffect(() => {
-    if (selectedKeys === "all") {
-      // Logika jika semua dipilih
-      const sub = trxDetail?.items.reduce(
-        (a, sum) => a + (Number(sum.price) + sum.qty),
-        0,
-      );
-
-      setIds(trxDetail?.items.map((e) => e.id) || []);
-      setSubTotal(sub || 0);
-    } else {
-      const selectedIds = Array.from(selectedKeys).map((e) => Number(e));
-
-      setIds(selectedIds as number[]);
-
-      const selectedItems = trxDetail?.items.filter((e) =>
-        selectedIds.includes(e.id),
-      );
-
-      console.log("selected", selectedItems, selectedIds, trxDetail?.items);
-
-      const sub = selectedItems?.reduce(
-        (sum, item) => sum + (Number(item.price) + item.qty),
-        0,
-      );
-
-      setSubTotal(sub || 0);
-    }
-  }, [selectedKeys]);
-
-  const { control, watch, setValue } = useForm<IPurchaseVendorForm>({
+  const {
+    control,
+    watch,
+    setValue,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<IPurchaseVendorForm>({
     resolver: zodResolver(PurchaseVendorSchema),
+    mode: "onChange",
     defaultValues: {
       date: dayjs().toISOString(),
       invoiceNo: "",
       paymentType: "cash",
+      paymentMethod: "cash",
       dueDays: 1,
       dueDate: dayjs().add(1, "day").toISOString(),
+      items: [],
+      otherFees: 0,
+      purchaseNo: "",
+      signature: "MANSUR SAH",
     },
   });
+
+  console.log(errors);
+
+  const { fields } = useFieldArray({
+    control,
+    name: "items",
+  });
+
+  function handleCalculate() {
+    const items = watch("items") || [];
+    const otherFees = watch("otherFees") || 0;
+    const itemsSelected = items.filter((e) => e.select);
+
+    const selAll = items.length === itemsSelected.length;
+
+    setSelectAll(selAll);
+    setIsIndeterminate(itemsSelected.length > 0 && !selAll);
+
+    let subTotal = 0;
+    let totalDiscount = 0;
+    let totalTax = 0;
+
+    for (const item of itemsSelected) {
+      const price = Number(item.purchasePrice || 0);
+      const discValue = item.discValue || 0;
+      const taxRate = item.taxPercentage || 0;
+
+      subTotal += price;
+      totalDiscount += discValue;
+      const dpp = price - discValue;
+      const lineTax = (dpp * taxRate) / 100;
+
+      totalTax += lineTax;
+    }
+
+    const finalTotal = subTotal - totalDiscount + totalTax + otherFees;
+
+    setValue("subTotal", subTotal);
+    setValue("finalDiscValue", totalDiscount);
+    setValue("tax", totalTax);
+    setValue("total", finalTotal);
+  }
+
+  useEffect(() => {
+    if (trxDetail && open) {
+      const items = trxDetail?.items.map((e) => ({
+        id: e.id,
+        code: e.data.code,
+        name: e.data.name,
+        purchasePrice: +e.total_price,
+        discPercentage: 0,
+        total: +e.total_price,
+        taxPercentage: 0,
+        discValue: 0,
+        select: true,
+      }));
+
+      setValue("items", items as any);
+
+      setValue("purchaseNo", trxDetail.wo.trx_no);
+      handleCalculate();
+    }
+  }, [trxDetail, open]);
 
   function handleDueDay(day: number) {
     const date = dayjs().add(day, "day").toISOString();
@@ -91,24 +133,52 @@ export default function DetailTrx({ open, setOpen }: Props) {
     setValue("dueDate", date);
   }
 
+  function handleDueDate(date: string) {
+    const targetDate = dayjs(date);
+    const today = dayjs().startOf("day");
+    const diffInDays = targetDate.diff(today, "day");
+
+    setValue("dueDays", diffInDays);
+  }
+
+  function handleCheckAll(val: boolean) {
+    setSelectAll(val);
+
+    const items = watch("items").map((e) => ({
+      ...e,
+      select: val,
+    }));
+
+    setValue("items", items);
+    setIsIndeterminate(false);
+    handleCalculate();
+  }
+
+  function onSubmit(data: IPurchaseVendorForm) {
+    console.log(data);
+  }
+
   if (!trxDetail) return null;
 
   return (
     <Modal
+      classNames={{
+        wrapper: "w-full",
+        base: "max-w-[95%] w-full",
+      }}
       isOpen={open}
       scrollBehavior="outside"
-      size="5xl"
       onOpenChange={setOpen}
     >
       <ModalContent>
-        {(onClose) => (
+        {() => (
           <>
             <ModalHeader>Pembelian Jasa Divendorkan</ModalHeader>
-            <form action="">
+            <form onSubmit={handleSubmit(onSubmit)}>
               <ModalBody className="py-6">
                 <div className="grid grid-cols-12 gap-x-8 gap-y-1 mb-6">
                   <div className="col-span-5 flex flex-col gap-1">
-                    <FormRow label="No. Beli" value={trxDetail.wo.trx_no} />
+                    <FormRow label="No. Beli" value={watch("purchaseNo")} />
                     <FormRow
                       label="Tanggal"
                       value={
@@ -204,13 +274,34 @@ export default function DetailTrx({ open, setOpen }: Props) {
                           name="dueDate"
                           render={({ field, fieldState }) => (
                             <DatePicker
-                              {...(field as any)}
                               errorMessage={fieldState.error?.message}
                               isDisabled={watch("paymentType") === "cash"}
                               isInvalid={!!fieldState.error}
                               minDate={new Date()}
                               size="sm"
+                              value={field.value as any}
+                              onChange={(val) => {
+                                field.onChange(val);
+                                handleDueDate(val as any);
+                              }}
                             />
+                          )}
+                        />
+                      }
+                    />
+                    <FormRow
+                      label="Metode"
+                      value={
+                        <Controller
+                          control={control}
+                          name="paymentMethod"
+                          render={({ field, fieldState }) => (
+                            <div className="flex justify-between">
+                              <p>{field.value}</p>
+                              <Button isIconOnly size="sm" variant="light">
+                                <BanknoteArrowUp size={18} />
+                              </Button>
+                            </div>
                           )}
                         />
                       }
@@ -219,37 +310,170 @@ export default function DetailTrx({ open, setOpen }: Props) {
                 </div>
 
                 {/* TABLE SECTION */}
-                <Table
-                  removeWrapper
-                  aria-label="Detail Jasa Table"
-                  selectedKeys={selectedKeys}
-                  selectionMode="multiple"
-                  onSelectionChange={setSelectedKeys}
-                >
+                <Table removeWrapper aria-label="Detail Jasa Table">
                   <TableHeader>
-                    <TableColumn>No. PKB</TableColumn>
+                    <TableColumn>
+                      <Checkbox
+                        isIndeterminate={isIndeterminate}
+                        isSelected={selectAll}
+                        onValueChange={handleCheckAll}
+                      />
+                    </TableColumn>
                     <TableColumn>Kode Jasa</TableColumn>
                     <TableColumn>Nama Jasa</TableColumn>
-                    <TableColumn className="text-right">Harga Beli</TableColumn>
-                    <TableColumn className="text-center">Qty</TableColumn>
-                    <TableColumn className="text-right">Jumlah</TableColumn>
+                    <TableColumn className="text-center">
+                      Harga Beli
+                    </TableColumn>
+                    <TableColumn className="text-center">Disc %</TableColumn>
+                    <TableColumn className="text-center">
+                      Nilai Disc
+                    </TableColumn>
+                    <TableColumn className="text-center">PPN %</TableColumn>
+                    <TableColumn className="text-center">Jumlah</TableColumn>
                   </TableHeader>
                   <TableBody>
-                    {trxDetail.items.map((item, index) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="py-2">
-                          {trxDetail.wo.trx_no}
+                    {fields.map((field, index) => (
+                      <TableRow key={field.id}>
+                        <TableCell>
+                          <Controller
+                            control={control}
+                            name={`items.${index}.select`}
+                            render={({ field: { onChange } }) => (
+                              <Checkbox
+                                isSelected={watch(`items.${index}.select`)}
+                                onValueChange={(val) => {
+                                  onChange(val);
+                                  handleCalculate();
+                                }}
+                              />
+                            )}
+                          />
                         </TableCell>
-                        <TableCell>{item.data.code}</TableCell>
-                        <TableCell>{item.data.name}</TableCell>
+                        <TableCell>{field.code} </TableCell>
+                        <TableCell>{field.name}</TableCell>
                         <TableCell className="text-right">
-                          {formatIDR(item.price)}
+                          <Controller
+                            control={control}
+                            name={`items.${index}.purchasePrice`}
+                            render={({ field: { onChange, value } }) => (
+                              <InputNumber
+                                className="w-32"
+                                classNames={{
+                                  input: "text-right",
+                                }}
+                                size="sm"
+                                startContent="Rp"
+                                value={Number(value) as any}
+                                onInput={(val) => {
+                                  onChange(val);
+                                  handleCalculate();
+                                }}
+                              />
+                            )}
+                          />
                         </TableCell>
-                        <TableCell className="text-center">
-                          {item.qty}
+                        <TableCell className="text-right">
+                          <Controller
+                            control={control}
+                            name={`items.${index}.discPercentage`}
+                            render={({ field: { onChange, value } }) => (
+                              <InputNumber
+                                className="w-32"
+                                classNames={{
+                                  input: "text-right",
+                                }}
+                                size="sm"
+                                startContent="Rp"
+                                value={Number(value) as any}
+                                onInput={(val) => {
+                                  onChange(val);
+                                  const purchasePrice = Number(
+                                    watch(`items.${index}.purchasePrice`) || 0,
+                                  );
+
+                                  const percentage = Number(val) || 0;
+                                  const calculatedDiscValue =
+                                    (percentage / 100) * purchasePrice;
+
+                                  setValue(
+                                    `items.${index}.discValue`,
+                                    calculatedDiscValue,
+                                  );
+                                  setValue(
+                                    `items.${index}.total`,
+                                    purchasePrice - calculatedDiscValue,
+                                  );
+                                  handleCalculate();
+                                }}
+                              />
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Controller
+                            control={control}
+                            name={`items.${index}.discValue`}
+                            render={({ field: { onChange, value } }) => (
+                              <InputNumber
+                                className="w-32"
+                                classNames={{
+                                  input: "text-right",
+                                }}
+                                size="sm"
+                                startContent="Rp"
+                                value={Number(value) as any}
+                                onInput={(val) => {
+                                  onChange(val);
+                                  const purchasePrice = Number(
+                                    watch(`items.${index}.purchasePrice`) || 0,
+                                  );
+                                  const discValue = Number(val) || 0;
+                                  let calculatedPercentage = 0;
+
+                                  if (purchasePrice > 0) {
+                                    calculatedPercentage =
+                                      (discValue / purchasePrice) * 100;
+                                  }
+                                  setValue(
+                                    `items.${index}.discPercentage`,
+                                    calculatedPercentage,
+                                  );
+
+                                  setValue(
+                                    `items.${index}.total`,
+                                    purchasePrice - val,
+                                  );
+
+                                  handleCalculate();
+                                }}
+                              />
+                            )}
+                          />
+                        </TableCell>
+
+                        <TableCell className="text-right">
+                          <Controller
+                            control={control}
+                            name={`items.${index}.taxPercentage`}
+                            render={({ field: { onChange, value } }) => (
+                              <InputNumber
+                                className="w-32"
+                                classNames={{
+                                  input: "text-right",
+                                }}
+                                endContent="%"
+                                size="sm"
+                                value={Number(value) as any}
+                                onInput={(val) => {
+                                  onChange(val);
+                                  handleCalculate();
+                                }}
+                              />
+                            )}
+                          />
                         </TableCell>
                         <TableCell className="text-right font-semibold">
-                          {formatIDR(item.total_price)}
+                          {formatIDR(watch(`items.${index}.total`))}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -263,12 +487,22 @@ export default function DetailTrx({ open, setOpen }: Props) {
                       <p className="text-xs font-semibold text-gray-500 uppercase">
                         Catatan :
                       </p>
-                      <Textarea minRows={6} />
+                      <Controller
+                        control={control}
+                        name="notes"
+                        render={({ field }) => (
+                          <Textarea
+                            {...(field as any)}
+                            minRows={6}
+                            placeholder="Tuliskan catatan disini..."
+                          />
+                        )}
+                      />
                     </div>
                     <div className="flex items-center gap-2">
                       <p className="text-xs font-semibold w-20">Signature :</p>
                       <p className="text-sm border-b w-40">
-                        {trxDetail.signature || "MANSUR SAH"}
+                        {watch("signature")}
                       </p>
                     </div>
                   </div>
@@ -284,59 +518,86 @@ export default function DetailTrx({ open, setOpen }: Props) {
                         }}
                         size="sm"
                         startContent="Rp"
-                        value={subTotal as any}
+                        value={Number(watch("subTotal")) as any}
                       />
                     </div>
                     <div className="flex justify-between items-center py-1">
                       <div className="flex gap-2 items-center">
                         <span>Disc. Final</span>
-                        <span className="border px-1 text-[10px]">0%</span>
                       </div>
                       <InputNumber
+                        isDisabled
                         className="w-32"
                         classNames={{
                           input: "text-right",
                         }}
                         size="sm"
                         startContent="Rp"
-                        value={discount as any}
-                        onInput={setDiscount}
+                        value={watch("finalDiscValue") as any}
                       />
                     </div>
                     <div className="flex justify-between items-center py-1">
                       <span>Pajak</span>
                       <InputNumber
-                        className="w-32"
-                        classNames={{
-                          input: "text-right",
-                        }}
-                        endContent="%"
-                        size="sm"
-                        value={discount as any}
-                        onInput={setDiscount}
-                      />
-                    </div>
-                    <div className="flex justify-between items-center py-1">
-                      <span>Biaya Lain</span>
-                      <InputNumber
+                        isDisabled
                         className="w-32"
                         classNames={{
                           input: "text-right",
                         }}
                         size="sm"
                         startContent="Rp"
-                        value={discount as any}
-                        onInput={setDiscount}
+                        value={watch("tax") as any}
+                      />
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span>Biaya Lain</span>
+                      <Controller
+                        control={control}
+                        name="otherFees"
+                        render={({ field }) => (
+                          <InputNumber
+                            className="w-32"
+                            classNames={{
+                              input: "text-right",
+                            }}
+                            size="sm"
+                            startContent="Rp"
+                            value={field.value as any}
+                            onInput={(val) => {
+                              field.onChange(val);
+                              handleCalculate();
+                            }}
+                          />
+                        )}
                       />
                     </div>
                     <Divider className="my-1" />
                     <div className="flex justify-between items-center py-1 font-bold text-lg">
                       <span>Total</span>
-                      <span className="bg-blue-50 text-primary px-2 py-1 w-32 text-right border border-blue-200">
-                        {formatIDR(grandTotal)}
-                      </span>
+                      <InputNumber
+                        isDisabled
+                        className="w-32"
+                        classNames={{
+                          input: "text-right",
+                        }}
+                        value={watch("total") as any}
+                      />
                     </div>
                   </div>
+                </div>
+
+                <div className="flex justify-end gap-2 mt-5">
+                  <Button
+                    onPress={() => {
+                      setOpen(false);
+                      reset();
+                    }}
+                  >
+                    Batal
+                  </Button>
+                  <Button color="primary" type="submit">
+                    Simpan
+                  </Button>
                 </div>
               </ModalBody>
             </form>
