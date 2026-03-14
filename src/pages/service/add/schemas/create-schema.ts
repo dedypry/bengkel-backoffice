@@ -43,7 +43,7 @@ export const ServiceRegistrationSchema = z.object({
     .number({ message: "Kilometer tidak boleh negatif" })
     .min(0, "Kilometer tidak boleh negatif"),
   complaints: z.string().optional().default(""),
-  mechanic_id: z.number().optional(),
+  mechanic_ids: z.array(z.number()).optional(),
   priority: z.string({ message: "Prioritas wajib diisi" }),
 });
 

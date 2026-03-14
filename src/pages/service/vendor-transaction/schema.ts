@@ -9,6 +9,7 @@ export const PurchaseVendorSchema = z.object({
   // Payment & Terms
   paymentType: z.enum(["cash", "credit"]),
   paymentMethod: z.string(),
+  supplierId: z.number(),
   dueDays: z.number().nonnegative(),
   dueDate: z.string().optional().nullable(),
 
@@ -31,7 +32,7 @@ export const PurchaseVendorSchema = z.object({
 
   // --- FOOTER / SUMMARY SECTION ---
   notes: z.string().optional().nullable(),
-  signature: z.string().min(1, "Signature name is required"),
+  signature_id: z.number().optional(),
 
   subTotal: z.number().nonnegative(),
   finalDiscValue: z.number().nonnegative(),

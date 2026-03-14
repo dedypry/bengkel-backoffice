@@ -1,9 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getVendorTransaction, getVendorTrxDetail } from "./vendor-action";
+import {
+  getVendorPayment,
+  getVendorTransaction,
+  getVendorTrxDetail,
+} from "./vendor-action";
 
 import { IPagination } from "@/utils/interfaces/IPagination";
 import {
+  IVendorPayment,
   IVendorTransaction,
   IVendorTrxDetail,
 } from "@/utils/interfaces/IVendor";
@@ -17,12 +22,24 @@ const vendorSlice = createSlice({
       pageSize: 10,
       q: "",
     },
+    paymentQuery: {
+      page: 1,
+      pageSize: 10,
+      q: "",
+    },
+    payments: null as IPagination<IVendorPayment> | null,
     trxDetail: null as IVendorTrxDetail | null,
   },
   reducers: {
     setVendorQuery: (state, action) => {
       state.vendorQuery = {
         ...state.vendorQuery,
+        ...action.payload,
+      };
+    },
+    setPaymentQuery: (state, action) => {
+      state.paymentQuery = {
+        ...state.paymentQuery,
         ...action.payload,
       };
     },
@@ -34,8 +51,11 @@ const vendorSlice = createSlice({
       })
       .addCase(getVendorTrxDetail.fulfilled, (state, action) => {
         state.trxDetail = action.payload;
+      })
+      .addCase(getVendorPayment.fulfilled, (state, action) => {
+        state.payments = action.payload;
       }),
 });
 
-export const { setVendorQuery } = vendorSlice.actions;
+export const { setVendorQuery, setPaymentQuery } = vendorSlice.actions;
 export default vendorSlice.reducer;

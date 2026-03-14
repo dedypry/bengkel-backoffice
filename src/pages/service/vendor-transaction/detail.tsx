@@ -15,8 +15,11 @@ import {
   Checkbox,
   Textarea,
   Button,
+  Autocomplete,
+  AutocompleteItem,
+  Avatar,
 } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
@@ -24,11 +27,16 @@ import { BanknoteArrowUp } from "lucide-react";
 
 import { IPurchaseVendorForm, PurchaseVendorSchema } from "./schema";
 
-import { useAppSelector } from "@/stores/hooks";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
 import FormRow from "@/components/form-row";
 import DatePicker from "@/components/forms/date-picker";
 import InputNumber from "@/components/input-number";
+import { getEmploye } from "@/stores/features/employe/employe-action";
+import { getAvatarByName } from "@/utils/helpers/global";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import { getVendorTransaction } from "@/stores/features/vendor/vendor-action";
 
 interface Props {
   open: boolean;
@@ -36,35 +44,31 @@ interface Props {
 }
 
 export default function DetailTrx({ open, setOpen }: Props) {
-  const { trxDetail } = useAppSelector((state) => state.vendor);
+  const { trxDetail, vendorQuery } = useAppSelector((state) => state.vendor);
+  const { list } = useAppSelector((state) => state.employe);
   const [selectAll, setSelectAll] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isIndeterminate, setIsIndeterminate] = useState(false);
+  const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
-  const {
-    control,
-    watch,
-    setValue,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<IPurchaseVendorForm>({
-    resolver: zodResolver(PurchaseVendorSchema),
-    mode: "onChange",
-    defaultValues: {
-      date: dayjs().toISOString(),
-      invoiceNo: "",
-      paymentType: "cash",
-      paymentMethod: "cash",
-      dueDays: 1,
-      dueDate: dayjs().add(1, "day").toISOString(),
-      items: [],
-      otherFees: 0,
-      purchaseNo: "",
-      signature: "MANSUR SAH",
-    },
-  });
-
-  console.log(errors);
+  const { control, watch, setValue, handleSubmit, reset } =
+    useForm<IPurchaseVendorForm>({
+      resolver: zodResolver(PurchaseVendorSchema),
+      mode: "onChange",
+      defaultValues: {
+        date: dayjs().toISOString(),
+        invoiceNo: "",
+        paymentType: "cash",
+        paymentMethod: "cash",
+        dueDays: 1,
+        dueDate: dayjs().add(1, "day").toISOString(),
+        items: [],
+        otherFees: 0,
+        purchaseNo: "",
+        notes: "",
+      },
+    });
 
   const { fields } = useFieldArray({
     control,
@@ -122,8 +126,16 @@ export default function DetailTrx({ open, setOpen }: Props) {
 
       setValue("items", items as any);
 
-      setValue("purchaseNo", trxDetail.wo.trx_no);
+      setValue("purchaseNo", trxDetail?.purchase_no);
+      setValue("supplierId", trxDetail?.supplier?.id);
       handleCalculate();
+      if (!hasFetched.current) {
+        hasFetched.current = true;
+        dispatch(getEmploye({ page: 1, pageSize: 500 }));
+        setTimeout(() => {
+          hasFetched.current = false;
+        }, 1000);
+      }
     }
   }, [trxDetail, open]);
 
@@ -155,7 +167,18 @@ export default function DetailTrx({ open, setOpen }: Props) {
   }
 
   function onSubmit(data: IPurchaseVendorForm) {
-    console.log(data);
+    setLoading(true);
+    http
+      .post("/vendor-transaction", data)
+      .then(({ data }) => {
+        notify(data.message);
+        setOpen(false);
+        dispatch(getVendorTransaction(vendorQuery));
+      })
+      .catch(notifyError)
+      .finally(() => {
+        setLoading(false);
+      });
   }
 
   if (!trxDetail) return null;
@@ -178,7 +201,24 @@ export default function DetailTrx({ open, setOpen }: Props) {
               <ModalBody className="py-6">
                 <div className="grid grid-cols-12 gap-x-8 gap-y-1 mb-6">
                   <div className="col-span-5 flex flex-col gap-1">
-                    <FormRow label="No. Beli" value={watch("purchaseNo")} />
+                    <FormRow
+                      label="No. Beli"
+                      value={
+                        <Controller
+                          control={control}
+                          name="purchaseNo"
+                          render={({ field, fieldState }) => (
+                            <Input
+                              isDisabled
+                              size="sm"
+                              {...field}
+                              errorMessage={fieldState.error?.message}
+                              isInvalid={!!fieldState.error}
+                            />
+                          )}
+                        />
+                      }
+                    />
                     <FormRow
                       label="Tanggal"
                       value={
@@ -295,13 +335,13 @@ export default function DetailTrx({ open, setOpen }: Props) {
                         <Controller
                           control={control}
                           name="paymentMethod"
-                          render={({ field, fieldState }) => (
-                            <div className="flex justify-between">
+                          render={({ field }) => (
+                            <span className="flex justify-between">
                               <p>{field.value}</p>
                               <Button isIconOnly size="sm" variant="light">
                                 <BanknoteArrowUp size={18} />
                               </Button>
-                            </div>
+                            </span>
                           )}
                         />
                       }
@@ -500,10 +540,55 @@ export default function DetailTrx({ open, setOpen }: Props) {
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="text-xs font-semibold w-20">Signature :</p>
-                      <p className="text-sm border-b w-40">
-                        {watch("signature")}
-                      </p>
+                      <Controller
+                        control={control}
+                        name="signature_id"
+                        render={({ field, fieldState }) => (
+                          <Autocomplete
+                            defaultItems={list?.data || []}
+                            errorMessage={fieldState.error?.message}
+                            isInvalid={!!fieldState.error}
+                            label="Signature"
+                            labelPlacement="outside-left"
+                            listboxProps={{
+                              emptyContent:
+                                "User tidak ditemukan, tekan Enter untuk tambah baru.",
+                            }}
+                            placeholder="Pilih User"
+                            value={field.value?.toString()}
+                            onSelectionChange={(val) =>
+                              field.onChange(Number(val))
+                            }
+                          >
+                            {(item) => (
+                              <AutocompleteItem
+                                key={item.id}
+                                textValue={item.name}
+                              >
+                                <div className="flex gap-3 items-center">
+                                  <Avatar
+                                    alt={item.name}
+                                    size="sm"
+                                    src={
+                                      item.profile?.photo_url ||
+                                      getAvatarByName(item.name)
+                                    }
+                                  />
+
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-bold">
+                                      {item.name}
+                                    </span>
+                                    <span className="text-[10px] text-gray-500">
+                                      {item.position}
+                                    </span>
+                                  </div>
+                                </div>
+                              </AutocompleteItem>
+                            )}
+                          </Autocomplete>
+                        )}
+                      />
                     </div>
                   </div>
 
@@ -595,7 +680,12 @@ export default function DetailTrx({ open, setOpen }: Props) {
                   >
                     Batal
                   </Button>
-                  <Button color="primary" type="submit">
+                  <Button
+                    color="primary"
+                    isDisabled={watch("items").length === 0}
+                    isLoading={loading}
+                    type="submit"
+                  >
                     Simpan
                   </Button>
                 </div>

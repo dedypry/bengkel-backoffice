@@ -28,3 +28,18 @@ export const getVendorTrxDetail = createAsyncThunk(
     }
   },
 );
+
+export const getVendorPayment = createAsyncThunk(
+  "get-vendor-payment",
+  async (params?: IQuery) => {
+    try {
+      const { data } = await http.get(`/vendor-transaction/payment`, {
+        params,
+      });
+
+      return data;
+    } catch (_) {
+      return null;
+    }
+  },
+);

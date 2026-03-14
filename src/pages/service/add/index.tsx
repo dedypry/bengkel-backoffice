@@ -18,6 +18,7 @@ import {
   Trash2,
   FilePlus2,
   ChevronLeft,
+  Users,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +29,7 @@ import {
   Button,
   Card,
   CardBody,
+  Chip,
   Divider,
   Form,
   Input,
@@ -42,10 +44,11 @@ import {
   Textarea,
 } from "@heroui/react";
 
+import DefaultSettingService from "../../../components/default-setting-service";
+
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
 import ModalAddService from "./components/modal-add-service";
 import VehicleOption from "./components/vehicle-option";
-import DefaultSettingService from "./components/default-setting-service";
 
 import CustomerSearch from "@/components/customer-search";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -65,13 +68,15 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import InputNumber from "@/components/input-number";
 import CustomDatePicker from "@/components/forms/date-picker";
 import HeaderAction from "@/components/header-action";
+import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
 
 export default function ServiceAddPage() {
   const { company } = useAppSelector((state) => state.auth);
   const { query } = useAppSelector((state) => state.service);
-  const { services, sparepart, customer, settings } = useAppSelector(
-    (state) => state.wo,
-  );
+  const { mechanics } = useAppSelector((state) => state.mechanic);
+  const { settings } = useAppSelector((state) => state.service);
+  const { services, sparepart, customer } = useAppSelector((state) => state.wo);
+
   const [isEdit, setEdit] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isNew, setNew] = useState(false);
@@ -95,6 +100,7 @@ export default function ServiceAddPage() {
     if (company && !hasFetchedService.current) {
       hasFetchedService.current = true;
       dispatch(getService(query));
+      dispatch(getMechanic({ page: 1, pageSize: 500 }));
 
       setTimeout(() => {
         hasFetchedService.current = false;
@@ -111,6 +117,7 @@ export default function ServiceAddPage() {
         customer: {
           birth_date: "",
         },
+        mechanic_ids: [],
       },
     });
 
@@ -129,7 +136,7 @@ export default function ServiceAddPage() {
     const current = Number(watch("current_km"));
 
     if (current > 0) {
-      setValue("next_km", current + settings.next_km);
+      setValue("next_km", current + Number(settings.default_km_increment));
     }
   }, [watch("current_km")]);
 
@@ -870,6 +877,60 @@ export default function ServiceAddPage() {
 
           {/* Sidebar: Ringkasan & Action */}
           <div>
+            <Card className="mb-5">
+              <CardBody>
+                <h5 className="font-bold border-b border-white/10 pb-3 flex items-center gap-2">
+                  <Users className="size-5" />
+                  Mekanik
+                </h5>
+                <Controller
+                  control={control}
+                  name="mechanic_ids"
+                  render={({ field: { value, onChange }, fieldState }) => (
+                    <Select
+                      classNames={{
+                        trigger: "h-auto min-h-10 py-2", // Menghapus fixed height, biarkan auto
+                        value: "flex flex-wrap gap-1", // Memastikan konten di dalamnya membungkus (wrap)
+                      }}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
+                      items={mechanics}
+                      placeholder="Pilih satu atau lebih mekanik"
+                      renderValue={(items) => (
+                        <div className="flex flex-wrap gap-1">
+                          {items.map((item) => (
+                            <Chip key={item.key} size="sm" variant="solid">
+                              {item.data?.name}
+                            </Chip>
+                          ))}
+                        </div>
+                      )}
+                      selectedKeys={new Set(value?.map(String) || [])}
+                      selectionMode="multiple"
+                      onSelectionChange={(keys) => {
+                        // Mengubah Set string kembali menjadi array number
+                        const values = Array.from(keys).map(Number);
+
+                        onChange(values);
+                      }}
+                    >
+                      {(user) => (
+                        <SelectItem key={user.id} textValue={user.name}>
+                          <div className="flex gap-2 items-center">
+                            <div className="flex flex-col">
+                              <span className="text-xs">{user.name}</span>
+                              <span className="text-[10px] text-gray-500">
+                                {user.position}
+                              </span>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      )}
+                    </Select>
+                  )}
+                />
+              </CardBody>
+            </Card>
             <div className="space-y-6 sticky top-32">
               <Card className="p-4">
                 <CardBody>

@@ -14,46 +14,74 @@ import { Settings, Search } from "lucide-react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useEffect, useRef, useState } from "react";
+
+import InputNumber from "./input-number";
+
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import { useAppDispatch } from "@/stores/hooks";
+import { setServiceSetting } from "@/stores/features/service/service-slice";
 
 // Schema Validasi menggunakan Zod
 const settingsSchema = z.object({
-  pendaftaran_servis: z.string().min(1, "Wajib diisi"),
-  pembayaran_servis: z.string().min(1, "Wajib diisi"),
-  pembelian_jasa: z.string().min(1, "Wajib diisi"),
-  order_penjualan: z.string().min(1, "Wajib diisi"),
-  faktur_penjualan: z.string().min(1, "Wajib diisi"),
-  retur_penjualan: z.string().min(1, "Wajib diisi"),
-  pembayaran_piutang: z.string().min(1, "Wajib diisi"),
-  penambahan_km: z.coerce.number().min(0),
-  kas_pembayaran: z.string().min(1, "Pilih kas"),
-  gudang_stock: z.string().min(1, "Pilih gudang"),
-  jumlah_pit: z.coerce.number().min(1, "Minimal 1 pit"),
+  service_reg_prefix: z.string().optional(),
+  service_pay_prefix: z.string().optional(),
+  job_order_prefix: z.string().optional(),
+  sales_order_prefix: z.string().optional(),
+  sales_inv_prefix: z.string().optional(),
+  sales_ret_prefix: z.string().optional(),
+  ar_pay_prefix: z.string().optional(),
+  default_km_increment: z.coerce.number().min(0),
+  default_cash_account_id: z.string().optional().nullable(),
+  default_warehouse_id: z.string().optional().nullable(),
+  pit_count: z.coerce.number().optional().nullable(),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
 
 export default function DefaultSettingService() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [loading, setLoading] = useState(false);
+  const hasFetched = useRef(false);
+  const dispatch = useAppDispatch();
 
-  const { control, handleSubmit } = useForm<SettingsForm>({
+  const { control, handleSubmit, reset } = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema) as any,
-    defaultValues: {
-      pendaftaran_servis: "PKB.",
-      pembayaran_servis: "SRV.",
-      pembelian_jasa: "OPL.",
-      order_penjualan: "SO.",
-      faktur_penjualan: "SI.",
-      retur_penjualan: "SR.",
-      pembayaran_piutang: "AR.",
-      penambahan_km: 7000 as number,
-      jumlah_pit: 10 as number,
-      kas_pembayaran: "",
-      gudang_stock: "",
-    },
+    defaultValues: {},
   });
 
+  useEffect(getData, []);
+
+  function getData() {
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      http
+        .get("/services/settings")
+        .then(({ data }) => {
+          reset(data);
+          dispatch(setServiceSetting(data));
+        })
+        .catch(notifyError)
+        .finally(() => {
+          setTimeout(() => {
+            hasFetched.current = false;
+          }, 1000);
+        });
+    }
+  }
+
   const onSubmit: SubmitHandler<SettingsForm> = (data: SettingsForm) => {
-    console.log("Saved Data:", data);
+    setLoading(true);
+    http
+      .post("/services/settings", data)
+      .then(({ data }) => {
+        getData();
+        notify(data.message);
+        onClose();
+      })
+      .catch(notifyError)
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -86,17 +114,17 @@ export default function DefaultSettingService() {
                         <InputControl
                           control={control}
                           label="Pendaftaran Servis"
-                          name="pendaftaran_servis"
+                          name="service_reg_prefix"
                         />
                         <InputControl
                           control={control}
                           label="Pembayaran Servis"
-                          name="pembayaran_servis"
+                          name="service_pay_prefix"
                         />
                         <InputControl
                           control={control}
                           label="Pembelian Jasa"
-                          name="pembelian_jasa"
+                          name="job_order_prefix"
                         />
                       </div>
                     </section>
@@ -109,22 +137,22 @@ export default function DefaultSettingService() {
                         <InputControl
                           control={control}
                           label="Order Penjualan"
-                          name="order_penjualan"
+                          name="sales_order_prefix"
                         />
                         <InputControl
                           control={control}
                           label="Faktur Penjualan"
-                          name="faktur_penjualan"
+                          name="sales_inv_prefix"
                         />
                         <InputControl
                           control={control}
                           label="Retur Penjualan"
-                          name="retur_penjualan"
+                          name="sales_ret_prefix"
                         />
                         <InputControl
                           control={control}
                           label="Pembayaran Piutang"
-                          name="pembayaran_piutang"
+                          name="ar_pay_prefix"
                         />
                       </div>
                     </section>
@@ -140,7 +168,7 @@ export default function DefaultSettingService() {
                         <InputControl
                           control={control}
                           label="Penambahan Km"
-                          name="penambahan_km"
+                          name="default_km_increment"
                           type="number"
                         />
 
@@ -148,7 +176,7 @@ export default function DefaultSettingService() {
                           <SelectControl
                             control={control}
                             label="Kas Pembayaran"
-                            name="kas_pembayaran"
+                            name="default_cash_account_id"
                             options={[{ id: "1", label: "Kas Bengkel" }]}
                           />
                           <Button isIconOnly size="sm" variant="flat">
@@ -160,7 +188,7 @@ export default function DefaultSettingService() {
                           <SelectControl
                             control={control}
                             label="Gudang Stock"
-                            name="gudang_stock"
+                            name="default_warehouse_id"
                             options={[{ id: "1", label: "GUD. UTAMA" }]}
                           />
                           <Button isIconOnly size="sm" variant="flat">
@@ -191,7 +219,7 @@ export default function DefaultSettingService() {
                       <InputControl
                         control={control}
                         label="Jumlah Pit"
-                        name="jumlah_pit"
+                        name="pit_count"
                         type="number"
                       />
                     </section>
@@ -203,7 +231,12 @@ export default function DefaultSettingService() {
                 <Button color="danger" variant="light" onPress={onCloseModal}>
                   Batal
                 </Button>
-                <Button className="font-bold" color="primary" type="submit">
+                <Button
+                  className="font-bold"
+                  color="primary"
+                  isLoading={loading}
+                  type="submit"
+                >
                   Simpan
                 </Button>
               </ModalFooter>
@@ -226,21 +259,36 @@ function InputControl({ name, label, control, type = "text" }: any) {
     <Controller
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <Input
-          {...field}
-          className="items-center"
-          classNames={{ label: "w-40 text-xs shrink-0", inputWrapper: "h-8" }}
-          errorMessage={fieldState.error?.message}
-          isInvalid={!!fieldState.error}
-          label={label}
-          labelPlacement="outside-left"
-          placeholder=" "
-          size="sm"
-          type={type}
-          variant="bordered"
-        />
-      )}
+      render={({ field, fieldState }) =>
+        type === "text" ? (
+          <Input
+            {...field}
+            className="items-center"
+            classNames={{ label: "w-40 text-xs shrink-0", inputWrapper: "h-8" }}
+            errorMessage={fieldState.error?.message}
+            isInvalid={!!fieldState.error}
+            label={label}
+            labelPlacement="outside-left"
+            placeholder=" "
+            size="sm"
+            variant="bordered"
+          />
+        ) : (
+          <InputNumber
+            className="items-center"
+            classNames={{ label: "w-40 text-xs shrink-0", inputWrapper: "h-8" }}
+            errorMessage={fieldState.error?.message}
+            isInvalid={!!fieldState.error}
+            label={label}
+            labelPlacement="outside-left"
+            placeholder=" "
+            size="sm"
+            value={field.value}
+            variant="bordered"
+            onInput={field.onChange}
+          />
+        )
+      }
     />
   );
 }
