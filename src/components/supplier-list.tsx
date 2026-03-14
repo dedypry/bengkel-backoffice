@@ -9,6 +9,7 @@ interface Props {
   onChange: (val: number) => void;
   size?: "sm" | "md" | "lg" | undefined;
   isInvalid?: boolean;
+  isDisabled?: boolean;
   errorMessage?: string;
 }
 export default function SupplierList({
@@ -17,6 +18,7 @@ export default function SupplierList({
   size = "sm",
   isInvalid,
   errorMessage,
+  isDisabled,
 }: Props) {
   const { data: suppliers } = useAppSelector((state) => state.supplier);
 
@@ -42,6 +44,7 @@ export default function SupplierList({
       }}
       defaultItems={suppliers}
       errorMessage={errorMessage}
+      isDisabled={isDisabled}
       isInvalid={isInvalid}
       selectedKey={String(value)}
       size={size}

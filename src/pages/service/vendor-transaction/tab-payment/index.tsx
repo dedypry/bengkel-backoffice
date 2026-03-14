@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { DownloadCloud, Search } from "lucide-react";
 import dayjs from "dayjs";
 
 import DetailTrx from "../detail";
@@ -30,10 +30,12 @@ import { setPaymentQuery } from "@/stores/features/payments/payment-slice";
 import debounce from "@/utils/helpers/debounce";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import { handleDownload } from "@/utils/helpers/global";
 
 export default function TabPayment() {
   const { payments, paymentQuery } = useAppSelector((state) => state.vendor);
   const [search, setSearch] = useState("");
+  const [isViewOnly, setIsViewOnly] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
   const dispatch = useAppDispatch();
   const hasFetch = useRef(false);
@@ -63,7 +65,9 @@ export default function TabPayment() {
   return (
     <>
       <DetailTrx
+        isViewOnly={isViewOnly}
         open={openDetail}
+        setIsViewOnly={setIsViewOnly}
         setOpen={setOpenDetail}
         onSuccess={() => dispatch(getVendorPayment(paymentQuery))}
       />
@@ -130,10 +134,27 @@ export default function TabPayment() {
                   </TableCell>
                   <TableCell>
                     <TableAction
+                      items={[
+                        {
+                          title: "Download Dokumen",
+                          icon: DownloadCloud as any,
+                          onPress: () =>
+                            handleDownload(
+                              `/vendor-transaction/payment/download/${item.id}`,
+                              item.purchase_no,
+                            ),
+                        },
+                      ]}
                       onDelete={() => handleDelete(item.id)}
+                      onDetail={() => {
+                        dispatch(getVendorPaymentDetail(item.id));
+                        setOpenDetail(true);
+                        setIsViewOnly(true);
+                      }}
                       onEdit={() => {
                         dispatch(getVendorPaymentDetail(item.id));
                         setOpenDetail(true);
+                        setIsViewOnly(false);
                       }}
                     />
                   </TableCell>

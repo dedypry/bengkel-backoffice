@@ -124,7 +124,7 @@ export async function handleDownload(
 
       link.href = url;
 
-      link.setAttribute("download", fileName);
+      link.setAttribute("download", `${fileName}.pdf`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

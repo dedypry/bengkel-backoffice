@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
+import { Edit, Printer } from "lucide-react";
 
 import { IPurchaseVendorForm, PurchaseVendorSchema } from "./schema";
 import PaymentMethod from "./payment-method";
@@ -34,7 +35,7 @@ import FormRow from "@/components/form-row";
 import DatePicker from "@/components/forms/date-picker";
 import InputNumber from "@/components/input-number";
 import { getEmploye } from "@/stores/features/employe/employe-action";
-import { getAvatarByName } from "@/utils/helpers/global";
+import { getAvatarByName, handleDownload } from "@/utils/helpers/global";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { getVendorTransaction } from "@/stores/features/vendor/vendor-action";
@@ -47,6 +48,8 @@ interface Props {
   open: boolean;
   setOpen: (val: boolean) => void;
   onSuccess?: () => void;
+  isViewOnly?: boolean;
+  setIsViewOnly?: (val: boolean) => void;
 }
 
 interface ICalculateTotal {
@@ -55,7 +58,13 @@ interface ICalculateTotal {
   disc: any;
 }
 
-export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
+export default function DetailTrx({
+  open,
+  setOpen,
+  onSuccess,
+  isViewOnly,
+  setIsViewOnly,
+}: Props) {
   const { trxDetail, vendorQuery } = useAppSelector((state) => state.vendor);
   const { list } = useAppSelector((state) => state.employe);
   const [selectAll, setSelectAll] = useState(false);
@@ -256,7 +265,42 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
       <ModalContent>
         {() => (
           <>
-            <ModalHeader>Pembelian Jasa Divendorkan</ModalHeader>
+            <ModalHeader>
+              <div className="flex w-full justify-between">
+                <p>Pembelian Jasa Divendorkan</p>
+                {isViewOnly && (
+                  <div className="flex gap-1 mr-10">
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      onPress={() =>
+                        handleDownload(
+                          `/vendor-transaction/payment/download/${trxDetail.id}`,
+                          trxDetail.purchase_no,
+                          true,
+                        )
+                      }
+                    >
+                      <Printer />
+                    </Button>
+                    <Button
+                      isIconOnly
+                      color="warning"
+                      size="sm"
+                      variant="light"
+                      onPress={() => {
+                        if (setIsViewOnly) {
+                          setIsViewOnly(false);
+                        }
+                      }}
+                    >
+                      <Edit />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </ModalHeader>
             <form onSubmit={handleSubmit(onSubmit)}>
               <ModalBody className="py-6">
                 <div className="grid grid-cols-12 gap-x-8 gap-y-1 mb-6">
@@ -287,6 +331,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                           name="date"
                           render={({ field, fieldState }) => (
                             <DatePicker
+                              isDisabled={isViewOnly}
                               size="sm"
                               {...field}
                               errorMessage={fieldState.error?.message}
@@ -304,6 +349,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                           name="invoiceNo"
                           render={({ field, fieldState }) => (
                             <Input
+                              isDisabled={isViewOnly}
                               placeholder="#Faktur Supplier"
                               size="sm"
                               {...(field as any)}
@@ -323,6 +369,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                           render={({ field, fieldState }) => (
                             <SupplierList
                               errorMessage={fieldState.error?.message}
+                              isDisabled={isViewOnly}
                               isInvalid={!!fieldState.error}
                               value={field.value}
                               onChange={field.onChange}
@@ -343,6 +390,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                           render={({ field, fieldState }) => (
                             <CheckboxGroup
                               errorMessage={fieldState.error?.message}
+                              isDisabled={isViewOnly}
                               isInvalid={!!fieldState.error}
                               orientation="horizontal"
                               size="sm"
@@ -366,7 +414,9 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                             <InputNumber
                               endContent="Hari"
                               errorMessage={fieldState.error?.message}
-                              isDisabled={watch("paymentType") === "cash"}
+                              isDisabled={
+                                watch("paymentType") === "cash" || isViewOnly
+                              }
                               isInvalid={!!fieldState.error}
                               size="sm"
                               value={field.value as any}
@@ -388,7 +438,9 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                           render={({ field, fieldState }) => (
                             <DatePicker
                               errorMessage={fieldState.error?.message}
-                              isDisabled={watch("paymentType") === "cash"}
+                              isDisabled={
+                                watch("paymentType") === "cash" || isViewOnly
+                              }
                               isInvalid={!!fieldState.error}
                               minDate={new Date()}
                               size="sm"
@@ -411,12 +463,17 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                           render={({ field }) => (
                             <span className="flex justify-between">
                               <p>{field.value}</p>
-                              <PaymentMethod
-                                onSave={(val) => {
-                                  setValue("paymentMethod", val.payment_method);
-                                  setValue("paymentMethodData", val);
-                                }}
-                              />
+                              {!isViewOnly && (
+                                <PaymentMethod
+                                  onSave={(val) => {
+                                    setValue(
+                                      "paymentMethod",
+                                      val.payment_method,
+                                    );
+                                    setValue("paymentMethodData", val);
+                                  }}
+                                />
+                              )}
                             </span>
                           )}
                         />
@@ -425,22 +482,27 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                   </div>
                 </div>
 
-                <div className="flex w-full justify-end">
-                  <AddWoItems
-                    selectedIds={watch("items").map((e) => e.id)}
-                    supplierId={watch("supplierId")}
-                    onSave={handleAddList}
-                  />
-                </div>
+                {!isViewOnly && (
+                  <div className="flex w-full justify-end">
+                    <AddWoItems
+                      selectedIds={watch("items").map((e) => e.id)}
+                      supplierId={watch("supplierId")}
+                      onSave={handleAddList}
+                    />
+                  </div>
+                )}
+
                 {/* TABLE SECTION */}
                 <Table removeWrapper aria-label="Detail Jasa Table">
                   <TableHeader>
                     <TableColumn>
-                      <Checkbox
-                        isIndeterminate={isIndeterminate}
-                        isSelected={selectAll}
-                        onValueChange={handleCheckAll}
-                      />
+                      {!isViewOnly && (
+                        <Checkbox
+                          isIndeterminate={isIndeterminate}
+                          isSelected={selectAll}
+                          onValueChange={handleCheckAll}
+                        />
+                      )}
                     </TableColumn>
                     <TableColumn>Deskripsi</TableColumn>
                     <TableColumn className="text-center">
@@ -457,19 +519,21 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                     {fields.map((field, index) => (
                       <TableRow key={field.id}>
                         <TableCell>
-                          <Controller
-                            control={control}
-                            name={`items.${index}.select`}
-                            render={({ field: { onChange } }) => (
-                              <Checkbox
-                                isSelected={watch(`items.${index}.select`)}
-                                onValueChange={(val) => {
-                                  onChange(val);
-                                  handleCalculate();
-                                }}
-                              />
-                            )}
-                          />
+                          {!isViewOnly && (
+                            <Controller
+                              control={control}
+                              name={`items.${index}.select`}
+                              render={({ field: { onChange } }) => (
+                                <Checkbox
+                                  isSelected={watch(`items.${index}.select`)}
+                                  onValueChange={(val) => {
+                                    onChange(val);
+                                    handleCalculate();
+                                  }}
+                                />
+                              )}
+                            />
+                          )}
                         </TableCell>
                         <TableCell>
                           <p className="text-xs ">
@@ -489,6 +553,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                                 classNames={{
                                   input: "text-right",
                                 }}
+                                isDisabled={isViewOnly}
                                 size="sm"
                                 startContent="Rp"
                                 value={Number(value) as any}
@@ -518,6 +583,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                                 classNames={{
                                   input: "text-right",
                                 }}
+                                isDisabled={isViewOnly}
                                 size="sm"
                                 startContent="Rp"
                                 value={Number(value) as any}
@@ -558,6 +624,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                                 classNames={{
                                   input: "text-right",
                                 }}
+                                isDisabled={isViewOnly}
                                 size="sm"
                                 startContent="Rp"
                                 value={Number(value) as any}
@@ -605,6 +672,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                                   input: "text-right",
                                 }}
                                 endContent="%"
+                                isDisabled={isViewOnly}
                                 size="sm"
                                 value={Number(value) as any}
                                 onInput={(val) => {
@@ -644,6 +712,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                         name="notes"
                         render={({ field }) => (
                           <Textarea
+                            isDisabled={isViewOnly}
                             minRows={6}
                             placeholder="Tuliskan catatan disini..."
                             value={field.value || ""}
@@ -660,6 +729,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                           <Autocomplete
                             defaultItems={list?.data || []}
                             errorMessage={fieldState.error?.message}
+                            isDisabled={isViewOnly}
                             isInvalid={!!fieldState.error}
                             label="Signature"
                             labelPlacement="outside-left"
@@ -758,6 +828,7 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                             classNames={{
                               input: "text-right",
                             }}
+                            isDisabled={isViewOnly}
                             size="sm"
                             startContent="Rp"
                             value={field.value as any}
@@ -785,22 +856,37 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
                 </div>
 
                 <div className="flex justify-end gap-2 mt-5">
-                  <Button
-                    onPress={() => {
-                      setOpen(false);
-                      reset();
-                    }}
-                  >
-                    Batal
-                  </Button>
-                  <Button
-                    color="primary"
-                    isDisabled={watch("items").length === 0}
-                    isLoading={loading}
-                    type="submit"
-                  >
-                    Simpan
-                  </Button>
+                  {isViewOnly ? (
+                    <Button
+                      color="danger"
+                      variant="bordered"
+                      onPress={() => {
+                        setOpen(false);
+                        reset();
+                      }}
+                    >
+                      Keluar
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        onPress={() => {
+                          setOpen(false);
+                          reset();
+                        }}
+                      >
+                        Batal
+                      </Button>
+                      <Button
+                        color="primary"
+                        isDisabled={watch("items").length === 0}
+                        isLoading={loading}
+                        type="submit"
+                      >
+                        Simpan
+                      </Button>
+                    </>
+                  )}
                 </div>
               </ModalBody>
             </form>
