@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
-import { Eye, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import dayjs from "dayjs";
 
 import DetailTrx from "../detail";
