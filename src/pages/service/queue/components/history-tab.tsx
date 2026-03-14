@@ -32,7 +32,6 @@ interface Props {
 
 export default function HistoryTab({ id, isNoDate }: Props) {
   const { woQuery, orders } = useAppSelector((state) => state.wo);
-  const [loading, setLoading] = useState<number[]>([]);
   const [selected, setSelected] = useState("grid");
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
@@ -54,10 +53,6 @@ export default function HistoryTab({ id, isNoDate }: Props) {
       }, 1000);
     }
   }, [woQuery, id]);
-
-  function handleLoading(id: number, isLoad: boolean) {
-    setLoading((val) => (isLoad ? [...val, id] : val.filter((e) => e != id)));
-  }
 
   return (
     <div className="space-y-4">

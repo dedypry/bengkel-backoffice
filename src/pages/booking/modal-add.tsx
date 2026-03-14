@@ -38,7 +38,7 @@ interface BookingModalProps {
 }
 export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
   const { bookingQuery } = useAppSelector((state) => state.booking);
-  const { user, company } = useAppSelector((state) => state.auth);
+  const { company } = useAppSelector((state) => state.auth);
   const { customers: cust } = useAppSelector((state) => state.customer);
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState<IVehicle[]>([]);
