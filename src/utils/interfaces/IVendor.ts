@@ -10,8 +10,32 @@ export interface IVendorTransaction {
 }
 
 export interface IVendorTrxDetail {
-  supplier: ISupplier;
+  id?: string;
+  date: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+
   purchase_no: string;
+  invoice_no: string;
+
+  payment_type: "cash" | "credit";
+  payment_method: string;
+  due_days: number;
+  due_date: string;
+
+  signature_id: number | null;
+  company_id: number;
+  supplier_id: number;
+
+  status: "pending" | "completed" | "cancelled";
+  tax: number;
+  discount: string | number;
+  other_fees: string | number;
+  subtotal: string | number;
+  total: string | number;
+  supplier: ISupplier;
   items: IWOItems<IService>[];
 }
 

@@ -1,11 +1,11 @@
 import type { IPagination } from "@/utils/interfaces/IPagination";
 import type { IProduct } from "@/utils/interfaces/IProduct";
 import type { IService } from "@/utils/interfaces/IService";
-import type { ICustomer, IWorkOrder } from "@/utils/interfaces/IUser";
+import type { ICustomer, IWOItems, IWorkOrder } from "@/utils/interfaces/IUser";
 
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-import { getWo, getWoDetail } from "./wo-action";
+import { getPaymentListService, getWo, getWoDetail } from "./wo-action";
 
 export interface IWo extends IService {
   qty?: number;
@@ -44,6 +44,7 @@ const woSlice = createSlice({
     settings: {
       next_km: 7000,
     },
+    servicePayments: [] as IWOItems<IService>[],
   },
   reducers: {
     setWoQuery: (state, action) => {
@@ -126,6 +127,9 @@ const woSlice = createSlice({
         state.detail = action.payload;
         state.workOrder = action.payload;
         state.isLoadingDetail = false;
+      })
+      .addCase(getPaymentListService.fulfilled, (state, action) => {
+        state.servicePayments = action.payload;
       })
       .addCase(getWoDetail.pending, (state) => {
         state.isLoadingDetail = true;

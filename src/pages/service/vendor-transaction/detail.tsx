@@ -23,9 +23,10 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
-import { BanknoteArrowUp } from "lucide-react";
 
 import { IPurchaseVendorForm, PurchaseVendorSchema } from "./schema";
+import PaymentMethod from "./payment-method";
+import AddWoItems from "./add-wo-items";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
@@ -37,13 +38,24 @@ import { getAvatarByName } from "@/utils/helpers/global";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { getVendorTransaction } from "@/stores/features/vendor/vendor-action";
+import SupplierList from "@/components/supplier-list";
+import { IService } from "@/utils/interfaces/IService";
+import { IWOItems } from "@/utils/interfaces/IUser";
+import debounce from "@/utils/helpers/debounce";
 
 interface Props {
   open: boolean;
   setOpen: (val: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export default function DetailTrx({ open, setOpen }: Props) {
+interface ICalculateTotal {
+  price: any;
+  ppn: any;
+  disc: any;
+}
+
+export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
   const { trxDetail, vendorQuery } = useAppSelector((state) => state.vendor);
   const { list } = useAppSelector((state) => state.employe);
   const [selectAll, setSelectAll] = useState(false);
@@ -60,7 +72,7 @@ export default function DetailTrx({ open, setOpen }: Props) {
         date: dayjs().toISOString(),
         invoiceNo: "",
         paymentType: "cash",
-        paymentMethod: "cash",
+        paymentMethod: "Cash",
         dueDays: 1,
         dueDate: dayjs().add(1, "day").toISOString(),
         items: [],
@@ -75,7 +87,9 @@ export default function DetailTrx({ open, setOpen }: Props) {
     name: "items",
   });
 
-  function handleCalculate() {
+  const handleCalculate = debounce(calculate, 1000);
+
+  function calculate() {
     const items = watch("items") || [];
     const otherFees = watch("otherFees") || 0;
     const itemsSelected = items.filter((e) => e.select);
@@ -110,21 +124,40 @@ export default function DetailTrx({ open, setOpen }: Props) {
     setValue("total", finalTotal);
   }
 
+  const paymentItems = (e: IWOItems<IService>) => {
+    const payload = {
+      id: e.id,
+      trx_no: e.trx_no,
+      code: e.data.code,
+      name: e.data.name,
+      purchasePrice: Number(e.purchase_price) || Number(e.total_price) || 0,
+      discPercentage: Number(e.disc_percentage || 0),
+      total: Number(e.total_payment) || Number(e.total_price) || 0,
+      taxPercentage: Number(e.tax_percentage || 0),
+      discValue: Number(e.disc_value || 0),
+      select: true,
+    };
+
+    return payload;
+  };
+
   useEffect(() => {
     if (trxDetail && open) {
-      const items = trxDetail?.items.map((e) => ({
-        id: e.id,
-        code: e.data.code,
-        name: e.data.name,
-        purchasePrice: +e.total_price,
-        discPercentage: 0,
-        total: +e.total_price,
-        taxPercentage: 0,
-        discValue: 0,
-        select: true,
-      }));
+      const items = trxDetail?.items.map(paymentItems);
 
       setValue("items", items as any);
+
+      if (trxDetail.id) {
+        setValue("id", trxDetail.id);
+        setValue("date", trxDetail.date);
+        setValue("invoiceNo", trxDetail.invoice_no);
+        setValue("paymentType", trxDetail.payment_type);
+        setValue("paymentMethod", trxDetail.payment_method);
+        setValue("dueDays", trxDetail.due_days);
+        setValue("dueDate", trxDetail.due_date);
+        setValue("notes", trxDetail.notes);
+        setValue("signatureId", trxDetail.signature_id || undefined);
+      }
 
       setValue("purchaseNo", trxDetail?.purchase_no);
       setValue("supplierId", trxDetail?.supplier?.id);
@@ -174,6 +207,9 @@ export default function DetailTrx({ open, setOpen }: Props) {
         notify(data.message);
         setOpen(false);
         dispatch(getVendorTransaction(vendorQuery));
+        if (onSuccess) {
+          onSuccess();
+        }
       })
       .catch(notifyError)
       .finally(() => {
@@ -181,14 +217,35 @@ export default function DetailTrx({ open, setOpen }: Props) {
       });
   }
 
+  function calculateTotal({ ppn = 0, price = 0, disc = 0 }: ICalculateTotal) {
+    ppn = Number(ppn);
+    price = Number(price);
+    disc = Number(disc);
+
+    const subtotal = price - disc;
+
+    ppn = subtotal * (ppn / 100);
+
+    return subtotal + ppn;
+  }
+
+  function handleAddList(data: IWOItems<IService>[]) {
+    const payload = [...watch("items"), ...data.map(paymentItems)];
+
+    setValue("items", payload);
+    handleCalculate();
+  }
+
   if (!trxDetail) return null;
 
   return (
     <Modal
+      backdrop="blur"
       classNames={{
         wrapper: "w-full",
         base: "max-w-[95%] w-full",
       }}
+      isDismissable={false}
       isOpen={open}
       scrollBehavior="outside"
       onOpenChange={setOpen}
@@ -256,7 +313,20 @@ export default function DetailTrx({ open, setOpen }: Props) {
                     />
                     <FormRow
                       label="Supplier"
-                      value={trxDetail.supplier?.name || "-"}
+                      value={
+                        <Controller
+                          control={control}
+                          name="supplierId"
+                          render={({ field, fieldState }) => (
+                            <SupplierList
+                              errorMessage={fieldState.error?.message}
+                              isInvalid={!!fieldState.error}
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          )}
+                        />
+                      }
                     />
                   </div>
                   <div className="col-span-2" /> {/* Spacer */}
@@ -338,9 +408,12 @@ export default function DetailTrx({ open, setOpen }: Props) {
                           render={({ field }) => (
                             <span className="flex justify-between">
                               <p>{field.value}</p>
-                              <Button isIconOnly size="sm" variant="light">
-                                <BanknoteArrowUp size={18} />
-                              </Button>
+                              <PaymentMethod
+                                onSave={(val) => {
+                                  setValue("paymentMethod", val.payment_method);
+                                  setValue("paymentMethodData", val);
+                                }}
+                              />
                             </span>
                           )}
                         />
@@ -349,6 +422,13 @@ export default function DetailTrx({ open, setOpen }: Props) {
                   </div>
                 </div>
 
+                <div className="flex w-full justify-end">
+                  <AddWoItems
+                    selectedIds={watch("items").map((e) => e.id)}
+                    supplierId={watch("supplierId")}
+                    onSave={handleAddList}
+                  />
+                </div>
                 {/* TABLE SECTION */}
                 <Table removeWrapper aria-label="Detail Jasa Table">
                   <TableHeader>
@@ -359,8 +439,7 @@ export default function DetailTrx({ open, setOpen }: Props) {
                         onValueChange={handleCheckAll}
                       />
                     </TableColumn>
-                    <TableColumn>Kode Jasa</TableColumn>
-                    <TableColumn>Nama Jasa</TableColumn>
+                    <TableColumn>Deskripsi</TableColumn>
                     <TableColumn className="text-center">
                       Harga Beli
                     </TableColumn>
@@ -389,8 +468,14 @@ export default function DetailTrx({ open, setOpen }: Props) {
                             )}
                           />
                         </TableCell>
-                        <TableCell>{field.code} </TableCell>
-                        <TableCell>{field.name}</TableCell>
+                        <TableCell>
+                          <p className="text-xs ">
+                            [{field.code}]-{field.name}{" "}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {field.trx_no}
+                          </p>
+                        </TableCell>
                         <TableCell className="text-right">
                           <Controller
                             control={control}
@@ -406,6 +491,14 @@ export default function DetailTrx({ open, setOpen }: Props) {
                                 value={Number(value) as any}
                                 onInput={(val) => {
                                   onChange(val);
+                                  const total = calculateTotal({
+                                    ppn: watch(`items.${index}.taxPercentage`),
+                                    price: val,
+                                    disc: watch(`items.${index}.discValue`),
+                                  });
+
+                                  setValue(`items.${index}.total`, total);
+
                                   handleCalculate();
                                 }}
                               />
@@ -435,14 +528,17 @@ export default function DetailTrx({ open, setOpen }: Props) {
                                   const calculatedDiscValue =
                                     (percentage / 100) * purchasePrice;
 
+                                  const total = calculateTotal({
+                                    ppn: watch(`items.${index}.taxPercentage`),
+                                    price: purchasePrice,
+                                    disc: calculatedDiscValue,
+                                  });
+
                                   setValue(
                                     `items.${index}.discValue`,
                                     calculatedDiscValue,
                                   );
-                                  setValue(
-                                    `items.${index}.total`,
-                                    purchasePrice - calculatedDiscValue,
-                                  );
+                                  setValue(`items.${index}.total`, total);
                                   handleCalculate();
                                 }}
                               />
@@ -474,15 +570,19 @@ export default function DetailTrx({ open, setOpen }: Props) {
                                     calculatedPercentage =
                                       (discValue / purchasePrice) * 100;
                                   }
+
+                                  const total = calculateTotal({
+                                    ppn: watch(`items.${index}.taxPercentage`),
+                                    price: purchasePrice,
+                                    disc: val,
+                                  });
+
                                   setValue(
                                     `items.${index}.discPercentage`,
                                     calculatedPercentage,
                                   );
 
-                                  setValue(
-                                    `items.${index}.total`,
-                                    purchasePrice - val,
-                                  );
+                                  setValue(`items.${index}.total`, total);
 
                                   handleCalculate();
                                 }}
@@ -506,6 +606,15 @@ export default function DetailTrx({ open, setOpen }: Props) {
                                 value={Number(value) as any}
                                 onInput={(val) => {
                                   onChange(val);
+                                  const total = calculateTotal({
+                                    ppn: watch(`items.${index}.taxPercentage`),
+                                    price: watch(
+                                      `items.${index}.purchasePrice`,
+                                    ),
+                                    disc: watch(`items.${index}.discValue`),
+                                  });
+
+                                  setValue(`items.${index}.total`, total);
                                   handleCalculate();
                                 }}
                               />
@@ -532,9 +641,10 @@ export default function DetailTrx({ open, setOpen }: Props) {
                         name="notes"
                         render={({ field }) => (
                           <Textarea
-                            {...(field as any)}
                             minRows={6}
                             placeholder="Tuliskan catatan disini..."
+                            value={field.value || ""}
+                            onValueChange={field.onChange}
                           />
                         )}
                       />
@@ -542,7 +652,7 @@ export default function DetailTrx({ open, setOpen }: Props) {
                     <div className="flex items-center gap-2">
                       <Controller
                         control={control}
-                        name="signature_id"
+                        name="signatureId"
                         render={({ field, fieldState }) => (
                           <Autocomplete
                             defaultItems={list?.data || []}
@@ -555,7 +665,7 @@ export default function DetailTrx({ open, setOpen }: Props) {
                                 "User tidak ditemukan, tekan Enter untuk tambah baru.",
                             }}
                             placeholder="Pilih User"
-                            value={field.value?.toString()}
+                            selectedKey={field.value?.toString()}
                             onSelectionChange={(val) =>
                               field.onChange(Number(val))
                             }

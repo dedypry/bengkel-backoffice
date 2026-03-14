@@ -1,13 +1,31 @@
 import { Handshake } from "lucide-react";
 import { Tab, Tabs } from "@heroui/react";
+import { useEffect, useRef } from "react";
 
-import TabList from "./tab-list";
 import TabPayment from "./tab-payment";
+import TabList from "./tab-list";
 
 import HeaderAction from "@/components/header-action";
 import DefaultSettingService from "@/components/default-setting-service";
+import { useAppDispatch } from "@/stores/hooks";
+import { getSupplierList } from "@/stores/features/supplier/supplier-action";
 
 export default function VendorTrxPage() {
+  const dispatch = useAppDispatch();
+  const hasFetch = useRef(false);
+
+  useEffect(() => {
+    if (!hasFetch.current) {
+      hasFetch.current = true;
+
+      dispatch(getSupplierList());
+
+      setTimeout(() => {
+        hasFetch.current = false;
+      }, 1000);
+    }
+  }, []);
+
   return (
     <>
       <HeaderAction

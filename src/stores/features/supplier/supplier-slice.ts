@@ -3,7 +3,7 @@ import type { ISupplier } from "@/utils/interfaces/ISupplier";
 
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getSupplier } from "./supplier-action";
+import { getSupplier, getSupplierList } from "./supplier-action";
 
 const supplierSlice = createSlice({
   name: "supplier",
@@ -14,6 +14,7 @@ const supplierSlice = createSlice({
       page: 1,
       pageSize: 10,
     },
+    data: [] as ISupplier[],
   },
   reducers: {
     setSupplierQuery: (state, action) => {
@@ -24,9 +25,13 @@ const supplierSlice = createSlice({
     },
   },
   extraReducers: (builder) =>
-    builder.addCase(getSupplier.fulfilled, (state, action) => {
-      state.suppliers = action.payload;
-    }),
+    builder
+      .addCase(getSupplier.fulfilled, (state, action) => {
+        state.suppliers = action.payload;
+      })
+      .addCase(getSupplierList.fulfilled, (state, action) => {
+        state.data = action.payload;
+      }),
 });
 
 export const { setSupplierQuery } = supplierSlice.actions;

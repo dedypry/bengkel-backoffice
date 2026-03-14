@@ -15,7 +15,7 @@ import {
 import { EyeIcon, Search } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
-import DetailTrx from "./detail";
+import DetailTrx from "../detail";
 
 import { CustomPagination } from "@/components/custom-pagination";
 import PageSize from "@/components/page-size";

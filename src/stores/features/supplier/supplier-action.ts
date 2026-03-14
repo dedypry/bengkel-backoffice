@@ -20,3 +20,17 @@ export const getSupplier = createAsyncThunk(
     }
   },
 );
+export const getSupplierList = createAsyncThunk(
+  "get-supplier-list",
+  async () => {
+    try {
+      const { data } = await http.get("/suppliers");
+
+      return data;
+    } catch (error) {
+      console.error(error);
+
+      return null;
+    }
+  },
+);

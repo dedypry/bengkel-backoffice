@@ -10,14 +10,21 @@ import {
 
 import { confirmSweat } from "@/utils/helpers/notify";
 
+interface Item {
+  title: string;
+  icon?: React.ComponentType<{ className?: string; size?: number }>;
+  onPress: () => void;
+}
 interface Props {
   onEdit?: () => void;
   onDetail?: () => void;
   onDelete?: () => void;
   viewDetail?: boolean;
   viewHeader?: boolean;
+  viewEdit?: boolean;
   isDeleteSeparator?: boolean;
   titleHeader?: string;
+  items?: Item[];
 }
 
 export default function TableAction({
@@ -26,7 +33,9 @@ export default function TableAction({
   onEdit,
   viewDetail = true,
   viewHeader,
+  viewEdit = true,
   titleHeader,
+  items,
 }: Props) {
   return (
     <Dropdown backdrop="transparent" placement="bottom-end">
@@ -50,6 +59,20 @@ export default function TableAction({
           showDivider={viewHeader}
           title={viewHeader ? titleHeader || "Aksi" : undefined}
         >
+          <>
+            {(items || []).map(({ title, icon: Icon, onPress }, idx) => (
+              <DropdownItem
+                key={`custom-${idx}`}
+                startContent={
+                  Icon ? <Icon className="text-gray-500" size={18} /> : null
+                }
+                onPress={onPress}
+              >
+                {title}
+              </DropdownItem>
+            ))}
+          </>
+
           {viewDetail ? (
             <DropdownItem
               key="detail"
@@ -62,13 +85,17 @@ export default function TableAction({
             <DropdownItem key="spacer-detail" className="hidden" />
           )}
 
-          <DropdownItem
-            key="edit"
-            startContent={<Edit className="text-gray-500" size={18} />}
-            onPress={onEdit}
-          >
-            Edit Data
-          </DropdownItem>
+          {viewEdit ? (
+            <DropdownItem
+              key="edit"
+              startContent={<Edit className="text-gray-500" size={18} />}
+              onPress={onEdit}
+            >
+              Edit Data
+            </DropdownItem>
+          ) : (
+            <DropdownItem key="spacer-edit" className="hidden" />
+          )}
         </DropdownSection>
 
         <DropdownSection showDivider={false}>

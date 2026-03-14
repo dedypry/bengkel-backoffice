@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const PurchaseVendorSchema = z.object({
   // --- HEADER SECTION ---
+  id: z.any().optional(),
   purchaseNo: z.string().min(1, "Purchase number is required"),
   date: z.string().min(1, "Date must be selected"),
   invoiceNo: z.string().optional().nullable(),
@@ -9,6 +10,7 @@ export const PurchaseVendorSchema = z.object({
   // Payment & Terms
   paymentType: z.enum(["cash", "credit"]),
   paymentMethod: z.string(),
+  paymentMethodData: z.any().optional(),
   supplierId: z.number(),
   dueDays: z.number().nonnegative(),
   dueDate: z.string().optional().nullable(),
@@ -20,6 +22,7 @@ export const PurchaseVendorSchema = z.object({
         id: z.number(),
         select: z.boolean(),
         code: z.string(),
+        trx_no: z.string(),
         name: z.string(),
         purchasePrice: z.number().optional().nullable(),
         discPercentage: z.number().optional().nullable(),
@@ -32,11 +35,11 @@ export const PurchaseVendorSchema = z.object({
 
   // --- FOOTER / SUMMARY SECTION ---
   notes: z.string().optional().nullable(),
-  signature_id: z.number().optional(),
+  signatureId: z.number().optional(),
 
   subTotal: z.number().nonnegative(),
   finalDiscValue: z.number().nonnegative(),
-  tax: z.number().min(0).max(100),
+  tax: z.number().min(0),
   otherFees: z.number().nonnegative(),
   total: z.number().nonnegative(),
 });

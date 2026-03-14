@@ -233,4 +233,11 @@ export interface IWOItems<DATA> {
   updated_by: number | null;
   type: "service" | "part" | string;
   supplier_id: number;
+  trx_no: string;
+  purchase_price?: number;
+  disc_percentage?: number;
+  disc_value?: number;
+  tax_percentage?: number;
+  total_payment?: number;
+  vendor_transaction_id?: number;
 }

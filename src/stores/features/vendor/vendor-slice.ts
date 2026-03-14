@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 import {
   getVendorPayment,
+  getVendorPaymentDetail,
   getVendorTransaction,
   getVendorTrxDetail,
 } from "./vendor-action";
@@ -54,6 +55,9 @@ const vendorSlice = createSlice({
       })
       .addCase(getVendorPayment.fulfilled, (state, action) => {
         state.payments = action.payload;
+      })
+      .addCase(getVendorPaymentDetail.fulfilled, (state, action) => {
+        state.trxDetail = action.payload;
       }),
 });
 

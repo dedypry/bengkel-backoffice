@@ -56,13 +56,15 @@ export default function TabService() {
   }
 
   function handleSupplier(val: any, item: IService) {
-    dispatch(
-      addWoService({
-        ...item,
-        supplier_id: +val,
-        qty: (item as any)?.qty || 1,
-      }),
-    );
+    if (val) {
+      dispatch(
+        addWoService({
+          ...item,
+          supplier_id: +val,
+          qty: (item as any)?.qty || 1,
+        }),
+      );
+    }
   }
 
   const handlePrice = debounce((val: number, item: IService) => {

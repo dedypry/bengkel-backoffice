@@ -31,3 +31,20 @@ export const getWoDetail = createAsyncThunk(
     }
   },
 );
+
+export const getPaymentListService = createAsyncThunk(
+  "get-list-payment-service",
+  async (params?: { supplier_id?: number; q: string }) => {
+    try {
+      const { data } = await http.get(`/work-order/service/payment`, {
+        params,
+      });
+
+      return data;
+    } catch (error) {
+      console.error(error);
+
+      return null;
+    }
+  },
+);
