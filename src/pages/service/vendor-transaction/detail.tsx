@@ -202,7 +202,10 @@ export default function DetailTrx({ open, setOpen, onSuccess }: Props) {
   function onSubmit(data: IPurchaseVendorForm) {
     setLoading(true);
     http
-      .post("/vendor-transaction", data)
+      .post("/vendor-transaction", {
+        ...data,
+        items: data.items.filter((e) => e.select),
+      })
       .then(({ data }) => {
         notify(data.message);
         setOpen(false);
