@@ -11,7 +11,7 @@ import {
   TableBody,
   TableCell,
 } from "@heroui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import { Eye } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -30,7 +30,6 @@ interface Props {
 
 export default function HistoryTab({ id, isNoDate }: Props) {
   const { woQuery, orders } = useAppSelector((state) => state.wo);
-  const [selected, setSelected] = useState("grid");
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
 
