@@ -132,6 +132,7 @@ export default function EmployeesPage() {
           <div>
             <Input
               isClearable
+              defaultValue={searchQuery.q}
               placeholder="Cari nama, ID, atau jabatan..."
               startContent={<Search className="text-gray-400" size={20} />}
               variant="bordered"
