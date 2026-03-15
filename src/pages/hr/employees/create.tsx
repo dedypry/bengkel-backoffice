@@ -271,7 +271,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                           isInvalid={!!fieldState.error}
                           label="Jabatan/Role"
                           placeholder="Pilih Role"
-                          selectedKeys={field.value.map(String) || []}
+                          selectedKeys={(field.value || []).map(String) || []}
                           selectionMode="multiple"
                           onSelectionChange={(keys) =>
                             field.onChange(Array.from(keys).map(Number))
