@@ -993,7 +993,7 @@ export default function ServiceAddPage() {
                               <div className="flex flex-col">
                                 <span className="text-xs">{user.name}</span>
                                 <span className="text-[10px] text-gray-500">
-                                  {user.position}
+                                  {user.roles.map((e) => e.name).join(", ")}
                                 </span>
                               </div>
                             </div>

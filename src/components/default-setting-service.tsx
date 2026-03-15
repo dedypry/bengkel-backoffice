@@ -25,9 +25,11 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getEmploye } from "@/stores/features/employe/employe-action";
 import { setWoSetting } from "@/stores/features/work-order/wo-slice";
+import { getRole } from "@/stores/features/role/role-action";
 
 // Schema Validasi menggunakan Zod
 const settingsSchema = z.object({
+  mechanic_roles: z.array(z.string()).optional().nullable(),
   service_reg_prefix: z.string().optional(),
   service_pay_prefix: z.string().optional(),
   job_order_prefix: z.string().optional(),
@@ -48,6 +50,7 @@ type SettingsForm = z.infer<typeof settingsSchema>;
 export default function DefaultSettingService() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { list } = useAppSelector((state) => state.employe);
+  const { roles } = useAppSelector((state) => state.role);
   const [loading, setLoading] = useState(false);
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
@@ -62,6 +65,7 @@ export default function DefaultSettingService() {
       hasFetched.current = true;
       getData();
       dispatch(getEmploye({ page: 1, pageSize: 500 }));
+      dispatch(getRole());
       setTimeout(() => {
         hasFetched.current = false;
       }, 1000);
@@ -218,7 +222,32 @@ export default function DefaultSettingService() {
                     </section>
 
                     <section className="mt-4 flex flex-col gap-2">
-                      <Button
+                      <Controller
+                        control={control}
+                        name="mechanic_roles"
+                        render={({ field }) => (
+                          <Select
+                            items={roles || []}
+                            label="Mekanik Role"
+                            labelPlacement="outside-top"
+                            selectedKeys={field.value || []}
+                            selectionMode="multiple"
+                            size="sm"
+                            onSelectionChange={(key) => {
+                              const val = Array.from(key);
+
+                              field.onChange(val);
+                            }}
+                          >
+                            {(item) => (
+                              <SelectItem key={item.slug}>
+                                {item.name}
+                              </SelectItem>
+                            )}
+                          </Select>
+                        )}
+                      />
+                      {/* <Button
                         className="w-full justify-start text-xs font-semibold"
                         size="sm"
                         variant="bordered"
@@ -231,7 +260,7 @@ export default function DefaultSettingService() {
                         variant="bordered"
                       >
                         Set Diskon Promo
-                      </Button>
+                      </Button> */}
                     </section>
 
                     <section className="mt-auto">
