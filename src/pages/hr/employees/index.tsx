@@ -37,6 +37,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setQuerySearch } from "@/stores/features/employe/employe-slice";
 import StatCard from "@/components/stat-card";
+import debounce from "@/utils/helpers/debounce";
 
 export default function EmployeesPage() {
   const { summary, list, searchQuery } = useAppSelector(
@@ -79,6 +80,8 @@ export default function EmployeesPage() {
       })
       .catch((err) => notifyError(err));
   };
+
+  const searchDebounce = debounce((q) => dispatch(setQuerySearch({ q })), 1000);
 
   return (
     <div className="space-y-10 pb-20">
@@ -131,11 +134,8 @@ export default function EmployeesPage() {
               isClearable
               placeholder="Cari nama, ID, atau jabatan..."
               startContent={<Search className="text-gray-400" size={20} />}
-              value={searchQuery.q || ""}
               variant="bordered"
-              onValueChange={(val) =>
-                dispatch(setQuerySearch({ name: val, page: 1 }))
-              }
+              onValueChange={searchDebounce}
             />
           </div>
         </CardHeader>

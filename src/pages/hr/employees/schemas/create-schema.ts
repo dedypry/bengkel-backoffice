@@ -7,43 +7,25 @@ export const formSchema = z.object({
   email: z
     .email({ message: "Format email tidak valid." })
     .min(1, { message: "Email wajib diisi." }),
-  phone: z
-    .string({ message: "Nomor telepon wajib diisi." })
-    .min(1, { message: "Nomor telepon wajib diisi." }),
+  phone: z.string().optional().nullable(),
   role_ids: z
     .array(z.number({ message: "Jabatan wajib diisi." }))
     .nonempty({ message: "Pilih minimal satu jabatan." }),
   department: z
     .string({ message: "Departemen wajib diisi." })
     .min(1, { message: "Departemen wajib diisi." }),
-  join_date: z
-    .string({ message: "Tanggal bergabung wajib diisi." })
-    .min(1, { message: "Tanggal bergabung wajib diisi." }),
+  join_date: z.string().optional().nullable(),
   status: z
-    .string({ message: "Tanggal bergabung wajib diisi." })
+    .string({ message: "Status wajib dipilih" })
     .min(1, { message: "Status wajib dipilih." }),
   photo: z.any().optional(),
-  province_id: z
-    .number({ message: "Provinsi wajib diisi" })
-    .min(1, { message: "Provinsi wajib diisi" }),
-  city_id: z
-    .number({ message: "Kota wajib diisi" })
-    .min(1, { message: "Kota wajib diisi" }),
-  district_id: z
-    .number({ message: "Kecamatan wajib diisi" })
-    .min(1, { message: "Kecamatan wajib diisi" }),
-  address: z
-    .string({ message: "Alamat wajib diisi" })
-    .min(1, { message: "Alamat wajib diisi" }),
-  gender: z
-    .string({ message: "Jenis Kelamin wajib diisi" })
-    .min(1, { message: "Jenis Kelamin wajib diisi" }),
-  place_birth: z
-    .string({ message: "Tempat Lahir wajib diisi" })
-    .min(1, { message: "Tempat Lahir wajib diisi" }),
-  birth_date: z
-    .string({ message: "Tanggal Lahir wajib diisi" })
-    .min(1, { message: "Tanggal Lahir wajib diisi" }),
-  emergency_name: z.string().nullable().optional(),
-  emergency_contact: z.string().nullable().optional(),
+  province_id: z.number().optional().nullable(),
+  city_id: z.number().optional().nullable(),
+  district_id: z.number().optional().nullable(),
+  address: z.string().optional().nullable(),
+  gender: z.string().optional().nullable(),
+  place_birth: z.string().optional().nullable(),
+  birth_date: z.string().optional().nullable(),
+  emergency_name: z.string().nullable().optional().nullable(),
+  emergency_contact: z.string().nullable().optional().nullable(),
 });

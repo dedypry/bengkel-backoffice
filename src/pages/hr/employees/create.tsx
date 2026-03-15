@@ -63,7 +63,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
-      status: "Permanent",
+      status: "permanent",
       join_date: new Date().toISOString(),
       birth_date: new Date().toISOString(),
       emergency_name: "",
@@ -192,7 +192,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     name="phone"
                     render={({ field }) => (
                       <PhoneInput
-                        {...field}
+                        {...(field as any)}
                         errorMessage={errors.phone?.message}
                         isInvalid={!!errors.phone}
                         label="Nomor Telepon"
@@ -242,7 +242,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         }}
                       >
                         {["Permanent", "Contract"].map((st) => (
-                          <SelectItem key={st}>{st}</SelectItem>
+                          <SelectItem key={st.toLowerCase()}>{st}</SelectItem>
                         ))}
                       </Select>
                     )}
@@ -317,7 +317,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   name="place_birth"
                   render={({ field, fieldState }) => (
                     <Input
-                      {...field}
+                      {...(field as any)}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label="Tempat Lahir"
@@ -343,7 +343,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   name="gender"
                   render={({ field, fieldState }) => (
                     <Select
-                      {...field}
+                      {...(field as any)}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label="Jenis Kelamin"
@@ -399,7 +399,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                 name="address"
                 render={({ field, fieldState }) => (
                   <Textarea
-                    {...field}
+                    {...(field as any)}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Alamat Lengkap (KTP)"
