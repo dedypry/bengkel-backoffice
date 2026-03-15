@@ -97,7 +97,7 @@ export function RevenueChart() {
                   strokeWidth: 2,
                   strokeDasharray: "5 5",
                 }}
-                formatter={(value: number | undefined) => [
+                formatter={(value: any) => [
                   formatIDR(value || 0),
                   "Pendapatan",
                 ]}
