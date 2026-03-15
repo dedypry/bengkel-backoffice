@@ -55,7 +55,7 @@ export default function DefaultSettingService() {
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
 
-  const { control, handleSubmit, reset } = useForm<SettingsForm>({
+  const { control, handleSubmit, reset, setValue } = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema) as any,
     defaultValues: {},
   });
@@ -77,6 +77,7 @@ export default function DefaultSettingService() {
       .get("/settings")
       .then(({ data }) => {
         reset(data);
+        setValue("mechanic_roles", data.mechanic_roles.split(","));
         dispatch(setWoSetting(data));
       })
       .catch(notifyError);
