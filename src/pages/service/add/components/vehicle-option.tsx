@@ -12,9 +12,10 @@ interface Props {
 
 export default function VehicleOption({ value, onChange }: Props) {
   const { customer } = useAppSelector((state) => state.wo);
+  const { vehicles: dataVehicles } = useAppSelector((state) => state.vehicle);
 
   // Mengambil daftar kendaraan milik customer yang sedang dipilih
-  const vehicles = customer?.vehicles || [];
+  const vehicles = customer?.vehicles || dataVehicles?.data || [];
 
   const handleSelectionChange = (key: string | number | null) => {
     if (!key) return null;

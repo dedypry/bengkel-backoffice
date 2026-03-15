@@ -5,10 +5,11 @@ import {
   AlertCircle,
   Info,
   History,
+  Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Chip, Card, CardBody, Tabs, Tab } from "@heroui/react";
+import { Chip, Card, CardBody, Tabs, Tab, Input } from "@heroui/react";
 
 import AddMechanich from "../components/add-mekanik";
 
@@ -119,8 +120,8 @@ export default function WorkOrderDetail() {
               <SectionHeader icon={<Car size={18} />} title="Unit Info" />
               <div className="space-y-4">
                 <div className="text-center py-4 bg-gray-400 text-white rounded-sm">
-                  <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-1">
-                    Plate Number
+                  <p className="text-[10px] font-bold  uppercase mb-1">
+                    Nomor Polisi
                   </p>
                   <p className="text-2xl font-black tracking-widest">
                     {data.vehicle.plate_number}
@@ -152,6 +153,23 @@ export default function WorkOrderDetail() {
               <p className="text-xs font-bold text-gray-700 leading-relaxed uppercase">
                 {data.complaints || "TIDAK ADA KELUHAN TERKATEGORI"}
               </p>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody className="p-6 space-y-4">
+              <SectionHeader icon={<Users size={18} />} title="Supervisor" />
+              <Input
+                isDisabled
+                classNames={{ label: "!text-gray-800" }}
+                label="PIC Service"
+                value={data?.pic?.name}
+              />
+              <Input
+                isDisabled
+                classNames={{ label: "!text-gray-800" }}
+                label="Service Advisor"
+                value={data?.sa?.name}
+              />
             </CardBody>
           </Card>
         </div>

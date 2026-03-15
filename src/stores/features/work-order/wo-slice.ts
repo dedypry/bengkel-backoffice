@@ -1,6 +1,6 @@
 import type { IPagination } from "@/utils/interfaces/IPagination";
 import type { IProduct } from "@/utils/interfaces/IProduct";
-import type { IService } from "@/utils/interfaces/IService";
+import type { IService, IServiceSettings } from "@/utils/interfaces/IService";
 import type { ICustomer, IWOItems, IWorkOrder } from "@/utils/interfaces/IUser";
 
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
@@ -41,12 +41,13 @@ const woSlice = createSlice({
     isLoadingOrder: false,
     isLoadingProduct: false,
     tabCashier: "customer",
-    settings: {
-      next_km: 7000,
-    },
+    settings: {} as IServiceSettings,
     servicePayments: [] as IWOItems<IService>[],
   },
   reducers: {
+    setWoSetting: (state, action) => {
+      state.settings = action.payload;
+    },
     setWoQuery: (state, action) => {
       state.woQuery = {
         ...state.woQuery,
@@ -150,6 +151,7 @@ export const {
   setTabCashier,
   setWoProducts,
   removeWoProduct,
+  setWoSetting,
 } = woSlice.actions;
 
 export default woSlice.reducer;

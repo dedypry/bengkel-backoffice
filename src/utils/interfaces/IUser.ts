@@ -185,6 +185,8 @@ export interface IWorkOrder {
   company_id?: number;
   customer_id?: number;
   vehicle_id?: number;
+  pic_id?: number;
+  sa_id?: number;
   supervisor_id?: number | null;
   mechanic_id?: number | null;
   updated_by?: number;
@@ -202,6 +204,8 @@ export interface IWorkOrder {
   customer: ICustomer;
   estimation?: string;
   mechanics?: IUser[];
+  pic?: IUser;
+  sa?: IUser;
   spareparts?: IProduct[];
   start_at?: string;
   end_at?: string;

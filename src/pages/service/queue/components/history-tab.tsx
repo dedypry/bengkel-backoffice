@@ -4,8 +4,6 @@ import {
   Tooltip,
   Card,
   CardBody,
-  Tabs,
-  Tab,
   Table,
   TableHeader,
   TableRow,
@@ -15,7 +13,7 @@ import {
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
-import { Eye, LayoutList, LayoutGrid } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { getWo } from "@/stores/features/work-order/wo-action";
@@ -76,32 +74,6 @@ export default function HistoryTab({ id, isNoDate }: Props) {
                 );
               }}
             />
-            <Tabs
-              aria-label="Options"
-              color="primary"
-              selectedKey={selected}
-              variant="bordered"
-              onSelectionChange={(key) => setSelected(key as string)}
-            >
-              <Tab
-                key="list"
-                title={
-                  <div className="flex items-center space-x-2">
-                    <LayoutList size={18} />
-                    <span>List View</span>
-                  </div>
-                }
-              />
-              <Tab
-                key="grid"
-                title={
-                  <div className="flex items-center space-x-2">
-                    <LayoutGrid size={18} />
-                    <span>Grid View</span>
-                  </div>
-                }
-              />
-            </Tabs>
           </div>
         </CardBody>
       </Card>
@@ -113,15 +85,15 @@ export default function HistoryTab({ id, isNoDate }: Props) {
           <TableColumn align="center">STATUS</TableColumn>
           <TableColumn align="center"> </TableColumn>
         </TableHeader>
-        <TableBody>
+        <TableBody emptyContent={<p>Tidak ada riwayat di tanggal ini</p>}>
           {(orders?.data || []).map((item) => (
             <TableRow key={item.id}>
               <TableCell>
                 <div className="flex flex-col">
-                  <span className="font-semibold text-default-700">
+                  <span className="font-semibold text-xs text-default-700">
                     {dayjs(item.created_at).format("DD MMM YYYY")}
                   </span>
-                  <span className="text-tiny text-gray-400 font-mono tracking-tighter">
+                  <span className="text-[10px] text-gray-400 font-mono tracking-tighter">
                     {item.trx_no}
                   </span>
                 </div>
@@ -129,9 +101,17 @@ export default function HistoryTab({ id, isNoDate }: Props) {
 
               <TableCell>
                 <div className="flex flex-col gap-1">
-                  <span className="text-small text-default-700 font-medium">
+                  <Tooltip
+                    color="primary"
+                    content={item.services.map((e) => e.name).join(", ")}
+                  >
+                    <span className="text-[11px] text-default-700 block truncate max-w-[200px]">
+                      {item.services.map((e) => e.name).join(", ")}
+                    </span>
+                  </Tooltip>
+                  {/* <span className="text-[11px] text-default-700 block truncate">
                     {item.services.map((e) => e.name).join(", ")}
-                  </span>
+                  </span> */}
                   <Chip
                     className="h-5 text-[10px] font-bold uppercase"
                     color="primary"
@@ -143,7 +123,7 @@ export default function HistoryTab({ id, isNoDate }: Props) {
                 </div>
               </TableCell>
               <TableCell>
-                <span className="font-black text-default-900">
+                <span className="font-black text-xs text-gray-600">
                   {formatIDR(item.grand_total)}
                 </span>
               </TableCell>
@@ -151,6 +131,7 @@ export default function HistoryTab({ id, isNoDate }: Props) {
                 <Chip
                   className="font-bold"
                   color={item.status === "closed" ? "success" : "danger"}
+                  size="sm"
                   variant="dot"
                 >
                   {item.status === "closed" ? "Sukses" : "Batal"}

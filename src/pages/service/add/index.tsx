@@ -1,6 +1,6 @@
 import type z from "zod";
 import type { AxiosError } from "axios";
-import type { IVehicle } from "@/utils/interfaces/IUser";
+import type { ICustomer, IVehicle } from "@/utils/interfaces/IUser";
 import type { IBooking } from "@/utils/interfaces/IBooking";
 
 import {
@@ -26,6 +26,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Alert,
+  Autocomplete,
+  AutocompleteItem,
   Button,
   Card,
   CardBody,
@@ -69,13 +71,16 @@ import InputNumber from "@/components/input-number";
 import CustomDatePicker from "@/components/forms/date-picker";
 import HeaderAction from "@/components/header-action";
 import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
+import { getVehicle } from "@/stores/features/vehicle/vehicle-action";
 
 export default function ServiceAddPage() {
   const { company } = useAppSelector((state) => state.auth);
   const { query } = useAppSelector((state) => state.service);
+  const { list: employes } = useAppSelector((state) => state.employe);
   const { mechanics } = useAppSelector((state) => state.mechanic);
-  const { settings } = useAppSelector((state) => state.service);
-  const { services, sparepart, customer } = useAppSelector((state) => state.wo);
+  const { services, sparepart, customer, settings } = useAppSelector(
+    (state) => state.wo,
+  );
 
   const [isEdit, setEdit] = useState(false);
   const [isLoading, setLoading] = useState(false);
@@ -101,6 +106,7 @@ export default function ServiceAddPage() {
       hasFetchedService.current = true;
       dispatch(getService(query));
       dispatch(getMechanic({ page: 1, pageSize: 500 }));
+      dispatch(getVehicle({ page: 1, pageSize: 500 }));
 
       setTimeout(() => {
         hasFetchedService.current = false;
@@ -120,6 +126,11 @@ export default function ServiceAddPage() {
         mechanic_ids: [],
       },
     });
+
+  useEffect(() => {
+    setValue("pic_id", Number(settings.default_pic_id));
+    setValue("sa_id", Number(settings.default_advisor_id));
+  }, [settings]);
 
   useEffect(() => {
     if (bookingId && !hasFetchedBooking.current) {
@@ -314,7 +325,6 @@ export default function ServiceAddPage() {
                   placeholder="Cari atau masukkan nama..."
                   value={watch("customer.name")}
                   onChange={(cus) => {
-                    console.log("CUS", cus);
                     setValue("customer.id", cus?.id || undefined);
                     setValue("customer.phone", cus?.phone || "");
                     setValue("customer.email", cus?.email! || "");
@@ -449,6 +459,24 @@ export default function ServiceAddPage() {
                       value={watch("vehicle.plate_number")}
                       onChange={(val) => {
                         setFormVehicle(val);
+
+                        const customers = val?.customers || [];
+
+                        console.log(val.customers);
+                        if (!watch("customer.id") && customers.length) {
+                          const cus = customers[0] as ICustomer;
+
+                          setValue("customer.id", cus.id);
+                          setValue("customer.phone", cus?.phone || "");
+                          setValue("customer.email", cus?.email! || "");
+                          setValue("customer.name", cus?.name || "");
+
+                          setValue(
+                            "customer.birth_date",
+                            cus?.profile?.birth_date || "",
+                          );
+                          dispatch(setCustomer(cus));
+                        }
                       }}
                     />
                   )}
@@ -883,52 +911,98 @@ export default function ServiceAddPage() {
                   <Users className="size-5" />
                   Mekanik
                 </h5>
-                <Controller
-                  control={control}
-                  name="mechanic_ids"
-                  render={({ field: { value, onChange }, fieldState }) => (
-                    <Select
-                      classNames={{
-                        trigger: "h-auto min-h-10 py-2", // Menghapus fixed height, biarkan auto
-                        value: "flex flex-wrap gap-1", // Memastikan konten di dalamnya membungkus (wrap)
-                      }}
-                      errorMessage={fieldState.error?.message}
-                      isInvalid={!!fieldState.error}
-                      items={mechanics}
-                      placeholder="Pilih satu atau lebih mekanik"
-                      renderValue={(items) => (
-                        <div className="flex flex-wrap gap-1">
-                          {items.map((item) => (
-                            <Chip key={item.key} size="sm" variant="solid">
-                              {item.data?.name}
-                            </Chip>
-                          ))}
-                        </div>
-                      )}
-                      selectedKeys={new Set(value?.map(String) || [])}
-                      selectionMode="multiple"
-                      onSelectionChange={(keys) => {
-                        // Mengubah Set string kembali menjadi array number
-                        const values = Array.from(keys).map(Number);
 
-                        onChange(values);
-                      }}
-                    >
-                      {(user) => (
-                        <SelectItem key={user.id} textValue={user.name}>
-                          <div className="flex gap-2 items-center">
-                            <div className="flex flex-col">
-                              <span className="text-xs">{user.name}</span>
-                              <span className="text-[10px] text-gray-500">
-                                {user.position}
-                              </span>
-                            </div>
+                <div className="flex flex-col gap-4">
+                  <Controller
+                    control={control}
+                    name="sa_id"
+                    render={({ field }) => (
+                      <Autocomplete
+                        items={employes?.data || []}
+                        label="Service Advisor"
+                        labelPlacement="outside-top"
+                        placeholder="Pilih Service Advisor"
+                        selectedKey={String(field.value)}
+                        onSelectionChange={field.onChange}
+                      >
+                        {(item) => (
+                          <AutocompleteItem key={item.id}>
+                            {item.name}
+                          </AutocompleteItem>
+                        )}
+                      </Autocomplete>
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="pic_id"
+                    render={({ field }) => (
+                      <Autocomplete
+                        items={employes?.data || []}
+                        label="PIC Service"
+                        labelPlacement="outside-top"
+                        placeholder="Pilih PIC Service"
+                        selectedKey={String(field.value)}
+                        onSelectionChange={field.onChange}
+                      >
+                        {(item) => (
+                          <AutocompleteItem key={item.id}>
+                            {item.name}
+                          </AutocompleteItem>
+                        )}
+                      </Autocomplete>
+                    )}
+                  />
+
+                  <Controller
+                    control={control}
+                    name="mechanic_ids"
+                    render={({ field: { value, onChange }, fieldState }) => (
+                      <Select
+                        classNames={{
+                          trigger: "h-auto min-h-10 py-2", // Menghapus fixed height, biarkan auto
+                          value: "flex flex-wrap gap-1", // Memastikan konten di dalamnya membungkus (wrap)
+                        }}
+                        errorMessage={fieldState.error?.message}
+                        isInvalid={!!fieldState.error}
+                        items={mechanics}
+                        label="Pilih Mekanik"
+                        labelPlacement="outside-top"
+                        placeholder="Pilih satu atau lebih mekanik"
+                        renderValue={(items) => (
+                          <div className="flex flex-wrap gap-1">
+                            {items.map((item) => (
+                              <Chip key={item.key} size="sm" variant="solid">
+                                {item.data?.name}
+                              </Chip>
+                            ))}
                           </div>
-                        </SelectItem>
-                      )}
-                    </Select>
-                  )}
-                />
+                        )}
+                        selectedKeys={new Set(value?.map(String) || [])}
+                        selectionMode="multiple"
+                        onSelectionChange={(keys) => {
+                          // Mengubah Set string kembali menjadi array number
+                          const values = Array.from(keys).map(Number);
+
+                          onChange(values);
+                        }}
+                      >
+                        {(user) => (
+                          <SelectItem key={user.id} textValue={user.name}>
+                            <div className="flex gap-2 items-center">
+                              <div className="flex flex-col">
+                                <span className="text-xs">{user.name}</span>
+                                <span className="text-[10px] text-gray-500">
+                                  {user.position}
+                                </span>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        )}
+                      </Select>
+                    )}
+                  />
+                </div>
               </CardBody>
             </Card>
             <div className="space-y-6 sticky top-32">

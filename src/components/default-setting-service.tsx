@@ -1,4 +1,6 @@
 import {
+  Autocomplete,
+  AutocompleteItem,
   Button,
   Input,
   Modal,
@@ -20,8 +22,9 @@ import InputNumber from "./input-number";
 
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
-import { useAppDispatch } from "@/stores/hooks";
-import { setServiceSetting } from "@/stores/features/service/service-slice";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { getEmploye } from "@/stores/features/employe/employe-action";
+import { setWoSetting } from "@/stores/features/work-order/wo-slice";
 
 // Schema Validasi menggunakan Zod
 const settingsSchema = z.object({
@@ -36,12 +39,15 @@ const settingsSchema = z.object({
   default_cash_account_id: z.string().optional().nullable(),
   default_warehouse_id: z.string().optional().nullable(),
   pit_count: z.coerce.number().optional().nullable(),
+  default_pic_id: z.coerce.number().optional().nullable(),
+  default_advisor_id: z.coerce.number().optional().nullable(),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
 
 export default function DefaultSettingService() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { list } = useAppSelector((state) => state.employe);
   const [loading, setLoading] = useState(false);
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
@@ -51,30 +57,31 @@ export default function DefaultSettingService() {
     defaultValues: {},
   });
 
-  useEffect(getData, []);
-
-  function getData() {
+  useEffect(() => {
     if (!hasFetched.current) {
       hasFetched.current = true;
-      http
-        .get("/services/settings")
-        .then(({ data }) => {
-          reset(data);
-          dispatch(setServiceSetting(data));
-        })
-        .catch(notifyError)
-        .finally(() => {
-          setTimeout(() => {
-            hasFetched.current = false;
-          }, 1000);
-        });
+      getData();
+      dispatch(getEmploye({ page: 1, pageSize: 500 }));
+      setTimeout(() => {
+        hasFetched.current = false;
+      }, 1000);
     }
+  }, []);
+
+  function getData() {
+    http
+      .get("/settings")
+      .then(({ data }) => {
+        reset(data);
+        dispatch(setWoSetting(data));
+      })
+      .catch(notifyError);
   }
 
   const onSubmit: SubmitHandler<SettingsForm> = (data: SettingsForm) => {
     setLoading(true);
     http
-      .post("/services/settings", data)
+      .post("/settings", data)
       .then(({ data }) => {
         getData();
         notify(data.message);
@@ -195,6 +202,18 @@ export default function DefaultSettingService() {
                             <Search size={16} />
                           </Button>
                         </div>
+                        <UserControl
+                          control={control}
+                          label="PIC Service"
+                          name="default_pic_id"
+                          options={list?.data}
+                        />
+                        <UserControl
+                          control={control}
+                          label="Service Advisor"
+                          name="default_advisor_id"
+                          options={list?.data}
+                        />
                       </div>
                     </section>
 
@@ -304,7 +323,7 @@ function SelectControl({ name, label, control, options }: any) {
         <Select
           {...field}
           className="items-center"
-          classNames={{ label: "w-40 text-xs shrink-0", trigger: "h-8" }}
+          classNames={{ label: "w-40 pl-2 text-xs shrink-0" }}
           errorMessage={fieldState.error?.message}
           isInvalid={!!fieldState.error}
           label={label}
@@ -318,6 +337,37 @@ function SelectControl({ name, label, control, options }: any) {
             </SelectItem>
           ))}
         </Select>
+      )}
+    />
+  );
+}
+function UserControl({ name, label, control, options }: any) {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <Autocomplete
+          className="items-center"
+          errorMessage={fieldState.error?.message}
+          inputProps={{
+            classNames: {
+              label: "w-40 text-xs shrink-0",
+            },
+          }}
+          isInvalid={!!fieldState.error}
+          items={options || []}
+          label={label}
+          labelPlacement="outside-left"
+          selectedKey={String(field.value)}
+          size="sm"
+          variant="bordered"
+          onSelectionChange={field.onChange}
+        >
+          {(item: any) => (
+            <AutocompleteItem key={item.id}>{item.name}</AutocompleteItem>
+          )}
+        </Autocomplete>
       )}
     />
   );
