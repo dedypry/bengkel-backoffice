@@ -72,6 +72,7 @@ import CustomDatePicker from "@/components/forms/date-picker";
 import HeaderAction from "@/components/header-action";
 import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
 import { getVehicle } from "@/stores/features/vehicle/vehicle-action";
+import { usePermission } from "@/components/use-permission";
 
 export default function ServiceAddPage() {
   const { company } = useAppSelector((state) => state.auth);
@@ -91,6 +92,8 @@ export default function ServiceAddPage() {
   const dispatch = useAppDispatch();
   const hasFetchedService = useRef(false);
   const hasFetchedBooking = useRef(false);
+  const { hasPermission } = usePermission();
+  const canCreate = hasPermission("wo.create");
 
   const servicePrice = services.reduce(
     (sum, e) => sum + Number(e.price || 0) * Number(e.qty || 0),
@@ -1057,15 +1060,17 @@ export default function ServiceAddPage() {
                       />
                     </div>
                   </div>
-                  <Button
-                    fullWidth
-                    color="primary"
-                    isLoading={isLoading}
-                    startContent={<Save />}
-                    onPress={() => handleSubmit(onSubmit)()}
-                  >
-                    {isLoading ? "Sedang Process..." : "Simpan Work Order"}
-                  </Button>
+                  {canCreate && (
+                    <Button
+                      fullWidth
+                      color="primary"
+                      isLoading={isLoading}
+                      startContent={<Save />}
+                      onPress={() => handleSubmit(onSubmit)()}
+                    >
+                      {isLoading ? "Sedang Process..." : "Simpan Work Order"}
+                    </Button>
+                  )}
                 </CardBody>
               </Card>
 

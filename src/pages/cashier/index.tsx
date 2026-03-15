@@ -6,12 +6,20 @@ import PanelProduct from "./components/panel-product";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWo } from "@/stores/features/work-order/wo-action";
+import { setSidebar } from "@/stores/features/layout/layout-slice";
 
 export default function CashierPage() {
   const { woQuery, tabCashier } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    console.log("MASUK");
+    setTimeout(() => {
+      dispatch(setSidebar(false));
+    }, 500);
+  }, []);
 
   useEffect(() => {
     if (company && !hasFetched.current) {

@@ -44,6 +44,9 @@ const vendorSlice = createSlice({
         ...action.payload,
       };
     },
+    setTrxDetail: (state, action) => {
+      state.trxDetail = action.payload;
+    },
   },
   extraReducers: (builder) =>
     builder
@@ -61,5 +64,5 @@ const vendorSlice = createSlice({
       }),
 });
 
-export const { setVendorQuery, setPaymentQuery } = vendorSlice.actions;
+export const { setVendorQuery, setPaymentQuery, setTrxDetail } = vendorSlice.actions;
 export default vendorSlice.reducer;

@@ -54,6 +54,7 @@ import InputNumber from "@/components/input-number";
 import debounce from "@/utils/helpers/debounce";
 import { ISupplier } from "@/utils/interfaces/ISupplier";
 import SelectSupplierPopover from "@/components/select-supplier-popover";
+import { usePermission } from "@/components/use-permission";
 
 interface Props {
   id: any;
@@ -66,6 +67,9 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [nextSugestion, setNextSugestion] = useState("");
+  const { hasPermission } = usePermission();
+  const canUpdate = hasPermission("wo.update");
+  const canDelete = hasPermission("wo.delete");
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
@@ -175,7 +179,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             >
               <Printer size={18} />
             </Button>
-            {!isEdit && (
+            {!isEdit && canUpdate && (
               <Button
                 className="text-white"
                 color="warning"
@@ -187,7 +191,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               </Button>
             )}
 
-            {!["cancel"].includes(data.status) && (
+            {!["cancel"].includes(data.status) && canUpdate && (
               <ModalAddService
                 isSave
                 onClose={() => dispatch(formWoClear())}
@@ -233,7 +237,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                             {item.data.name}
                           </span>
                         </Tooltip>
-                        <div className=" flex gap-2 items-center truncate block">
+                        <div className="flex gap-2 items-center truncate">
                           <span className="text-[11px] text-gray-600">
                             {find?.suplier_name ||
                               item.supplier_name ||
@@ -298,7 +302,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                       {formatIDR(item.total_price)}
                     </TableCell>
                     <TableCell>
-                      {!["cancel"].includes(data.status) && (
+                      {!["cancel"].includes(data.status) && canDelete && (
                         <Tooltip color="danger" content="Hapus Item">
                           <Button
                             isIconOnly
@@ -403,7 +407,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                         {formatIDR(item.total_price)}
                       </TableCell>
                       <TableCell>
-                        {!["cancel"].includes(data.status) && (
+                        {!["cancel"].includes(data.status) && canDelete && (
                           <Tooltip
                             showArrow
                             color="danger"
@@ -433,7 +437,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             </TableBody>
           </Table>
         </CardBody>
-        {isEdit && (
+        {isEdit && canUpdate && (
           <CardFooter className="flex gap-2 justify-end">
             <Button
               size="sm"
@@ -461,7 +465,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               title="Mekanik Bertugas"
             />
             <div className="flex gap-2">
-              {!["cancel", "closed"].includes(data.status) && (
+              {!["cancel", "closed"].includes(data.status) && canUpdate && (
                 <>
                   <Button
                     className="font-black uppercase text-[10px] tracking-widest"
@@ -549,7 +553,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             />
           </div>
 
-          {!["cancel"].includes(data.status) && (
+          {!["cancel"].includes(data.status) && canUpdate && (
             <div className="flex justify-end pt-4">
               <Button
                 className="uppercase"

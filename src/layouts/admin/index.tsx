@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from "react";
+import { useEffect, ReactNode } from "react";
 import { useMediaQuery } from "react-responsive";
 import {
   Button,
@@ -16,15 +16,21 @@ import NotificationDropdown from "./partials/notification";
 
 import { responsive } from "@/config/responsive";
 import AuthGuard from "@/utils/guard/auth-guard";
-import { useAppSelector } from "@/stores/hooks";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { setSidebar } from "@/stores/features/layout/layout-slice";
 
 interface Props {
   children?: ReactNode;
 }
 export default function AdminLayout({ children }: Props) {
   const { company } = useAppSelector((state) => state.auth);
-  const [isOpen, setIsOpen] = useState(true);
+  const { sidebarOpen: isOpen } = useAppSelector((state) => state.layout);
+  const dispatch = useAppDispatch();
   const isMobile = useMediaQuery(responsive.mobile);
+
+  function setIsOpen(val: boolean) {
+    dispatch(setSidebar(val));
+  }
 
   useEffect(() => {
     setIsOpen(!isMobile);

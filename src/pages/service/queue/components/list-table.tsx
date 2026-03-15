@@ -43,12 +43,12 @@ import { getWo } from "@/stores/features/work-order/wo-action";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
-import { hasRoles } from "@/utils/helpers/roles";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import debounce from "@/utils/helpers/debounce";
 import PageSize from "@/components/page-size";
 import CustomDatePicker from "@/components/forms/date-picker";
+import { usePermission } from "@/components/use-permission";
 
 interface Props {
   setOpenModal: (val: boolean) => void;
@@ -59,7 +59,10 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { orders, woQuery } = useAppSelector((state) => state.wo);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const restriction = hasRoles(["foreman", "super-admin"]);
+
+  const { hasPermission } = usePermission();
+  const resUpdate = hasPermission("wo.update");
+  const resDelete = hasPermission("wo.delete");
   const { t } = useTranslation();
 
   function handleCancel(id: number) {
@@ -227,10 +230,12 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
 
                   <TableCell>
                     <div className="flex items-center gap-2 justify-end">
-                      <ButtonStatus
-                        item={item}
-                        onSuccess={() => dispatch(getWo(woQuery))}
-                      />
+                      {resUpdate && (
+                        <ButtonStatus
+                          item={item}
+                          onSuccess={() => dispatch(getWo(woQuery))}
+                        />
+                      )}
 
                       {item.progress !== "cancel" && (
                         <Dropdown placement="bottom-end">
@@ -255,7 +260,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                               Detail Order
                             </DropdownItem>
 
-                            {restriction ? (
+                            {resUpdate ? (
                               <DropdownItem
                                 key="mech"
                                 startContent={<UserCircleIcon size={18} />}
@@ -275,7 +280,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                               <DropdownItem key="spacer" className="hidden" />
                             )}
 
-                            {item.progress === "queue" && restriction ? (
+                            {item.progress === "queue" && resDelete ? (
                               <DropdownItem
                                 key="delete"
                                 className="text-danger"
