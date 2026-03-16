@@ -39,6 +39,10 @@ export default function ListProduct() {
                   setWoProducts({
                     ...item,
                     qty: 1,
+                    total_price: Number(item.sell_price),
+                    tax: 0,
+                    disc_percentage: 0,
+                    disc_value: 0,
                   }),
                 )
               }

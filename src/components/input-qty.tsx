@@ -5,9 +5,10 @@ import InputNumber from "./input-number";
 interface Props {
   value: number;
   isDisabled?: boolean;
+  max?: number;
   handleQty: (qty: number) => void;
 }
-export default function InputQty({ value, handleQty, isDisabled }: Props) {
+export default function InputQty({ value, handleQty, isDisabled, max }: Props) {
   return (
     <InputNumber
       classNames={{
@@ -25,6 +26,7 @@ export default function InputQty({ value, handleQty, isDisabled }: Props) {
         </Button>
       }
       isDisabled={isDisabled}
+      maxInput={max}
       size="sm"
       startContent={
         <Button

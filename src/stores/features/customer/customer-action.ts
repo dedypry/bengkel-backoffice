@@ -25,6 +25,25 @@ export const getCustomer = createAsyncThunk(
     }
   },
 );
+export const getCustomerList = createAsyncThunk(
+  "get-customer-list",
+  async (query?: CustomerQuery) => {
+    try {
+      const { data } = await http.get("/customers", {
+        params: {
+          ...query,
+          noPagination: 1,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      console.error(error);
+
+      return null;
+    }
+  },
+);
 export const getDetailCustomer = createAsyncThunk(
   "get-customer-detail",
   async (id: string) => {

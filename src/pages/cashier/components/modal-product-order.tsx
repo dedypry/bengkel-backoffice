@@ -11,7 +11,7 @@ import {
   Card,
   CardBody,
 } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Banknote, CheckCircle2 } from "lucide-react";
@@ -28,15 +28,23 @@ import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formWoClear } from "@/stores/features/work-order/wo-slice";
+import { ICustomer } from "@/utils/interfaces/IUser";
 
 interface Props {
   disable: boolean;
-  grandTotal: number;
+  customerId?: number;
+  poNo: string;
 }
 
-export default function ModalProductOrder({ disable, grandTotal }: Props) {
+export default function ModalProductOrder({
+  disable,
+  customerId,
+  poNo,
+}: Props) {
+  const { data: customers } = useAppSelector((state) => state.customer);
   const { products } = useAppSelector((state) => state.wo);
   const [open, setOpen] = useState(false);
+  const [customer, setCustomer] = useState<ICustomer>();
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -56,19 +64,62 @@ export default function ModalProductOrder({ disable, grandTotal }: Props) {
       isManualDiscount: false,
       receivedAmount: 0,
       paymentMethod: "CASH",
+      otherFee: 0,
+      total: 0,
     },
   });
 
+  useEffect(() => {
+    setValue("poNo", poNo);
+    setValue("customerId", customerId);
+    if (customerId) {
+      const find = customers.find((e) => e.id === Number(customerId));
+
+      setCustomer(find);
+    }
+  }, [customerId, poNo]);
+
+  useEffect(() => {
+    let subTotal = 0;
+    let totalDiscount = 0;
+    let ppn = 0;
+
+    for (const prod of products) {
+      const price = Number(prod.sell_price ?? 0) * Number(prod.qty ?? 0);
+      const sub = price - (prod.disc_value ?? 0);
+      const tax = Number(prod.ppn ?? 0) / 100;
+
+      totalDiscount += prod.disc_value ?? 0;
+      subTotal += price;
+      ppn += tax * sub;
+    }
+
+    setValue("discount", totalDiscount);
+    setValue("subTotal", subTotal);
+    setValue("tax", ppn);
+    const total = subTotal - totalDiscount + ppn;
+
+    setValue("total", total);
+  }, [products]);
+
   const selectedMethod = watch("paymentMethod");
   const receivedAmount = watch("receivedAmount") || 0;
-  const changeAmount = receivedAmount - grandTotal;
+  const changeAmount = receivedAmount - (watch("total") ?? 0);
 
   async function onSubmit(data: PaymentForm) {
     setLoading(true);
     try {
       const payload = {
         ...data,
-        products: products.map((item) => ({ id: item.id, qty: item.qty })),
+        products: products.map((item) => ({
+          id: item.id,
+          qty: item.qty,
+          price: item.sell_price,
+          tax: item.tax,
+          disc_percentage: item.disc_percentage,
+          disc_value: item.disc_value,
+          total_price: item.total_price,
+        })),
         type: "product",
       };
 
@@ -100,7 +151,10 @@ export default function ModalProductOrder({ disable, grandTotal }: Props) {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1 text-xl font-bold">
-                Konfirmasi Pembayaran
+                <p className="text-sm">Konfirmasi Pembayaran</p>
+                <p className="text-xs font-semibold text-gray-600">
+                  Customer {customer?.name}
+                </p>
               </ModalHeader>
               <ModalBody className="pb-6">
                 <Controller
@@ -108,7 +162,7 @@ export default function ModalProductOrder({ disable, grandTotal }: Props) {
                   name="paymentMethod"
                   render={({ field }) => (
                     <div className="flex flex-col gap-3">
-                      <p className="font-bold text-default-600 text-sm">
+                      <p className="font-bold text-gray-600 text-sm">
                         Metode Pembayaran
                       </p>
                       <PaymentMethod
@@ -140,9 +194,13 @@ export default function ModalProductOrder({ disable, grandTotal }: Props) {
                                   size="sm"
                                   variant="flat"
                                   onPress={() =>
-                                    setValue("receivedAmount", grandTotal, {
-                                      shouldValidate: true,
-                                    })
+                                    setValue(
+                                      "receivedAmount",
+                                      watch("total") ?? 0,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    )
                                   }
                                 >
                                   PAS
@@ -204,12 +262,97 @@ export default function ModalProductOrder({ disable, grandTotal }: Props) {
 
                 <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-center px-1">
-                    <p className="text-base font-semibold text-gray-600">
+                    <p className="text-sm font-semibold text-gray-600">
+                      Sub Total
+                    </p>
+                    <InputNumber
+                      isDisabled
+                      className="w-44"
+                      classNames={{
+                        input: "text-end text-sm",
+                      }}
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={watch("subTotal") as any}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center px-1">
+                    <p className="text-sm font-semibold text-gray-600">
+                      Total Disc
+                    </p>
+                    <Controller
+                      control={control}
+                      name="discount"
+                      render={({ field }) => (
+                        <InputNumber
+                          className="w-44"
+                          classNames={{
+                            input: "text-end text-sm",
+                          }}
+                          maxInput={watch("total") ?? 0}
+                          size="sm"
+                          startContent={<p className="text-xs">Rp</p>}
+                          value={field.value as any}
+                          onInput={(val) => {
+                            field.onChange(val);
+
+                            const subTotal = watch("subTotal") ?? 0;
+                            const ppn = watch("tax") ?? 0;
+                            const otherFee = watch("otherFee") ?? 0;
+                            const total = subTotal - val + ppn + otherFee;
+
+                            setValue("total", total);
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center px-1">
+                    <p className="text-sm font-semibold text-gray-600">
+                      Biaya Lain Lain
+                    </p>
+                    <Controller
+                      control={control}
+                      name="otherFee"
+                      render={({ field }) => (
+                        <InputNumber
+                          className="w-44"
+                          classNames={{
+                            input: "text-end text-sm",
+                          }}
+                          size="sm"
+                          startContent={<p className="text-xs">Rp</p>}
+                          value={field.value as any}
+                          onInput={(val) => {
+                            field.onChange(val);
+
+                            const disc = watch("discount");
+                            const subTotal = watch("subTotal") ?? 0;
+                            const ppn = watch("tax") ?? 0;
+                            const total = subTotal - disc + ppn + val;
+
+                            setValue("total", total);
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center px-1">
+                    <p className="text-sm font-semibold text-gray-600">
                       Total Tagihan
                     </p>
-                    <p className="text-2xl font-black text-primary">
-                      {formatIDR(grandTotal)}
-                    </p>
+                    <InputNumber
+                      isDisabled
+                      className="w-44"
+                      classNames={{
+                        input: "text-end !text-primary font-bold",
+                      }}
+                      size="sm"
+                      startContent={
+                        <p className="text-sm font-bold text-primary">Rp</p>
+                      }
+                      value={watch("total")?.toString()}
+                    />
                   </div>
 
                   <Alert

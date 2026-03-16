@@ -9,36 +9,129 @@ import {
   CardBody,
   CardFooter,
   Button,
+  CardHeader,
+  Input,
+  Tooltip,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 import { PackageSearch, Trash2 } from "lucide-react";
+import z from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useRef } from "react";
 
 import ModalProductOrder from "./modal-product-order";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
 import {
+  ISparepart,
   removeWoProduct,
   setWoProducts,
 } from "@/stores/features/work-order/wo-slice";
-import InputQty from "@/components/input-qty";
+import { getCustomerList } from "@/stores/features/customer/customer-action";
+import InputNumber from "@/components/input-number";
+
+const schema = z.object({
+  customer_id: z.number().optional().nullable(),
+  no_po: z.string().optional().nullable(),
+});
+
+type FormValue = z.infer<typeof schema>;
 
 export default function PanelProduct() {
   const { products } = useAppSelector((state) => state.wo);
+  const { data } = useAppSelector((state) => state.customer);
   const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
   const grandTotal = products.reduce(
-    (sum, a) => sum + Number(a.sell_price || 0) * Number(a.qty || 1),
+    (sum, a) => sum + Number(a.total_price ?? 0),
     0,
   );
 
+  useEffect(() => {
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      dispatch(getCustomerList());
+    }
+  }, []);
+
+  const { control, watch } = useForm<FormValue>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+    defaultValues: {},
+  });
+
+  function updateRow(item: ISparepart) {
+    const disc_val = item.disc_value || 0;
+    const price = Number(item.sell_price ?? 0);
+    const qty = Number(item.qty ?? 0);
+
+    const subTotal = price * qty - disc_val;
+    const ppn = (subTotal * (item.tax || 0)) / 100;
+    const total = subTotal + ppn;
+
+    dispatch(
+      setWoProducts({
+        ...item,
+        sell_price: String(price),
+        qty: qty,
+        disc_value: disc_val,
+        total_price: total,
+      }),
+    );
+  }
+
   return (
     <div className="w-full md:w-2/3 overflow-auto">
-      <Card className="min-h-full flex flex-col border-[#168BAB]/20 shadow-lg w-full">
+      <Card className="min-h-full flex flex-col w-full">
+        <CardHeader>
+          <div className="grid grid-cols-3 gap-2">
+            <Controller
+              control={control}
+              name="no_po"
+              render={({ field }) => (
+                <Input
+                  {...(field as any)}
+                  label="No PO"
+                  placeholder="#Order Customer"
+                  size="sm"
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="customer_id"
+              render={({ field }) => (
+                <Autocomplete
+                  items={data}
+                  label="Pelanggan"
+                  placeholder="Pilih Pelanggan"
+                  selectedKey={field.value}
+                  size="sm"
+                  onSelectionChange={field.onChange}
+                >
+                  {(item) => (
+                    <AutocompleteItem key={item.id}>
+                      {item.name}
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
+              )}
+            />
+          </div>
+        </CardHeader>
         <CardBody className="gap-2 flex flex-col overflow-y-auto scrollbar-modern">
           <Table removeWrapper>
             <TableHeader>
               <TableColumn>Produk</TableColumn>
-              <TableColumn className="text-end">Harga</TableColumn>
+              <TableColumn className="text-center">Harga</TableColumn>
+              <TableColumn className="text-center">Qty</TableColumn>
+              <TableColumn className="text-center">Disc %</TableColumn>
+              <TableColumn className="text-center">Nilai Disc</TableColumn>
+              <TableColumn className="text-center">PPN %</TableColumn>
               <TableColumn className="text-center">Jumlah</TableColumn>
               <TableColumn className="text-center w-20">Aksi</TableColumn>
             </TableHeader>
@@ -65,46 +158,138 @@ export default function PanelProduct() {
             >
               {products.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>
+                  <TableCell className="max-w-[200px]">
                     <div className="flex flex-col">
-                      <p className="font-semibold text-xs">{item.name}</p>
+                      <Tooltip color="primary" content={item.name}>
+                        <p className="font-semibold text-[11px] text-nowrap truncate">
+                          {item.name}
+                        </p>
+                      </Tooltip>
                       <p className="text-[10px] text-gray-500 italic">
                         {item.code}
                       </p>
                     </div>
                   </TableCell>
-                  <TableCell className="text-end">
-                    <p className="font-semibold text-xs">
-                      {formatIDR(Number(item.sell_price))}
-                    </p>
+                  <TableCell>
+                    <InputNumber
+                      className="w-28"
+                      classNames={{
+                        input: "text-right  text-[11px]",
+                      }}
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={Number(item.sell_price).toString()}
+                      onInput={(val) =>
+                        updateRow({
+                          ...item,
+                          sell_price: val.toString(),
+                        })
+                      }
+                    />
                   </TableCell>
                   <TableCell>
-                    <div className="w-full flex justify-center">
                       <div className="max-w-32">
-                        <InputQty
-                          handleQty={(qty: number) => {
-                            if (qty > 0) {
-                              dispatch(
-                                setWoProducts({
-                                  ...item,
-                                  qty,
-                                }),
-                              );
-                            } else {
-                              dispatch(removeWoProduct(item));
-                            }
-                          }}
-                          value={Number(item?.qty || 0)}
-                        />
-                      </div>
-                    </div>
+                    <InputNumber
+                      className="w-14"
+                      classNames={{
+                        input: "text-center text-[11px]",
+                      }}
+                      size="sm"
+                      value={(item.qty || 0).toString()}
+                      onInput={(qty) => {
+                        if (qty >= 0) {
+                          updateRow({
+                            ...item,
+                            qty,
+                          });
+                        }
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InputNumber
+                      className="w-12"
+                      classNames={{
+                        input: "text-center text-[11px]",
+                      }}
+                      size="sm"
+                      value={item.disc_percentage?.toString()}
+                      onInput={(discPerc) => {
+                        const price = Number(item.sell_price ?? 0);
+                        const calculatedDiscValue = (
+                          (discPerc / 100) *
+                          price
+                        ).toFixed(2);
+
+                        updateRow({
+                          ...item,
+                          disc_percentage: discPerc,
+                          disc_value: Number(calculatedDiscValue),
+                        });
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InputNumber
+                      className="w-24"
+                      classNames={{
+                        input: "text-end text-[11px]",
+                      }}
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={item.disc_value?.toString()}
+                      onInput={(disc) => {
+                        const price = Number(item.sell_price ?? 0);
+                        let calculatedPercentage = 0;
+
+                        if (price > 0) {
+                          calculatedPercentage = (disc / price) * 100;
+                        }
+                        updateRow({
+                          ...item,
+                          disc_percentage: Number(
+                            calculatedPercentage.toFixed(2),
+                          ),
+                          disc_value: disc,
+                        });
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InputNumber
+                      className="w-12"
+                      classNames={{
+                        input: "text-center text-[11px]",
+                      }}
+                      size="sm"
+                      value={item.tax?.toString()}
+                      onInput={(tax) =>
+                        updateRow({
+                          ...item,
+                          tax,
+                        })
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InputNumber
+                      isDisabled
+                      className="w-28"
+                      classNames={{
+                        input: "text-end text-[11px]",
+                      }}
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={String(item.total_price)}
+                    />
                   </TableCell>
                   <TableCell className="text-center">
                     <Button
                       isIconOnly
                       color="danger"
+                      size="sm"
                       variant="light"
-                      onClick={() => dispatch(removeWoProduct(item))}
+                      onPress={() => dispatch(removeWoProduct(item))}
                     >
                       <Trash2 size={18} />
                     </Button>
@@ -124,8 +309,9 @@ export default function PanelProduct() {
             </div>
             <div>
               <ModalProductOrder
+                customerId={watch("customer_id")!}
                 disable={products.length === 0}
-                grandTotal={grandTotal}
+                poNo={watch("no_po") || ""}
               />
             </div>
           </div>

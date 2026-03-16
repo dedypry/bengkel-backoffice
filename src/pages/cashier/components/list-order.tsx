@@ -53,11 +53,15 @@ export default function ListOrder() {
         <CardHeader className="pb-3 flex flex-col gap-2">
           <Tabs
             fullWidth
+            classNames={{
+              tabContent:
+                "text-gray-600 font-medium group-data-[selected=true]:text-gray-800",
+            }}
             selectedKey={tabCashier}
             onSelectionChange={(key) => dispatch(setTabCashier(key as string))}
           >
             <Tab key="customer" title="Customer" />
-            <Tab key="product" title="Produk" />
+            <Tab key="product" title="Sparepart" />
           </Tabs>
           <Input
             className="placeholder:text-xs"

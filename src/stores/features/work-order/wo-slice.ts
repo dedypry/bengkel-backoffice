@@ -16,6 +16,9 @@ export interface ISparepart extends IProduct {
   price?: number;
   total_price?: number;
   suplier_name?: string;
+  disc_value?: number;
+  disc_percentage?: number;
+  tax?: number;
 }
 
 const woSlice = createSlice({

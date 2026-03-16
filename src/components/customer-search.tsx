@@ -1,6 +1,11 @@
 import type { ICustomer } from "@/utils/interfaces/IUser";
 
-import { Autocomplete, AutocompleteItem, Avatar } from "@heroui/react";
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Avatar,
+  InputProps,
+} from "@heroui/react";
 import { Users } from "lucide-react";
 import { useEffect, useRef } from "react";
 
@@ -17,7 +22,10 @@ export default function CustomerSearch({
   value,
   onChange,
   placeholder,
-}: Props) {
+  labelPlacement = "outside",
+  size,
+  ...props
+}: Props & InputProps) {
   const { customers: custom } = useAppSelector((state) => state.customer);
   const { company } = useAppSelector((state) => state.auth);
   const customers = (custom || []) as ICustomer[];
@@ -75,9 +83,10 @@ export default function CustomerSearch({
       allowsCustomValue
       className="max-w-full"
       defaultItems={customers || []}
+      inputProps={props}
       inputValue={typeof value === "string" ? value : value?.name || ""}
       label="Nama Pelanggan"
-      labelPlacement="outside"
+      labelPlacement={labelPlacement}
       listboxProps={{
         emptyContent:
           "Pelanggan tidak ditemukan, tekan Enter untuk tambah baru.",
@@ -86,6 +95,7 @@ export default function CustomerSearch({
       scrollShadowProps={{
         isEnabled: false,
       }}
+      size={size}
       startContent={<Users />}
       onInputChange={handleInputChange}
       onSelectionChange={(key) => handleSelectionChange(key as string)}

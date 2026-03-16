@@ -3,7 +3,11 @@ import type { ICustomer } from "@/utils/interfaces/IUser";
 
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getCustomer, getDetailCustomer } from "./customer-action";
+import {
+  getCustomer,
+  getCustomerList,
+  getDetailCustomer,
+} from "./customer-action";
 
 export const customerSlice = createSlice({
   name: "customer",
@@ -19,6 +23,7 @@ export const customerSlice = createSlice({
       model: "",
       brand: "",
     },
+    data: [] as ICustomer[],
   },
   reducers: {
     setCustomerQuery: (state, action) => {
@@ -32,6 +37,9 @@ export const customerSlice = createSlice({
     builder
       .addCase(getCustomer.fulfilled, (state, action) => {
         state.customers = action.payload;
+      })
+      .addCase(getCustomerList.fulfilled, (state, action) => {
+        state.data = action.payload;
       })
       .addCase(getDetailCustomer.fulfilled, (state, action) => {
         state.detail = action.payload;

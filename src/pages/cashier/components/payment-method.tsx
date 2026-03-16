@@ -67,7 +67,7 @@ function CustomRadio({ value, label, description, icon, isSelected }: any) {
               "p-2 rounded-lg transition-colors",
               isSelected
                 ? "text-primary bg-primary-100/50"
-                : "text-default-400 bg-default-100",
+                : "text-gray-400 bg-gray-100",
             )}
           >
             {icon}

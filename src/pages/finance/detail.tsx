@@ -1,7 +1,7 @@
 import type { IPayment } from "@/utils/interfaces/IUser";
 
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   Card,
@@ -52,28 +52,36 @@ export default function PaymentDetailPage() {
 
   return (
     <div className="space-y-5">
-      <Breadcrumbs
-        className="pt-5"
-        itemClasses={{ item: "text-gray-500 font-medium" }}
-        separator={<ChevronRight size={14} />}
-      >
-        <BreadcrumbItem href="/" startContent={<Home size={16} />}>
-          Home
-        </BreadcrumbItem>
-        <BreadcrumbItem
-          href="/finance/list"
-          startContent={<Receipt size={16} />}
+      <div className="flex justify-between">
+        <Breadcrumbs
+          className="pt-5"
+          itemClasses={{ item: "text-gray-500 font-medium" }}
+          separator={<ChevronRight size={14} />}
         >
-          Keuangan
-        </BreadcrumbItem>
-        <BreadcrumbItem>{data.payment_no}</BreadcrumbItem>
-      </Breadcrumbs>
+          <BreadcrumbItem href="/" startContent={<Home size={16} />}>
+            Home
+          </BreadcrumbItem>
+          <BreadcrumbItem
+            href="/finance/list"
+            startContent={<Receipt size={16} />}
+          >
+            Keuangan
+          </BreadcrumbItem>
+          <BreadcrumbItem>{data.payment_no}</BreadcrumbItem>
+        </Breadcrumbs>
+        <Button as={Link} color="primary" size="sm" to="/cashier">
+          Kembali Ke Kasir
+        </Button>
+      </div>
       {/* 1. HEADER SECTION */}
       <HeaderAction
         actionContent={
           <div className="flex items-center gap-3">
             <Chip
               className="text-white uppercase"
+              classNames={{
+                content: "text-xs",
+              }}
               color="success"
               radius="sm"
               startContent={<CheckCircle size={14} />}
@@ -84,6 +92,7 @@ export default function PaymentDetailPage() {
             <Button
               isIconOnly
               radius="sm"
+              size="sm"
               variant="bordered"
               onPress={() =>
                 handleDownload(

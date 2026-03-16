@@ -34,6 +34,17 @@ const InputNumber = forwardRef<
         setValue(
           formatIndonesianNumber(switchDotsToCommas(props.value.toString())),
         );
+
+        if (maxInput && Number(props.value) > maxInput) {
+          setValue(
+            formatIndonesianNumber(switchDotsToCommas(maxInput.toString())),
+          );
+          onInput?.(maxInput);
+
+          if (props.onValueChange) {
+            props.onValueChange(String(maxInput));
+          }
+        }
       }
     }, [props.value]);
 
