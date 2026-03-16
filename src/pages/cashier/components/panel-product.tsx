@@ -188,7 +188,6 @@ export default function PanelProduct() {
                     />
                   </TableCell>
                   <TableCell>
-                      <div className="max-w-32">
                     <InputNumber
                       className="w-14"
                       classNames={{
