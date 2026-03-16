@@ -1,5 +1,7 @@
 import type { IProduct } from "./IProduct";
 
+import { ICustomer } from "./IUser";
+
 export interface IOrder {
   id: number;
   trx_no?: string;
@@ -8,6 +10,15 @@ export interface IOrder {
   created_at: string; // ISO Date string
   updated_at: string; // ISO Date string
   items: IOrderItem[];
+  customer: ICustomer;
+  company_id?: number;
+  updated_id?: number;
+  customer_id?: number;
+  po_no?: string;
+  other_fee?: number;
+  subtotal?: number;
+  tax?: number;
+  discount?: number;
 }
 
 export interface IOrderItem {
@@ -20,4 +31,7 @@ export interface IOrderItem {
   total_price?: number;
   created_at: string; // ISO Date string
   updated_at: string; // ISO Date string
+  tax?: number;
+  disc_percentage?: number;
+  disc_value?: number;
 }

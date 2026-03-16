@@ -1,8 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import {
-  Alert,
   Button,
-  Divider,
   Modal,
   ModalContent,
   ModalHeader,
@@ -10,6 +8,7 @@ import {
   ModalFooter,
   Card,
   CardBody,
+  Divider,
 } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -31,16 +30,11 @@ import { formWoClear } from "@/stores/features/work-order/wo-slice";
 import { ICustomer } from "@/utils/interfaces/IUser";
 
 interface Props {
-  disable: boolean;
   customerId?: number;
   poNo: string;
 }
 
-export default function ModalProductOrder({
-  disable,
-  customerId,
-  poNo,
-}: Props) {
+export default function ModalProductOrder({ customerId, poNo }: Props) {
   const { data: customers } = useAppSelector((state) => state.customer);
   const { products } = useAppSelector((state) => state.wo);
   const [open, setOpen] = useState(false);
@@ -49,25 +43,19 @@ export default function ModalProductOrder({
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const {
-    control,
-    watch,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { isValid },
-  } = useForm<PaymentForm>({
-    resolver: zodResolver(paymentSchema),
-    mode: "onChange",
-    defaultValues: {
-      discount: 0,
-      isManualDiscount: false,
-      receivedAmount: 0,
-      paymentMethod: "CASH",
-      otherFee: 0,
-      total: 0,
-    },
-  });
+  const { control, watch, handleSubmit, setValue, reset } =
+    useForm<PaymentForm>({
+      resolver: zodResolver(paymentSchema),
+      mode: "onChange",
+      defaultValues: {
+        discount: 0,
+        isManualDiscount: false,
+        receivedAmount: 0,
+        paymentMethod: "CASH",
+        otherFee: 0,
+        total: 0,
+      },
+    });
 
   useEffect(() => {
     setValue("poNo", poNo);
@@ -83,11 +71,12 @@ export default function ModalProductOrder({
     let subTotal = 0;
     let totalDiscount = 0;
     let ppn = 0;
+    const otherFee = watch("otherFee") ?? 0;
 
     for (const prod of products) {
       const price = Number(prod.sell_price ?? 0) * Number(prod.qty ?? 0);
       const sub = price - (prod.disc_value ?? 0);
-      const tax = Number(prod.ppn ?? 0) / 100;
+      const tax = Number(prod.tax ?? 0) / 100;
 
       totalDiscount += prod.disc_value ?? 0;
       subTotal += price;
@@ -97,7 +86,7 @@ export default function ModalProductOrder({
     setValue("discount", totalDiscount);
     setValue("subTotal", subTotal);
     setValue("tax", ppn);
-    const total = subTotal - totalDiscount + ppn;
+    const total = subTotal - totalDiscount + ppn + otherFee;
 
     setValue("total", total);
   }, [products]);
@@ -146,7 +135,13 @@ export default function ModalProductOrder({
 
   return (
     <>
-      <Modal backdrop="blur" isOpen={open} size="lg" onOpenChange={setOpen}>
+      <Modal
+        backdrop="blur"
+        isOpen={open}
+        scrollBehavior="outside"
+        size="lg"
+        onOpenChange={setOpen}
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -157,6 +152,115 @@ export default function ModalProductOrder({
                 </p>
               </ModalHeader>
               <ModalBody className="pb-6">
+                <div className="flex flex-col gap-4">
+                  <div className="flex justify-between items-center px-1">
+                    <p className="text-sm font-semibold text-gray-600">
+                      Sub Total
+                    </p>
+                    <InputNumber
+                      isDisabled
+                      className="w-44"
+                      classNames={{
+                        input: "text-end text-sm",
+                      }}
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={watch("subTotal") as any}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center px-1">
+                    <p className="text-sm font-semibold text-gray-600">Pajak</p>
+                    <InputNumber
+                      isDisabled
+                      className="w-44"
+                      classNames={{
+                        input: "text-end text-sm",
+                      }}
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={watch("tax") as any}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center px-1">
+                    <p className="text-sm font-semibold text-gray-600">
+                      Total Disc
+                    </p>
+                    <Controller
+                      control={control}
+                      name="discount"
+                      render={({ field }) => (
+                        <InputNumber
+                          className="w-44"
+                          classNames={{
+                            input: "text-end text-sm",
+                          }}
+                          maxInput={watch("total") ?? 0}
+                          size="sm"
+                          startContent={<p className="text-xs">Rp</p>}
+                          value={field.value as any}
+                          onInput={(val) => {
+                            field.onChange(val);
+
+                            const subTotal = watch("subTotal") ?? 0;
+                            const ppn = watch("tax") ?? 0;
+                            const otherFee = watch("otherFee") ?? 0;
+                            const total = subTotal - val + ppn + otherFee;
+
+                            setValue("total", total);
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center px-1">
+                    <p className="text-sm font-semibold text-gray-600">
+                      Biaya Lain Lain
+                    </p>
+                    <Controller
+                      control={control}
+                      name="otherFee"
+                      render={({ field }) => (
+                        <InputNumber
+                          className="w-44"
+                          classNames={{
+                            input: "text-end text-sm",
+                          }}
+                          size="sm"
+                          startContent={<p className="text-xs">Rp</p>}
+                          value={field.value as any}
+                          onInput={(val) => {
+                            field.onChange(val);
+
+                            const disc = watch("discount");
+                            const subTotal = watch("subTotal") ?? 0;
+                            const ppn = watch("tax") ?? 0;
+                            const total = subTotal - disc + ppn + val;
+
+                            setValue("total", total);
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center px-1">
+                    <p className="text-sm font-semibold text-gray-600">
+                      Total Tagihan
+                    </p>
+                    <InputNumber
+                      isDisabled
+                      className="w-44"
+                      classNames={{
+                        input: "text-end !text-primary font-bold",
+                      }}
+                      size="sm"
+                      startContent={
+                        <p className="text-sm font-bold text-primary">Rp</p>
+                      }
+                      value={watch("total")?.toString()}
+                    />
+                  </div>
+                </div>
+                <Divider className="my-1" />
                 <Controller
                   control={control}
                   name="paymentMethod"
@@ -257,111 +361,6 @@ export default function ModalProductOrder({
                     </div>
                   )}
                 </div>
-
-                <Divider className="my-4" />
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex justify-between items-center px-1">
-                    <p className="text-sm font-semibold text-gray-600">
-                      Sub Total
-                    </p>
-                    <InputNumber
-                      isDisabled
-                      className="w-44"
-                      classNames={{
-                        input: "text-end text-sm",
-                      }}
-                      size="sm"
-                      startContent={<p className="text-xs">Rp</p>}
-                      value={watch("subTotal") as any}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center px-1">
-                    <p className="text-sm font-semibold text-gray-600">
-                      Total Disc
-                    </p>
-                    <Controller
-                      control={control}
-                      name="discount"
-                      render={({ field }) => (
-                        <InputNumber
-                          className="w-44"
-                          classNames={{
-                            input: "text-end text-sm",
-                          }}
-                          maxInput={watch("total") ?? 0}
-                          size="sm"
-                          startContent={<p className="text-xs">Rp</p>}
-                          value={field.value as any}
-                          onInput={(val) => {
-                            field.onChange(val);
-
-                            const subTotal = watch("subTotal") ?? 0;
-                            const ppn = watch("tax") ?? 0;
-                            const otherFee = watch("otherFee") ?? 0;
-                            const total = subTotal - val + ppn + otherFee;
-
-                            setValue("total", total);
-                          }}
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center px-1">
-                    <p className="text-sm font-semibold text-gray-600">
-                      Biaya Lain Lain
-                    </p>
-                    <Controller
-                      control={control}
-                      name="otherFee"
-                      render={({ field }) => (
-                        <InputNumber
-                          className="w-44"
-                          classNames={{
-                            input: "text-end text-sm",
-                          }}
-                          size="sm"
-                          startContent={<p className="text-xs">Rp</p>}
-                          value={field.value as any}
-                          onInput={(val) => {
-                            field.onChange(val);
-
-                            const disc = watch("discount");
-                            const subTotal = watch("subTotal") ?? 0;
-                            const ppn = watch("tax") ?? 0;
-                            const total = subTotal - disc + ppn + val;
-
-                            setValue("total", total);
-                          }}
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center px-1">
-                    <p className="text-sm font-semibold text-gray-600">
-                      Total Tagihan
-                    </p>
-                    <InputNumber
-                      isDisabled
-                      className="w-44"
-                      classNames={{
-                        input: "text-end !text-primary font-bold",
-                      }}
-                      size="sm"
-                      startContent={
-                        <p className="text-sm font-bold text-primary">Rp</p>
-                      }
-                      value={watch("total")?.toString()}
-                    />
-                  </div>
-
-                  <Alert
-                    color="warning"
-                    description="Pastikan jumlah uang yang diterima sudah sesuai sebelum menyimpan transaksi ini."
-                    title="Perhatian"
-                    variant="flat"
-                  />
-                </div>
               </ModalBody>
               <ModalFooter className="border-t border-gray-100">
                 <Button color="danger" variant="flat" onPress={onClose}>
@@ -370,9 +369,7 @@ export default function ModalProductOrder({
                 <Button
                   className="font-bold"
                   color="primary"
-                  isDisabled={
-                    (selectedMethod === "CASH" && changeAmount < 0) || !isValid
-                  }
+                  isDisabled={selectedMethod === "CASH" && changeAmount < 0}
                   isLoading={loading}
                   startContent={!loading && <CheckCircle2 size={18} />}
                   onPress={() => handleSubmit(onSubmit)()}
@@ -388,7 +385,7 @@ export default function ModalProductOrder({
       <Button
         className="font-bold"
         color="primary"
-        isDisabled={disable}
+        isDisabled={products.length === 0}
         startContent={<Banknote size={20} />}
         variant="shadow"
         onPress={() => setOpen(true)}

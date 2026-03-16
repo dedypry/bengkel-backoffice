@@ -34,18 +34,20 @@ export default function ListProduct() {
                   : "border-transparent bg-content1"
               }`}
               shadow="sm"
-              onPress={() =>
-                dispatch(
-                  setWoProducts({
-                    ...item,
-                    qty: 1,
-                    total_price: Number(item.sell_price),
-                    tax: 0,
-                    disc_percentage: 0,
-                    disc_value: 0,
-                  }),
-                )
-              }
+              onPress={() => {
+                if (item.stock > 0) {
+                  dispatch(
+                    setWoProducts({
+                      ...item,
+                      qty: 1,
+                      total_price: Number(item.sell_price),
+                      tax: 0,
+                      disc_percentage: 0,
+                      disc_value: 0,
+                    }),
+                  );
+                }
+              }}
             >
               <CardBody className="p-4">
                 <div className="flex justify-between items-start gap-2">

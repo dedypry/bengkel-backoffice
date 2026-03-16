@@ -309,7 +309,6 @@ export default function PanelProduct() {
             <div>
               <ModalProductOrder
                 customerId={watch("customer_id")!}
-                disable={products.length === 0}
                 poNo={watch("no_po") || ""}
               />
             </div>

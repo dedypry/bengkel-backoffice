@@ -7,7 +7,7 @@ export const paymentSchema = z.object({
   receivedAmount: z.number().optional(),
   proofImage: z.any().optional(),
   poNo: z.string().optional().nullable(),
-  customerId: z.number().optional().nullable(),
+  customerId: z.any().optional().nullable(),
   total: z.number().optional().nullable(),
   tax: z.number().optional().nullable(),
   subTotal: z.number().optional().nullable(),
