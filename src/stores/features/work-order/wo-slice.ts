@@ -78,6 +78,60 @@ const woSlice = createSlice({
     setWo: (state, action) => {
       state.workOrder = action.payload;
     },
+    updateRowService: (state, action: PayloadAction<IWOItems<IService>>) => {
+      const item = action.payload;
+
+      const index = state.workOrder.services.findIndex((e) => e.id === item.id);
+
+      if (index !== -1) {
+        state.workOrder.services[index] = {
+          ...state.workOrder.services[index],
+          ...item,
+          total_price: (
+            Number(item.price) * Number(item.qty) -
+            Number(item.disc_value || 0)
+          ).toString(),
+        };
+      }
+    },
+    updateRowPart: (state, action: PayloadAction<IWOItems<ISparepart>>) => {
+      const item = action.payload;
+
+      const index = state.workOrder.spareparts?.findIndex(
+        (e) => e.id === item.id,
+      );
+
+      if (index !== undefined && index !== -1 && state.workOrder.spareparts) {
+        state.workOrder.spareparts[index] = {
+          ...state.workOrder.spareparts[index],
+          ...item,
+          total_price: (
+            Number(item.price) * Number(item.qty) -
+            Number(item.disc_value || 0)
+          ).toString(),
+        };
+      }
+    },
+    removeRowPart: (state, action: PayloadAction<IWOItems<ISparepart>>) => {
+      const item = action.payload;
+
+      const parts = state.workOrder.spareparts || [];
+
+      state.workOrder = {
+        ...state.workOrder,
+        spareparts: parts.filter((e) => e.id !== item.id),
+      };
+    },
+    removeRowService: (state, action: PayloadAction<IWOItems<IService>>) => {
+      const item = action.payload;
+
+      const services = state.workOrder.services || [];
+
+      state.workOrder = {
+        ...state.workOrder,
+        services: services.filter((e) => e.id !== item.id),
+      };
+    },
     addWoService: (state, action: PayloadAction<IWo>) => {
       const find = state.services.findIndex((e) => action.payload.id == e.id);
 
@@ -155,6 +209,10 @@ export const {
   setWoProducts,
   removeWoProduct,
   setWoSetting,
+  updateRowService,
+  updateRowPart,
+  removeRowPart,
+  removeRowService,
 } = woSlice.actions;
 
 export default woSlice.reducer;

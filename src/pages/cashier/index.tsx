@@ -15,7 +15,6 @@ export default function CashierPage() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log("MASUK");
     setTimeout(() => {
       dispatch(setSidebar(false));
     }, 500);

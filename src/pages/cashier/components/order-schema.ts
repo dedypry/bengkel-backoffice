@@ -1,18 +1,19 @@
 import z from "zod";
 
 export const paymentSchema = z.object({
-  otherFee: z.number().min(0, "Diskon tidak boleh negatif"),
-  discount: z.number().min(0, "Diskon tidak boleh negatif"),
-  promoCode: z.string().optional(),
-  receivedAmount: z.number().optional(),
-  proofImage: z.any().optional(),
-  poNo: z.string().optional().nullable(),
-  customerId: z.any().optional().nullable(),
+  signature_id: z.number().optional().nullable(),
+  other_fee: z.number().optional().nullable(),
+  disc_percentage: z.number().optional().nullable(),
+  disc_value: z.number().optional().nullable(),
+  po_no: z.string().optional().nullable(),
+  customer_id: z.any().optional().nullable(),
+  notes: z.any().optional().nullable(),
   total: z.number().optional().nullable(),
   tax: z.number().optional().nullable(),
-  subTotal: z.number().optional().nullable(),
-  isManualDiscount: z.boolean().optional(),
-  paymentMethod: z.enum(["CASH", "TRANSFER"]),
+  sub_total: z.number().optional().nullable(),
+  received_amount: z.number().optional().nullable(),
+  proof_image: z.any().optional().nullable(),
+  payment_method: z.enum(["CASH", "TRANSFER"]),
 });
 
-export type PaymentForm = z.infer<typeof paymentSchema>;
+export type PaymentSchema = z.infer<typeof paymentSchema>;

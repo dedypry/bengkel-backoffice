@@ -141,7 +141,7 @@ export default function HistoryPage() {
                   <TableCell>
                     <div className="flex flex-col gap-1">
                       <span className="text-small text-default-700 font-medium">
-                        {item.services.map((e) => e.name).join(", ")}
+                        {item.services.map((e) => e.data.name).join(", ")}
                       </span>
                       <Chip
                         className="h-5 text-[10px] font-bold uppercase"

@@ -19,6 +19,7 @@ export interface IOrder {
   subtotal?: number;
   tax?: number;
   discount?: number;
+  notes?: string;
 }
 
 export interface IOrderItem {

@@ -1,35 +1,47 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import dayjs from "dayjs";
 import {
-  Alert,
-  Button,
-  Spinner,
-  Divider,
   Card,
   CardHeader,
   CardBody,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Tooltip,
   CardFooter,
+  Input,
+  Chip,
+  Button,
+  Spinner,
+  Alert,
+  Divider,
 } from "@heroui/react";
-import { Car, Eye, Printer, Receipt, Send, User } from "lucide-react";
+import { Eye, Printer, Receipt, Trash2 } from "lucide-react";
+import dayjs from "dayjs";
 
-import PaymentMethod from "./payment-method";
-import { paymentSchema, type PaymentForm } from "./order-schema";
+import { PaymentSchema, paymentSchema } from "./order-schema";
 import { BillingSkeleton } from "./billing-skeleton";
+import ModalProductOrder from "./modal-product-order";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { uploadFile } from "@/utils/helpers/upload-file";
 import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
-import { handleDownload } from "@/utils/helpers/global";
 import InputNumber from "@/components/input-number";
 import { formatIDR } from "@/utils/helpers/format";
-import FileUploader from "@/components/drop-zone";
+import {
+  removeRowPart,
+  removeRowService,
+  updateRowPart,
+  updateRowService,
+} from "@/stores/features/work-order/wo-slice";
+import { handleDownload } from "@/utils/helpers/global";
 
 export default function PanelCustomer() {
   const { workOrder, isLoadingDetail } = useAppSelector((state) => state.wo);
@@ -37,46 +49,107 @@ export default function PanelCustomer() {
   const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const isDisable = workOrder?.status === "closed";
 
-  const {
-    control,
-    watch,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { isValid },
-  } = useForm<PaymentForm>({
-    resolver: zodResolver(paymentSchema),
-    mode: "onChange",
-    defaultValues: {
-      discount: 0,
-      isManualDiscount: false,
-      receivedAmount: 0,
-      paymentMethod: "CASH",
-    },
-  });
+  const { control, watch, handleSubmit, setValue, reset } =
+    useForm<PaymentSchema>({
+      resolver: zodResolver(paymentSchema),
+      mode: "onChange",
+      defaultValues: {
+        payment_method: "CASH",
+        other_fee: 0,
+        disc_percentage: 0,
+        disc_value: 0,
+        tax: 0,
+        total: 0,
+      },
+    });
 
-  const grandTotal =
-    Number(workOrder.grand_total || 0) - Number(watch("discount") || 0);
+  useEffect(() => {
+    if (workOrder) {
+      const sparepart = workOrder.spareparts || [];
+      const services = workOrder.services || [];
+      const data = [...sparepart, ...services];
 
-  const selectedMethod = watch("paymentMethod");
-  const changeAmount = (watch("receivedAmount") || 0) - grandTotal;
+      const rawSubTotal = data.reduce((acc, item) => {
+        const price = Number(item.price ?? 0);
+        const qty = Number(item.qty ?? 0);
+        const disc = Number(item.disc_value ?? 0);
 
-  async function onSubmit(data: PaymentForm) {
+        return acc + price * qty - disc;
+      }, 0);
+
+      const discFinalNominal = Number(watch("disc_value") ?? 0);
+      const otherFee = Number(watch("other_fee") ?? 0);
+
+      const discRatio = rawSubTotal > 0 ? discFinalNominal / rawSubTotal : 0;
+
+      let totalTax = 0;
+
+      data.forEach((item) => {
+        const qty = Number(item.qty ?? 0);
+        const price = Number(item.price ?? 0);
+        const disc = Number(item.disc_value ?? 0);
+        const itemAmount = price * qty - disc;
+
+        const taxRate = Number(item.tax_percentage ?? 0) / 100;
+
+        if (taxRate > 0) {
+          const itemAllocatedDisc = itemAmount * discRatio;
+          const itemNetForTax = itemAmount - itemAllocatedDisc;
+
+          totalTax += itemNetForTax * taxRate;
+        }
+      });
+
+      const grandTotal = rawSubTotal - discFinalNominal + totalTax + otherFee;
+
+      setValue("sub_total", rawSubTotal);
+      setValue("tax", Math.round(totalTax));
+      setValue("total", Math.round(grandTotal));
+      setValue("customer_id", workOrder.customer_id);
+    }
+  }, [workOrder, watch("disc_value"), watch("other_fee")]);
+
+  async function onSubmit(data: PaymentSchema) {
     setLoading(true);
     const payload = {
       woId: workOrder.id,
       ...data,
+      product: [
+        ...workOrder.services.map((item) => ({
+          id: item.id,
+          product_id: item.data.id,
+          price: Number(item.price),
+          qty: Number(item.qty),
+          total_price: Number(item.total_price),
+          tax: Number(item.tax_percentage),
+          disc_percentage: Number(item.disc_percentage),
+          disc_value: Number(item.disc_value),
+          type: "service",
+        })),
+        ...(workOrder.spareparts || []).map((item) => ({
+          id: item.id,
+          product_id: item.data.id,
+          price: Number(item.price),
+          qty: Number(item.qty),
+          total_price: Number(item.total_price),
+          tax: Number(item.tax_percentage),
+          disc_percentage: Number(item.disc_percentage),
+          disc_value: Number(item.disc_value),
+          type: "sparepart",
+        })),
+      ],
     };
 
-    if (data.proofImage && data.proofImage.length > 0) {
-      if (data.proofImage[0] instanceof File) {
-        const photo = await uploadFile(data.proofImage[0]);
+    if (data.proof_image && data.proof_image.length > 0) {
+      if (data.proof_image[0] instanceof File) {
+        const photo = await uploadFile(data.proof_image[0]);
 
-        setValue("proofImage", [photo]);
-        payload.proofImage = photo;
+        setValue("proof_image", [photo]);
+        payload.proof_image = photo;
       } else {
-        payload.proofImage = data.proofImage[0];
+        payload.proof_image = data.proof_image[0];
       }
     }
 
@@ -92,330 +165,567 @@ export default function PanelCustomer() {
       .finally(() => setLoading(false));
   }
 
-  function handleSendMail(id: number) {
-    http
-      .post(`/invoices/${id}/send`)
-      .then(({ data }) => {
-        notify(data.message);
-      })
-      .catch((err) => notifyError(err));
-  }
+  // function handleSendMail(id: number) {
+  //   http
+  //     .post(`/invoices/${id}/send`)
+  //     .then(({ data }) => {
+  //       notify(data.message);
+  //     })
+  //     .catch((err) => notifyError(err));
+  // }
 
   if (isLoadingDetail) return <BillingSkeleton />;
 
   return (
     <div className="w-full md:w-2/3 overflow-y-auto scrollbar-modern">
       {workOrder?.id ? (
-        <Card className="h-full">
-          <CardHeader>
-            <div className="flex justify-between items-center w-full border-b border-gray-500 pb-5">
-              <div>
-                <h3 className="mb-1 font-bold">Rincian Tagihan</h3>
-                <p
-                  className={
-                    workOrder.status === "closed"
-                      ? "text-success-600 font-medium text-xs"
-                      : "text-slate-500 text-xs"
-                  }
-                >
-                  {workOrder.status === "closed"
-                    ? `Transaksi #${workOrder.trx_no} telah berhasil diselesaikan`
-                    : `Selesaikan transaksi untuk #${workOrder.trx_no}`}
-                </p>
-                <p className="italic text-xs text-gray-500">
-                  Dibuat tanggal :{" "}
-                  {dayjs(workOrder.created_at).format(
-                    "DD MMM YYYY | HH:mm WIB",
-                  )}
-                </p>
-              </div>
+        <Card className="min-h-full h-full">
+          <CardHeader className="w-full flex justify-between">
+            <p className="text-sm font-bold">
+              Rincian Tagihan TRX NO. {workOrder.trx_no}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                className="text-white font-semibold uppercase"
+                color="success"
+                size="sm"
+                startContent={<Eye size={18} />}
+                onPress={() => navigate(`/service/queue/${workOrder.id}`)}
+              >
+                Detail
+              </Button>
+              <Button
+                isIconOnly
+                disabled={printLoading}
+                size="sm"
+                variant="bordered"
+                onPress={() =>
+                  handleDownload(
+                    `/invoices/${workOrder.id}`,
+                    workOrder.trx_no,
+                    true,
+                    setPrintLoading,
+                  )
+                }
+              >
+                {printLoading ? <Spinner /> : <Printer className="size-5" />}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardBody className="gap-2 flex flex-col overflow-y-auto scrollbar-modern">
+            <Table removeWrapper>
+              <TableHeader>
+                <TableColumn>Deskripsi Jasa</TableColumn>
+                <TableColumn className="text-center">Harga Jual</TableColumn>
+                <TableColumn className="text-center">Disc %</TableColumn>
+                <TableColumn className="text-center">Nilai Disc</TableColumn>
+                <TableColumn className="text-center">Jumlah</TableColumn>
+                <TableColumn className="text-center">Pjk %</TableColumn>
+                <TableColumn> </TableColumn>
+              </TableHeader>
+              <TableBody>
+                {workOrder.services.map((item, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="max-w-[150px]  truncate whitespace-nowrap">
+                      <Tooltip color="primary" content={item.data.name}>
+                        <p className="text-xs">{item.data.name}</p>
+                      </Tooltip>
+                      <p className="text-[10px]">
+                        {item.data.code}{" "}
+                        <span>
+                          / {item.data.estimated_duration}{" "}
+                          {item.data.estimated_type}{" "}
+                        </span>{" "}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-24"
+                        classNames={{
+                          input: "text-end text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        startContent={<p className="text-xs">Rp</p>}
+                        value={Number(item.price) as any}
+                        onInput={(price) => {
+                          dispatch(
+                            updateRowService({
+                              ...item,
+                              price: String(price),
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-10"
+                        classNames={{
+                          input: "text-center text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        value={Number(item.disc_percentage) as any}
+                        onInput={(disc_percentage) => {
+                          const price =
+                            Number(item.price ?? 0) * Number(item.qty ?? 0);
+                          const calculatedDiscValue = (
+                            (disc_percentage / 100) *
+                            price
+                          ).toFixed(2);
 
-              <div className="flex flex-col gap-1">
-                <div className="flex gap-2 items-center">
-                  <Button
-                    className="text-white font-semibold uppercase"
-                    color="success"
-                    size="sm"
-                    startContent={<Eye size={18} />}
-                    onPress={() => navigate(`/service/queue/${workOrder.id}`)}
-                  >
-                    Detail
-                  </Button>
+                          dispatch(
+                            updateRowService({
+                              ...item,
+                              disc_percentage: disc_percentage,
+                              disc_value: Number(calculatedDiscValue),
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-24"
+                        classNames={{
+                          input: "text-end text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        startContent={<p className="text-xs">Rp</p>}
+                        value={Number(item.disc_value) as any}
+                        onInput={(dic_value) => {
+                          const price =
+                            Number(item.price ?? 0) * Number(item.qty ?? 0);
+                          let calculatedPercentage = 0;
 
-                  <Button
-                    isIconOnly
-                    disabled={printLoading}
-                    size="sm"
-                    variant="bordered"
-                    onPress={() =>
-                      handleDownload(
-                        `/invoices/${workOrder.id}`,
-                        workOrder.trx_no,
-                        true,
-                        setPrintLoading,
-                      )
-                    }
-                  >
-                    {printLoading ? (
-                      <Spinner />
-                    ) : (
-                      <Printer className="size-5" />
-                    )}
-                  </Button>
+                          if (price > 0) {
+                            calculatedPercentage = (dic_value / price) * 100;
+                          }
+                          dispatch(
+                            updateRowService({
+                              ...item,
+                              disc_percentage: Number(
+                                calculatedPercentage.toFixed(2),
+                              ),
+                              disc_value: dic_value,
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        isDisabled
+                        className="w-24"
+                        classNames={{
+                          input: "text-end text-[11px]",
+                        }}
+                        size="sm"
+                        startContent={<p className="text-xs">Rp</p>}
+                        value={Number(item.total_price) as any}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-10"
+                        classNames={{
+                          input: "text-center text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        value={Number(item.tax_percentage) as any}
+                        onInput={(tax_percentage) => {
+                          dispatch(
+                            updateRowService({
+                              ...item,
+                              tax_percentage,
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {!isDisable && (
+                        <Trash2
+                          className="cursor-pointer hover:text-danger"
+                          size={15}
+                          onClick={() => dispatch(removeRowService(item))}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <Table removeWrapper className="mt-1">
+              <TableHeader>
+                <TableColumn>Deskripsi Part</TableColumn>
+                <TableColumn className="text-center">Harga Jual</TableColumn>
+                <TableColumn className="text-center">Qty</TableColumn>
+                <TableColumn className="text-center">Disc %</TableColumn>
+                <TableColumn className="text-center">Nilai Disc</TableColumn>
+                <TableColumn className="text-center">Jumlah</TableColumn>
+                <TableColumn className="text-center">Pjk %</TableColumn>
+                <TableColumn> </TableColumn>
+              </TableHeader>
+              <TableBody>
+                {(workOrder.spareparts || []).map((item, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="max-w-[150px] truncate whitespace-nowrap">
+                      <Tooltip color="primary" content={item.data.name}>
+                        <p className="text-xs">{item.data.name}</p>
+                      </Tooltip>
+                      <p className="text-[10px]">{item.data.code} </p>
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-24"
+                        classNames={{
+                          input: "text-end text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        startContent={<p className="text-xs">Rp</p>}
+                        value={Number(item.price) as any}
+                        onInput={(price) => {
+                          dispatch(
+                            updateRowPart({
+                              ...item,
+                              price: String(price),
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-10"
+                        classNames={{
+                          input: "text-center text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        value={Number(item.qty) as any}
+                        onInput={(qty) => {
+                          dispatch(
+                            updateRowPart({
+                              ...item,
+                              qty,
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-10"
+                        classNames={{
+                          input: "text-center text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        value={Number(item.disc_percentage) as any}
+                        onInput={(disc_percentage) => {
+                          const price =
+                            Number(item.price ?? 0) * Number(item.qty ?? 0);
+                          const calculatedDiscValue = (
+                            (disc_percentage / 100) *
+                            price
+                          ).toFixed(2);
+
+                          dispatch(
+                            updateRowPart({
+                              ...item,
+                              disc_percentage: disc_percentage,
+                              disc_value: Number(calculatedDiscValue),
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-24"
+                        classNames={{
+                          input: "text-end text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        startContent={<p className="text-xs">Rp</p>}
+                        value={Number(item.disc_value) as any}
+                        onInput={(dic_value) => {
+                          const price =
+                            Number(item.price ?? 0) * Number(item.qty ?? 0);
+                          let calculatedPercentage = 0;
+
+                          if (price > 0) {
+                            calculatedPercentage = (dic_value / price) * 100;
+                          }
+
+                          dispatch(
+                            updateRowPart({
+                              ...item,
+                              disc_percentage: Number(
+                                calculatedPercentage.toFixed(2),
+                              ),
+                              disc_value: dic_value,
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        isDisabled
+                        className="w-24"
+                        classNames={{
+                          input: "text-end text-[11px]",
+                        }}
+                        size="sm"
+                        startContent={<p className="text-xs">Rp</p>}
+                        value={Number(item.total_price) as any}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <InputNumber
+                        className="w-10"
+                        classNames={{
+                          input: "text-center text-[11px]",
+                        }}
+                        isDisabled={isDisable}
+                        size="sm"
+                        value={Number(item.tax_percentage) as any}
+                        onInput={(tax_percentage) => {
+                          dispatch(
+                            updateRowPart({
+                              ...item,
+                              tax_percentage,
+                            }),
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {!isDisable && (
+                        <Trash2
+                          className="cursor-pointer hover:text-danger"
+                          size={15}
+                          onClick={() => dispatch(removeRowPart(item))}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardBody>
+          <Divider />
+          <CardFooter className="px-5 flex flex-col pb-10">
+            <div className="grid grid-cols-3 w-full gap-3">
+              <div className="col-span-2 space-y-1">
+                <Input
+                  isDisabled
+                  classNames={{
+                    label: "w-24",
+                    mainWrapper: "w-1/2",
+                  }}
+                  label="Pelanggan"
+                  labelPlacement="outside-left"
+                  placeholder="#Order Customer"
+                  size="sm"
+                  value={workOrder.customer.name}
+                />
+                <div className="flex items-center">
+                  <p className="w-24 text-xs pl-2">Mekanik</p>
+                  <div className="flex flex-wrap gap-1">
+                    {(workOrder.mechanics || []).map((item) => (
+                      <Chip key={item.id} size="sm" variant="bordered">
+                        {item.name}
+                      </Chip>
+                    ))}
+                  </div>
                 </div>
-                {workOrder.customer?.email && (
-                  <Button
-                    className="text-white font-semibold uppercase"
-                    color="warning"
+
+                {isDisable && (
+                  <Alert className="mb-2 mt-5" color="success" variant="faded">
+                    <div className="w-full">
+                      <p className="font-semibold text-sm">
+                        Pembayaran Berhasil #{workOrder.payment?.reference_no}
+                      </p>
+
+                      <Divider className="my-1 opacity-50" />
+
+                      <div className="grid grid-cols-2 gap-y-1 mt-2">
+                        <p className="font-bold text-xs">Metode:</p>
+                        <p className="text-xs text-right">
+                          {workOrder.payment.method || "CASH"}
+                        </p>
+
+                        <p className="font-bold text-xs">Waktu:</p>
+                        <p className="text-xs text-right">
+                          {dayjs(
+                            workOrder.payment.payment_date ||
+                              workOrder.updated_at,
+                          ).format("DD MMM YY | HH:mm")}
+                        </p>
+                      </div>
+                    </div>
+                  </Alert>
+                )}
+
+                {workOrder.next_sugestion && (
+                  <div className="flex items-center">
+                    <p className="w-24 text-xs pl-2">Catatan</p>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: workOrder.next_sugestion,
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col  gap-1">
+                <InputNumber
+                  isDisabled
+                  classNames={{
+                    input: "text-xs text-right",
+                    label: "w-20",
+                    mainWrapper: "w-full",
+                  }}
+                  label="Sub Total"
+                  labelPlacement="outside-left"
+                  size="sm"
+                  startContent={<p className="text-xs">Rp</p>}
+                  value={watch("sub_total") as any}
+                />
+
+                <div className="flex gap-1">
+                  <Controller
+                    control={control}
+                    name="disc_percentage"
+                    render={({ field }) => (
+                      <InputNumber
+                        classNames={{
+                          input: "text-[11px] text-center w-8",
+                          label: "w-20",
+                        }}
+                        endContent={<p className="text-[11px]">%</p>}
+                        isDisabled={isDisable}
+                        label="Disc Final"
+                        labelPlacement="outside-left"
+                        maxInput={100}
+                        size="sm"
+                        value={field.value as any}
+                        onInput={(val) => {
+                          field.onChange(val);
+                          const subTotal = watch("sub_total") ?? 0;
+                          const nominal = (val / 100) * subTotal;
+
+                          setValue("disc_value", nominal);
+                        }}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="disc_value"
+                    render={({ field }) => (
+                      <InputNumber
+                        classNames={{
+                          input: "text-[11px] text-right",
+                          label: "w-20",
+                        }}
+                        isDisabled={isDisable}
+                        maxInput={watch("total") ?? 0}
+                        size="sm"
+                        startContent={<p className="text-[11px]">Rp</p>}
+                        value={field.value as any}
+                        onInput={(val) => {
+                          field.onChange(val);
+                          const subTotal = watch("sub_total") ?? 0;
+
+                          console.log(val);
+
+                          const percent = (val / subTotal) * 100;
+
+                          setValue(
+                            "disc_percentage",
+                            Number(percent.toFixed(2)),
+                          );
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+                <InputNumber
+                  isDisabled
+                  classNames={{
+                    input: "text-xs text-right",
+                    label: "w-20",
+                    mainWrapper: "w-full",
+                  }}
+                  label="Pajak"
+                  labelPlacement="outside-left"
+                  size="sm"
+                  startContent={<p className="text-xs">Rp</p>}
+                  value={watch("tax") as any}
+                />
+                <Controller
+                  control={control}
+                  name="other_fee"
+                  render={({ field }) => (
+                    <InputNumber
+                      classNames={{
+                        input: "text-xs text-right",
+                        label: "w-20",
+                        mainWrapper: "w-full",
+                      }}
+                      isDisabled={isDisable}
+                      label="Biaya Lain"
+                      labelPlacement="outside-left"
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={field.value as any}
+                      onInput={field.onChange}
+                    />
+                  )}
+                />
+                {isDisable && (
+                  <InputNumber
+                    classNames={{
+                      input: "text-sm !font-bold text-right",
+                      label: "w-20 text-sm",
+                      mainWrapper: "w-full",
+                    }}
+                    isDisabled={isDisable}
+                    label="Total"
+                    labelPlacement="outside-left"
                     size="sm"
-                    startContent={<Send size={18} />}
-                    onPress={() => handleSendMail(workOrder.id)}
-                  >
-                    Kirim Invoice
-                  </Button>
+                    startContent={<p className="text-xs">Rp</p>}
+                    value={watch("total") as any}
+                  />
                 )}
               </div>
             </div>
-          </CardHeader>
-
-          <CardBody className="flex-1 flex flex-col gap-3">
-            {/* Info Pelanggan */}
-            <div className="grid grid-cols-2 gap-4 p-2 rounded-sm bg-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-full shadow-sm">
-                  <User className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 italic">Pelanggan</p>
-                  <p className="font-semibold text-sm uppercase">
-                    {workOrder.customer.name}
-                    {workOrder?.customer?.profile?.birth_date && (
-                      <span className="font-normal text-xs italic">
-                        {" - "}
-                        {dayjs(workOrder?.customer?.profile?.birth_date).format(
-                          "DD MMM YY",
-                        )}
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs italic">
-                    {workOrder.customer.profile?.phone_number}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-full shadow-sm">
-                  <Car className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 italic">Kendaraan</p>
-                  <p className="font-semibold text-sm">
-                    {workOrder.vehicle.plate_number} - {workOrder.vehicle.brand}{" "}
-                    {workOrder.vehicle.model}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Ringkasan Biaya & Diskon */}
-            <div className="space-y-3 border-t pt-5">
-              <div className="flex justify-between text-gray-600 text-sm">
-                <span>Subtotal Jasa & Part</span>
-                <span className="font-semibold">
-                  {formatIDR(Number(workOrder.sub_total))}
-                </span>
-              </div>
-
-              {workOrder.promo_data?.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between text-red-500 text-sm italic"
-                >
-                  <span>
-                    {item.name}{" "}
-                    {item.type === "percentage"
-                      ? `(${item.value} %) ${item.max_discount ? `MAX : ${formatIDR(Number(item.max_discount))}` : ""}`
-                      : "Fixed"}{" "}
-                  </span>
-                  <span>-{formatIDR(Number(item.price))}</span>
-                </div>
-              ))}
-
-              <div className="flex justify-between text-slate-600 text-sm">
-                <span>Pajak ({Number(workOrder.ppn_percent || 0)}%)</span>
-                <span>{formatIDR(Number(workOrder.ppn_amount || 0))}</span>
-              </div>
-
-              {/* TOTAL AKHIR */}
-              <div className="flex justify-between items-center pt-4 mt-2 border-t-2 border-dashed">
-                <div className="flex flex-col">
-                  <span className="font-bold block text-slate-600">
-                    Total Tagihan
-                  </span>
-                  <span className="text-[10px] text-slate-400 italic">
-                    *Sudah termasuk PPN jika berlaku
-                  </span>
-                </div>
-                <span className="font-black text-primary">
-                  {formatIDR(Number(grandTotal))}
-                </span>
-              </div>
-            </div>
-
-            {workOrder.status !== "closed" ? (
-              <>
-                <Controller
+            {!isDisable && (
+              <div className="w-full flex justify-between mt-2 items-center">
+                <p className="text-md font-bold">
+                  Total : {formatIDR(watch("total"))}
+                </p>
+                <ModalProductOrder
                   control={control}
-                  name="paymentMethod"
-                  render={({ field }) => (
-                    <div className="mt-auto pt-2">
-                      <p className="font-bold mb-3 text-slate-600">
-                        Metode Pembayaran
-                      </p>
-                      <PaymentMethod
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </div>
-                  )}
+                  isDisable={!workOrder}
+                  loading={loading}
+                  setValue={setValue}
+                  watch={watch}
+                  onSubmit={handleSubmit(onSubmit)}
                 />
-
-                <div className="mt-4 animate-in fade-in duration-500">
-                  {selectedMethod === "CASH" ? (
-                    <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                      <Controller
-                        control={control}
-                        name="receivedAmount"
-                        render={({ field }) => (
-                          <div>
-                            <label className="text-xs font-bold">
-                              Uang Diterima
-                            </label>
-                            <InputNumber
-                              endContent={
-                                <Button
-                                  size="sm"
-                                  onPress={() => {
-                                    setValue("receivedAmount", grandTotal);
-                                  }}
-                                >
-                                  Penuh
-                                </Button>
-                              }
-                              placeholder="0"
-                              startContent="Rp"
-                              value={field.value as any}
-                              onInput={field.onChange}
-                            />
-                          </div>
-                        )}
-                      />
-                      <div>
-                        <label className="text-xs font-bold">Kembalian</label>
-                        <div
-                          className={`h-10 flex items-center px-3 rounded-md border ${changeAmount >= 0 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
-                        >
-                          <p
-                            className={
-                              changeAmount >= 0 ? "text-success" : "text-danger"
-                            }
-                          >
-                            {changeAmount >= 0
-                              ? `Rp ${changeAmount.toLocaleString()}`
-                              : "Kurang Bayar"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <Controller
-                      control={control}
-                      name="proofImage"
-                      render={({ field }) => (
-                        <div>
-                          <label className="text-xs font-bold">
-                            Uang Diterima
-                          </label>
-                          <FileUploader
-                            maxFiles={1}
-                            value={field.value}
-                            onFileSelect={field.onChange}
-                          />
-                        </div>
-                      )}
-                    />
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="pt-10">
-                <Alert className="mb-2 mt-auto" color="success" variant="faded">
-                  <div className="w-full">
-                    <p className="font-semibold text-lg">Pembayaran Berhasil</p>
-
-                    <p className="text-sm mt-1 mb-3">
-                      Transaksi telah selesai. Unit sudah bisa diserahkan
-                      kembali kepada pelanggan.
-                    </p>
-
-                    <Divider className="my-1 opacity-50" />
-
-                    <div className="grid grid-cols-2 gap-y-1 mt-2">
-                      <p className="font-bold text-xs">Metode:</p>
-                      <p className="text-xs text-right">
-                        {workOrder.payment.method || "CASH"}
-                      </p>
-
-                      <p className="font-bold text-xs">Waktu:</p>
-                      <p className="text-xs text-right">
-                        {dayjs(
-                          workOrder.payment.payment_date ||
-                            workOrder.updated_at,
-                        ).format("DD MMM YY | HH:mm")}
-                      </p>
-
-                      {workOrder.payment.reference_no && (
-                        <>
-                          <p className="font-bold text-xs">Ref No:</p>
-                          <p className="text-xs text-right">
-                            {workOrder.payment.reference_no}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </Alert>
-                {workOrder?.payment?.method === "TRANSFER" &&
-                  workOrder?.payment?.proof_image && (
-                    <img
-                      alt="photo-transfer"
-                      className="max-w-xs"
-                      src={workOrder?.payment?.proof_image}
-                    />
-                  )}
               </div>
             )}
-          </CardBody>
-          {workOrder.status !== "closed" && (
-            <CardFooter>
-              <Button
-                fullWidth
-                className="z-50"
-                color="primary"
-                isDisabled={
-                  !isValid ||
-                  loading ||
-                  (selectedMethod === "CASH" && changeAmount < 0)
-                }
-                isLoading={loading}
-                onPress={() => handleSubmit(onSubmit)()}
-              >
-                {loading
-                  ? "Pembayaran sedang di proses"
-                  : "Konfirmasi Pembayaran"}
-              </Button>
-            </CardFooter>
-          )}
+          </CardFooter>
         </Card>
       ) : (
         <Card className="h-full flex flex-col items-center justify-center text-gray-500 border border-dashed rounded-xl">

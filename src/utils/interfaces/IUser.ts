@@ -3,6 +3,8 @@ import type { IProduct } from "./IProduct";
 import type { IPromo } from "./IPromo";
 import type { IRole } from "./IRole";
 
+import { IService } from "./IService";
+
 export interface IAddress {
   id: number;
   created_at: string;
@@ -206,17 +208,13 @@ export interface IWorkOrder {
   mechanics?: IUser[];
   pic?: IUser;
   sa?: IUser;
-  spareparts?: IProduct[];
+  spareparts?: IWOItems<IProduct>[];
   start_at?: string;
   end_at?: string;
   promo_data?: IPromo[];
   promo_amount?: number;
   payment: IPayment;
-  services: {
-    type: string;
-    name: string;
-    estimated: string;
-  }[];
+  services: IWOItems<IService>[];
   complaints: string;
   next_sugestion: string;
   company?: ICompany;

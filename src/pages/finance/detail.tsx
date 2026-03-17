@@ -24,6 +24,7 @@ import {
   ChevronRight,
   CreditCard,
   Home,
+  NotebookPen,
   Printer,
   Receipt,
   User,
@@ -116,9 +117,9 @@ export default function PaymentDetailPage() {
         title="Detail Pembayaran"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
         {/* 2. LEFT: TRANSACTION INFO */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-2">
           <Card>
             <CardBody className="p-8 space-y-6">
               <div className="flex items-center gap-3 text-gray-500">
@@ -146,7 +147,7 @@ export default function PaymentDetailPage() {
 
           <Card>
             <CardBody className="p-6">
-              <div className="flex items-center gap-3 text-gray-500 mb-6">
+              <div className="flex items-center gap-3 text-gray-500 mb-2">
                 <User size={18} />
                 <span className="text-xs font-black uppercase ">
                   Cashier In Charge
@@ -160,10 +161,21 @@ export default function PaymentDetailPage() {
               </p>
             </CardBody>
           </Card>
+          <Card>
+            <CardBody className="p-6">
+              <div className="flex items-center gap-3 text-gray-500 mb-2">
+                <NotebookPen size={18} />
+                <span className="text-xs font-black uppercase ">Catatan</span>
+              </div>
+              <p className="text-xs italic  text-gray-500">
+                {data?.order?.notes || "-"}
+              </p>
+            </CardBody>
+          </Card>
         </div>
 
         {/* 3. RIGHT: ORDER DETAILS */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-2">
           <Table aria-label="Order Items">
             <TableHeader>
               <TableColumn>ITEM DESCRIPTION</TableColumn>
@@ -220,7 +232,7 @@ export default function PaymentDetailPage() {
                 />
                 <SummaryRow
                   isNegative
-                  label="Total Diskon"
+                  label="Diskon Final"
                   value={formatIDR(data?.order?.discount)}
                 />
                 <SummaryRow

@@ -102,10 +102,10 @@ export default function HistoryTab({ id, isNoDate }: Props) {
                 <div className="flex flex-col gap-1">
                   <Tooltip
                     color="primary"
-                    content={item.services.map((e) => e.name).join(", ")}
+                    content={item.services.map((e) => e.data.name).join(", ")}
                   >
                     <span className="text-[11px] text-default-700 block truncate max-w-[200px]">
-                      {item.services.map((e) => e.name).join(", ")}
+                      {item.services.map((e) => e.data.name).join(", ")}
                     </span>
                   </Tooltip>
                   {/* <span className="text-[11px] text-default-700 block truncate">
