@@ -39,7 +39,7 @@ export const PurchaseVendorSchema = z.object({
 
   subTotal: z.number().nonnegative(),
   finalDiscValue: z.number().nonnegative(),
-  finalDiscPercentage: z.number().nonnegative(),
+  finalDiscPercentage: z.number().nonnegative().optional().nullable(),
   tax: z.number().min(0),
   otherFees: z.number().nonnegative(),
   total: z.number().nonnegative(),

@@ -17,7 +17,6 @@ import {
   Input,
   Chip,
   Button,
-  Spinner,
   Alert,
   Divider,
 } from "@heroui/react";
@@ -201,7 +200,7 @@ export default function PanelCustomer() {
               </Button>
               <Button
                 isIconOnly
-                disabled={printLoading}
+                isLoading={printLoading}
                 size="sm"
                 variant="bordered"
                 onPress={() =>
@@ -213,7 +212,7 @@ export default function PanelCustomer() {
                   )
                 }
               >
-                {printLoading ? <Spinner /> : <Printer className="size-5" />}
+                <Printer className="size-5" />
               </Button>
             </div>
           </CardHeader>

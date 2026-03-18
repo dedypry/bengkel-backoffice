@@ -51,7 +51,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),

@@ -117,25 +117,18 @@ export default function ServiceAddPage() {
     }
   }, [company]);
 
-  const {
-    control,
-    setValue,
-    watch,
-    reset,
-    clearErrors,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(ServiceRegistrationSchema),
-    mode: "onChange",
-    defaultValues: {
-      priority: "normal",
-      customer: {
-        birth_date: "",
+  const { control, setValue, watch, reset, clearErrors, handleSubmit } =
+    useForm({
+      resolver: zodResolver(ServiceRegistrationSchema),
+      mode: "onChange",
+      defaultValues: {
+        priority: "normal",
+        customer: {
+          birth_date: "",
+        },
+        mechanic_ids: [],
       },
-      mechanic_ids: [],
-    },
-  });
+    });
 
   useEffect(() => {
     setValue("pic_id", Number(settings.default_pic_id) ?? undefined);

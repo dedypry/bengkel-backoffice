@@ -67,6 +67,7 @@ export default function DetailTrx({
   const { list } = useAppSelector((state) => state.employe);
   const [selectAll, setSelectAll] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [prindLoading, setPrintLoading] = useState(false);
   const [isIndeterminate, setIsIndeterminate] = useState(false);
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
@@ -86,6 +87,7 @@ export default function DetailTrx({
         otherFees: 0,
         purchaseNo: "",
         notes: "",
+        finalDiscPercentage: 0,
       },
     });
 
@@ -279,6 +281,7 @@ export default function DetailTrx({
                   <div className="flex gap-1 mr-10">
                     <Button
                       isIconOnly
+                      isLoading={prindLoading}
                       size="sm"
                       variant="light"
                       onPress={() =>
@@ -286,6 +289,7 @@ export default function DetailTrx({
                           `/vendor-transaction/payment/download/${trxDetail.id}`,
                           trxDetail.purchase_no,
                           true,
+                          setPrintLoading,
                         )
                       }
                     >
@@ -719,76 +723,78 @@ export default function DetailTrx({
                 {/* FOOTER SECTION */}
                 <div className="grid grid-cols-12 mt-6 gap-20">
                   <div className="col-span-8 flex flex-col gap-3">
-                    <div className="flex flex-col gap-1 mb-5">
-                      <p className="text-xs font-semibold text-gray-500 uppercase">
-                        Catatan :
-                      </p>
-                      <Controller
-                        control={control}
-                        name="notes"
-                        render={({ field }) => (
-                          <Textarea
-                            isDisabled={isViewOnly}
-                            minRows={6}
-                            placeholder="Tuliskan catatan disini..."
-                            value={field.value || ""}
-                            onValueChange={field.onChange}
-                          />
-                        )}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Controller
-                        control={control}
-                        name="signatureId"
-                        render={({ field, fieldState }) => (
-                          <Autocomplete
-                            defaultItems={list?.data || []}
-                            errorMessage={fieldState.error?.message}
-                            isDisabled={isViewOnly}
-                            isInvalid={!!fieldState.error}
-                            label="Signature"
-                            labelPlacement="outside-left"
-                            listboxProps={{
-                              emptyContent:
-                                "User tidak ditemukan, tekan Enter untuk tambah baru.",
-                            }}
-                            placeholder="Pilih User"
-                            selectedKey={field.value?.toString()}
-                            onSelectionChange={(val) =>
-                              field.onChange(Number(val))
-                            }
-                          >
-                            {(item) => (
-                              <AutocompleteItem
-                                key={item.id}
-                                textValue={item.name}
-                              >
-                                <div className="flex gap-3 items-center">
-                                  <Avatar
-                                    alt={item.name}
-                                    size="sm"
-                                    src={
-                                      item.profile?.photo_url ||
-                                      getAvatarByName(item.name)
-                                    }
-                                  />
+                    <Controller
+                      control={control}
+                      name="signatureId"
+                      render={({ field, fieldState }) => (
+                        <Autocomplete
+                          defaultItems={list?.data || []}
+                          errorMessage={fieldState.error?.message}
+                          inputProps={{
+                            label: "Signature",
+                            labelPlacement: "outside-left",
+                            classNames: {
+                              label: "w-20",
+                            },
+                          }}
+                          isDisabled={isViewOnly}
+                          isInvalid={!!fieldState.error}
+                          listboxProps={{
+                            emptyContent:
+                              "User tidak ditemukan, tekan Enter untuk tambah baru.",
+                          }}
+                          placeholder="Pilih User"
+                          selectedKey={field.value?.toString()}
+                          onSelectionChange={(val) =>
+                            field.onChange(Number(val))
+                          }
+                        >
+                          {(item) => (
+                            <AutocompleteItem
+                              key={item.id}
+                              textValue={item.name}
+                            >
+                              <div className="flex gap-3 items-center">
+                                <Avatar
+                                  alt={item.name}
+                                  size="sm"
+                                  src={
+                                    item.profile?.photo_url ||
+                                    getAvatarByName(item.name)
+                                  }
+                                />
 
-                                  <div className="flex flex-col">
-                                    <span className="text-xs font-bold">
-                                      {item.name}
-                                    </span>
-                                    <span className="text-[10px] text-gray-500">
-                                      {item.position}
-                                    </span>
-                                  </div>
+                                <div className="flex flex-col">
+                                  <span className="text-xs font-bold">
+                                    {item.name}
+                                  </span>
+                                  <span className="text-[10px] text-gray-500">
+                                    {item.position}
+                                  </span>
                                 </div>
-                              </AutocompleteItem>
-                            )}
-                          </Autocomplete>
-                        )}
-                      />
-                    </div>
+                              </div>
+                            </AutocompleteItem>
+                          )}
+                        </Autocomplete>
+                      )}
+                    />
+                    <Controller
+                      control={control}
+                      name="notes"
+                      render={({ field }) => (
+                        <Textarea
+                          classNames={{
+                            label: "w-20",
+                          }}
+                          isDisabled={isViewOnly}
+                          label="Catatan"
+                          labelPlacement="outside-left"
+                          placeholder="Tuliskan catatan disini..."
+                          value={field.value || ""}
+                          onValueChange={field.onChange}
+                        />
+                      )}
+                    />
                   </div>
 
                   <div className="col-span-4 flex flex-col gap-1 text-sm">
