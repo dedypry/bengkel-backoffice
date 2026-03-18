@@ -33,6 +33,7 @@ export default function SelectSupplierPopover({
       <PopoverContent className="p-0">
         <Autocomplete
           defaultItems={suppliers}
+          placeholder="Pilih Supplier"
           selectedKey={value?.toString()}
           onSelectionChange={(val) => {
             const find = suppliers.find((e) => e.id == val);
