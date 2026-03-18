@@ -257,10 +257,12 @@ export default function PanelProduct() {
                       classNames={{
                         input: "text-center text-[11px]",
                       }}
+                      maxInput={100}
                       size="sm"
                       value={item.disc_percentage?.toString()}
                       onInput={(discPerc) => {
-                        const price = Number(item.sell_price ?? 0);
+                        const price =
+                          Number(item.sell_price ?? 0) * Number(item.qty ?? 0);
                         const calculatedDiscValue = (
                           (discPerc / 100) *
                           price
@@ -280,11 +282,13 @@ export default function PanelProduct() {
                       classNames={{
                         input: "text-end text-[11px]",
                       }}
+                      maxInput={Number(item.sell_price) * Number(item.qty)}
                       size="sm"
                       startContent={<p className="text-xs">Rp</p>}
                       value={item.disc_value?.toString()}
                       onInput={(disc) => {
-                        const price = Number(item.sell_price ?? 0);
+                        const price =
+                          Number(item.sell_price ?? 0) * Number(item.qty ?? 0);
                         let calculatedPercentage = 0;
 
                         if (price > 0) {

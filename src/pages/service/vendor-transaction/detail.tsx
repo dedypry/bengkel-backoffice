@@ -30,7 +30,6 @@ import PaymentMethod from "./payment-method";
 import AddWoItems from "./add-wo-items";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { formatIDR } from "@/utils/helpers/format";
 import FormRow from "@/components/form-row";
 import DatePicker from "@/components/forms/date-picker";
 import InputNumber from "@/components/input-number";
@@ -54,7 +53,6 @@ interface Props {
 
 interface ICalculateTotal {
   price: any;
-  ppn: any;
   disc: any;
 }
 
@@ -101,6 +99,7 @@ export default function DetailTrx({
   function calculate() {
     const items = watch("items") || [];
     const otherFees = watch("otherFees") || 0;
+    const discPercentage = watch("finalDiscPercentage") || 0;
     const itemsSelected = items.filter((e) => e.select);
 
     const selAll = items.length === itemsSelected.length;
@@ -108,29 +107,44 @@ export default function DetailTrx({
     setSelectAll(selAll);
     setIsIndeterminate(itemsSelected.length > 0 && !selAll);
 
-    let subTotal = 0;
-    let totalDiscount = 0;
+    const rawSubTotal = itemsSelected.reduce((acc, item) => {
+      const price = Number(item.purchasePrice ?? 0);
+      const disc = Number(item.discValue ?? 0);
+
+      return acc + price - disc;
+    }, 0);
+
+    const discVal = rawSubTotal * (discPercentage / 100);
+
+    const discRatio = rawSubTotal > 0 ? discVal / rawSubTotal : 0;
+
+    console.log("RATIO", discVal);
+
     let totalTax = 0;
 
     for (const item of itemsSelected) {
-      const price = Number(item.purchasePrice || 0);
-      const discValue = item.discValue || 0;
-      const taxRate = item.taxPercentage || 0;
+      const price = Number(item.purchasePrice ?? 0);
+      const disc = Number(item.discValue ?? 0);
+      const itemAmount = price - disc;
 
-      subTotal += price;
-      totalDiscount += discValue;
-      const dpp = price - discValue;
-      const lineTax = (dpp * taxRate) / 100;
+      const taxRate = Number(item.taxPercentage ?? 0) / 100;
 
-      totalTax += lineTax;
+      if (taxRate > 0) {
+        const itemAllocatedDisc = itemAmount * discRatio;
+        const itemNetForTax = itemAmount - itemAllocatedDisc;
+
+        totalTax += itemNetForTax * taxRate;
+      }
     }
 
-    const finalTotal = subTotal - totalDiscount + totalTax + otherFees;
+    const finalTotal = rawSubTotal - discVal + totalTax + otherFees;
 
-    setValue("subTotal", subTotal);
-    setValue("finalDiscValue", totalDiscount);
-    setValue("tax", totalTax);
-    setValue("total", finalTotal);
+    console.log(finalTotal);
+
+    setValue("subTotal", rawSubTotal);
+    setValue("finalDiscValue", Math.round(discVal));
+    setValue("tax", Math.round(totalTax));
+    setValue("total", Math.round(finalTotal));
   }
 
   const paymentItems = (e: IWOItems<IService>) => {
@@ -229,16 +243,13 @@ export default function DetailTrx({
       });
   }
 
-  function calculateTotal({ ppn = 0, price = 0, disc = 0 }: ICalculateTotal) {
-    ppn = Number(ppn);
+  function calculateTotal({ price = 0, disc = 0 }: ICalculateTotal) {
     price = Number(price);
     disc = Number(disc);
 
     const subtotal = price - disc;
 
-    ppn = subtotal * (ppn / 100);
-
-    return subtotal + ppn;
+    return subtotal;
   }
 
   function handleAddList(data: IWOItems<IService>[]) {
@@ -551,16 +562,15 @@ export default function DetailTrx({
                               <InputNumber
                                 className="w-32"
                                 classNames={{
-                                  input: "text-right",
+                                  input: "text-right text-xs",
                                 }}
                                 isDisabled={isViewOnly}
                                 size="sm"
-                                startContent="Rp"
+                                startContent={<p className="text-xs">Rp</p>}
                                 value={Number(value) as any}
                                 onInput={(val) => {
                                   onChange(val);
                                   const total = calculateTotal({
-                                    ppn: watch(`items.${index}.taxPercentage`),
                                     price: val,
                                     disc: watch(`items.${index}.discValue`),
                                   });
@@ -579,13 +589,14 @@ export default function DetailTrx({
                             name={`items.${index}.discPercentage`}
                             render={({ field: { onChange, value } }) => (
                               <InputNumber
-                                className="w-32"
+                                className="w-15"
                                 classNames={{
-                                  input: "text-right",
+                                  input: "text-center text-xs",
                                 }}
+                                endContent={<p className="text-xs">%</p>}
                                 isDisabled={isViewOnly}
+                                maxInput={100}
                                 size="sm"
-                                startContent="Rp"
                                 value={Number(value) as any}
                                 onInput={(val) => {
                                   onChange(val);
@@ -598,7 +609,6 @@ export default function DetailTrx({
                                     (percentage / 100) * purchasePrice;
 
                                   const total = calculateTotal({
-                                    ppn: watch(`items.${index}.taxPercentage`),
                                     price: purchasePrice,
                                     disc: calculatedDiscValue,
                                   });
@@ -622,11 +632,14 @@ export default function DetailTrx({
                               <InputNumber
                                 className="w-32"
                                 classNames={{
-                                  input: "text-right",
+                                  input: "text-right text-xs",
                                 }}
                                 isDisabled={isViewOnly}
+                                maxInput={
+                                  watch(`items.${index}.purchasePrice`) ?? 0
+                                }
                                 size="sm"
-                                startContent="Rp"
+                                startContent={<p className="text-xs">Rp</p>}
                                 value={Number(value) as any}
                                 onInput={(val) => {
                                   onChange(val);
@@ -642,7 +655,6 @@ export default function DetailTrx({
                                   }
 
                                   const total = calculateTotal({
-                                    ppn: watch(`items.${index}.taxPercentage`),
                                     price: purchasePrice,
                                     disc: val,
                                   });
@@ -667,18 +679,17 @@ export default function DetailTrx({
                             name={`items.${index}.taxPercentage`}
                             render={({ field: { onChange, value } }) => (
                               <InputNumber
-                                className="w-32"
+                                className="w-15"
                                 classNames={{
-                                  input: "text-right",
+                                  input: "text-center text-xs",
                                 }}
-                                endContent="%"
+                                endContent={<p className="text-xs">%</p>}
                                 isDisabled={isViewOnly}
                                 size="sm"
                                 value={Number(value) as any}
                                 onInput={(val) => {
                                   onChange(val);
                                   const total = calculateTotal({
-                                    ppn: watch(`items.${index}.taxPercentage`),
                                     price: watch(
                                       `items.${index}.purchasePrice`,
                                     ),
@@ -692,8 +703,17 @@ export default function DetailTrx({
                             )}
                           />
                         </TableCell>
-                        <TableCell className="text-right font-semibold">
-                          {formatIDR(watch(`items.${index}.total`))}
+                        <TableCell>
+                          <InputNumber
+                            isDisabled
+                            className="w-32"
+                            classNames={{
+                              input: "text-center text-xs",
+                            }}
+                            size="sm"
+                            startContent={<p className="text-xs">Rp</p>}
+                            value={watch(`items.${index}.total`) as any}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -702,7 +722,7 @@ export default function DetailTrx({
 
                 {/* FOOTER SECTION */}
                 <div className="grid grid-cols-12 mt-6 gap-20">
-                  <div className="col-span-7 flex flex-col gap-3">
+                  <div className="col-span-8 flex flex-col gap-3">
                     <div className="flex flex-col gap-1 mb-5">
                       <p className="text-xs font-semibold text-gray-500 uppercase">
                         Catatan :
@@ -775,83 +795,126 @@ export default function DetailTrx({
                     </div>
                   </div>
 
-                  <div className="col-span-5 flex flex-col gap-1 text-sm">
-                    <div className="flex justify-between items-center py-1">
-                      <span>Sub Total</span>
-                      <InputNumber
-                        isDisabled
-                        className="w-32"
-                        classNames={{
-                          input: "text-right",
-                        }}
-                        size="sm"
-                        startContent="Rp"
-                        value={Number(watch("subTotal")) as any}
-                      />
-                    </div>
-                    <div className="flex justify-between items-center py-1">
-                      <div className="flex gap-2 items-center">
-                        <span>Disc. Final</span>
-                      </div>
-                      <InputNumber
-                        isDisabled
-                        className="w-32"
-                        classNames={{
-                          input: "text-right",
-                        }}
-                        size="sm"
-                        startContent="Rp"
-                        value={watch("finalDiscValue") as any}
-                      />
-                    </div>
-                    <div className="flex justify-between items-center py-1">
-                      <span>Pajak</span>
-                      <InputNumber
-                        isDisabled
-                        className="w-32"
-                        classNames={{
-                          input: "text-right",
-                        }}
-                        size="sm"
-                        startContent="Rp"
-                        value={watch("tax") as any}
-                      />
-                    </div>
-                    <div className="flex justify-between items-center py-1">
-                      <span>Biaya Lain</span>
+                  <div className="col-span-4 flex flex-col gap-1 text-sm">
+                    <InputNumber
+                      isDisabled
+                      classNames={{
+                        input: "text-right text-xs",
+                        label: "w-20",
+                        mainWrapper: "w-full",
+                      }}
+                      label="Sub Total"
+                      labelPlacement="outside-left"
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={Number(watch("subTotal")) as any}
+                    />
+                    <div className="flex justify-between gap-2 items-center py-1">
                       <Controller
                         control={control}
-                        name="otherFees"
+                        name="finalDiscPercentage"
                         render={({ field }) => (
                           <InputNumber
-                            className="w-32"
                             classNames={{
-                              input: "text-right",
+                              input: "text-center text-xs",
+                              label: "w-20",
+                              mainWrapper: "w-16",
                             }}
-                            isDisabled={isViewOnly}
+                            endContent={<p className="text-xs">%</p>}
+                            label="Disc. Final"
+                            labelPlacement="outside-left"
+                            maxInput={100}
                             size="sm"
-                            startContent="Rp"
                             value={field.value as any}
                             onInput={(val) => {
                               field.onChange(val);
+                              const price = watch("subTotal") || 0;
+                              const discVal = ((val / 100) * price).toFixed(2);
+
+                              setValue("finalDiscValue", Number(discVal));
+                              handleCalculate();
+                            }}
+                          />
+                        )}
+                      />
+                      <Controller
+                        control={control}
+                        name="finalDiscValue"
+                        render={({ field }) => (
+                          <InputNumber
+                            classNames={{
+                              input: "text-right text-xs",
+                              mainWrapper: "w-full",
+                            }}
+                            maxInput={watch("subTotal")}
+                            size="sm"
+                            startContent={<p className="text-xs">Rp</p>}
+                            value={field.value as any}
+                            onInput={(val) => {
+                              field.onChange(val);
+                              const price = watch("subTotal") || 0;
+                              let discPerc = 0;
+
+                              if (price > 0) {
+                                discPerc = (val / price) * 100;
+                              }
+
+                              setValue("finalDiscPercentage", discPerc);
                               handleCalculate();
                             }}
                           />
                         )}
                       />
                     </div>
+                    <InputNumber
+                      isDisabled
+                      classNames={{
+                        input: "text-end text-xs",
+                        label: "w-20",
+                        mainWrapper: "w-full",
+                      }}
+                      label="Pajak"
+                      labelPlacement="outside-left"
+                      size="sm"
+                      startContent={<p className="text-xs">Rp</p>}
+                      value={watch("tax") as any}
+                    />
+                    <Controller
+                      control={control}
+                      name="otherFees"
+                      render={({ field }) => (
+                        <InputNumber
+                          classNames={{
+                            input: "text-end text-xs",
+                            label: "w-20",
+                            mainWrapper: "w-full",
+                          }}
+                          isDisabled={isViewOnly}
+                          label="Biaya Lain"
+                          labelPlacement="outside-left"
+                          size="sm"
+                          startContent={<p className="text-xs">Rp</p>}
+                          value={field.value as any}
+                          onInput={(val) => {
+                            field.onChange(val);
+                            handleCalculate();
+                          }}
+                        />
+                      )}
+                    />
                     <Divider className="my-1" />
-                    <div className="flex justify-between items-center py-1 font-bold text-lg">
-                      <span>Total</span>
-                      <InputNumber
-                        isDisabled
-                        className="w-32"
-                        classNames={{
-                          input: "text-right",
-                        }}
-                        value={watch("total") as any}
-                      />
-                    </div>
+                    <InputNumber
+                      isDisabled
+                      classNames={{
+                        input: "text-end text-md !font-bold",
+                        label: "w-20",
+                        mainWrapper: "w-full",
+                      }}
+                      label="Total"
+                      labelPlacement="outside-left"
+                      startContent={<p className="text-md !font-bold">Rp</p>}
+                      value={watch("total") as any}
+                    />
                   </div>
                 </div>
 

@@ -104,22 +104,13 @@ export default function PanelCustomer() {
 
       const grandTotal = rawSubTotal - discFinalNominal + totalTax + otherFee;
 
+      console.log("WORK ORDER", rawSubTotal);
       setValue("sub_total", rawSubTotal);
       setValue("tax", Math.round(totalTax));
       setValue("total", Math.round(grandTotal));
       setValue("customer_id", workOrder.customer_id);
     }
   }, [workOrder, watch("disc_value"), watch("other_fee")]);
-
-  useEffect(() => {
-    if (workOrder) {
-      setValue("sub_total", Number(workOrder.sub_total));
-      setValue("disc_value", Number(workOrder.disc_value));
-      setValue("disc_percentage", Number(workOrder.disc_percentage));
-      setValue("other_fee", workOrder.other_fee);
-      setValue("total", Number(workOrder.grand_total));
-    }
-  }, [workOrder]);
 
   async function onSubmit(data: PaymentSchema) {
     setLoading(true);
@@ -280,6 +271,7 @@ export default function PanelCustomer() {
                           input: "text-center text-[11px]",
                         }}
                         isDisabled={isDisable}
+                        maxInput={100}
                         size="sm"
                         value={Number(item.disc_percentage) as any}
                         onInput={(disc_percentage) => {
@@ -307,6 +299,9 @@ export default function PanelCustomer() {
                           input: "text-end text-[11px]",
                         }}
                         isDisabled={isDisable}
+                        maxInput={
+                          Number(item.price ?? 0) * Number(item.qty ?? 0)
+                        }
                         size="sm"
                         startContent={<p className="text-xs">Rp</p>}
                         value={Number(item.disc_value) as any}
@@ -441,6 +436,7 @@ export default function PanelCustomer() {
                           input: "text-center text-[11px]",
                         }}
                         isDisabled={isDisable}
+                        maxInput={100}
                         size="sm"
                         value={Number(item.disc_percentage) as any}
                         onInput={(disc_percentage) => {
@@ -468,6 +464,9 @@ export default function PanelCustomer() {
                           input: "text-end text-[11px]",
                         }}
                         isDisabled={isDisable}
+                        maxInput={
+                          Number(item.price ?? 0) * Number(item.qty ?? 0)
+                        }
                         size="sm"
                         startContent={<p className="text-xs">Rp</p>}
                         value={Number(item.disc_value) as any}
@@ -591,7 +590,7 @@ export default function PanelCustomer() {
                   </Alert>
                 )}
 
-                {workOrder.next_sugestion && (
+                {/* {workOrder.next_sugestion && (
                   <div className="flex items-center">
                     <p className="w-24 text-xs pl-2">Catatan</p>
                     <div
@@ -600,7 +599,7 @@ export default function PanelCustomer() {
                       }}
                     />
                   </div>
-                )}
+                )} */}
               </div>
               <div className="flex flex-col  gap-1">
                 <InputNumber
