@@ -104,7 +104,6 @@ export default function PanelCustomer() {
 
       const grandTotal = rawSubTotal - discFinalNominal + totalTax + otherFee;
 
-      console.log("WORK ORDER", rawSubTotal);
       setValue("sub_total", rawSubTotal);
       setValue("tax", Math.round(totalTax));
       setValue("total", Math.round(grandTotal));
@@ -660,8 +659,6 @@ export default function PanelCustomer() {
                         onInput={(val) => {
                           field.onChange(val);
                           const subTotal = watch("sub_total") ?? 0;
-
-                          console.log(val);
 
                           const percent = (val / subTotal) * 100;
 

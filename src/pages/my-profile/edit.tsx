@@ -68,8 +68,6 @@ export default function EditProfilePage() {
     },
   });
 
-  console.log(errors);
-
   useEffect(() => {
     if (user) {
       setValue("name", user.name);

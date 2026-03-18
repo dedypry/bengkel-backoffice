@@ -36,7 +36,6 @@ export default function VendorTrxPage() {
     http
       .get("/vendor-transaction/purchase-no")
       .then(({ data }) => {
-        console.log(data);
         dispatch(
           setTrxDetail({
             ...data,

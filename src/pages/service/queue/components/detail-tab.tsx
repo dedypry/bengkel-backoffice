@@ -247,7 +247,6 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                               suppliers={suppliers as ISupplier[]}
                               value={find?.supplier_id || item.supplier_id}
                               onSelectionChange={(val) => {
-                                console.log(val);
                                 dispatch(
                                   addSparepartService({
                                     ...item,
@@ -361,7 +360,6 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                                 suppliers={suppliers as ISupplier[]}
                                 value={find?.supplier_id || item.supplier_id}
                                 onSelectionChange={(val) => {
-                                  console.log(val);
                                   dispatch(
                                     addWoService({
                                       ...item,

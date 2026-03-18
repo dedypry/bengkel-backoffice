@@ -105,7 +105,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
       if (mainCatId) {
         const find = categories.find((e) => e.id === mainCatId);
 
-        console.log(find);
         if (find) {
           setSubCategories(find.children);
         }

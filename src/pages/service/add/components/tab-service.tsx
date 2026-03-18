@@ -83,8 +83,6 @@ export default function TabService() {
 
   const searchDebounce = debounce((q) => dispatch(getService({ q })), 500);
 
-  // console.log("SERVICE", services.data);
-
   return (
     <div className="space-y-4">
       {/* Search Input HeroUI */}

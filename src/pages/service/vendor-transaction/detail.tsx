@@ -118,8 +118,6 @@ export default function DetailTrx({
 
     const discRatio = rawSubTotal > 0 ? discVal / rawSubTotal : 0;
 
-    console.log("RATIO", discVal);
-
     let totalTax = 0;
 
     for (const item of itemsSelected) {
@@ -138,8 +136,6 @@ export default function DetailTrx({
     }
 
     const finalTotal = rawSubTotal - discVal + totalTax + otherFees;
-
-    console.log(finalTotal);
 
     setValue("subTotal", rawSubTotal);
     setValue("finalDiscValue", Math.round(discVal));

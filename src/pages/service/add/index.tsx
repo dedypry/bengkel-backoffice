@@ -137,10 +137,7 @@ export default function ServiceAddPage() {
     },
   });
 
-  console.log(errors);
-
   useEffect(() => {
-    console.log(settings);
     setValue("pic_id", Number(settings.default_pic_id) ?? undefined);
     setValue("sa_id", Number(settings.default_advisor_id) ?? undefined);
   }, [settings]);
@@ -475,7 +472,6 @@ export default function ServiceAddPage() {
 
                         const customers = val?.customers || [];
 
-                        console.log(val.customers);
                         if (!watch("customer.id") && customers.length) {
                           const cus = customers[0] as ICustomer;
 

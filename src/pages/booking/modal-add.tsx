@@ -95,7 +95,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
       setValue("booking_time", formatTime(data.booking_time));
       setValue("service_type", data.service_type);
       setValue("complaint", data.complaint || "");
-      console.log(watch(), data);
     }
   }, [data]);
 

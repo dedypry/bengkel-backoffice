@@ -73,7 +73,6 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log("SUBMIT", values);
     setLoading(true);
     try {
       if (values.photo instanceof File) {
@@ -84,7 +83,6 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
 
       const response = await http.post("/employees", { id, ...values });
 
-      console.log("SUBMIT", response);
       notify(response.data.message);
       navigate("/hr/employees");
     } catch (err: any) {

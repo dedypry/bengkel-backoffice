@@ -499,8 +499,6 @@ export default function PanelProduct() {
                         field.onChange(val);
                         const subTotal = watch("sub_total") ?? 0;
 
-                        console.log(val);
-
                         const percent = (val / subTotal) * 100;
 
                         setValue("disc_percentage", Number(percent.toFixed(2)));
