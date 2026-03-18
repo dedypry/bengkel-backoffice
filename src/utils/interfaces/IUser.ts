@@ -218,6 +218,9 @@ export interface IWorkOrder {
   complaints: string;
   next_sugestion: string;
   company?: ICompany;
+  other_fee?: number;
+  disc_percentage?: number;
+  disc_value?: number;
 }
 
 export interface IWOItems<DATA> {

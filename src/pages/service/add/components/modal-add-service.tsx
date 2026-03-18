@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Modal,
@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getService } from "@/stores/features/service/service-action";
 import { getProduct } from "@/stores/features/product/product-action";
 import { getSupplier } from "@/stores/features/supplier/supplier-action";
+import { CustomPagination } from "@/components/custom-pagination";
 
 interface Props {
   isSave?: boolean;
@@ -28,11 +29,12 @@ interface Props {
 
 export default function ModalAddService({ isSave, onSave, onClose }: Props) {
   const { company } = useAppSelector((state) => state.auth);
-  const { query } = useAppSelector((state) => state.service);
-  const { productQuery } = useAppSelector((state) => state.product);
-
+  const { query, services } = useAppSelector((state) => state.service);
+  const { productQuery, products } = useAppSelector((state) => state.product);
+  const [selectedKey, setSelectedKey] = useState("service");
   // HeroUI hook untuk kontrol modal yang lebih clean
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const dispatch = useAppDispatch();
   const hasFetch = useRef(false);
 
@@ -70,12 +72,11 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
       <Modal
         backdrop="blur"
         classNames={{
-          base: "max-h-[90vh]",
           header: "border-b-[1px] border-default-100",
           footer: "border-t-[1px] border-default-100",
         }}
         isOpen={isOpen}
-        scrollBehavior="inside"
+        scrollBehavior="outside"
         size="4xl" // Setara xl di Joy UI
         onOpenChange={onOpenChange}
       >
@@ -103,7 +104,9 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                       "group-data-[selected=true]:text-primary text-secondary-500 font-bold",
                   }}
                   color="primary"
+                  selectedKey={selectedKey}
                   variant="underlined"
+                  onSelectionChange={(key) => setSelectedKey(key as string)}
                 >
                   <Tab
                     key="service"
@@ -135,23 +138,40 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
               </ModalBody>
 
               <ModalFooter>
-                <Button
-                  color="danger"
-                  variant="light"
-                  onPress={() => {
-                    if (onClose) {
-                      onClose();
-                    }
-                    onCloseModal();
-                  }}
-                >
-                  Tutup
-                </Button>
-                {isSave && (
-                  <Button color="primary" onPress={onSave}>
-                    Simpan Perubahan
-                  </Button>
-                )}
+                <div className="flex w-full justify-between gap-8 items-center">
+                  <div className="w-full">
+                    {selectedKey === "service" ? (
+                      <CustomPagination
+                        meta={services?.meta!}
+                        onPageChange={(page) => dispatch(getService({ page }))}
+                      />
+                    ) : (
+                      <CustomPagination
+                        meta={products?.meta!}
+                        onPageChange={(page) => dispatch(getProduct({ page }))}
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <Button
+                      color="danger"
+                      variant="bordered"
+                      onPress={() => {
+                        if (onClose) {
+                          onClose();
+                        }
+                        onCloseModal();
+                      }}
+                    >
+                      Tutup
+                    </Button>
+                    {isSave && (
+                      <Button color="primary" onPress={onSave}>
+                        Simpan Perubahan
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </ModalFooter>
             </>
           )}

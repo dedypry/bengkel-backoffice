@@ -111,12 +111,22 @@ export default function PanelCustomer() {
     }
   }, [workOrder, watch("disc_value"), watch("other_fee")]);
 
+  useEffect(() => {
+    if (workOrder) {
+      setValue("sub_total", Number(workOrder.sub_total));
+      setValue("disc_value", Number(workOrder.disc_value));
+      setValue("disc_percentage", Number(workOrder.disc_percentage));
+      setValue("other_fee", workOrder.other_fee);
+      setValue("total", Number(workOrder.grand_total));
+    }
+  }, [workOrder]);
+
   async function onSubmit(data: PaymentSchema) {
     setLoading(true);
     const payload = {
       woId: workOrder.id,
       ...data,
-      product: [
+      products: [
         ...workOrder.services.map((item) => ({
           id: item.id,
           product_id: item.data.id,
@@ -181,9 +191,14 @@ export default function PanelCustomer() {
       {workOrder?.id ? (
         <Card className="min-h-full h-full">
           <CardHeader className="w-full flex justify-between">
-            <p className="text-sm font-bold">
-              Rincian Tagihan TRX NO. {workOrder.trx_no}
-            </p>
+            <div>
+              <p className="text-sm font-bold">
+                Rincian Tagihan TRX NO. {workOrder.trx_no}
+              </p>
+              <p className="text-sm font-bold">
+                Plat No : {workOrder.vehicle.plate_number}
+              </p>
+            </div>
             <div className="flex gap-2">
               <Button
                 className="text-white font-semibold uppercase"
@@ -523,7 +538,7 @@ export default function PanelCustomer() {
             </Table>
           </CardBody>
           <Divider />
-          <CardFooter className="px-5 flex flex-col pb-10">
+          <CardFooter className="px-5 flex flex-col pb-12">
             <div className="grid grid-cols-3 w-full gap-3">
               <div className="col-span-2 space-y-1">
                 <Input
@@ -618,7 +633,7 @@ export default function PanelCustomer() {
                         labelPlacement="outside-left"
                         maxInput={100}
                         size="sm"
-                        value={field.value as any}
+                        value={Number(field.value) as any}
                         onInput={(val) => {
                           field.onChange(val);
                           const subTotal = watch("sub_total") ?? 0;
@@ -639,7 +654,7 @@ export default function PanelCustomer() {
                           label: "w-20",
                         }}
                         isDisabled={isDisable}
-                        maxInput={watch("total") ?? 0}
+                        maxInput={watch("sub_total") ?? 0}
                         size="sm"
                         startContent={<p className="text-[11px]">Rp</p>}
                         value={field.value as any}
@@ -688,7 +703,7 @@ export default function PanelCustomer() {
                       labelPlacement="outside-left"
                       size="sm"
                       startContent={<p className="text-xs">Rp</p>}
-                      value={field.value as any}
+                      value={Number(field.value) as any}
                       onInput={field.onChange}
                     />
                   )}

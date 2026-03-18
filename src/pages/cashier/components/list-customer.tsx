@@ -1,6 +1,10 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import dayjs from "dayjs";
+import { Chip } from "@heroui/react";
+import { Banknote } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import { OrderListSkeleton } from "./list-customer-skeleton";
 
@@ -13,7 +17,25 @@ export default function ListCustomer() {
   const { orders, workOrder, isLoadingOrder } = useAppSelector(
     (state) => state.wo,
   );
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const trxId = queryParams.get("trxId");
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (trxId) {
+      dispatch(getWoDetail(trxId));
+    }
+  }, [trxId]);
+
+  const handleTabChange = (newtrxId: any) => {
+    const params = new URLSearchParams(search);
+
+    params.set("trxId", newtrxId); // Mengganti atau menambah tabId
+
+    navigate(`?${params.toString()}`);
+  };
 
   if (isLoadingOrder) return <OrderListSkeleton />;
 
@@ -27,7 +49,7 @@ export default function ListCustomer() {
               ? "border-[#168BAB] bg-blue-50/50"
               : "border-transparent bg-slate-50 hover:border-slate-200"
           }`}
-          onClick={() => dispatch(getWoDetail(wo.id.toString()))}
+          onClick={() => handleTabChange(wo.id)}
         >
           <div className="flex justify-between items-start mb-2">
             <div className="flex flex-col gap-1">
@@ -49,7 +71,19 @@ export default function ListCustomer() {
               </p>
             </div>
           </div>
-          <StatusQueue wo={wo} />
+          <div className="flex justify-between">
+            <StatusQueue wo={wo} />
+            {wo.status === "closed" && (
+              <Chip
+                className="text-white"
+                color="success"
+                radius="md"
+                startContent={<Banknote />}
+              >
+                Lunas
+              </Chip>
+            )}
+          </div>
         </div>
       ))}
     </div>

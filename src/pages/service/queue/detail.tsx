@@ -78,7 +78,7 @@ export default function WorkOrderDetail() {
                 Total Biaya Estimasi
               </span>
               <span className="text-2xl font-black text-white tracking-[0.1em]">
-                {formatIDR(Number(data.sub_total || 0))}
+                {formatIDR(Number(data.grand_total || 0))}
               </span>
             </div>
           </div>

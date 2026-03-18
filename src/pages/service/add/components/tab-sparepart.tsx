@@ -23,7 +23,6 @@ import debounce from "@/utils/helpers/debounce";
 import { getProduct } from "@/stores/features/product/product-action";
 import { formatNumber } from "@/utils/helpers/format";
 // Menggunakan InputNumber HeroUI yang kita buat di awal
-import { CustomPagination } from "@/components/custom-pagination";
 import InputQty from "@/components/input-qty";
 import InputNumber from "@/components/input-number";
 
@@ -98,14 +97,7 @@ export default function TabSparepart() {
         }}
       />
 
-      <Table
-        aria-label="Tabel Pemilihan Sparepart"
-        classNames={{
-          wrapper: "border border-default-100 p-0 overflow-hidden",
-          th: "bg-default-50 text-gray-600 font-bold",
-        }}
-        shadow="none"
-      >
+      <Table removeWrapper aria-label="Tabel Pemilihan Sparepart">
         <TableHeader>
           <TableColumn width={40}>PILIH</TableColumn>
           <TableColumn>PRODUK</TableColumn>
@@ -142,10 +134,8 @@ export default function TabSparepart() {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-small font-semibold">
-                      {item.name}
-                    </span>
-                    <span className="text-tiny text-gray-400 font-mono">
+                    <span className="text-xs font-semibold">{item.name}</span>
+                    <span className="text-xs text-gray-400 font-mono">
                       {item.code}
                     </span>
                   </div>
@@ -195,11 +185,6 @@ export default function TabSparepart() {
           })}
         </TableBody>
       </Table>
-
-      <CustomPagination
-        meta={products?.meta!}
-        onPageChange={(page) => dispatch(getProduct({ page }))}
-      />
     </div>
   );
 }

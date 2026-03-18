@@ -21,7 +21,6 @@ import {
   removeWoService,
 } from "@/stores/features/work-order/wo-slice";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { CustomPagination } from "@/components/custom-pagination";
 import { getService } from "@/stores/features/service/service-action";
 import debounce from "@/utils/helpers/debounce";
 // Menggunakan InputNumber HeroUI kita
@@ -106,14 +105,7 @@ export default function TabService() {
         }}
       />
 
-      <Table
-        aria-label="Tabel Pemilihan Jasa"
-        classNames={{
-          wrapper: "border border-default-100 p-0 overflow-hidden",
-          th: "bg-default-50 text-gray-600 font-bold",
-        }}
-        shadow="none"
-      >
+      <Table removeWrapper aria-label="Tabel Pemilihan Jasa">
         <TableHeader>
           <TableColumn width={40}>PILIH</TableColumn>
           <TableColumn>NAMA JASA</TableColumn>
@@ -145,7 +137,7 @@ export default function TabService() {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-small font-semibold text-default-700">
+                    <span className="text-xs font-semibold text-default-700">
                       {item.name}
                     </span>
                     <div className="flex items-center gap-2">
@@ -209,11 +201,6 @@ export default function TabService() {
           })}
         </TableBody>
       </Table>
-
-      <CustomPagination
-        meta={services?.meta!}
-        onPageChange={(page) => dispatch(getService({ page }))}
-      />
     </div>
   );
 }

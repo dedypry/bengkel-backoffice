@@ -117,22 +117,32 @@ export default function ServiceAddPage() {
     }
   }, [company]);
 
-  const { control, setValue, watch, reset, clearErrors, handleSubmit } =
-    useForm({
-      resolver: zodResolver(ServiceRegistrationSchema),
-      mode: "onChange",
-      defaultValues: {
-        priority: "normal",
-        customer: {
-          birth_date: "",
-        },
-        mechanic_ids: [],
+  const {
+    control,
+    setValue,
+    watch,
+    reset,
+    clearErrors,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(ServiceRegistrationSchema),
+    mode: "onChange",
+    defaultValues: {
+      priority: "normal",
+      customer: {
+        birth_date: "",
       },
-    });
+      mechanic_ids: [],
+    },
+  });
+
+  console.log(errors);
 
   useEffect(() => {
-    setValue("pic_id", Number(settings.default_pic_id));
-    setValue("sa_id", Number(settings.default_advisor_id));
+    console.log(settings);
+    setValue("pic_id", Number(settings.default_pic_id) ?? undefined);
+    setValue("sa_id", Number(settings.default_advisor_id) ?? undefined);
   }, [settings]);
 
   useEffect(() => {
@@ -926,7 +936,7 @@ export default function ServiceAddPage() {
                         labelPlacement="outside-top"
                         placeholder="Pilih Service Advisor"
                         selectedKey={String(field.value)}
-                        onSelectionChange={field.onChange}
+                        onSelectionChange={(val) => field.onChange(Number(val))}
                       >
                         {(item) => (
                           <AutocompleteItem key={item.id}>
@@ -946,7 +956,7 @@ export default function ServiceAddPage() {
                         labelPlacement="outside-top"
                         placeholder="Pilih PIC Service"
                         selectedKey={String(field.value)}
-                        onSelectionChange={field.onChange}
+                        onSelectionChange={(val) => field.onChange(Number(val))}
                       >
                         {(item) => (
                           <AutocompleteItem key={item.id}>

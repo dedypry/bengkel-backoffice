@@ -44,7 +44,7 @@ import {
   setWoService,
   setWoSparepart,
 } from "@/stores/features/work-order/wo-slice";
-import { formatIDR } from "@/utils/helpers/format";
+import { formatIDR, formatNumber } from "@/utils/helpers/format";
 import { handleDownload } from "@/utils/helpers/global";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
@@ -121,17 +121,14 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
       .catch((err) => notifyError(err));
   };
 
-  const handleDelete = (item: any, type: string) => {
-    let serviceData = [...services];
-    let sparepartData = [...sparepart];
-
-    if (type === "pr") {
-      sparepartData = sparepartData.filter((e) => e.id != item.id);
-    } else {
-      serviceData = serviceData.filter((e) => e.id != item.id);
-    }
-
-    handleSave(generateData(serviceData, sparepartData));
+  const handleDelete = (itemId: number) => {
+    http
+      .delete(`/work-order/item/${itemId}`)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(getWoDetail(id as any));
+      })
+      .catch(notifyError);
   };
 
   const saveNextSugestion = () => {
@@ -213,7 +210,9 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             <TableHeader>
               <TableColumn>ITEM / DESC</TableColumn>
               <TableColumn align="end">HARGA</TableColumn>
-              <TableColumn width={80}>QTY</TableColumn>
+              <TableColumn align="center" width={80}>
+                QTY
+              </TableColumn>
               <TableColumn align="end">SUBTOTAL</TableColumn>
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
@@ -272,9 +271,10 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                       {isEdit ? (
                         <InputNumber
                           classNames={{
-                            input: "text-right",
+                            input: "text-right w-20 text-xs",
                           }}
                           size="sm"
+                          startContent={<p className="text-xs">Rp</p>}
                           value={Number(item.price || 0).toString()}
                           onInput={(val) => editPart(val, item.qty, item.data)}
                         />
@@ -286,7 +286,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                       {isEdit ? (
                         <InputNumber
                           classNames={{
-                            input: "text-center",
+                            input: "text-center text-xs w-8",
                           }}
                           size="sm"
                           value={Number(item.qty || 0).toString()}
@@ -295,7 +295,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                           }
                         />
                       ) : (
-                        formatIDR(item.qty)
+                        <p className="text-center">{formatNumber(item.qty)}</p>
                       )}
                     </TableCell>
                     <TableCell className="text-gray-500 text-right">
@@ -311,9 +311,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                             size="sm"
                             variant="flat"
                             onPress={() =>
-                              confirmSweat(() =>
-                                handleDelete(item.data, item.type),
-                              )
+                              confirmSweat(() => handleDelete(item.id))
                             }
                           >
                             <Trash2 size={16} />
@@ -339,7 +337,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             <TableBody>
               {[...data.services.map((e) => ({ ...e, type: "srv" }))].map(
                 (item: any, idx: number) => {
-                  const find = services.find((e) => e.id === item.data.id);
+                  const find = services.find((e) => e.id === item.data?.id);
 
                   return (
                     <TableRow key={idx}>
@@ -347,9 +345,9 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                         <div
                           className={`flex flex-col max-w-[${isEdit ? "100px" : "170px"}]`}
                         >
-                          <Tooltip content={item.data.name}>
+                          <Tooltip content={item.data?.name}>
                             <span className="text-gray-600 text-xs truncate block">
-                              {item.data.name}
+                              {item.data?.name}
                             </span>
                           </Tooltip>
                           <div className=" flex gap-2 items-center">
@@ -387,9 +385,10 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                         {isEdit ? (
                           <InputNumber
                             classNames={{
-                              input: "text-right",
+                              input: "text-right w-20 text-xs",
                             }}
                             size="sm"
+                            startContent={<p className="text-xs">Rp</p>}
                             value={Number(item.price || 0).toString()}
                             onInput={(val) =>
                               editService(val, { ...item.data, qty: item.qty })
@@ -420,9 +419,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                               size="sm"
                               variant="flat"
                               onPress={() =>
-                                confirmSweat(() =>
-                                  handleDelete(item.data, item.type),
-                                )
+                                confirmSweat(() => handleDelete(item.id))
                               }
                             >
                               <Trash2 size={16} />
