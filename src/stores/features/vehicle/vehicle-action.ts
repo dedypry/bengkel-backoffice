@@ -18,3 +18,16 @@ export const getVehicle = createAsyncThunk(
     }
   },
 );
+
+export const getMasterVehicle = createAsyncThunk(
+  "get-master",
+  async (params?: IQuery) => {
+    try {
+      const { data } = await http.get(`vehicle-master`, { params });
+
+      return data;
+    } catch (_) {
+      return [];
+    }
+  },
+);

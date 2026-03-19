@@ -71,10 +71,16 @@ import InputNumber from "@/components/input-number";
 import CustomDatePicker from "@/components/forms/date-picker";
 import HeaderAction from "@/components/header-action";
 import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
-import { getVehicle } from "@/stores/features/vehicle/vehicle-action";
+import {
+  getMasterVehicle,
+  getVehicle,
+} from "@/stores/features/vehicle/vehicle-action";
 import { usePermission } from "@/components/use-permission";
+import { IMasterVehicle } from "@/utils/interfaces/IMaster";
+import AutoCompleteVehilce from "@/components/auto-complete-vehicle";
 
 export default function ServiceAddPage() {
+  const { master: vehilces } = useAppSelector((state) => state.vehicle);
   const { company } = useAppSelector((state) => state.auth);
   const { query } = useAppSelector((state) => state.service);
   const { list: employes } = useAppSelector((state) => state.employe);
@@ -86,6 +92,7 @@ export default function ServiceAddPage() {
   const [isEdit, setEdit] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isNew, setNew] = useState(false);
+  const [vehicle, setVehilce] = useState<IMasterVehicle>();
   const [isErrorService, setErrorService] = useState(false);
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get("booking");
@@ -110,6 +117,7 @@ export default function ServiceAddPage() {
       dispatch(getService(query));
       dispatch(getMechanic({ page: 1, pageSize: 500 }));
       dispatch(getVehicle({ page: 1, pageSize: 500 }));
+      dispatch(getMasterVehicle());
 
       setTimeout(() => {
         hasFetchedService.current = false;
@@ -487,14 +495,23 @@ export default function ServiceAddPage() {
                   control={control}
                   name="vehicle.brand"
                   render={({ field, fieldState }) => (
-                    <Input
+                    <AutoCompleteVehilce
                       errorMessage={fieldState.error?.message}
                       isDisabled={isVehicleDisable}
                       isInvalid={fieldState.invalid}
+                      items={vehilces.map((e) => e.type)}
                       label="Merk"
                       labelPlacement="outside"
-                      placeholder="Contoh: Honda"
-                      {...field}
+                      value={field.value}
+                      onValueChange={(val) => {
+                        const find = vehilces.find((e) => e.type === val);
+
+                        field.onChange(val?.toUpperCase());
+                        if (find) {
+                          setVehilce(find);
+                          setValue("vehicle.model", "");
+                        }
+                      }}
                     />
                   )}
                 />
@@ -503,15 +520,37 @@ export default function ServiceAddPage() {
                   control={control}
                   name="vehicle.model"
                   render={({ field, fieldState }) => (
-                    <Input
+                    <AutoCompleteVehilce
+                      key="merk"
                       errorMessage={fieldState.error?.message}
                       isDisabled={isVehicleDisable}
                       isInvalid={fieldState.invalid}
+                      items={(vehicle?.children || []).map((e) => e.merk)}
                       label="Tipe / Model"
                       labelPlacement="outside"
-                      placeholder="Contoh: BRIO Satya"
-                      {...field}
+                      value={field.value}
+                      onValueChange={(val) => {
+                        console.log(val);
+                        field.onChange(val?.toUpperCase());
+                      }}
                     />
+                    // <Autocomplete
+                    //   errorMessage={fieldState.error?.message}
+                    //   isDisabled={isVehicleDisable}
+                    //   isInvalid={fieldState.invalid}
+                    //   items={vehicle?.children || []}
+                    //   label="Tipe / Model"
+                    //   labelPlacement="outside"
+                    //   placeholder="Contoh: BRIO Satya"
+                    //   selectedKey={field.value}
+                    //   onSelectionChange={field.onChange}
+                    // >
+                    //   {(item) => (
+                    //     <AutocompleteItem key={item.merk}>
+                    //       {item.merk}
+                    //     </AutocompleteItem>
+                    //   )}
+                    // </Autocomplete>
                   )}
                 />
 

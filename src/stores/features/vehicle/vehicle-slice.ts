@@ -3,7 +3,9 @@ import type { IVehicle } from "@/utils/interfaces/IUser";
 
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getVehicle } from "./vehicle-action";
+import { getMasterVehicle, getVehicle } from "./vehicle-action";
+
+import { IMasterVehicle } from "@/utils/interfaces/IMaster";
 
 export const vehicleSlice = createSlice({
   name: "vehicle",
@@ -14,6 +16,7 @@ export const vehicleSlice = createSlice({
       pageSize: 10,
       q: "",
     },
+    master: [] as IMasterVehicle[],
   },
   reducers: {
     setVehicleQuery: (state, action) => {
@@ -24,9 +27,13 @@ export const vehicleSlice = createSlice({
     },
   },
   extraReducers: (builder) =>
-    builder.addCase(getVehicle.fulfilled, (state, action) => {
-      state.vehicles = action.payload;
-    }),
+    builder
+      .addCase(getVehicle.fulfilled, (state, action) => {
+        state.vehicles = action.payload;
+      })
+      .addCase(getMasterVehicle.fulfilled, (state, action) => {
+        state.master = action.payload;
+      }),
 });
 
 export const { setVehicleQuery } = vehicleSlice.actions;
