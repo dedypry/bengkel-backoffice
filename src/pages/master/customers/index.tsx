@@ -10,7 +10,7 @@ import {
   Download,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Input,
   Chip,
@@ -46,10 +46,14 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { IPagination } from "@/utils/interfaces/IPagination";
 import { ICustomer } from "@/utils/interfaces/IUser";
 import PageSize from "@/components/page-size";
+import { getMasterVehicle } from "@/stores/features/vehicle/vehicle-action";
+import { IMasterVehicle } from "@/utils/interfaces/IMaster";
 
 export default function MasterCustomerPage() {
   const { company } = useAppSelector((state) => state.auth);
   const { customers: cust, query } = useAppSelector((state) => state.customer);
+  const { master: vehicles } = useAppSelector((state) => state.vehicle);
+  const [vehicle, setVehicle] = useState<IMasterVehicle>();
   const customers = cust as IPagination<ICustomer>;
 
   const dispatch = useAppDispatch();
@@ -62,6 +66,7 @@ export default function MasterCustomerPage() {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
       dispatch(getCustomer(custQuery));
+      dispatch(getMasterVehicle());
 
       setTimeout(() => {
         hasFetched.current = false;
@@ -146,56 +151,64 @@ export default function MasterCustomerPage() {
               startContent={<Search className="text-gray-400" size={18} />}
               onChange={(e) => searchDebounce(e.target.value)}
             />
+
             <Autocomplete
               classNames={{
                 clearButton: "text-gray-500",
               }}
-              defaultItems={customers?.stats?.vehicles || []}
-              placeholder="Pilih Brand Kendaraan"
+              defaultItems={vehicles}
+              placeholder="Pilih Type Kendaraan"
               selectedKey={query.brand}
+              onInputChange={(val) => {
+                if (!val) {
+                  setVehicle(undefined);
+                  dispatch(
+                    setCustomerQuery({
+                      brand: "",
+                      model: "",
+                    }),
+                  );
+                }
+              }}
               onSelectionChange={(val) => {
-                const find = customers?.stats?.vehicles.find(
-                  (e: any) => e.brand === val,
-                );
+                if (val) {
+                  const find = vehicles.find((e) => e.type === val);
 
-                dispatch(
-                  setCustomerQuery({
-                    brand: find?.brand,
-                    model: "",
-                  }),
-                );
+                  setVehicle(find);
+                  dispatch(
+                    setCustomerQuery({
+                      brand: find?.type,
+                      model: "",
+                    }),
+                  );
+                }
               }}
             >
-              {(item: any) => (
-                <AutocompleteItem key={item.brand} textValue={item.brand}>
-                  {item?.brand?.toUpperCase()}
+              {(item) => (
+                <AutocompleteItem key={item.type} textValue={item.type}>
+                  {item.type}
                 </AutocompleteItem>
               )}
             </Autocomplete>
+
             <Autocomplete
               classNames={{
                 clearButton: "text-gray-500",
               }}
-              defaultItems={(customers?.stats?.vehicles || []).filter(
-                (e: any) => e.brand === query.brand,
-              )}
-              placeholder="Pilih Model Kendaraan"
+              defaultItems={vehicle?.children || []}
+              placeholder="Pilih Merk Kendaraan"
               selectedKey={query.model}
               onSelectionChange={(val) => {
-                const find = customers?.stats?.vehicles.find(
-                  (e: any) => e.model === val,
-                );
-
                 dispatch(
                   setCustomerQuery({
-                    model: find?.model,
+                    model: val,
                   }),
                 );
               }}
             >
-              {(item: any) => (
-                <AutocompleteItem key={item.model} textValue={item.model}>
-                  {item?.model?.toUpperCase()}
+              {(item) => (
+                <AutocompleteItem key={item.merk} textValue={item.merk}>
+                  {item?.merk?.toUpperCase()}
                 </AutocompleteItem>
               )}
             </Autocomplete>

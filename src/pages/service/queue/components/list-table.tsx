@@ -24,18 +24,20 @@ import {
 import {
   EyeIcon,
   MoreVertical,
-  Trash2,
   UserCircleIcon,
   CalendarDays,
   Search,
+  Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 import StatusQueue from "./status-queue";
 import ButtonStatus from "./button-status";
 import ChipPriority from "./chip-priority";
+import CancelConfirm from "./cancel-confirm";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getAvatarByName } from "@/utils/helpers/global";
@@ -43,12 +45,11 @@ import { getWo } from "@/stores/features/work-order/wo-action";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
-import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
-import { http } from "@/utils/libs/axios";
 import debounce from "@/utils/helpers/debounce";
 import PageSize from "@/components/page-size";
 import CustomDatePicker from "@/components/forms/date-picker";
 import { usePermission } from "@/components/use-permission";
+import { IWorkOrder } from "@/utils/interfaces/IUser";
 
 interface Props {
   setOpenModal: (val: boolean) => void;
@@ -57,6 +58,8 @@ interface Props {
 
 export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { orders, woQuery } = useAppSelector((state) => state.wo);
+  const [open, setOpen] = useState(false);
+  const [woItem, setWoItem] = useState<IWorkOrder>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -64,16 +67,6 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const resUpdate = hasPermission("wo.update");
   const resDelete = hasPermission("wo.delete");
   const { t } = useTranslation();
-
-  function handleCancel(id: number) {
-    http
-      .patch(`/work-order/cancel/${id}`)
-      .then(({ data }) => {
-        notify(data.message);
-        dispatch(getWo(woQuery));
-      })
-      .catch((err) => notifyError(err));
-  }
 
   const debounceSearch = debounce((q) => dispatch(getWo({ q })), 500);
   const statusOptions = [
@@ -86,6 +79,8 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
 
   return (
     <div className="space-y-4">
+      {woItem && <CancelConfirm item={woItem} open={open} setOpen={setOpen} />}
+
       <Card>
         <CardHeader className="flex justify-between gap-2">
           <PageSize
@@ -286,11 +281,12 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                                 className="text-danger"
                                 color="danger"
                                 startContent={<Trash2 size={18} />}
-                                onPress={() =>
-                                  confirmSweat(() => handleCancel(item.id))
-                                }
+                                onPress={() => {
+                                  setWoItem(item);
+                                  setOpen(true);
+                                }}
                               >
-                                Batalkan Antrean
+                                Batalkan Service
                               </DropdownItem>
                             ) : (
                               <DropdownItem key="spacer-2" className="hidden" />

@@ -6,6 +6,7 @@ import {
   Info,
   History,
   Users,
+  NotebookPen,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -172,6 +173,19 @@ export default function WorkOrderDetail() {
               />
             </CardBody>
           </Card>
+          {data.cancel_note && (
+            <Card>
+              <CardBody className="p-6 space-y-4">
+                <SectionHeader
+                  icon={<NotebookPen size={18} />}
+                  title="Catatan dibatalkan"
+                />
+                <p className="text-xs font-bold text-gray-700 leading-relaxed uppercase">
+                  {data.cancel_note}
+                </p>
+              </CardBody>
+            </Card>
+          )}
         </div>
 
         {/* RIGHT COLUMN: WORK ITEMS & MECHANICS */}

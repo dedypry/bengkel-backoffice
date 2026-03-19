@@ -176,7 +176,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             >
               <Printer size={18} />
             </Button>
-            {!isEdit && canUpdate && (
+            {!isEdit && canUpdate && !["cancel"].includes(data.status) && (
               <Button
                 className="text-white"
                 color="warning"

@@ -217,6 +217,7 @@ export interface IWorkOrder {
   services: IWOItems<IService>[];
   complaints: string;
   next_sugestion: string;
+  cancel_note: string;
   company?: ICompany;
   other_fee?: number;
   disc_percentage?: number;
