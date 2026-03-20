@@ -35,9 +35,9 @@ import WorkOrderDetail from "./pages/service/queue/detail";
 import ProductDetail from "./pages/inventory/stock/detail";
 import EditProduct from "./pages/inventory/stock/edit";
 import PaymentDetailPage from "./pages/finance/detail";
+import VendorTrxPage from "./pages/service/vendor-transaction";
 
 import HomePage from "@/pages/dashboard/index";
-import VendorTrxPage from "./pages/service/vendor-transaction";
 
 function App() {
   return (
