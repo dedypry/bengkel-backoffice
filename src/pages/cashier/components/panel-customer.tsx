@@ -47,8 +47,9 @@ import ModalAddService from "@/pages/service/add/components/modal-add-service";
 import StatusQueue from "@/components/status-queue";
 
 export default function PanelCustomer() {
-  const { workOrder, woQuery, isLoadingDetail, services, sparepart } =
-    useAppSelector((state) => state.wo);
+  const { workOrder, woQuery, isLoadingDetail } = useAppSelector(
+    (state) => state.wo,
+  );
   const [loading, setLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();
