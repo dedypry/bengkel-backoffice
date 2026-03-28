@@ -31,7 +31,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { uploadFile } from "@/utils/helpers/upload-file";
-import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
+import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import InputNumber from "@/components/input-number";
 import { formatIDR } from "@/utils/helpers/format";
 import {
@@ -206,6 +206,7 @@ export default function PanelCustomer() {
       .then(({ data }) => {
         notify(data.message);
         dispatch(getWoDetail(workOrder.id.toString()));
+        reset();
       })
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));
