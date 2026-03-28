@@ -31,11 +31,10 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { uploadFile } from "@/utils/helpers/upload-file";
-import { getWoDetail } from "@/stores/features/work-order/wo-action";
+import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
 import InputNumber from "@/components/input-number";
 import { formatIDR } from "@/utils/helpers/format";
 import {
-  formWoClear,
   removeRowPart,
   removeRowService,
   setWoService,
@@ -43,13 +42,13 @@ import {
   updateRowPart,
   updateRowService,
 } from "@/stores/features/work-order/wo-slice";
-import { generateDataWo, handleDownload } from "@/utils/helpers/global";
+import { handleDownload } from "@/utils/helpers/global";
 import ModalAddService from "@/pages/service/add/components/modal-add-service";
+import StatusQueue from "@/components/status-queue";
 
 export default function PanelCustomer() {
-  const { workOrder, isLoadingDetail, services, sparepart } = useAppSelector(
-    (state) => state.wo,
-  );
+  const { workOrder, woQuery, isLoadingDetail, services, sparepart } =
+    useAppSelector((state) => state.wo);
   const [loading, setLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -79,15 +78,6 @@ export default function PanelCustomer() {
     });
 
   useEffect(() => {
-    if (services.length > 0) {
-      console.log(services);
-    }
-    if (sparepart.length > 0) {
-      console.log(sparepart);
-    }
-  }, [services, sparepart]);
-
-  useEffect(() => {
     if (workOrder) {
       dispatch(
         setWoSparepart(
@@ -108,6 +98,11 @@ export default function PanelCustomer() {
           })),
         ),
       );
+
+      setValue("disc_percentage", workOrder.disc_percentage);
+      setValue("disc_value", workOrder.disc_value);
+      setValue("other_fee", workOrder.other_fee);
+      setValue("tax", workOrder.ppn_percent);
     }
   }, [workOrder]);
 
@@ -206,7 +201,9 @@ export default function PanelCustomer() {
       .then(({ data }) => {
         notify(data.message);
         dispatch(getWoDetail(workOrder.id.toString()));
+        dispatch(getWo({ ...woQuery, pageSize: 100, date: "" } as any));
         reset();
+        hasSet.current = false;
       })
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));
@@ -220,18 +217,6 @@ export default function PanelCustomer() {
   //     })
   //     .catch((err) => notifyError(err));
   // }
-
-  const handleSave = async (payload: any) => {
-    if (!workOrder) return;
-    http
-      .patch(`/work-order/service/${workOrder.id}`, payload)
-      .then(({ data }) => {
-        notify(data.message);
-        dispatch(formWoClear());
-        dispatch(getWoDetail(workOrder.id as any));
-      })
-      .catch((err) => notifyError(err));
-  };
 
   if (isLoadingDetail) return <BillingSkeleton />;
 
@@ -249,13 +234,7 @@ export default function PanelCustomer() {
               </p>
             </div>
             <div className="flex gap-2">
-              {!isDisable && (
-                <ModalAddService
-                  isSave
-                  onClose={() => dispatch(formWoClear())}
-                  onSave={() => handleSave(generateDataWo(services, sparepart))}
-                />
-              )}
+              {!isDisable && <ModalAddService isSave />}
               {workOrder?.status === "closed" && isDisable && (
                 <Button
                   className="text-white font-semibold uppercase"
@@ -618,18 +597,25 @@ export default function PanelCustomer() {
           <CardFooter className="px-5 flex flex-col">
             <div className="grid grid-cols-3 w-full gap-3">
               <div className="col-span-2 space-y-1">
-                <Input
-                  isDisabled
-                  classNames={{
-                    label: "w-24",
-                    mainWrapper: "w-1/2",
-                  }}
-                  label="Pelanggan"
-                  labelPlacement="outside-left"
-                  placeholder="#Order Customer"
-                  size="sm"
-                  value={workOrder.customer.name}
-                />
+                <div className="flex justify-between items-center">
+                  <div>
+                    <Input
+                      isDisabled
+                      classNames={{
+                        label: "w-24",
+                        mainWrapper: "w-34",
+                      }}
+                      label="Pelanggan"
+                      labelPlacement="outside-left"
+                      placeholder="#Order Customer"
+                      size="sm"
+                      value={workOrder.customer.name}
+                    />
+                  </div>
+                  <div className="ml-2">
+                    <StatusQueue wo={workOrder} />
+                  </div>
+                </div>
                 <div className="flex items-center">
                   <p className="w-24 text-xs pl-2">Mekanik</p>
                   <div className="flex flex-wrap gap-1">
@@ -653,13 +639,13 @@ export default function PanelCustomer() {
                       <div className="grid grid-cols-2 gap-y-1 mt-2">
                         <p className="font-bold text-xs">Metode:</p>
                         <p className="text-xs text-right">
-                          {workOrder.payment.method || "CASH"}
+                          {workOrder.payment?.method || "CASH"}
                         </p>
 
                         <p className="font-bold text-xs">Waktu:</p>
                         <p className="text-xs text-right">
                           {dayjs(
-                            workOrder.payment.payment_date ||
+                            workOrder.payment?.payment_date ||
                               workOrder.updated_at,
                           ).format("DD MMM YY | HH:mm")}
                         </p>

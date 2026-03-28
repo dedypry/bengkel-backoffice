@@ -20,7 +20,7 @@ export default function ListProduct() {
   return (
     <ScrollShadow className="px-1 scrollbar-modern">
       <div className="flex flex-col gap-3">
-        {products?.data.map((item) => {
+        {(products?.data || []).map((item) => {
           const isSelected = datas.some((e) => e.id === item.id);
 
           return (

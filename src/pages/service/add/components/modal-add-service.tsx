@@ -20,6 +20,11 @@ import { getService } from "@/stores/features/service/service-action";
 import { getProduct } from "@/stores/features/product/product-action";
 import { getSupplier } from "@/stores/features/supplier/supplier-action";
 import { CustomPagination } from "@/components/custom-pagination";
+import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
+import { formWoClear } from "@/stores/features/work-order/wo-slice";
+import { notify, notifyError } from "@/utils/helpers/notify";
+import { http } from "@/utils/libs/axios";
+import { generateDataWo } from "@/utils/helpers/global";
 
 interface Props {
   isSave?: boolean;
@@ -29,9 +34,16 @@ interface Props {
 
 export default function ModalAddService({ isSave, onSave, onClose }: Props) {
   const { company } = useAppSelector((state) => state.auth);
+  const {
+    workOrder,
+    services: serviceWo,
+    sparepart,
+    woQuery,
+  } = useAppSelector((state) => state.wo);
   const { query, services } = useAppSelector((state) => state.service);
   const { productQuery, products } = useAppSelector((state) => state.product);
   const [selectedKey, setSelectedKey] = useState("service");
+  const [isLoading, setIsLoading] = useState(false);
   // HeroUI hook untuk kontrol modal yang lebih clean
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -55,6 +67,26 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
       dispatch(getProduct(productQuery));
     }
   }, [company, isOpen, dispatch]);
+
+  const handleSave = async () => {
+    if (!workOrder) return;
+    setIsLoading(true);
+    const payload = generateDataWo(serviceWo, sparepart);
+
+    http
+      .patch(`/work-order/service/${workOrder.id}`, payload)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(formWoClear());
+        dispatch(getWoDetail(workOrder.id as any));
+        dispatch(getWo({ ...woQuery, pageSize: 100, date: "" } as any));
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => {
+        setIsLoading(false);
+        dispatch(formWoClear());
+      });
+  };
 
   return (
     <>
@@ -155,6 +187,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                   <div className="flex gap-2">
                     <Button
                       color="danger"
+                      isDisabled={isLoading}
                       size="sm"
                       variant="bordered"
                       onPress={() => {
@@ -169,10 +202,14 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                     {isSave && (
                       <Button
                         color="primary"
+                        isLoading={isLoading}
                         size="sm"
                         onPress={() => {
-                          onSave?.();
-                          onCloseModal();
+                          if (onSave) {
+                            onSave();
+                          } else {
+                            handleSave();
+                          }
                         }}
                       >
                         Simpan Perubahan
