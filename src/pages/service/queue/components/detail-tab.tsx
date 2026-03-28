@@ -44,7 +44,7 @@ import {
   setWoSparepart,
 } from "@/stores/features/work-order/wo-slice";
 import { formatIDR, formatNumber } from "@/utils/helpers/format";
-import { handleDownload } from "@/utils/helpers/global";
+import { generateDataWo, handleDownload } from "@/utils/helpers/global";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -91,23 +91,6 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
       setNextSugestion(data.next_sugestion || "");
     }
   }, [data, dispatch]);
-
-  function generateData(serviceData: any[], sparepartData: any[]) {
-    return {
-      services: serviceData.map((e) => ({
-        id: e.id,
-        qty: e.qty,
-        price: e.price,
-        supplier_id: e?.supplier_id,
-      })),
-      sparepart: sparepartData.map((e) => ({
-        id: e.id,
-        qty: e.qty,
-        price: e.sell_price,
-        supplier_id: e?.supplier_id,
-      })),
-    };
-  }
 
   const handleSave = async (payload: any) => {
     http
@@ -176,23 +159,25 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             >
               <Printer size={18} />
             </Button>
-            {!isEdit && canUpdate && !["cancel"].includes(data.status) && (
-              <Button
-                className="text-white"
-                color="warning"
-                size="sm"
-                startContent={<Edit size={18} />}
-                onPress={() => setIsEdit(true)}
-              >
-                Edit Tabel
-              </Button>
-            )}
+            {!isEdit &&
+              canUpdate &&
+              !["cancel", "closed"].includes(data.status) && (
+                <Button
+                  className="text-white"
+                  color="warning"
+                  size="sm"
+                  startContent={<Edit size={18} />}
+                  onPress={() => setIsEdit(true)}
+                >
+                  Edit Tabel
+                </Button>
+              )}
 
-            {!["cancel"].includes(data.status) && canUpdate && (
+            {!["cancel", "closed"].includes(data.status) && canUpdate && (
               <ModalAddService
                 isSave
                 onClose={() => dispatch(formWoClear())}
-                onSave={() => handleSave(generateData(services, sparepart))}
+                onSave={() => handleSave(generateDataWo(services, sparepart))}
               />
             )}
           </div>
@@ -282,6 +267,18 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                           value={Number(item.price || 0).toString()}
                           onInput={(val) => editPart(val, item.qty, item.data)}
                         />
+                      ) : Number(item.disc_value) > 0 ? (
+                        <>
+                          <p className="text-[10px] line-through italic">
+                            {formatIDR(item.price)}
+                          </p>
+                          <p className="">
+                            {formatIDR(
+                              Number(item.price || 0) -
+                                Number(item.disc_value || 0),
+                            )}
+                          </p>
+                        </>
                       ) : (
                         formatIDR(item.price)
                       )}
@@ -402,6 +399,18 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                               editService(val, { ...item.data, qty: item.qty })
                             }
                           />
+                        ) : Number(item.disc_value) > 0 ? (
+                          <>
+                            <p className="text-[10px] line-through italic">
+                              {formatIDR(item.price)}
+                            </p>
+                            <p className="">
+                              {formatIDR(
+                                Number(item.price || 0) -
+                                  Number(item.disc_value || 0),
+                              )}
+                            </p>
+                          </>
                         ) : (
                           formatIDR(item.price)
                         )}
@@ -546,7 +555,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             <Button
               color="primary"
               size="sm"
-              onPress={() => handleSave(generateData(services, sparepart))}
+              onPress={() => handleSave(generateDataWo(services, sparepart))}
             >
               Simpan Perubahan
             </Button>

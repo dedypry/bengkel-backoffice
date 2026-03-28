@@ -178,3 +178,20 @@ export const getJoinDuration = (joinDate: string, showMonth?: boolean) => {
 export function formatTime(data: string) {
   return data.slice(0, 5);
 }
+
+export function generateDataWo(serviceData: any[], sparepartData: any[]) {
+  return {
+    services: serviceData.map((e) => ({
+      id: e.id,
+      qty: e.qty,
+      price: e.price,
+      supplier_id: e?.supplier_id,
+    })),
+    sparepart: sparepartData.map((e) => ({
+      id: e.id,
+      qty: e.qty,
+      price: e.sell_price,
+      supplier_id: e?.supplier_id,
+    })),
+  };
+}

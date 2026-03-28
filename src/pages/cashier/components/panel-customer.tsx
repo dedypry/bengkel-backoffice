@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -20,7 +20,7 @@ import {
   Alert,
   Divider,
 } from "@heroui/react";
-import { Eye, Printer, Receipt, Trash2 } from "lucide-react";
+import { Edit, Eye, Printer, Receipt, Trash2 } from "lucide-react";
 import dayjs from "dayjs";
 
 import { PaymentSchema, paymentSchema } from "./order-schema";
@@ -35,20 +35,34 @@ import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
 import InputNumber from "@/components/input-number";
 import { formatIDR } from "@/utils/helpers/format";
 import {
+  formWoClear,
   removeRowPart,
   removeRowService,
+  setWoService,
+  setWoSparepart,
   updateRowPart,
   updateRowService,
 } from "@/stores/features/work-order/wo-slice";
-import { handleDownload } from "@/utils/helpers/global";
+import { generateDataWo, handleDownload } from "@/utils/helpers/global";
+import ModalAddService from "@/pages/service/add/components/modal-add-service";
 
 export default function PanelCustomer() {
-  const { workOrder, isLoadingDetail } = useAppSelector((state) => state.wo);
+  const { workOrder, isLoadingDetail, services, sparepart } = useAppSelector(
+    (state) => state.wo,
+  );
   const [loading, setLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const isDisable = workOrder?.status === "closed";
+  const [isDisable, setIsDisable] = useState(false);
+  const hasSet = useRef(false);
+
+  useEffect(() => {
+    if (workOrder && !hasSet.current) {
+      hasSet.current = true;
+      setIsDisable(workOrder?.status === "closed");
+    }
+  }, [workOrder]);
 
   const { control, watch, handleSubmit, setValue, reset } =
     useForm<PaymentSchema>({
@@ -63,6 +77,39 @@ export default function PanelCustomer() {
         total: 0,
       },
     });
+
+  useEffect(() => {
+    if (services.length > 0) {
+      console.log(services);
+    }
+    if (sparepart.length > 0) {
+      console.log(sparepart);
+    }
+  }, [services, sparepart]);
+
+  useEffect(() => {
+    if (workOrder) {
+      dispatch(
+        setWoSparepart(
+          (workOrder.spareparts || []).map((item) => ({
+            ...item.data,
+            qty: item.qty,
+            price: item.price,
+          })),
+        ),
+      );
+      dispatch(
+        setWoService(
+          (workOrder.services || []).map((item) => ({
+            ...item.data,
+            supplier_id: item.supplier_id,
+            qty: item.qty,
+            price: item.price,
+          })),
+        ),
+      );
+    }
+  }, [workOrder]);
 
   useEffect(() => {
     if (workOrder) {
@@ -111,7 +158,9 @@ export default function PanelCustomer() {
   }, [workOrder, watch("disc_value"), watch("other_fee")]);
 
   async function onSubmit(data: PaymentSchema) {
+    if (!workOrder) return;
     setLoading(true);
+
     const payload = {
       woId: workOrder.id,
       ...data,
@@ -157,8 +206,6 @@ export default function PanelCustomer() {
       .then(({ data }) => {
         notify(data.message);
         dispatch(getWoDetail(workOrder.id.toString()));
-        dispatch(getWo({}));
-        reset();
       })
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));
@@ -172,6 +219,18 @@ export default function PanelCustomer() {
   //     })
   //     .catch((err) => notifyError(err));
   // }
+
+  const handleSave = async (payload: any) => {
+    if (!workOrder) return;
+    http
+      .patch(`/work-order/service/${workOrder.id}`, payload)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(formWoClear());
+        dispatch(getWoDetail(workOrder.id as any));
+      })
+      .catch((err) => notifyError(err));
+  };
 
   if (isLoadingDetail) return <BillingSkeleton />;
 
@@ -189,6 +248,25 @@ export default function PanelCustomer() {
               </p>
             </div>
             <div className="flex gap-2">
+              {!isDisable && (
+                <ModalAddService
+                  isSave
+                  onClose={() => dispatch(formWoClear())}
+                  onSave={() => handleSave(generateDataWo(services, sparepart))}
+                />
+              )}
+              {workOrder?.status === "closed" && isDisable && (
+                <Button
+                  className="text-white font-semibold uppercase"
+                  color="warning"
+                  size="sm"
+                  startContent={<Edit size={18} />}
+                  onPress={() => setIsDisable(false)}
+                >
+                  Edit
+                </Button>
+              )}
+
               <Button
                 className="text-white font-semibold uppercase"
                 color="success"
@@ -198,6 +276,7 @@ export default function PanelCustomer() {
               >
                 Detail
               </Button>
+
               <Button
                 isIconOnly
                 isLoading={printLoading}
