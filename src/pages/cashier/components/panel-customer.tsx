@@ -216,7 +216,7 @@ export default function PanelCustomer() {
               </Button>
             </div>
           </CardHeader>
-          <CardBody className="gap-2 flex flex-col overflow-y-auto scrollbar-modern">
+          <CardBody className="gap-2 flex flex-col overflow-y-auto scrollbar-modern max-h-[calc(100vh-360px)]">
             <Table removeWrapper>
               <TableHeader>
                 <TableColumn>Deskripsi Jasa</TableColumn>
@@ -535,7 +535,7 @@ export default function PanelCustomer() {
             </Table>
           </CardBody>
           <Divider />
-          <CardFooter className="px-5 flex flex-col pb-12">
+          <CardFooter className="px-5 flex flex-col">
             <div className="grid grid-cols-3 w-full gap-3">
               <div className="col-span-2 space-y-1">
                 <Input

@@ -169,7 +169,7 @@ export default function PanelProduct() {
         <CardHeader>
           <div className="flex flex-col gap-1" />
         </CardHeader>
-        <CardBody className="gap-2 flex flex-col overflow-y-auto scrollbar-modern">
+        <CardBody className="gap-2 flex flex-col overflow-y-auto scrollbar-modern max-h-[calc(100vh-320px)]">
           <Table isHeaderSticky removeWrapper>
             <TableHeader>
               <TableColumn>Produk</TableColumn>
