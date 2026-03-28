@@ -638,9 +638,11 @@ export default function PanelCustomer() {
                       <Divider className="my-1 opacity-50" />
 
                       <div className="grid grid-cols-2 gap-y-1 mt-2">
-                        <p className="font-bold text-xs">Metode:</p>
+                        <p className="font-bold text-xs">
+                          Pebayaran {workOrder.payment?.method || "CASH"}
+                        </p>
                         <p className="text-xs text-right">
-                          {workOrder.payment?.method || "CASH"}
+                          {formatIDR(workOrder.payment?.amount)}
                         </p>
 
                         <p className="font-bold text-xs">Waktu:</p>
