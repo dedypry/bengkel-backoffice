@@ -8,22 +8,22 @@ import {
   TableRow,
   TableCell,
   Chip,
-  Avatar,
   Table,
   Divider,
   CardFooter,
   Tooltip,
+  Avatar,
 } from "@heroui/react";
 import {
   Receipt,
   Printer,
   Trash2,
-  Wrench,
-  UserCircleIcon,
   ClipboardCheck,
   AlertCircle,
   Save,
   Edit,
+  UserCircleIcon,
+  Wrench,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,7 +34,6 @@ import ButtonStatus from "./button-status";
 import { SectionHeader } from "./helper";
 
 import BlogEditor from "@/components/text-editor";
-import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import {
   addSparepartService,
@@ -55,6 +54,7 @@ import debounce from "@/utils/helpers/debounce";
 import { ISupplier } from "@/utils/interfaces/ISupplier";
 import SelectSupplierPopover from "@/components/select-supplier-popover";
 import { usePermission } from "@/components/use-permission";
+import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 
 interface Props {
   id: any;
@@ -203,9 +203,14 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             />
           </div>
 
-          <h1 className="text-sm uppercase font-bold text-gray-700">
-            Sparepart
-          </h1>
+          <div className="flex justify-between">
+            <h1 className="text-sm uppercase font-bold text-gray-700">
+              Sparepart
+            </h1>
+            <h1 className="text-sm uppercase font-bold text-gray-700">
+              {formatIDR(data.sparepart_total)}
+            </h1>
+          </div>
           <Table removeWrapper aria-label="Work Items" className="mt-1">
             <TableHeader>
               <TableColumn>ITEM / DESC</TableColumn>
@@ -324,7 +329,12 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             </TableBody>
           </Table>
           <Divider className="mb-4" />
-          <h1 className="text-sm uppercase font-bold text-gray-700">Jasa</h1>
+          <div className="flex justify-between">
+            <h1 className="text-sm uppercase font-bold text-gray-700">Jasa</h1>
+            <h1 className="text-sm uppercase font-bold text-gray-700">
+              {formatIDR(data.service_total)}
+            </h1>
+          </div>
           <Table removeWrapper aria-label="Work Items" className="mt-2">
             <TableHeader>
               <TableColumn>ITEM / DESC</TableColumn>
@@ -431,6 +441,98 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               )}
             </TableBody>
           </Table>
+          <div className="flex justify-end mt-5 items-end border-t pt-5">
+            <div>
+              {/* <div className="w-full h-full col-span-2">
+              <div className="flex flex-wrap justify-between items-center gap-4">
+                <SectionHeader
+                  icon={<Wrench size={18} />}
+                  title="Mekanik Bertugas"
+                />
+                <div className="flex gap-2">
+                  {!["cancel", "closed"].includes(data.status) && canUpdate && (
+                    <>
+                      <Button
+                        color="warning"
+                        size="sm"
+                        startContent={<UserCircleIcon size={16} />}
+                        onPress={() => {
+                          dispatch(
+                            setMechanic(data.mechanics?.map((item) => item.id)),
+                          );
+                          setOpenModal(true);
+                        }}
+                      >
+                        Pilih Mekanik
+                      </Button>
+                      <ButtonStatus
+                        item={data}
+                        onSuccess={() => dispatch(getWoDetail(id!))}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1 mt-5">
+                {data.mechanics?.map((mech) => (
+                  <Chip key={mech.id} size="sm" variant="dot">
+                    {mech.name}
+                  </Chip>
+                ))}
+              </div> */}
+            </div>
+            <div className="space-y-2">
+              <InputNumber
+                isDisabled
+                classNames={{
+                  input: "text-end",
+                  label: "w-24 text-start text-sm",
+                }}
+                label="Subtotal"
+                labelPlacement="outside-left"
+                size="sm"
+                startContent={<p className="text-xs">Rp</p>}
+                value={Number(data.sub_total ?? 0) as any}
+              />
+              <InputNumber
+                isDisabled
+                classNames={{
+                  input: "text-end",
+                  label: "w-24 text-start text-sm",
+                }}
+                label="Disc Final"
+                labelPlacement="outside-left"
+                size="sm"
+                startContent={<p className="text-xs">Rp</p>}
+                value={Number(data.disc_value || 0) as any}
+              />
+              <InputNumber
+                isDisabled
+                classNames={{
+                  input: "text-end w-full",
+                  label: "w-24 text-start text-sm",
+                }}
+                endContent={<p className="text-xs">%</p>}
+                label="PPN"
+                labelPlacement="outside-left"
+                size="sm"
+                value={Number(data.ppn_percent ?? 0) as any}
+              />
+              <InputNumber
+                isDisabled
+                classNames={{
+                  input: "text-end w-full",
+                  label: "w-24 text-start text-sm",
+                }}
+                label="Total"
+                labelPlacement="outside-left"
+                size="sm"
+                startContent={<p className="text-xs">Rp</p>}
+                value={Number(data.grand_total ?? 0) as any}
+              />
+            </div>
+          </div>
         </CardBody>
         {isEdit && canUpdate && (
           <CardFooter className="flex gap-2 justify-end">

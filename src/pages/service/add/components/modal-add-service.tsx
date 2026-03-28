@@ -152,9 +152,10 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                       />
                     )}
                   </div>
-                  <div>
+                  <div className="flex gap-2">
                     <Button
                       color="danger"
+                      size="sm"
                       variant="bordered"
                       onPress={() => {
                         if (onClose) {
@@ -166,7 +167,14 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                       Tutup
                     </Button>
                     {isSave && (
-                      <Button color="primary" onPress={onSave}>
+                      <Button
+                        color="primary"
+                        size="sm"
+                        onPress={() => {
+                          onSave?.();
+                          onCloseModal();
+                        }}
+                      >
                         Simpan Perubahan
                       </Button>
                     )}

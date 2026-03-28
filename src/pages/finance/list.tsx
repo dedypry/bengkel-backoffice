@@ -62,7 +62,7 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
   function handleExport() {}
 
   return (
-    <div className="flex flex-col gap-6 p-4">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       {!noHeader && (
         <HeaderAction
@@ -86,7 +86,11 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
             onValueChange={setSearch}
           />
         </div>
-        <Button startContent={<Search size={18} />} onPress={onSearch}>
+        <Button
+          color="primary"
+          startContent={<Search size={18} />}
+          onPress={onSearch}
+        >
           Cari Invoice
         </Button>
       </Card>

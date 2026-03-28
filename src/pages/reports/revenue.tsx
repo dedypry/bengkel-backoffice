@@ -220,11 +220,11 @@ export default function RevenuePage() {
                 value={report?.reportMonthly.growth_value}
               />
               <div className="flex justify-between items-center mt-3">
-                <span className="text-sm font-black text-gray-500 uppercase">
-                  0%
+                <span className="text-xs font-black text-danger uppercase">
+                  {report?.reportMonthly.growth_value.toFixed(2)}%
                 </span>
                 <span className="text-xs font-black text-danger uppercase">
-                  {report?.reportMonthly.growth_value}% Achieved
+                  Achieved
                 </span>
               </div>
             </div>
