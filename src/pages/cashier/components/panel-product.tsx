@@ -137,8 +137,8 @@ export default function PanelProduct() {
           price: item.sell_price,
           tax: item.tax,
           disc_percentage: item.disc_percentage,
-          disc_value: item.disc_value,
-          total_price: item.total_price,
+          disc_value: item.disc_value || 0,
+          total_price: item.total_price || 0,
         })),
         type: "product",
       };

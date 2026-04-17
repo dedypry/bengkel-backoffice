@@ -90,7 +90,7 @@ export default function RevenuePage() {
     <div className="space-y-8 pb-20 px-4 max-w-7xl mx-auto">
       <HeaderAction
         actionIcon={FileSpreadsheet}
-        actionTitle="EXPORT EXCEL"
+        // actionTitle="EXPORT EXCEL"
         subtitle="Analisis pemasukan dan pertumbuhan bengkel secara akurat."
         title="Laporan Pendapatan"
         onAction={() => {
