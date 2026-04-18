@@ -15,9 +15,9 @@ export const customerSchema = z.object({
     .or(z.literal("")),
   profile: z.object({
     id: z.number().optional(),
-    province_id: z.number(),
-    city_id: z.number(),
-    district_id: z.number(),
+    province_id: z.number().optional(),
+    city_id: z.number().optional(),
+    district_id: z.number().optional(),
     birth_date: z
       .string({ message: "Tanggal Lahir wajib diisi" })
       .min(1, { message: "Tanggal Lahir wajib diisi" }),
@@ -51,5 +51,5 @@ export const customerSchema = z.object({
         tire_size: z.string().optional(), // misal: 185/65 R15
       }),
     )
-    .min(1, "Minimal harus ada satu kendaraan"),
+    .optional(),
 });

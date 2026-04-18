@@ -10,11 +10,13 @@ import {
 
 interface Props {
   value: number | string | undefined;
+  isInvalid?: boolean;
+  errorMessage?: string;
   onChange: (val: number) => void;
 }
 
 const Province = forwardRef<HTMLInputElement, Props & any>(
-  ({ value, onChange, ...props }, ref) => {
+  ({ value, onChange, isInvalid, errorMessage, ...props }, ref) => {
     const { provinces } = useAppSelector((state) => state.region);
     const dispatch = useAppDispatch();
     const hasFetched = useRef(false);
@@ -56,7 +58,9 @@ const Province = forwardRef<HTMLInputElement, Props & any>(
     return (
       <Autocomplete
         ref={ref}
+        errorMessage={errorMessage}
         isClearable={false}
+        isInvalid={isInvalid}
         label="Provinsi"
         placeholder="CARI PROVINSI..."
         radius="sm"

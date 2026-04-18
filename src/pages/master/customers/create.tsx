@@ -43,7 +43,12 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { control, reset, handleSubmit } = useForm({
+  const {
+    control,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(customerSchema),
     mode: "onChange",
     defaultValues: {
@@ -53,10 +58,12 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
       customer_type: "personal",
       nik_ktp: "",
       credit_limit: "0",
-      vehicles: [{ plate_number: "", brand: "", model: "", year: "" }],
+      vehicles: [],
       profile: { birth_date: new Date().toISOString() },
     },
   });
+
+  console.log("ERROR", errors);
 
   useEffect(() => {
     if (data) {
@@ -107,7 +114,7 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
             <ChevronLeft size={20} />
           </Button>
           <div>
-            <h1 className="text-xl font-black uppercase tracking-tight text-gray-500">
+            <h1 className="text-xl font-black uppercase text-gray-500">
               {data ? "Perbarui Pelanggan" : "Registrasi Pelanggan Baru"}
             </h1>
             <p className="text-tiny font-medium text-gray-400">
@@ -142,7 +149,7 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
               <section className="space-y-4">
                 <div className="flex items-center gap-2 text-gray-500">
                   <User className="size-5" />
-                  <h2 className="text-sm font-black uppercase italic tracking-tight">
+                  <h2 className="text-sm font-black uppercase italic">
                     Informasi Dasar & Kontak
                   </h2>
                 </div>
@@ -202,7 +209,7 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
               <section className="space-y-4">
                 <div className="flex items-center gap-2 text-gray-500">
                   <MapPin className="size-5" />
-                  <h2 className="text-sm font-black uppercase italic tracking-tight">
+                  <h2 className="text-sm font-black uppercase italic">
                     Domisili Pelanggan
                   </h2>
                 </div>
@@ -210,22 +217,37 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
                   <Controller
                     control={control}
                     name="profile.province_id"
-                    render={({ field }) => (
-                      <Province value={field.value} onChange={field.onChange} />
+                    render={({ field, fieldState: { error } }) => (
+                      <Province
+                        errorMessage={error?.message}
+                        isInvalid={!!error}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     )}
                   />
                   <Controller
                     control={control}
                     name="profile.city_id"
-                    render={({ field }) => (
-                      <City value={field.value} onChange={field.onChange} />
+                    render={({ field, fieldState: { error } }) => (
+                      <City
+                        errorMessage={error?.message}
+                        isInvalid={!!error}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     )}
                   />
                   <Controller
                     control={control}
                     name="profile.district_id"
-                    render={({ field }) => (
-                      <District value={field.value} onChange={field.onChange} />
+                    render={({ field, fieldState: { error } }) => (
+                      <District
+                        errorMessage={error?.message}
+                        isInvalid={!!error}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     )}
                   />
                 </div>
@@ -253,7 +275,7 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-gray-500">
                 <CarFront className="size-5" />
-                <h2 className="text-sm font-black uppercase italic tracking-tight text-gray-500">
+                <h2 className="text-sm font-black uppercase italic text-gray-500">
                   Inventori Kendaraan
                 </h2>
               </div>
@@ -412,7 +434,7 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
             <CardBody className="p-6 space-y-6">
               <div className="flex items-center gap-2 text-gray-500">
                 <Settings2 className="size-5" />
-                <h2 className="text-sm font-black uppercase italic tracking-tight">
+                <h2 className="text-sm font-black uppercase italic">
                   Klasifikasi Akun
                 </h2>
               </div>
