@@ -25,9 +25,9 @@ import { notifyError } from "@/utils/helpers/notify";
 import Password from "@/components/password";
 
 const formSchema = z.object({
-  email: z
-    .email({ message: "Format email tidak valid." })
-    .min(1, { message: "Email wajib diisi." }),
+  username: z
+    .string({ message: "Nik/Email wajib di isi." })
+    .min(1, { message: "Nik/Email wajib di isi" }),
   password: z
     .string({ message: "Password wajib diisi." })
     .min(1, { message: "Password wajib diisi." }),
@@ -45,7 +45,7 @@ export default function LoginPage() {
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
@@ -82,17 +82,16 @@ export default function LoginPage() {
             <CardBody className="flex flex-col gap-4">
               <Controller
                 control={control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <Input
                     {...field}
-                    errorMessage={errors.email?.message}
-                    isInvalid={!!errors.email}
-                    label="Email"
+                    errorMessage={errors.username?.message}
+                    isInvalid={!!errors.username}
+                    label="Email / NIK"
                     labelPlacement="outside"
-                    placeholder="contoh@bengkel.com"
+                    placeholder="contoh@bengkel.com | KAR0000..."
                     startContent={<Mail className="text-gray-400" size={18} />}
-                    type="email"
                     variant="bordered"
                   />
                 )}

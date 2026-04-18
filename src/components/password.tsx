@@ -1,16 +1,16 @@
 import { Input, type InputProps } from "@heroui/react";
 import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 
-export default function Password({ ...props }: InputProps) {
+const Password = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   return (
     <Input
-      placeholder="****"
       {...props}
+      ref={ref}
       endContent={
         <button
           aria-label="toggle password visibility"
@@ -19,13 +19,18 @@ export default function Password({ ...props }: InputProps) {
           onClick={toggleVisibility}
         >
           {isVisible ? (
-            <EyeOff className="text-2xl text-gray-400 cursor-pointer" />
+            <EyeOff className="text-2xl text-default-400 pointer-events-none" />
           ) : (
-            <Eye className="text-2xl text-gray-400 cursor-pointer" />
+            <Eye className="text-2xl text-default-400 pointer-events-none" />
           )}
         </button>
       }
+      placeholder={props.placeholder || "****"}
       type={isVisible ? "text" : "password"}
     />
   );
-}
+});
+
+Password.displayName = "Password";
+
+export default Password;
