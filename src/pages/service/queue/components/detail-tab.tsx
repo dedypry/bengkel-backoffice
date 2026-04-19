@@ -13,10 +13,13 @@ import {
   CardFooter,
   Tooltip,
   Avatar,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
 } from "@heroui/react";
 import {
   Receipt,
-  Printer,
   Trash2,
   ClipboardCheck,
   AlertCircle,
@@ -24,6 +27,7 @@ import {
   Edit,
   UserCircleIcon,
   Wrench,
+  Printer,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -147,7 +151,35 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
       <Card>
         <CardBody className="p-6">
           <div className="flex gap-2 mb-2 justify-end">
-            <Button
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  size="sm"
+                  startContent={<Printer className="text-gray-500" size={18} />}
+                  variant="bordered"
+                >
+                  Cetak
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Static Actions">
+                <DropdownItem
+                  key="new"
+                  onPress={() =>
+                    handleDownload(
+                      `/invoices/${id}`,
+                      data.trx_no,
+                      true,
+                      setLoading,
+                    )
+                  }
+                >
+                  Invoice
+                </DropdownItem>
+                <DropdownItem key="copy">Estimasi Invoice</DropdownItem>
+                <DropdownItem key="edit">Surat Kerja</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+            {/* <Button
               isIconOnly
               isLoading={loading}
               radius="sm"
@@ -158,7 +190,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               }
             >
               <Printer size={18} />
-            </Button>
+            </Button> */}
             {!isEdit &&
               canUpdate &&
               !["cancel", "closed"].includes(data.status) && (
