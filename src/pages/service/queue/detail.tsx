@@ -85,7 +85,12 @@ export default function WorkOrderDetail() {
 
               <span className="text-sm font-black text-white tracking-[0.1em]">
                 Estimasi Waktu{" "}
-                {calculateTotalEstimation(data.services).readable_format}
+                {calculateTotalEstimation(
+                  data.services.map((item) => ({
+                    estimated: item.data.estimated_duration,
+                    type: item.data.estimated_type,
+                  })),
+                )}
               </span>
             </div>
           </div>

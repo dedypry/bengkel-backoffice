@@ -1,8 +1,6 @@
 import dayjs from "dayjs";
 
 import { http } from "../libs/axios";
-import { IService } from "../interfaces/IService";
-import { IWOItems } from "../interfaces/IUser";
 
 import { notifyError } from "./notify";
 
@@ -22,49 +20,70 @@ export const getAvatarByName = (name: string) => {
   return `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
 };
 
-export const calculateTotalEstimation = (services: IWOItems<IService>[]) => {
-  const totalMinutes = services.reduce((acc, item) => {
-    const duration = Number(item.data.estimated_duration) || 0;
-    const qty = item.qty || 1;
-    let minutesPerItem = 0;
+interface PropsWO {
+  estimated: number;
+  type: string;
+}
+export function calculateTotalEstimation(workOrder: PropsWO[]): string {
+  let totalMinutes = 0;
 
-    switch (item.data.estimated_type?.toLowerCase()) {
-      case "days":
-      case "day":
-        minutesPerItem = duration * 24 * 60;
-        break;
-      case "hours":
-      case "hour":
-        minutesPerItem = duration * 60;
-        break;
-      case "minutes":
-      case "minute":
-      default:
-        minutesPerItem = duration;
-        break;
+  workOrder.forEach((item) => {
+    if (item.estimated) {
+      const duration = Number(item.estimated);
+      const unit = item.type?.toLowerCase(); // 'minute', 'hours', 'day'
+
+      switch (unit) {
+        case "day":
+          // 1 hari diasumsikan 8 jam kerja (sesuaikan dengan operasional bengkel Anda)
+          // Atau jika 24 jam: duration * 24 * 60
+          totalMinutes += duration * 8 * 60;
+          break;
+        case "hours":
+          totalMinutes += duration * 60;
+          break;
+        case "minute":
+        default:
+          totalMinutes += duration;
+          break;
+      }
     }
+  });
 
-    return acc + minutesPerItem * qty;
-  }, 0);
+  return formatEstimationResult(totalMinutes);
+}
 
-  // 2. Konversi kembali ke format yang bisa dibaca (Days, Hours, Minutes)
-  const d = Math.floor(totalMinutes / (24 * 60));
-  const h = Math.floor((totalMinutes % (24 * 60)) / 60);
-  const m = totalMinutes % 60;
+export function formatEstimationResult(totalMinutes: number): string {
+  if (totalMinutes <= 0) return "0 Menit";
 
-  // 3. Buat string output
-  const result = [];
+  const minutesInDay = 24 * 60; // 1440 menit
+  const minutesInHour = 60;
 
-  if (d > 0) result.push(`${d} Hari`);
-  if (h > 0) result.push(`${h} Jam`);
-  if (m > 0) result.push(`${m} Menit`);
+  // 1. Hitung Hari
+  const days = Math.floor(totalMinutes / minutesInDay);
+  let remainingMinutes = totalMinutes % minutesInDay;
 
-  return {
-    total_minutes: totalMinutes,
-    readable_format: result.length > 0 ? result.join(" ") : "0 Menit",
-    details: { days: d, hours: h, minutes: m },
-  };
-};
+  // 2. Hitung Jam
+  const hours = Math.floor(remainingMinutes / minutesInHour);
+
+  remainingMinutes = remainingMinutes % minutesInHour;
+
+  // 3. Susun String Hasil
+  const result: string[] = [];
+
+  if (days > 0) {
+    result.push(`${days} Hari`);
+  }
+
+  if (hours > 0) {
+    result.push(`${hours} Jam`);
+  }
+
+  if (remainingMinutes > 0 || result.length === 0) {
+    result.push(`${remainingMinutes} Menit`);
+  }
+
+  return result.join(" ");
+}
 
 export async function handleDownloadExcel(
   url: string,

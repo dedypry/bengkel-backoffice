@@ -153,10 +153,12 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                   >
                     <div className="flex flex-col items-center bg-default-100 rounded-lg py-1 px-2 border border-default-200">
                       <span className="text-[10px] font-bold text-gray-500 uppercase">
-                        {
-                          calculateTotalEstimation(item.services)
-                            .readable_format
-                        }
+                        {calculateTotalEstimation(
+                          item.services.map((item) => ({
+                            estimated: item.data.estimated_duration,
+                            type: item.data.estimated_type,
+                          })),
+                        )}
                       </span>
                       <span className="text-sm font-black text-primary tracking-tight">
                         {item.trx_no || item.queue_no}

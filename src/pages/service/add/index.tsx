@@ -177,7 +177,12 @@ export default function ServiceAddPage() {
   }
 
   const isVehicleDisable = !!watch("vehicle.id") && !isEdit;
-  const estimation = calculateTotalEstimation(services);
+  const estimation = calculateTotalEstimation(
+    services.map((item) => ({
+      estimated: item.estimated_duration,
+      type: item.estimated_type,
+    })),
+  );
   const isProduct = services.length > 0 || sparepart.length > 0;
   const navigate = useNavigate();
 
@@ -1056,9 +1061,7 @@ export default function ServiceAddPage() {
                   <div className="space-y-3 text-sm mb-5">
                     <div className="flex justify-between opacity-80">
                       <span>Estimasi Waktu</span>
-                      <span className="font-semibold">
-                        {estimation.readable_format}
-                      </span>
+                      <span className="font-semibold">{estimation}</span>
                     </div>
                     <div className="flex justify-between opacity-80">
                       <span>Total Sparepart</span>
