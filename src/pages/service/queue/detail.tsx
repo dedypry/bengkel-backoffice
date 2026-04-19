@@ -23,6 +23,7 @@ import HistoryTab from "./components/history-tab";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import { formatIDR } from "@/utils/helpers/format";
+import { calculateTotalEstimation } from "@/utils/helpers/global";
 
 export default function WorkOrderDetail() {
   const [openModal, setOpenModal] = useState(false);
@@ -74,12 +75,17 @@ export default function WorkOrderDetail() {
                 </div>
               </div>
             </div>
-            <div className="bg-primary p-8 flex flex-col justify-center items-end min-w-[300px]">
+            <div className="bg-primary px-8 flex flex-col justify-center items-end min-w-[300px]">
               <span className="text-gray-100 font-black text-[12px] uppercase mb-1">
                 Total Biaya Estimasi
               </span>
               <span className="text-2xl font-black text-white tracking-[0.1em]">
                 {formatIDR(Number(data.grand_total || 0))}
+              </span>
+
+              <span className="text-sm font-black text-white tracking-[0.1em]">
+                Estimasi Waktu{" "}
+                {calculateTotalEstimation(data.services).readable_format}
               </span>
             </div>
           </div>

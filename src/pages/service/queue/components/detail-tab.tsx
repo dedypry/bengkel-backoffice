@@ -146,6 +146,15 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
     );
   }, 1000);
 
+  function downloadInv(type?: "estimation" | "wo") {
+    handleDownload(
+      `/invoices/${id}?type=${type}`,
+      data.trx_no,
+      true,
+      setLoading,
+    );
+  }
+
   return (
     <div className="space-y-3">
       <Card>
@@ -154,29 +163,29 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             <Dropdown>
               <DropdownTrigger>
                 <Button
+                  isLoading={loading}
                   size="sm"
-                  startContent={<Printer className="text-gray-500" size={18} />}
+                  startContent={
+                    !loading && <Printer className="text-gray-500" size={18} />
+                  }
                   variant="bordered"
                 >
                   Cetak
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="Static Actions">
-                <DropdownItem
-                  key="new"
-                  onPress={() =>
-                    handleDownload(
-                      `/invoices/${id}`,
-                      data.trx_no,
-                      true,
-                      setLoading,
-                    )
-                  }
-                >
+                <DropdownItem key="inv" onPress={() => downloadInv()}>
                   Invoice
                 </DropdownItem>
-                <DropdownItem key="copy">Estimasi Invoice</DropdownItem>
-                <DropdownItem key="edit">Surat Kerja</DropdownItem>
+                <DropdownItem
+                  key="estimation"
+                  onPress={() => downloadInv("estimation")}
+                >
+                  Estimasi Invoice
+                </DropdownItem>
+                <DropdownItem key="wo" onPress={() => downloadInv("wo")}>
+                  Surat Kerja
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
             {/* <Button

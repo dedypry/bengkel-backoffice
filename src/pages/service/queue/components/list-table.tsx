@@ -40,7 +40,10 @@ import ChipPriority from "./chip-priority";
 import CancelConfirm from "./cancel-confirm";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { getAvatarByName } from "@/utils/helpers/global";
+import {
+  calculateTotalEstimation,
+  getAvatarByName,
+} from "@/utils/helpers/global";
 import { getWo } from "@/stores/features/work-order/wo-action";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
 import { CustomPagination } from "@/components/custom-pagination";
@@ -144,10 +147,16 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                   key={item.id}
                   className="border-b border-default-50 last:border-none"
                 >
-                  <TableCell>
+                  <TableCell
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/service/queue/${item.id}`)}
+                  >
                     <div className="flex flex-col items-center bg-default-100 rounded-lg py-1 px-2 border border-default-200">
                       <span className="text-[10px] font-bold text-gray-500 uppercase">
-                        {item.estimation}
+                        {
+                          calculateTotalEstimation(item.services)
+                            .readable_format
+                        }
                       </span>
                       <span className="text-sm font-black text-primary tracking-tight">
                         {item.trx_no || item.queue_no}

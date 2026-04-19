@@ -1,8 +1,8 @@
-import type { IWo } from "@/stores/features/work-order/wo-slice";
-
 import dayjs from "dayjs";
 
 import { http } from "../libs/axios";
+import { IService } from "../interfaces/IService";
+import { IWOItems } from "../interfaces/IUser";
 
 import { notifyError } from "./notify";
 
@@ -22,14 +22,13 @@ export const getAvatarByName = (name: string) => {
   return `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
 };
 
-export const calculateTotalEstimation = (services: IWo[]) => {
-  // 1. Hitung total dalam satuan MENIT sebagai base unit
+export const calculateTotalEstimation = (services: IWOItems<IService>[]) => {
   const totalMinutes = services.reduce((acc, item) => {
-    const duration = Number(item.estimated_duration) || 0;
+    const duration = Number(item.data.estimated_duration) || 0;
     const qty = item.qty || 1;
     let minutesPerItem = 0;
 
-    switch (item.estimated_type?.toLowerCase()) {
+    switch (item.data.estimated_type?.toLowerCase()) {
       case "days":
       case "day":
         minutesPerItem = duration * 24 * 60;
