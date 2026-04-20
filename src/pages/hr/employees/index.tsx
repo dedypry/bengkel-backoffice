@@ -162,7 +162,7 @@ export default function EmployeesPage() {
                         src: emp.profile?.photo_url,
                         fallback: getInitials(emp.name),
                         className:
-                          "size-12 font-black  text-gray-400 bg-gray-100 border-2 border-white shadow-sm",
+                          "size-12 font-black  text-gray-400 bg-gray-100 border-2 border-white shadow-sm cursor-pointer",
                       }}
                       description={
                         <div className="flex flex-col">
@@ -175,10 +175,11 @@ export default function EmployeesPage() {
                         </div>
                       }
                       name={
-                        <span className="font-black uppercase text-gray-500">
+                        <span className="font-black uppercase text-gray-500  cursor-pointer hover:text-primary">
                           {emp.name}
                         </span>
                       }
+                      onClick={() => navigate(`/hr/employees/${emp.id}`)}
                     />
                   </TableCell>
                   <TableCell>

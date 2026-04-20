@@ -131,6 +131,7 @@ export default function ProfilePage() {
               <Button
                 className="text-white"
                 color="warning"
+                size="sm"
                 startContent={<Edit size={16} />}
                 onPress={() => navigate("/my-profile/edit")}
               >
