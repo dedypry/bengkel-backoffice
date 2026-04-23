@@ -43,7 +43,7 @@ const productSchema = z.object({
   id: z.number().optional(),
   code: z.string().min(1, "Kode produk wajib diisi"),
   name: z.string().min(3, "Nama produk minimal 3 karakter"),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   category_id: z.coerce.number().min(1, "Pilih kategori"),
   main_category_id: z.coerce.number().min(1, "Pilih Main kategori"),
   purchase_price: z.number().min(0),
@@ -405,7 +405,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 name="description"
                 render={({ field }) => (
                   <Textarea
-                    {...field}
+                    {...(field as any)}
                     minRows={4}
                     placeholder="Masukkan detail spesifikasi produk..."
                   />

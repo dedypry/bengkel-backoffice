@@ -162,6 +162,7 @@ export default function InventoryStockPage() {
             startContent={<Search className="text-gray-400" size={18} />}
             variant="bordered"
             onChange={(e) => searchDebounce(e.target.value)}
+            onClear={() => dispatch(setProductQuery({ q: "" }))}
           />
           <div className="w-full md:w-64">
             <SelectCategories />

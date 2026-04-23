@@ -1,35 +1,23 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Select, SelectItem } from "@heroui/react";
 import { Layers } from "lucide-react";
 
-import { getCategories } from "@/stores/features/product/product-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { setProductQuery } from "@/stores/features/product/product-slice";
 
 export default function SelectCategories() {
-  const { company } = useAppSelector((state) => state.auth);
-  const { categories } = useAppSelector((state) => state.product);
-  const hasFetched = useRef(false);
-  // Menggunakan string "all" untuk initial state agar sesuai dengan key Select HeroUI
+  const { products } = useAppSelector((state) => state.product);
+
   const [selectedKey, setSelectedKey] = useState<string>("all");
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (company && !hasFetched.current) {
-      hasFetched.current = true;
-      dispatch(getCategories({}));
-      setTimeout(() => {
-        hasFetched.current = false;
-      }, 1000);
-    }
-  }, [company, dispatch]);
+  const categories = products?.stats?.categories || [];
 
   const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
 
     setSelectedKey(val);
 
-    // Dispatch query: jika "all", kirim undefined untuk menghapus filter kategori
     dispatch(
       setProductQuery({
         categoryId: val !== "all" ? Number(val) : undefined,
@@ -55,7 +43,7 @@ export default function SelectCategories() {
       variant="bordered"
       onChange={handleSelectionChange}
     >
-      {[...categories, { id: "all", name: "Semua Kategori" }].map((cat) => (
+      {[{ id: "all", name: "Semua Kategori" }, ...categories].map((cat) => (
         <SelectItem key={cat.id.toString()} textValue={cat.name}>
           <span className="text-small font-semibold text-gray-800 uppercase tracking-tight">
             {cat.name}
