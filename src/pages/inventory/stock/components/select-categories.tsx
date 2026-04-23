@@ -44,9 +44,12 @@ export default function SelectCategories() {
       onChange={handleSelectionChange}
     >
       {[{ id: "all", name: "Semua Kategori" }, ...categories].map((cat) => (
-        <SelectItem key={cat.id.toString()} textValue={cat.name}>
+        <SelectItem
+          key={cat.id.toString()}
+          textValue={cat.name || "Tidak ada nama"}
+        >
           <span className="text-small font-semibold text-gray-800 uppercase tracking-tight">
-            {cat.name}
+            {cat.name || "Tidak ada nama"}
           </span>
         </SelectItem>
       ))}
