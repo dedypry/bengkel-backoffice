@@ -53,6 +53,9 @@ export const getProductDetail = createAsyncThunk(
     try {
       const { data } = await http.get(`/products/${id}`);
 
+      data.stock = Number(data.stock);
+      data.min_stock = Number(data.min_stock);
+
       return data;
     } catch (error) {
       console.error(error);

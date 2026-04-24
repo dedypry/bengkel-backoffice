@@ -83,7 +83,12 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
     }
   }, [company, dispatch]);
 
-  const { control, reset, handleSubmit } = useForm<ProductFormValues>({
+  const {
+    control,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       is_active: true,
@@ -94,8 +99,11 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
       min_stock: 0,
       purchase_price: 0,
       sell_price: 0,
+      description: "",
     },
   } as any);
+
+  console.log("ERR", errors);
 
   useEffect(() => {
     if (initialData) {
@@ -369,8 +377,10 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
               <Controller
                 control={control}
                 name="stock"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <InputNumber
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
                     label="Stok Awal"
                     labelPlacement="inside"
                     value={field.value as any}
@@ -381,8 +391,10 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
               <Controller
                 control={control}
                 name="min_stock"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <InputNumber
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={!!fieldState.error}
                     label="Stok Minimum"
                     labelPlacement="inside"
                     value={field.value as any}
@@ -405,9 +417,10 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 name="description"
                 render={({ field }) => (
                   <Textarea
-                    {...(field as any)}
                     minRows={4}
                     placeholder="Masukkan detail spesifikasi produk..."
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
                   />
                 )}
               />
