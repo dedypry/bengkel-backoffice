@@ -154,7 +154,7 @@ export const navigation = [
     ],
   },
   {
-    roles: ["super-admin", "owner", "hr"],
+    roles: ["super-admin", "owner", "hrd"],
     header: "Human Resources",
     href: "/hr",
     icon: "Users",
