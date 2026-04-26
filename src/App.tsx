@@ -36,6 +36,7 @@ import ProductDetail from "./pages/inventory/stock/detail";
 import EditProduct from "./pages/inventory/stock/edit";
 import PaymentDetailPage from "./pages/finance/detail";
 import VendorTrxPage from "./pages/service/vendor-transaction";
+import VehiclePage from "./pages/master/vehicles";
 
 import HomePage from "@/pages/dashboard/index";
 
@@ -75,6 +76,7 @@ function App() {
           <Route element={<MasterMechanicPage />} path="mechanics" />
           <Route element={<MasterServicePage />} path="services" />
           <Route element={<MasterSupplierPage />} path="suppliers" />
+          <Route element={<VehiclePage />} path="vehicles" />
         </Route>
 
         <Route path="/finance">

@@ -85,6 +85,12 @@ export const navigation = [
         icon: "Users",
         permissions: ["customer.view", "customer.manage"],
       },
+      {
+        title: "Data Kendaraan",
+        href: "vehicles",
+        icon: "Car",
+        permissions: ["customer.view", "customer.manage"],
+      },
       // {
       //   title: "Data Mekanik",
       //   href: "mechanics",
