@@ -19,6 +19,7 @@ import {
   FilePlus2,
   ChevronLeft,
   Users,
+  CircleXIcon,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,6 +48,7 @@ import {
 } from "@heroui/react";
 
 import DefaultSettingService from "../../../components/default-setting-service";
+import AddMechanich from "../components/add-mekanik";
 
 import { ServiceRegistrationSchema } from "./schemas/create-schema";
 import ModalAddService from "./components/modal-add-service";
@@ -90,6 +92,7 @@ export default function ServiceAddPage() {
   );
 
   const [isEdit, setEdit] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isNew, setNew] = useState(false);
   const [vehicle, setVehilce] = useState<IMasterVehicle>();
@@ -110,6 +113,10 @@ export default function ServiceAddPage() {
     (sum, e) => sum + Number(e.price || 0) * Number(e.qty || 0),
     0,
   );
+
+  function findMechanicById(id: number) {
+    return mechanics.find((e) => e.id === id);
+  }
 
   useEffect(() => {
     if (company && !hasFetchedService.current) {
@@ -174,6 +181,13 @@ export default function ServiceAddPage() {
         setValue("vehicle", data.vehicle);
       })
       .catch((err) => console.error(err));
+  }
+
+  function deleteMechById(id: number) {
+    setValue(
+      "mechanic_ids",
+      watch("mechanic_ids")?.filter((e) => e !== id),
+    );
   }
 
   const isVehicleDisable = !!watch("vehicle.id") && !isEdit;
@@ -295,6 +309,11 @@ export default function ServiceAddPage() {
 
   return (
     <Form validationBehavior="native">
+      <AddMechanich
+        open={openModal}
+        setOpen={setOpenModal}
+        onSave={(ids) => setValue("mechanic_ids", ids)}
+      />
       <div className="pb-20 space-y-8">
         {/* Header */}
         <HeaderAction
@@ -964,11 +983,11 @@ export default function ServiceAddPage() {
                     name="sa_id"
                     render={({ field }) => (
                       <Autocomplete
-                        items={employes?.data || []}
+                        defaultItems={employes?.data || []}
                         label="Service Advisor"
                         labelPlacement="outside-top"
                         placeholder="Pilih Service Advisor"
-                        selectedKey={String(field.value)}
+                        selectedKey={field.value ? String(field.value) : ""}
                         onSelectionChange={(val) => field.onChange(Number(val))}
                       >
                         {(item) => (
@@ -984,7 +1003,7 @@ export default function ServiceAddPage() {
                     name="pic_id"
                     render={({ field }) => (
                       <Autocomplete
-                        items={employes?.data || []}
+                        defaultItems={employes?.data || []}
                         label="PIC Service"
                         labelPlacement="outside-top"
                         placeholder="Pilih PIC Service"
@@ -1000,54 +1019,40 @@ export default function ServiceAddPage() {
                     )}
                   />
 
-                  <Controller
-                    control={control}
-                    name="mechanic_ids"
-                    render={({ field: { value, onChange }, fieldState }) => (
-                      <Select
-                        classNames={{
-                          trigger: "h-auto min-h-10 py-2", // Menghapus fixed height, biarkan auto
-                          value: "flex flex-wrap gap-1", // Memastikan konten di dalamnya membungkus (wrap)
-                        }}
-                        errorMessage={fieldState.error?.message}
-                        isInvalid={!!fieldState.error}
-                        items={mechanics}
-                        label="Pilih Mekanik"
-                        labelPlacement="outside-top"
-                        placeholder="Pilih satu atau lebih mekanik"
-                        renderValue={(items) => (
-                          <div className="flex flex-wrap gap-1">
-                            {items.map((item) => (
-                              <Chip key={item.key} size="sm" variant="solid">
-                                {item.data?.name}
-                              </Chip>
-                            ))}
-                          </div>
-                        )}
-                        selectedKeys={new Set(value?.map(String) || [])}
-                        selectionMode="multiple"
-                        onSelectionChange={(keys) => {
-                          // Mengubah Set string kembali menjadi array number
-                          const values = Array.from(keys).map(Number);
+                  {(watch("mechanic_ids") || []).length > 0 && (
+                    <p className="text-gray-600">Mekanik</p>
+                  )}
 
-                          onChange(values);
-                        }}
-                      >
-                        {(user) => (
-                          <SelectItem key={user.id} textValue={user.name}>
-                            <div className="flex gap-2 items-center">
-                              <div className="flex flex-col">
-                                <span className="text-xs">{user.name}</span>
-                                <span className="text-[10px] text-gray-500">
-                                  {user.roles.map((e) => e.name).join(", ")}
-                                </span>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        )}
-                      </Select>
-                    )}
-                  />
+                  <div className="flex flex-wrap gap-1">
+                    {(watch("mechanic_ids") || []).map((id) => {
+                      const mech = findMechanicById(id);
+
+                      return (
+                        <Chip
+                          key={id}
+                          endContent={
+                            <CircleXIcon
+                              className="cursor-pointer text-red-500"
+                              size={15}
+                              onClick={() => deleteMechById(id)}
+                            />
+                          }
+                          size="sm"
+                          variant="bordered"
+                        >
+                          {mech?.name}
+                        </Chip>
+                      );
+                    })}
+                  </div>
+
+                  <Button
+                    color="primary"
+                    size="sm"
+                    onPress={() => setOpenModal(true)}
+                  >
+                    Pilih Mekanik
+                  </Button>
                 </div>
               </CardBody>
             </Card>

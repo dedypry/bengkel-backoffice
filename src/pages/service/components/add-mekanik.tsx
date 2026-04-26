@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { PhoneCallIcon, UserPlus2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CircleXIcon, PhoneCallIcon, Search, UserPlus2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
@@ -16,6 +16,7 @@ import {
   TableCell,
   Avatar,
   Chip,
+  Input,
 } from "@heroui/react";
 
 import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
@@ -29,12 +30,19 @@ import { getWo } from "@/stores/features/work-order/wo-action";
 
 interface Props {
   open: boolean;
-  id: number;
+  id?: number;
   setOpen: (val: boolean) => void;
   onRefresh?: () => void;
+  onSave?: (ids: number[]) => void;
 }
 
-export default function AddMechanich({ open, setOpen, id, onRefresh }: Props) {
+export default function AddMechanich({
+  open,
+  setOpen,
+  id,
+  onRefresh,
+  onSave,
+}: Props) {
   const { mechanics, mechanicIds, mechanicQuery } = useAppSelector(
     (state) => state.mechanic,
   );
@@ -43,6 +51,19 @@ export default function AddMechanich({ open, setOpen, id, onRefresh }: Props) {
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredMechanics = useMemo(() => {
+    if (!mechanics) return [];
+
+    const term = searchQuery.toLowerCase();
+
+    return mechanics.filter(
+      (m) =>
+        m.name.toLowerCase().includes(term) ||
+        m.nik.toLowerCase().includes(term),
+    );
+  }, [searchQuery, mechanics]);
 
   useEffect(() => {
     if (company && open) {
@@ -52,23 +73,35 @@ export default function AddMechanich({ open, setOpen, id, onRefresh }: Props) {
 
   const handleSubmit = () => {
     setLoading(true);
-    http
-      .patch(`/work-order/mechanic/${id}`, {
-        ids: mechanicIds,
-      })
-      .then(({ data }) => {
-        notify(data.message);
-        dispatch(setMechanic([]));
 
-        if (onRefresh) {
-          onRefresh();
-        } else {
-          dispatch(getWo(woQuery));
-        }
-        setOpen(false);
-      })
-      .catch((err) => notifyError(err))
-      .finally(() => setLoading(false));
+    if (onSave) {
+      onSave(mechanicIds);
+      dispatch(setMechanic([]));
+      setLoading(false);
+      setOpen(false);
+
+      return;
+    }
+
+    if (id) {
+      http
+        .patch(`/work-order/mechanic/${id}`, {
+          ids: mechanicIds,
+        })
+        .then(({ data }) => {
+          notify(data.message);
+          dispatch(setMechanic([]));
+
+          if (onRefresh) {
+            onRefresh();
+          } else {
+            dispatch(getWo(woQuery));
+          }
+          setOpen(false);
+        })
+        .catch((err) => notifyError(err))
+        .finally(() => setLoading(false));
+    }
   };
 
   return (
@@ -82,17 +115,33 @@ export default function AddMechanich({ open, setOpen, id, onRefresh }: Props) {
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex gap-2 items-center">
-              <UserPlus2 className="text-primary" />
-              <div className="flex flex-col">
-                <span>Tambah Mekanik</span>
-                <span className="text-tiny font-normal text-gray-400">
-                  Pilih personil mekanik untuk menangani Work Order ini
-                </span>
+            <ModalHeader className="flex flex-col gap-4">
+              <div className="flex gap-2 items-center">
+                <UserPlus2 className="text-primary" />
+                <div className="flex flex-col">
+                  <span>Tambah Mekanik</span>
+                  <span className="text-tiny font-normal text-gray-400">
+                    Pilih personil mekanik untuk menangani Work Order ini
+                  </span>
+                </div>
               </div>
+              <Input
+                endContent={
+                  <CircleXIcon
+                    className="cursor-pointer text-gray-600"
+                    size={18}
+                    onClick={() => setSearchQuery("")}
+                  />
+                }
+                placeholder="Cari Mekanik"
+                startContent={<Search className=" text-gray-600" />}
+                value={searchQuery}
+                onValueChange={setSearchQuery}
+              />
             </ModalHeader>
             <ModalBody className="pb-6">
               <Table
+                isHeaderSticky
                 removeWrapper
                 aria-label="Daftar Mekanik"
                 classNames={{
@@ -118,7 +167,10 @@ export default function AddMechanich({ open, setOpen, id, onRefresh }: Props) {
                   <TableColumn>KONTAK</TableColumn>
                   <TableColumn align="center">STATUS</TableColumn>
                 </TableHeader>
-                <TableBody emptyContent={t("common.no_data")} items={mechanics}>
+                <TableBody
+                  emptyContent={t("common.no_data")}
+                  items={filteredMechanics}
+                >
                   {(item) => {
                     const status =
                       item.work_status as keyof typeof MECHANIC_STATUS_CONFIG;

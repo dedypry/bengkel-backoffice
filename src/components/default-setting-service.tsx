@@ -379,6 +379,7 @@ function UserControl({ name, label, control, options }: any) {
       render={({ field, fieldState }) => (
         <Autocomplete
           className="items-center"
+          defaultItems={options || []}
           errorMessage={fieldState.error?.message}
           inputProps={{
             classNames: {
@@ -386,7 +387,6 @@ function UserControl({ name, label, control, options }: any) {
             },
           }}
           isInvalid={!!fieldState.error}
-          items={options || []}
           label={label}
           labelPlacement="outside-left"
           selectedKey={String(field.value)}
