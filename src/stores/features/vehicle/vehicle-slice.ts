@@ -3,7 +3,11 @@ import type { IVehicle } from "@/utils/interfaces/IUser";
 
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getMasterVehicle, getVehicle, getVehicleListMaster } from "./vehicle-action";
+import {
+  getMasterVehicle,
+  getVehicle,
+  getVehicleListMaster,
+} from "./vehicle-action";
 
 import { IMasterVehicle, IVehicleItem } from "@/utils/interfaces/IMaster";
 
