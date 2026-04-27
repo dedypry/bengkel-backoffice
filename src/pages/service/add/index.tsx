@@ -76,13 +76,18 @@ import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
 import {
   getMasterVehicle,
   getVehicle,
+  getVehicleHistory,
 } from "@/stores/features/vehicle/vehicle-action";
 import { usePermission } from "@/components/use-permission";
 import { IMasterVehicle } from "@/utils/interfaces/IMaster";
 import AutoCompleteVehilce from "@/components/auto-complete-vehicle";
+import { resetHistory } from "@/stores/features/vehicle/vehicle-slice";
+import ModalHistotyVehicles from "@/components/modal-history-vehicles";
 
 export default function ServiceAddPage() {
-  const { master: vehilces } = useAppSelector((state) => state.vehicle);
+  const { master: vehilces, histories } = useAppSelector(
+    (state) => state.vehicle,
+  );
   const { company } = useAppSelector((state) => state.auth);
   const { query } = useAppSelector((state) => state.service);
   const { list: employes } = useAppSelector((state) => state.employe);
@@ -93,6 +98,7 @@ export default function ServiceAddPage() {
 
   const [isEdit, setEdit] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [historyModal, setHistoryModal] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isNew, setNew] = useState(false);
   const [vehicle, setVehilce] = useState<IMasterVehicle>();
@@ -314,6 +320,12 @@ export default function ServiceAddPage() {
         setOpen={setOpenModal}
         onSave={(ids) => setValue("mechanic_ids", ids)}
       />
+      <ModalHistotyVehicles
+        customer={watch("customer") as any}
+        open={historyModal}
+        setOpen={setHistoryModal}
+        vehicle={watch("vehicle") as any}
+      />
       <div className="pb-20 space-y-8">
         {/* Header */}
         <HeaderAction
@@ -442,6 +454,15 @@ export default function ServiceAddPage() {
                 </div>
 
                 <div className="flex items-center gap-2 ">
+                  {histories.length > 0 && (
+                    <Button
+                      color="success"
+                      size="sm"
+                      onPress={() => setHistoryModal(true)}
+                    >
+                      History
+                    </Button>
+                  )}
                   {isVehicleDisable && (
                     <Button
                       color="warning"
@@ -510,6 +531,9 @@ export default function ServiceAddPage() {
                             cus?.profile?.birth_date || "",
                           );
                           dispatch(setCustomer(cus));
+                          dispatch(getVehicleHistory(val?.plate_number));
+                        } else {
+                          dispatch(resetHistory());
                         }
                       }}
                     />

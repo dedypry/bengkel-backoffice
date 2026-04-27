@@ -4,6 +4,20 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { http } from "@/utils/libs/axios";
 
+export const getVehicleHistory = createAsyncThunk(
+  "get-vehicle-history",
+  async (plateNo: string) => {
+    try {
+      const { data } = await http.get(`/vehicles/${plateNo}`);
+
+      return data;
+    } catch (error) {
+      console.error(error);
+
+      return null;
+    }
+  },
+);
 export const getVehicle = createAsyncThunk(
   "get-vehicle",
   async (params: IQuery) => {

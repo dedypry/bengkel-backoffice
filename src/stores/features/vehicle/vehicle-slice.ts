@@ -1,11 +1,12 @@
 import type { IPagination } from "@/utils/interfaces/IPagination";
-import type { IVehicle } from "@/utils/interfaces/IUser";
+import type { IVehicle, IWorkOrder } from "@/utils/interfaces/IUser";
 
 import { createSlice } from "@reduxjs/toolkit";
 
 import {
   getMasterVehicle,
   getVehicle,
+  getVehicleHistory,
   getVehicleListMaster,
 } from "./vehicle-action";
 
@@ -15,6 +16,7 @@ export const vehicleSlice = createSlice({
   name: "vehicle",
   initialState: {
     vehicles: null as IPagination<IVehicle> | null,
+    histories: [] as IWorkOrder[],
     vehicleMaster: null as IPagination<IVehicleItem> | null,
     vehicleQuery: {
       page: 1,
@@ -30,6 +32,9 @@ export const vehicleSlice = createSlice({
         ...action.payload,
       };
     },
+    resetHistory: (state) => {
+      state.histories = [];
+    },
   },
   extraReducers: (builder) =>
     builder
@@ -39,10 +44,13 @@ export const vehicleSlice = createSlice({
       .addCase(getVehicle.fulfilled, (state, action) => {
         state.vehicles = action.payload;
       })
+      .addCase(getVehicleHistory.fulfilled, (state, action) => {
+        state.histories = action.payload;
+      })
       .addCase(getMasterVehicle.fulfilled, (state, action) => {
         state.master = action.payload;
       }),
 });
 
-export const { setVehicleQuery } = vehicleSlice.actions;
+export const { setVehicleQuery, resetHistory } = vehicleSlice.actions;
 export default vehicleSlice.reducer;
