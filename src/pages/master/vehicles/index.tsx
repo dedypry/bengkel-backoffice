@@ -79,7 +79,12 @@ export default function VehiclePage() {
 
   return (
     <>
-      <ModalAdd data={data} open={open} setOpen={setOpen} />
+      <ModalAdd
+        data={data}
+        open={open}
+        setOpen={setOpen}
+        onRefresh={() => dispatch(getVehicleListMaster(query))}
+      />
 
       <HeaderAction
         actionTitle="Tambah Merk dan Type"

@@ -16,15 +16,15 @@ import { useEffect, useState } from "react";
 
 import { IVehicleItem } from "@/utils/interfaces/IMaster";
 import InputNumber from "@/components/input-number";
-import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { useAppSelector } from "@/stores/hooks";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
-import { getMasterVehicle } from "@/stores/features/vehicle/vehicle-action";
 
 interface Props {
   open: boolean;
   setOpen: (val: boolean) => void;
   data?: IVehicleItem;
+  onRefresh?: () => void;
 }
 
 const vehileSchema = z.object({
@@ -37,7 +37,7 @@ const vehileSchema = z.object({
 
 type VehileFormSchema = z.infer<typeof vehileSchema>;
 
-export default function ModalAdd({ open, setOpen, data }: Props) {
+export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
   const { master: vehicles } = useAppSelector((state) => state.vehicle);
   const [loading, setLoading] = useState(false);
   const { control, handleSubmit, reset } = useForm<VehileFormSchema>({
@@ -46,8 +46,6 @@ export default function ModalAdd({ open, setOpen, data }: Props) {
       ...(data as any),
     },
   });
-
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (data) {
@@ -69,7 +67,9 @@ export default function ModalAdd({ open, setOpen, data }: Props) {
       .then(({ data }) => {
         notify(data.message);
         setOpen(false);
-        dispatch(getMasterVehicle());
+        if (onRefresh) {
+          onRefresh();
+        }
       })
       .catch(notifyError)
       .finally(() => {
