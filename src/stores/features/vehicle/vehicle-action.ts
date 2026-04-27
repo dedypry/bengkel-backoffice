@@ -8,7 +8,7 @@ export const getVehicle = createAsyncThunk(
   "get-vehicle",
   async (params: IQuery) => {
     try {
-      const { data } = await http.get("/vehicles", { params });
+      const { data } = await http.get("/vehicle-master", { params });
 
       return data;
     } catch (error) {

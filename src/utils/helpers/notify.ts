@@ -1,9 +1,9 @@
-import Swal, { type SweetAlertIcon, type SweetAlertOptions } from 'sweetalert2';
+import Swal, { type SweetAlertIcon, type SweetAlertOptions } from "sweetalert2";
 
 export const notify = (msg: string, icon?: SweetAlertIcon) => {
   const Toast = Swal.mixin({
     toast: true,
-    position: 'top-end',
+    position: "top-end",
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
@@ -14,7 +14,7 @@ export const notify = (msg: string, icon?: SweetAlertIcon) => {
   });
 
   Toast.fire({
-    icon: icon ?? 'success',
+    icon: icon ?? "success",
     title: msg,
   });
 };
@@ -22,31 +22,9 @@ export const notify = (msg: string, icon?: SweetAlertIcon) => {
 export const notifyError = (res: any) => {
   let msg: any = (res.response?.data as any).message || res;
 
-  if (res.response?.status === 402) {
-    const errors = res.response.data.data;
-    Object.keys(errors).forEach((key) => {
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.onmouseenter = Swal.stopTimer;
-          toast.onmouseleave = Swal.resumeTimer;
-        },
-      });
-
-      Toast.fire({
-        icon: 'error',
-        title: errors[key][0],
-      });
-    });
-  }
-
   const Toast = Swal.mixin({
     toast: true,
-    position: 'top-end',
+    position: "top-end",
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
@@ -56,23 +34,39 @@ export const notifyError = (res: any) => {
     },
   });
 
-  Toast.fire({
-    icon: 'error',
-    title: msg,
-  });
+  if (res.response?.status === 402) {
+    const errors: any[] = res.response.data.data;
+
+    Object.keys(errors).forEach((key: any) => {
+      console.log("KEY", errors[key]);
+
+      Toast.fire({
+        icon: "error",
+        title: errors[key][0],
+      });
+    });
+  } else {
+    Toast.fire({
+      icon: "error",
+      title: msg,
+    });
+  }
 };
 
-export const confirmSweat = (callback: () => void, option?: SweetAlertOptions) => {
+export const confirmSweat = (
+  callback: () => void,
+  option?: SweetAlertOptions,
+) => {
   Swal.fire({
-    theme: 'material-ui',
-    title: 'Apakah anda yakin?',
-    text: 'Data yang dihapus tidak dapat dikembalikan!',
-    icon: 'warning',
+    theme: "material-ui",
+    title: "Apakah anda yakin?",
+    text: "Data yang dihapus tidak dapat dikembalikan!",
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: '#168BAB',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Ya, hapus!',
-    cancelButtonText: 'Batal',
+    confirmButtonColor: "#168BAB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Ya, hapus!",
+    cancelButtonText: "Batal",
     ...option,
   }).then((result) => {
     if (result.isConfirmed) {

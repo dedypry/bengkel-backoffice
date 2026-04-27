@@ -1,16 +1,15 @@
 import type { IPagination } from "@/utils/interfaces/IPagination";
-import type { IVehicle } from "@/utils/interfaces/IUser";
 
 import { createSlice } from "@reduxjs/toolkit";
 
 import { getMasterVehicle, getVehicle } from "./vehicle-action";
 
-import { IMasterVehicle } from "@/utils/interfaces/IMaster";
+import { IMasterVehicle, IVehicleItem } from "@/utils/interfaces/IMaster";
 
 export const vehicleSlice = createSlice({
   name: "vehicle",
   initialState: {
-    vehicles: null as IPagination<IVehicle> | null,
+    vehicles: null as IPagination<IVehicleItem> | null,
     vehicleQuery: {
       page: 1,
       pageSize: 10,
