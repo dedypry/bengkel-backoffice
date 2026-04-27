@@ -19,6 +19,7 @@ import HeaderAction from "@/components/header-action";
 import {
   getMasterVehicle,
   getVehicle,
+  getVehicleListMaster,
 } from "@/stores/features/vehicle/vehicle-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
@@ -28,7 +29,7 @@ import { CustomPagination } from "@/components/custom-pagination";
 import PageSize from "@/components/page-size";
 
 export default function VehiclePage() {
-  const { vehicles, master } = useAppSelector((state) => state.vehicle);
+  const { vehicleMaster, master } = useAppSelector((state) => state.vehicle);
   const { company } = useAppSelector((state) => state.auth);
   const [data, setData] = useState<IVehicleItem>();
   const [open, setOpen] = useState(false);
@@ -44,7 +45,7 @@ export default function VehiclePage() {
   useEffect(() => {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
-      dispatch(getVehicle(query));
+      dispatch(getVehicleListMaster(query));
       dispatch(getMasterVehicle());
 
       setTimeout(() => {
@@ -58,7 +59,7 @@ export default function VehiclePage() {
       .delete(`/vehicle-master/${id}`)
       .then(({ data }) => {
         notify(data.message);
-        dispatch(getVehicle(query));
+        dispatch(getVehicleListMaster(query));
       })
       .catch(notifyError);
   }
@@ -70,7 +71,7 @@ export default function VehiclePage() {
     };
 
     setQuery(payload);
-    dispatch(getVehicle(payload));
+    dispatch(getVehicleListMaster(payload));
   }
 
   return (
@@ -90,7 +91,7 @@ export default function VehiclePage() {
       <Table
         bottomContent={
           <CustomPagination
-            meta={vehicles?.meta!}
+            meta={vehicleMaster?.meta!}
             onPageChange={(page) => {
               setQuery({ ...query, page });
               dispatch(
@@ -143,7 +144,7 @@ export default function VehiclePage() {
           <TableColumn className="w-32"> </TableColumn>
         </TableHeader>
         <TableBody>
-          {(vehicles?.data || []).map((row, index) => (
+          {(vehicleMaster?.data || []).map((row, index) => (
             <TableRow key={index}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{row.type || "Tidak Ada Nama"}</TableCell>
