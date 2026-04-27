@@ -27,6 +27,7 @@ import { IVehicleItem } from "@/utils/interfaces/IMaster";
 import { http } from "@/utils/libs/axios";
 import { CustomPagination } from "@/components/custom-pagination";
 import PageSize from "@/components/page-size";
+import debounce from "@/utils/helpers/debounce";
 
 export default function VehiclePage() {
   const { vehicleMaster, master } = useAppSelector((state) => state.vehicle);
@@ -73,6 +74,8 @@ export default function VehiclePage() {
     setQuery(payload);
     dispatch(getVehicleListMaster(payload));
   }
+
+  const searchVehicle = debounce((q) => handleSearch("q", q), 500);
 
   return (
     <>
@@ -132,6 +135,14 @@ export default function VehiclePage() {
               label="Search"
               placeholder="Cari Merk/Type"
               startContent={<Search className="text-gray-500" />}
+              value={query.q}
+              onValueChange={(val) => {
+                setQuery({
+                  ...query,
+                  q: val,
+                });
+                searchVehicle(val);
+              }}
             />
           </div>
         }
