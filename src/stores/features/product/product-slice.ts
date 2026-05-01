@@ -31,6 +31,7 @@ const productSlice = createSlice({
       q: "",
       page: 1,
       pageSize: 10,
+      noStats: undefined as number | undefined,
     },
     recepipts: null as IPagination<IReceipt> | null,
     recepipt: null as IReceipt | null,

@@ -10,6 +10,7 @@ export interface IQuery {
   pageSize?: number;
   page?: number;
   q?: string;
+  noStats?: number;
 }
 
 export const PROGRESS_CONFIG = {
