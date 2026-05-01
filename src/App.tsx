@@ -37,6 +37,8 @@ import EditProduct from "./pages/inventory/stock/edit";
 import PaymentDetailPage from "./pages/finance/detail";
 import VendorTrxPage from "./pages/service/vendor-transaction";
 import VehiclePage from "./pages/master/vehicles";
+import { PoPage } from "./pages/inventory/po";
+import PoCreatePage from "./pages/inventory/po/create";
 
 import HomePage from "@/pages/dashboard/index";
 
@@ -66,6 +68,12 @@ function App() {
           <Route element={<ProductDetail />} path="stock/:id" />
           <Route element={<EditProduct />} path="stock/:id/edit" />
           <Route element={<InventoryCategoryPage />} path="categories" />
+
+          <Route path="po">
+            <Route element={<PoPage />} path="" />
+            <Route element={<PoCreatePage />} path="create" />
+            <Route element={<PoCreatePage />} path=":id" />
+          </Route>
         </Route>
 
         <Route path="/master">

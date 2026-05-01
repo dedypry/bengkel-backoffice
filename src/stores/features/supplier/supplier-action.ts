@@ -34,3 +34,15 @@ export const getSupplierList = createAsyncThunk(
     }
   },
 );
+
+export const getSupplierAll = createAsyncThunk("get-supplier-all", async () => {
+  try {
+    const { data } = await http.get("/suppliers/all");
+
+    return data;
+  } catch (error) {
+    console.error(error);
+
+    return [];
+  }
+});

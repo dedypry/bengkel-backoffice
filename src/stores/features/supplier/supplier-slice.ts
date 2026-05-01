@@ -3,12 +3,17 @@ import type { ISupplier } from "@/utils/interfaces/ISupplier";
 
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getSupplier, getSupplierList } from "./supplier-action";
+import {
+  getSupplier,
+  getSupplierAll,
+  getSupplierList,
+} from "./supplier-action";
 
 const supplierSlice = createSlice({
   name: "supplier",
   initialState: {
     suppliers: null as IPagination<ISupplier> | null,
+    suppliersAll: [] as ISupplier[],
     supplierQuery: {
       q: "",
       page: 1,
@@ -31,6 +36,9 @@ const supplierSlice = createSlice({
       })
       .addCase(getSupplierList.fulfilled, (state, action) => {
         state.data = action.payload;
+      })
+      .addCase(getSupplierAll.fulfilled, (state, action) => {
+        state.suppliersAll = action.payload;
       }),
 });
 

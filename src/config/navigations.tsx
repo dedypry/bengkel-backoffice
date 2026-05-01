@@ -70,6 +70,11 @@ export const navigation = [
         href: "categories",
         icon: "Tags",
       },
+      {
+        title: "Order Pembelian",
+        href: "po",
+        icon: "Box",
+      },
     ],
   },
   {
