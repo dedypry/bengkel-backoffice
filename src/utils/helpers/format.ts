@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const formatIDR = (price?: any, type: "full" | "short" = "full") => {
   if (!price) return "Rp. 0";
   price = Number(price);
@@ -48,4 +50,21 @@ export function switchDotsToCommas(input: string | number, config?: IConfig) {
   }
 
   return result;
+}
+
+export function formatDate(date?: string) {
+  if (!date) return "-";
+
+  return dayjs(date).format("DD MMMM YYYY");
+}
+
+export function toCamelCase(str: string) {
+  return str.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+}
+
+export function capitalizeStatus(str: string) {
+  return str
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }

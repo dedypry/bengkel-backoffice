@@ -1,25 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { fetchPo } from "./po-action";
+import { fetchPo, fetchPoDetail } from "./po-action";
 
-interface Po {
-  id: string;
-  kode: string;
-  tanggal: string;
-  supplier: string;
-  status: string;
-  total: number;
-  tanggal_diminta: string;
-  catatan: string;
-}
+import { IPagination } from "@/utils/interfaces/IPagination";
+import { IPo } from "@/utils/interfaces/po";
 
 const poSlice = createSlice({
   name: "po",
   initialState: {
-    list: [] as Po[],
+    list: null as IPagination<IPo> | null,
+    poQuery: {
+      q: "",
+      page: 1,
+      pageSize: 10,
+    },
+    detail: null as IPo | null,
+    detailLoading: false,
     loading: false,
   },
-  reducers: {},
+  reducers: {
+    setPoQuery: (state, action) => {
+      state.poQuery = { ...state.poQuery, ...action.payload };
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPo.pending, (state) => {
@@ -31,8 +34,20 @@ const poSlice = createSlice({
       })
       .addCase(fetchPo.rejected, (state) => {
         state.loading = false;
+      })
+      .addCase(fetchPoDetail.pending, (state) => {
+        state.detail = null;
+        state.detailLoading = true;
+      })
+      .addCase(fetchPoDetail.fulfilled, (state, action) => {
+        state.detailLoading = false;
+        state.detail = action.payload;
+      })
+      .addCase(fetchPoDetail.rejected, (state) => {
+        state.detailLoading = false;
       });
   },
 });
 
+export const { setPoQuery } = poSlice.actions;
 export default poSlice.reducer;

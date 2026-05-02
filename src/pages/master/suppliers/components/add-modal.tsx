@@ -47,7 +47,12 @@ interface Props {
   onClose?: () => void;
 }
 
-export default function AddModal({ open, setOpen, supplier, onClose }: Props) {
+export default function AddSupplierModal({
+  open,
+  setOpen,
+  supplier,
+  onClose,
+}: Props) {
   const { supplierQuery } = useAppSelector((state) => state.supplier);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();

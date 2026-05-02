@@ -29,7 +29,7 @@ import {
   Truck,
 } from "lucide-react";
 
-import AddModal from "./components/add-modal";
+import AddSupplierModal from "./components/add-modal";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getSupplier } from "@/stores/features/supplier/supplier-action";
@@ -78,7 +78,7 @@ export default function MasterSupplierPage() {
 
   return (
     <div className="space-y-6 pb-20">
-      <AddModal
+      <AddSupplierModal
         open={open}
         setOpen={setOpen}
         supplier={selectedSupplier}

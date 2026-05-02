@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   Card,
   CardHeader,
@@ -45,6 +45,7 @@ import {
 import { handleDownload } from "@/utils/helpers/global";
 import ModalAddService from "@/pages/service/add/components/modal-add-service";
 import StatusQueue from "@/components/status-queue";
+import SumaryTable from "@/components/sumary";
 
 export default function PanelCustomer() {
   const { workOrder, woQuery, isLoadingDetail } = useAppSelector(
@@ -58,10 +59,7 @@ export default function PanelCustomer() {
   const hasSet = useRef(false);
 
   useEffect(() => {
-    if (workOrder && !hasSet.current) {
-      hasSet.current = true;
-      setIsDisable(workOrder?.status === "closed");
-    }
+    setIsDisable(workOrder?.status === "closed");
   }, [workOrder]);
 
   const { control, watch, handleSubmit, setValue, reset } =
@@ -656,138 +654,13 @@ export default function PanelCustomer() {
                     </div>
                   </Alert>
                 )}
-
-                {/* {workOrder.next_sugestion && (
-                  <div className="flex items-center">
-                    <p className="w-24 text-xs pl-2">Catatan</p>
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: workOrder.next_sugestion,
-                      }}
-                    />
-                  </div>
-                )} */}
               </div>
-              <div className="flex flex-col  gap-1">
-                <InputNumber
-                  isDisabled
-                  classNames={{
-                    input: "text-xs text-right",
-                    label: "w-20",
-                    mainWrapper: "w-full",
-                  }}
-                  label="Sub Total"
-                  labelPlacement="outside-left"
-                  size="sm"
-                  startContent={<p className="text-xs">Rp</p>}
-                  value={watch("sub_total") as any}
-                />
-
-                <div className="flex gap-1">
-                  <Controller
-                    control={control}
-                    name="disc_percentage"
-                    render={({ field }) => (
-                      <InputNumber
-                        classNames={{
-                          input: "text-[11px] text-center w-8",
-                          label: "w-20",
-                        }}
-                        endContent={<p className="text-[11px]">%</p>}
-                        isDisabled={isDisable}
-                        label="Disc Final"
-                        labelPlacement="outside-left"
-                        maxInput={100}
-                        size="sm"
-                        value={Number(field.value) as any}
-                        onInput={(val) => {
-                          field.onChange(val);
-                          const subTotal = watch("sub_total") ?? 0;
-                          const nominal = (val / 100) * subTotal;
-
-                          setValue("disc_value", nominal);
-                        }}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="disc_value"
-                    render={({ field }) => (
-                      <InputNumber
-                        classNames={{
-                          input: "text-[11px] text-right",
-                          label: "w-20",
-                        }}
-                        isDisabled={isDisable}
-                        maxInput={watch("sub_total") ?? 0}
-                        size="sm"
-                        startContent={<p className="text-[11px]">Rp</p>}
-                        value={field.value as any}
-                        onInput={(val) => {
-                          field.onChange(val);
-                          const subTotal = watch("sub_total") ?? 0;
-
-                          const percent = (val / subTotal) * 100;
-
-                          setValue(
-                            "disc_percentage",
-                            Number(percent.toFixed(2)),
-                          );
-                        }}
-                      />
-                    )}
-                  />
-                </div>
-                <InputNumber
-                  isDisabled
-                  classNames={{
-                    input: "text-xs text-right",
-                    label: "w-20",
-                    mainWrapper: "w-full",
-                  }}
-                  label="Pajak"
-                  labelPlacement="outside-left"
-                  size="sm"
-                  startContent={<p className="text-xs">Rp</p>}
-                  value={watch("tax") as any}
-                />
-                <Controller
-                  control={control}
-                  name="other_fee"
-                  render={({ field }) => (
-                    <InputNumber
-                      classNames={{
-                        input: "text-xs text-right",
-                        label: "w-20",
-                        mainWrapper: "w-full",
-                      }}
-                      isDisabled={isDisable}
-                      label="Biaya Lain"
-                      labelPlacement="outside-left"
-                      size="sm"
-                      startContent={<p className="text-xs">Rp</p>}
-                      value={Number(field.value) as any}
-                      onInput={field.onChange}
-                    />
-                  )}
-                />
-                {isDisable && (
-                  <InputNumber
-                    classNames={{
-                      input: "text-sm !font-bold text-right",
-                      label: "w-20 text-sm",
-                      mainWrapper: "w-full",
-                    }}
-                    isDisabled={isDisable}
-                    label="Total"
-                    labelPlacement="outside-left"
-                    size="sm"
-                    startContent={<p className="text-xs">Rp</p>}
-                    value={watch("total") as any}
-                  />
-                )}
-              </div>
+              <SumaryTable
+                control={control}
+                isDisable={isDisable}
+                setValue={setValue}
+                watch={watch}
+              />
             </div>
             {!isDisable && (
               <div className="w-full flex justify-between mt-2 items-center">

@@ -39,6 +39,8 @@ import VendorTrxPage from "./pages/service/vendor-transaction";
 import VehiclePage from "./pages/master/vehicles";
 import { PoPage } from "./pages/inventory/po";
 import PoCreatePage from "./pages/inventory/po/create";
+import WarehousesPage from "./pages/master/warehouses";
+import PoEditPage from "./pages/inventory/po/edit";
 
 import HomePage from "@/pages/dashboard/index";
 
@@ -72,7 +74,7 @@ function App() {
           <Route path="po">
             <Route element={<PoPage />} path="" />
             <Route element={<PoCreatePage />} path="create" />
-            <Route element={<PoCreatePage />} path=":id" />
+            <Route element={<PoEditPage />} path=":id" />
           </Route>
         </Route>
 
@@ -85,6 +87,7 @@ function App() {
           <Route element={<MasterServicePage />} path="services" />
           <Route element={<MasterSupplierPage />} path="suppliers" />
           <Route element={<VehiclePage />} path="vehicles" />
+          <Route element={<WarehousesPage />} path="warehouses" />
         </Route>
 
         <Route path="/finance">
