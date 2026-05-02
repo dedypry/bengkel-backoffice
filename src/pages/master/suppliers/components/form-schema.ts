@@ -3,7 +3,7 @@ import { z } from "zod";
 export const supplierSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(3, "Nama supplier minimal 3 karakter"),
-  code: z.string().min(2, "Kode wajib diisi"),
+  code: z.string().optional().nullable(),
   email: z.string().email("Format email tidak valid").or(z.literal("")),
   phone: z.string().min(10, "Nomor telepon minimal 10 digit").or(z.literal("")),
   address: z.string().optional(),

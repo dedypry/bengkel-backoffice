@@ -111,13 +111,6 @@ export default function MasterSupplierPage() {
           >
             Cari
           </Button>
-          {/* <Button
-            isIconOnly
-            className="bg-gray-100 text-gray-600"
-            variant="flat"
-          >
-            <Filter size={20} />
-          </Button> */}
         </div>
       </div>
 
@@ -139,18 +132,7 @@ export default function MasterSupplierPage() {
             AKSI
           </TableColumn>
         </TableHeader>
-        <TableBody
-          emptyContent={
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="p-6 bg-gray-50 rounded-full mb-4">
-                <Search className="text-gray-300" size={40} />
-              </div>
-              <p className="font-black uppercase text-gray-400">
-                Supplier Tidak Ditemukan
-              </p>
-            </div>
-          }
-        >
+        <TableBody emptyContent="Supplier Tidak Ditemukan">
           {(suppliers?.data || []).map((item) => (
             <TableRow
               key={item.id}

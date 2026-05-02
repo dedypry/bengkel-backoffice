@@ -158,7 +158,7 @@ export default function AddSupplierModal({
                       startContent={
                         <Hash className="text-gray-400" size={16} />
                       }
-                      {...field}
+                      {...(field as any)}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                     />
@@ -176,8 +176,10 @@ export default function AddSupplierModal({
                 <Controller
                   control={control}
                   name="phone"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <PhoneInput
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
                       label="No Telp"
                       labelPlacement="inside"
                       value={field.value}
@@ -215,8 +217,10 @@ export default function AddSupplierModal({
                 <Controller
                   control={control}
                   name="province_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <Province
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
                       {...field}
                       labelPlacement="inside"
                       variant="faded"
@@ -226,16 +230,24 @@ export default function AddSupplierModal({
                 <Controller
                   control={control}
                   name="city_id"
-                  render={({ field }) => (
-                    <City {...field} labelPlacement="inside" variant="faded" />
+                  render={({ field, fieldState }) => (
+                    <City
+                      {...field}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
+                      labelPlacement="inside"
+                      variant="faded"
+                    />
                   )}
                 />
                 <Controller
                   control={control}
                   name="district_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <District
                       {...field}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={!!fieldState.error}
                       labelPlacement="inside"
                       variant="faded"
                     />
@@ -247,11 +259,12 @@ export default function AddSupplierModal({
                 name="address"
                 render={({ field, fieldState }) => (
                   <Textarea
-                    label="Alamat Lengkap"
-                    placeholder="Jl. Industri No. 5..."
-                    {...field}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
+                    label="Alamat Lengkap"
+                    placeholder="Jl. Industri No. 5..."
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
                   />
                 )}
               />
