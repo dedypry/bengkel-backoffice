@@ -24,7 +24,7 @@ import {
   formatIDR,
 } from "@/utils/helpers/format";
 import TableAction from "@/components/table-action";
-import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
+import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setPoQuery } from "@/stores/features/po/po-slice";
@@ -157,7 +157,7 @@ export function PoPage() {
               <TableCell>{item.notes}</TableCell>
               <TableCell>
                 <TableAction
-                  onDelete={() => confirmSweat(() => handleDelete(item.id))}
+                  onDelete={() => handleDelete(item.id)}
                   onDetail={() => handleDetail(item.id)}
                   onEdit={() => navigate(`${item.id}`)}
                 />
