@@ -60,7 +60,7 @@ export default function MasterCustomerPage() {
   const navigate = useNavigate();
   const hasFetched = useRef(false);
 
-  const custQuery = { ...query, isVehicle: true };
+  const custQuery: any = { ...query, isVehicle: 1 };
 
   useEffect(() => {
     if (company && !hasFetched.current) {

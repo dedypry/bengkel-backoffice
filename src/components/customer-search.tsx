@@ -37,9 +37,9 @@ export default function CustomerSearch({
       hasFetched.current = true;
       dispatch(
         getCustomer({
-          noStats: true,
-          noPagination: true,
-          isVehicle: true,
+          noStats: 1,
+          noPagination: 1,
+          isVehicle: 1,
         }),
       );
 

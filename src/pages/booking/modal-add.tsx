@@ -66,9 +66,9 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
       hasFetched.current = true;
       dispatch(
         getCustomer({
-          noStats: true,
-          noPagination: true,
-          isVehicle: true,
+          noStats: 1,
+          noPagination: 1,
+          isVehicle: 1,
         }),
       );
       setTimeout(() => {

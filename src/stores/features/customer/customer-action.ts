@@ -5,9 +5,9 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { http } from "@/utils/libs/axios";
 
 interface CustomerQuery extends IQuery {
-  noStats?: boolean;
-  isVehicle?: boolean;
-  noPagination?: boolean;
+  noStats?: 0 | 1;
+  isVehicle?: 0 | 1;
+  noPagination?: 0 | 1;
 }
 export const getCustomer = createAsyncThunk(
   "get-customer",
