@@ -58,6 +58,8 @@ const poSchema = z.object({
   total: z.any().optional().nullable(),
   note: z.string(),
   term_credit: z.number().optional().nullable(),
+  disc_percentage: z.number().optional().nullable(),
+  disc_value: z.number().optional().nullable(),
   requested_date: z.string().optional().nullable(),
   notes: z.string().optional(),
   closed_notes: z.string().optional(),
@@ -153,6 +155,8 @@ export default function PoCreatePage({ po }: Props) {
         note: po.notes,
         term_credit: Number(po.term_credit || 0),
         requested_date: po.requested_date,
+        disc_percentage: Number(po.disc_percentage || 0),
+        disc_value: Number(po.disc_value || 0),
         notes: po.notes,
         closed_notes: po.closed_notes,
         status: po.status,
@@ -186,7 +190,7 @@ export default function PoCreatePage({ po }: Props) {
       return acc + price * qty - disc;
     }, 0);
 
-    const discFinalNominal = Number(watch("tax") ?? 0);
+    const discFinalNominal = Number(watch("disc_value") ?? 0);
     const otherFee = Number(watch("other_fee") ?? 0);
 
     const discRatio = rawSubTotal > 0 ? discFinalNominal / rawSubTotal : 0;
@@ -253,6 +257,7 @@ export default function PoCreatePage({ po }: Props) {
       }
     }
     setValue("items", payload);
+    calculate();
   }
 
   return (
@@ -628,21 +633,23 @@ export default function PoCreatePage({ po }: Props) {
                       )}
                     />
                   </div>
-                  <Controller
-                    control={control}
-                    name="closed_notes"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        fullWidth
-                        className="w-1/3"
-                        placeholder="Catatan Penutup"
-                        size="sm"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
+                  {watch("status") === "closed" && (
+                    <Controller
+                      control={control}
+                      name="closed_notes"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          fullWidth
+                          className="w-1/3"
+                          placeholder="Catatan Penutup"
+                          size="sm"
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
+                  )}
                 </div>
                 <Controller
                   control={control}
