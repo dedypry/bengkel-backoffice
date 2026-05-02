@@ -1,7 +1,8 @@
-import { Box, Plus } from "lucide-react";
+import { Box, Plus, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
+  Input,
   Table,
   TableBody,
   TableCell,
@@ -25,10 +26,15 @@ import {
 import TableAction from "@/components/table-action";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
+import { CustomPagination } from "@/components/custom-pagination";
+import { setPoQuery } from "@/stores/features/po/po-slice";
+import PageSize from "@/components/page-size";
+import debounce from "@/utils/helpers/debounce";
 
 export function PoPage() {
   const { list, loading, poQuery } = useAppSelector((state) => state.po);
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -43,7 +49,7 @@ export function PoPage() {
         hasFetch.current = false;
       }, 1000);
     }
-  }, []);
+  }, [poQuery]);
 
   const handleDetail = (id: number) => {
     dispatch(fetchPoDetail(id));
@@ -60,6 +66,8 @@ export function PoPage() {
       .catch(notifyError);
   };
 
+  const searchDebounce = debounce((q) => dispatch(setPoQuery({ q })), 500);
+
   return (
     <>
       <ModalPoDetail open={open} onOpen={setOpen} />
@@ -72,7 +80,49 @@ export function PoPage() {
         onAction={() => navigate("create")}
       />
 
-      <Table>
+      <Table
+        bottomContent={
+          <CustomPagination
+            meta={list?.meta!}
+            onPageChange={(page) => dispatch(setPoQuery({ page }))}
+          />
+        }
+        topContent={
+          <div className="flex justify-between">
+            <PageSize
+              selectedKeys={[poQuery.pageSize.toString()]}
+              onSelectionChange={(key) => {
+                const val = Array.from(key)[0].toString();
+
+                dispatch(setPoQuery({ pageSize: val }));
+              }}
+            />
+            <div>
+              <Input
+                endContent={
+                  search && (
+                    <X
+                      className="cursor-pointer"
+                      size={18}
+                      onClick={() => {
+                        setSearch("");
+                        dispatch(setPoQuery({ q: "" }));
+                      }}
+                    />
+                  )
+                }
+                placeholder="Cari PO"
+                startContent={<Search size={18} />}
+                value={search}
+                onValueChange={(val) => {
+                  setSearch(val);
+                  searchDebounce(val);
+                }}
+              />
+            </div>
+          </div>
+        }
+      >
         <TableHeader>
           <TableColumn>No PO</TableColumn>
           <TableColumn>Tanggal</TableColumn>
