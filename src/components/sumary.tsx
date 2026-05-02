@@ -1,14 +1,9 @@
-import {
-  Control,
-  Controller,
-  UseFormSetValue,
-  UseFormWatch,
-} from "react-hook-form";
+import { Controller, UseFormSetValue, UseFormWatch } from "react-hook-form";
 
 import InputNumber from "./input-number";
 
 interface Props {
-  control: Control<any>;
+  control: any;
   watch: UseFormWatch<any>;
   isDisable?: boolean;
   showTotal?: boolean;
