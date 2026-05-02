@@ -1,13 +1,13 @@
-import { Controller, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import InputNumber from "./input-number";
 
 interface Props {
   control: any;
-  watch: UseFormWatch<any>;
+  watch: any;
   isDisable?: boolean;
   showTotal?: boolean;
-  setValue: UseFormSetValue<any>;
+  setValue: any;
   onAction?: () => void;
 }
 export default function SumaryTable({
