@@ -77,7 +77,7 @@ function CustomDatePicker(
       value={
         props.value
           ? dayjs(props.value || new Date()).format("DD MMMM YYYY")
-          : "-"
+          : ""
       }
       onClick={() => setOpen(true)}
     />

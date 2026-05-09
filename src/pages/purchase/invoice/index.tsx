@@ -102,8 +102,6 @@ export default function PoInvoicePage() {
             />
             <div className="flex gap-2">
               <DatePicker
-                label="Tanggal Invoice"
-                labelPlacement="outside-left"
                 placeholder="Cari tanggal invoice"
                 value={poQuery.date}
                 onChange={(val) => dispatch(setPoQuery({ date: val }))}
