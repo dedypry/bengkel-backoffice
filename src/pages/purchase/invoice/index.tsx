@@ -1,4 +1,4 @@
-import { Plus, Search, X } from "lucide-react";
+import { Download, Plus, Search, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Input,
@@ -29,6 +29,7 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { setPoQuery } from "@/stores/features/po/po-slice";
 import PageSize from "@/components/page-size";
 import debounce from "@/utils/helpers/debounce";
+import { handleDownload } from "@/utils/helpers/global";
 
 export default function PoInvoicePage() {
   const { list, loading, poQuery } = useAppSelector((state) => state.po);
@@ -153,6 +154,18 @@ export default function PoInvoicePage() {
               <TableCell>{formatIDR(item.total)}</TableCell>
               <TableCell>
                 <TableAction
+                  items={[
+                    {
+                      title: "Download Invoice",
+                      onPress: () =>
+                        handleDownload(
+                          `/po/invoice/download/${item.id}`,
+                          item.po_no,
+                          true,
+                        ),
+                      icon: Download as any,
+                    },
+                  ]}
                   onDelete={() => handleDelete(item.id)}
                   onDetail={() => handleDetail(item.id)}
                   onEdit={() => navigate(`${item.id}`)}

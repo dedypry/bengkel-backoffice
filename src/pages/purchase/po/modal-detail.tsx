@@ -14,10 +14,13 @@ import {
   TableRow,
   Divider,
 } from "@heroui/react";
+import { Download } from "lucide-react";
 
 import { useAppSelector } from "@/stores/hooks";
 import { dateFormat } from "@/utils/helpers/formater";
 import { formatDate, formatIDR, formatNumber } from "@/utils/helpers/format";
+import { handleDownload } from "@/utils/helpers/global";
+import { useState } from "react";
 
 interface Props {
   open: boolean;
@@ -26,6 +29,7 @@ interface Props {
 
 export function ModalPoDetail({ open, onOpen }: Props) {
   const { detail } = useAppSelector((state) => state.po);
+  const [downloadLoading, setDownloadLoading] = useState(false);
 
   if (!detail) return null;
 
@@ -34,6 +38,25 @@ export function ModalPoDetail({ open, onOpen }: Props) {
       <ModalContent>
         <ModalHeader>Detail Pesanan Pembelian</ModalHeader>
         <ModalBody>
+          <div className="flex justify-end">
+            <Button
+              color="success"
+              isLoading={downloadLoading}
+              size="sm"
+              startContent={<Download size={18} />}
+              variant="bordered"
+              onPress={() =>
+                handleDownload(
+                  `/po/invoice/download/${detail.id}`,
+                  detail.po_no,
+                  true,
+                  setDownloadLoading,
+                )
+              }
+            >
+              Download Invoice
+            </Button>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
               <InputDetail label="No. PO" value={detail.po_no} />
