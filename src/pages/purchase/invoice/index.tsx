@@ -126,7 +126,7 @@ export default function PoInvoicePage() {
         }
       >
         <TableHeader>
-          <TableColumn>No. Faktur</TableColumn>
+          <TableColumn>No. Invoice</TableColumn>
           <TableColumn>Tanggal</TableColumn>
           <TableColumn>Supplier</TableColumn>
           <TableColumn>Status</TableColumn>
@@ -141,12 +141,17 @@ export default function PoInvoicePage() {
           {(list?.data || []).map((item) => (
             <TableRow key={item.id}>
               <TableCell>
-                <Link
-                  className="hover:text-primary"
-                  to={`/purchase/invoice/${item.id}`}
-                >
-                  {item.po_no}
-                </Link>
+                <div className="flex flex-col">
+                  <Link
+                    className="hover:text-primary text-xs"
+                    to={`/purchase/invoice/${item.id}`}
+                  >
+                    {item.po_no}
+                  </Link>
+                  <span className="text-xs text-gray-500">
+                    {item.invoice_no}
+                  </span>
+                </div>
               </TableCell>
               <TableCell>{formatDate(item.date)}</TableCell>
               <TableCell>{item.supplier?.name}</TableCell>
