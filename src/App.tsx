@@ -37,12 +37,15 @@ import EditProduct from "./pages/inventory/stock/edit";
 import PaymentDetailPage from "./pages/finance/detail";
 import VendorTrxPage from "./pages/service/vendor-transaction";
 import VehiclePage from "./pages/master/vehicles";
-import { PoPage } from "./pages/inventory/po";
-import PoCreatePage from "./pages/inventory/po/create";
+import { PoPage } from "./pages/purchase/po";
+import PoCreatePage from "./pages/purchase/po/create";
 import WarehousesPage from "./pages/master/warehouses";
-import PoEditPage from "./pages/inventory/po/edit";
+import PoEditPage from "./pages/purchase/po/edit";
 
 import HomePage from "@/pages/dashboard/index";
+import PoInvoicePage from "./pages/purchase/invoice";
+import PoInvoiceCreatePage from "./pages/purchase/invoice/create";
+import PoInvoiceEditPage from "./pages/purchase/invoice/edit";
 
 function App() {
   return (
@@ -64,18 +67,26 @@ function App() {
           <Route element={<VendorTrxPage />} path="vendor-transaction" />
         </Route>
 
+        <Route path="/purchase">
+          <Route path="po">
+            <Route element={<PoPage />} path="" />
+            <Route element={<PoCreatePage />} path="create" />
+            <Route element={<PoEditPage />} path=":id" />
+          </Route>
+
+          <Route path="invoice">
+            <Route element={<PoInvoicePage />} path="" />
+            <Route element={<PoInvoiceCreatePage />} path="create" />
+            <Route element={<PoInvoiceEditPage />} path=":id" />
+          </Route>
+        </Route>
+
         <Route path="/inventory">
           <Route element={<InventoryStockPage />} path="stock" />
           <Route element={<FormAddStock />} path="stock/add" />
           <Route element={<ProductDetail />} path="stock/:id" />
           <Route element={<EditProduct />} path="stock/:id/edit" />
           <Route element={<InventoryCategoryPage />} path="categories" />
-
-          <Route path="po">
-            <Route element={<PoPage />} path="" />
-            <Route element={<PoCreatePage />} path="create" />
-            <Route element={<PoEditPage />} path=":id" />
-          </Route>
         </Route>
 
         <Route path="/master">

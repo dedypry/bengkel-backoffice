@@ -14,7 +14,6 @@ export interface IPo {
   other_fee?: number;
   disc_value?: number;
   tax?: number;
-  disc_percentage?: number;
   total?: number;
   term_credit: number;
   dp: number;
@@ -24,13 +23,20 @@ export interface IPo {
   signature_id?: number;
   created_id?: number;
   requested_date?: string;
+  disc_percentage?: number;
+  closed_notes?: string;
+  due_date?: string;
+  due_day?: number;
+  received_at?: string;
+  received_id?: number;
+  invoice_no?: string;
+  payment_type?: string;
   created_at: string;
   supplier?: ISupplier;
   warehouse?: IWarehouse;
   items: IPoItem[];
   signature: IUser;
   created_by: IUser;
-  closed_notes?: string;
 }
 
 export interface IPoItem {

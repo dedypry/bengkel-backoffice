@@ -50,8 +50,8 @@ import { IPo } from "@/utils/interfaces/po";
 
 const poSchema = z.object({
   id: z.number().optional().nullable(),
-  supplierId: z.number(),
-  warehouseId: z.number().optional().nullable(),
+  supplier_id: z.number(),
+  warehouse_id: z.number().optional().nullable(),
   date: z.string(),
   sub_total: z.any().optional().nullable(),
   other_fee: z.any().optional().nullable(),
@@ -120,7 +120,7 @@ export default function PoCreatePage({ po }: Props) {
       resolver: zodResolver(poSchema),
       mode: "onChange",
       defaultValues: {
-        supplierId: undefined,
+        supplier_id: undefined,
         date: new Date().toISOString(),
         sub_total: 0,
         tax: 0,
@@ -145,8 +145,8 @@ export default function PoCreatePage({ po }: Props) {
     if (po) {
       reset({
         id: po.id,
-        supplierId: po.supplier_id,
-        warehouseId: po.warehouse_id,
+        supplier_id: po.supplier_id,
+        warehouse_id: po.warehouse_id,
         date: po.date,
         sub_total: po.sub_total,
         tax: Number(po.tax || 0),
@@ -303,7 +303,7 @@ export default function PoCreatePage({ po }: Props) {
                 control={control}
                 items={suppliersAll}
                 label="Supplier"
-                name="supplierId"
+                name="supplier_id"
                 placeholder="Pilih Supplier"
               />
               <Button
@@ -322,7 +322,7 @@ export default function PoCreatePage({ po }: Props) {
                 control={control}
                 items={warehouses?.data ?? []}
                 label="Gudang"
-                name="warehouseId"
+                name="warehouse_id"
                 placeholder="Pilih Gudang"
               />
               <Button

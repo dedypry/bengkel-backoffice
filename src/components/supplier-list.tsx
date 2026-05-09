@@ -1,7 +1,7 @@
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { useRef, useEffect } from "react";
 
-import { getSupplierList } from "@/stores/features/supplier/supplier-action";
+import { getSupplierAll } from "@/stores/features/supplier/supplier-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 
 interface Props {
@@ -20,7 +20,7 @@ export default function SupplierList({
   errorMessage,
   isDisabled,
 }: Props) {
-  const { data: suppliers } = useAppSelector((state) => state.supplier);
+  const { suppliersAll } = useAppSelector((state) => state.supplier);
 
   const dispatch = useAppDispatch();
   const hasFetch = useRef(false);
@@ -29,7 +29,7 @@ export default function SupplierList({
     if (!hasFetch.current) {
       hasFetch.current = true;
 
-      dispatch(getSupplierList());
+      dispatch(getSupplierAll());
 
       setTimeout(() => {
         hasFetch.current = false;
@@ -42,7 +42,7 @@ export default function SupplierList({
       classNames={{
         clearButton: "text-gray-700",
       }}
-      defaultItems={suppliers}
+      defaultItems={suppliersAll}
       errorMessage={errorMessage}
       isDisabled={isDisabled}
       isInvalid={isInvalid}

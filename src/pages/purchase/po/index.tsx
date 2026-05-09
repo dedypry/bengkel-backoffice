@@ -11,13 +11,13 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { GridLoader } from "react-spinners";
 
 import { ModalPoDetail } from "./modal-detail";
 
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { fetchPo, fetchPoDetail } from "@/stores/features/po/po-action";
-import Loading from "@/components/loading/Loading";
 import {
   capitalizeStatus,
   formatDate,
@@ -136,7 +136,7 @@ export function PoPage() {
         <TableBody
           emptyContent="Data Kosong"
           isLoading={loading}
-          loadingContent={<Loading />}
+          loadingContent={<GridLoader color="#0096FF" />}
         >
           {(list?.data || [])?.map((item) => (
             <TableRow key={item.id}>

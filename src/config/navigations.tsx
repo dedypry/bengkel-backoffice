@@ -55,6 +55,25 @@ export const navigation = [
   },
   {
     roles: ["super-admin", "partsman", "owner"],
+    header: "Pembelian Sparepart",
+    href: "/purchase",
+    icon: "Package",
+    permissions: ["purchase-order.view", "purchase-order.manage"],
+    items: [
+      {
+        title: "Order Pembelian",
+        href: "po",
+        icon: "Box",
+      },
+      {
+        title: "Faktur Pembelian",
+        href: "invoice",
+        icon: "FileText",
+      },
+    ],
+  },
+  {
+    roles: ["super-admin", "partsman", "owner"],
     header: "Inventaris Sparepart",
     href: "/inventory",
     icon: "Package",
@@ -69,11 +88,6 @@ export const navigation = [
         title: "Kategori Produk",
         href: "categories",
         icon: "Tags",
-      },
-      {
-        title: "Order Pembelian",
-        href: "po",
-        icon: "Box",
       },
     ],
   },

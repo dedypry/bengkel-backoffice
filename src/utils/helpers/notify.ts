@@ -1,4 +1,5 @@
 import Swal, { type SweetAlertIcon, type SweetAlertOptions } from "sweetalert2";
+import Cookies from "js-cookie";
 
 export const notify = (msg: string, icon?: SweetAlertIcon) => {
   const Toast = Swal.mixin({
@@ -50,6 +51,11 @@ export const notifyError = (res: any) => {
       icon: "error",
       title: msg,
     });
+  }
+
+  if (res.response?.status === 401) {
+    Cookies.remove("token");
+    window.location.href = "/login";
   }
 };
 
