@@ -11,20 +11,29 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Update ke v4 lebih stabil
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4 # Rekomendasi: Gunakan action resmi pnpm
+        with:
+          version: 9 # Atau versi yang kamu gunakan
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: 'pnpm' # Cache otomatis agar build lebih cepat
 
-      - name: Install PNPM
-        run: npm install -g pnpm
+      - name: Configure PNPM Allowed Builds
+        # Langkah krusial: Izinkan build script untuk library yang error tadi
+        run: |
+          pnpm config set only-built-dependencies @heroui/shared-utils @tailwindcss/oxide core-js-pure esbuild
 
       - name: Install dependencies and build
         run: |
-          echo "VITE_NODE_ENV=production" >> .env
-          pnpm install
+          # Buat file .env secara aman
+          echo "VITE_NODE_ENV=production" > .env
+          pnpm install --frozen-lockfile
           pnpm lint
           pnpm build
 
