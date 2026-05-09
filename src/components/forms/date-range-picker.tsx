@@ -9,7 +9,11 @@ import {
   TimeInput,
 } from "@heroui/react";
 import { forwardRef, useEffect, useState } from "react";
-import { DateRangePicker, RangeKeyDict } from "react-date-range";
+import {
+  createStaticRanges,
+  DateRangePicker,
+  RangeKeyDict,
+} from "react-date-range";
 import { parseAbsoluteToLocal, ZonedDateTime } from "@internationalized/date";
 
 import "react-date-range/dist/styles.css";
@@ -17,8 +21,158 @@ import "react-date-range/dist/theme/default.css";
 import { Calendar1Icon, X } from "lucide-react";
 
 import id from "date-fns/locale/id";
+import {
+  addDays,
+  addMonths,
+  differenceInCalendarDays,
+  endOfDay,
+  endOfMonth,
+  endOfWeek,
+  endOfYear,
+  isSameDay,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subYears,
+} from "date-fns";
 import dayjs from "dayjs";
 import { dateFormat } from "@/utils/helpers/formater";
+
+/** Preset kiri + Tahun ini / Tahun lalu (label bahasa Indonesia) */
+const idStaticRanges = createStaticRanges([
+  {
+    label: "Hari ini",
+    range: () => {
+      const d = new Date();
+
+      return {
+        startDate: startOfDay(d),
+        endDate: endOfDay(d),
+      };
+    },
+  },
+  {
+    label: "Kemarin",
+    range: () => {
+      const d = addDays(new Date(), -1);
+
+      return {
+        startDate: startOfDay(d),
+        endDate: endOfDay(d),
+      };
+    },
+  },
+  {
+    label: "Minggu ini",
+    range: () => {
+      const d = new Date();
+
+      return {
+        startDate: startOfWeek(d, { locale: id }),
+        endDate: endOfWeek(d, { locale: id }),
+      };
+    },
+  },
+  {
+    label: "Minggu lalu",
+    range: () => {
+      const d = addDays(new Date(), -7);
+
+      return {
+        startDate: startOfWeek(d, { locale: id }),
+        endDate: endOfWeek(d, { locale: id }),
+      };
+    },
+  },
+  {
+    label: "Bulan ini",
+    range: () => {
+      const d = new Date();
+
+      return {
+        startDate: startOfMonth(d),
+        endDate: endOfMonth(d),
+      };
+    },
+  },
+  {
+    label: "Bulan lalu",
+    range: () => {
+      const d = addMonths(new Date(), -1);
+
+      return {
+        startDate: startOfMonth(d),
+        endDate: endOfMonth(d),
+      };
+    },
+  },
+  {
+    label: "Tahun ini",
+    range: () => {
+      const d = new Date();
+
+      return {
+        startDate: startOfYear(d),
+        endDate: endOfYear(d),
+      };
+    },
+  },
+  {
+    label: "Tahun lalu",
+    range: () => {
+      const d = subYears(new Date(), 1);
+
+      return {
+        startDate: startOfYear(d),
+        endDate: endOfYear(d),
+      };
+    },
+  },
+]);
+
+const idInputRanges = [
+  {
+    label: "hari hingga hari ini",
+    range(value: string, _props?: unknown) {
+      const startOfToday = startOfDay(new Date());
+      const endOfToday = endOfDay(new Date());
+
+      return {
+        startDate: addDays(startOfToday, (Math.max(Number(value), 1) - 1) * -1),
+        endDate: endOfToday,
+      };
+    },
+    getCurrentValue(range: { startDate?: Date; endDate?: Date }) {
+      const endToday = endOfDay(new Date());
+
+      if (!range.endDate || !isSameDay(range.endDate, endToday)) return "-";
+      if (!range.startDate) return "∞";
+
+      return String(differenceInCalendarDays(endToday, range.startDate) + 1);
+    },
+  },
+  {
+    label: "hari mulai hari ini",
+    range(value: string, _props?: unknown) {
+      const today = new Date();
+
+      return {
+        startDate: today,
+        endDate: addDays(today, Math.max(Number(value), 1) - 1),
+      };
+    },
+    getCurrentValue(range: { startDate?: Date; endDate?: Date }) {
+      const startToday = startOfDay(new Date());
+
+      if (!range.startDate || !isSameDay(range.startDate, startToday))
+        return "-";
+      if (!range.endDate) return "∞";
+
+      return String(differenceInCalendarDays(range.endDate, startToday) + 1);
+    },
+  },
+];
 
 interface Props {
   value: {
@@ -60,25 +214,6 @@ function CustomDateRangePicker(
       props.onChange({
         start: dayjs(dateR.startDate).format("YYYY-MM-DD"),
         end: dayjs(dateR.endDate).format("YYYY-MM-DD"),
-      } as any);
-    }
-  }
-
-  function applyYearPreset(yearOffset: 0 | -1) {
-    const base = dayjs().add(yearOffset, "year");
-    const startDate = base.startOf("year").toDate();
-    const endDate = base.endOf("year").toDate();
-
-    setDateRange({
-      ...dateRange,
-      startDate,
-      endDate,
-      key: "target",
-    });
-    if (props.onChange) {
-      props.onChange({
-        start: dayjs(startDate).format("YYYY-MM-DD"),
-        end: dayjs(endDate).format("YYYY-MM-DD"),
       } as any);
     }
   }
@@ -156,30 +291,16 @@ function CustomDateRangePicker(
             </PopoverTrigger>
             <PopoverContent className="mt-3">
               <div className="px-1 py-2">
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    onPress={() => applyYearPreset(0)}
-                  >
-                    Tahun ini
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    onPress={() => applyYearPreset(-1)}
-                  >
-                    Tahun lalu
-                  </Button>
-                </div>
                 <DateRangePicker
                   color="#077fb6"
                   editableDateInputs={true}
+                  inputRanges={idInputRanges as any}
                   locale={id}
                   moveRangeOnFirstSelection={false}
                   rangeColors={["#077fb6"]}
                   ranges={[dateRange]}
                   retainEndDateOnFirstSelection={false}
+                  staticRanges={idStaticRanges}
                   onChange={handleChooseDateRange}
                 />
                 {showTime && (
