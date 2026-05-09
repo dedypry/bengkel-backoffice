@@ -2,17 +2,23 @@ import type { IMeta } from "@/utils/interfaces/IPagination";
 
 import { Pagination } from "@heroui/react";
 
+import PageSize from "./page-size";
+
 interface Props {
   meta: IMeta;
   onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
   showDesc?: boolean;
   showTotal?: boolean;
   className?: string;
+  showPageSize?: boolean;
 }
 
 export function CustomPagination({
   meta,
   onPageChange,
+  onPageSizeChange,
+  showPageSize = false,
   showDesc = true,
   showTotal = false,
   className,
@@ -54,22 +60,36 @@ export function CustomPagination({
       </div>
 
       {/* Komponen Pagination HeroUI */}
-      <Pagination
-        isCompact
-        showControls
-        showShadow
-        classNames={{
-          wrapper: "gap-1",
-          item: "w-8 h-8 text-small rounded-lg",
-          prev: "w-8 h-8 rounded-lg",
-          next: "w-8 h-8 rounded-lg",
-          cursor: "bg-primary shadow-primary/30 text-white font-bold",
-        }}
-        color="primary"
-        page={currentPage}
-        total={totalPage}
-        onChange={(page) => onPageChange(page)}
-      />
+      <div className="flex items-center gap-2">
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          classNames={{
+            wrapper: "gap-1",
+            item: "w-8 h-8 text-small rounded-lg",
+            prev: "w-8 h-8 rounded-lg",
+            next: "w-8 h-8 rounded-lg",
+            cursor: "bg-primary shadow-primary/30 text-white font-bold",
+          }}
+          color="primary"
+          page={currentPage}
+          total={totalPage}
+          onChange={(page) => onPageChange(page)}
+        />
+
+        {showPageSize && (
+          <PageSize
+            selectedKeys={[meta.pageSize.toString()]}
+            size="sm"
+            onSelectionChange={(key) => {
+              const val = Array.from(key)[0].toString();
+
+              onPageSizeChange?.(Number(val));
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }

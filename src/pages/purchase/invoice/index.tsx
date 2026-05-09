@@ -1,6 +1,8 @@
 import { Download, Plus, Search, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  Autocomplete,
+  AutocompleteItem,
   Input,
   Table,
   TableBody,
@@ -27,7 +29,6 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setPoQuery } from "@/stores/features/po/po-slice";
-import PageSize from "@/components/page-size";
 import debounce from "@/utils/helpers/debounce";
 import { handleDownload } from "@/utils/helpers/global";
 import DatePicker from "@/components/forms/date-picker";
@@ -87,19 +88,42 @@ export default function PoInvoicePage() {
         bottomContent={
           <CustomPagination
             meta={list?.meta!}
+            showPageSize={true}
             onPageChange={(page) => dispatch(setPoQuery({ page }))}
+            onPageSizeChange={(pageSize) => dispatch(setPoQuery({ pageSize }))}
           />
         }
         topContent={
           <div className="flex justify-between">
-            <PageSize
+            {/* <PageSize
               selectedKeys={[poQuery.pageSize.toString()]}
               onSelectionChange={(key) => {
                 const val = Array.from(key)[0].toString();
 
                 dispatch(setPoQuery({ pageSize: val }));
               }}
-            />
+            /> */}
+            <Autocomplete
+              className="w-xs"
+              classNames={{
+                clearButton: "text-gray-500",
+              }}
+              defaultItems={list?.stats?.suppliers ?? []}
+              placeholder="Filter berdasarkan supplier"
+              selectedKey={(poQuery.supplier_id || "").toString()}
+              onClear={() => dispatch(setPoQuery({ supplier_id: undefined }))}
+              onSelectionChange={(val) => {
+                if (val) {
+                  dispatch(
+                    setPoQuery({ supplier_id: val ? Number(val) : undefined }),
+                  );
+                }
+              }}
+            >
+              {(item: any) => (
+                <AutocompleteItem key={item.id}>{item.name}</AutocompleteItem>
+              )}
+            </Autocomplete>
             <div className="flex gap-2">
               <DatePicker
                 placeholder="Cari tanggal invoice"
