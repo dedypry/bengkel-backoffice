@@ -15,6 +15,8 @@ const poSlice = createSlice({
       pageSize: 10,
       date: "",
       supplier_id: undefined,
+      date_from: "",
+      date_to: "",
     },
     detail: null as IPo | null,
     detailLoading: false,

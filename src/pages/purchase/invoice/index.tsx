@@ -31,7 +31,7 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { setPoQuery } from "@/stores/features/po/po-slice";
 import debounce from "@/utils/helpers/debounce";
 import { handleDownload } from "@/utils/helpers/global";
-import DatePicker from "@/components/forms/date-picker";
+import DateRangePicker from "@/components/forms/date-range-picker";
 
 export default function PoInvoicePage() {
   const { list, loading, poQuery } = useAppSelector((state) => state.po);
@@ -125,10 +125,22 @@ export default function PoInvoicePage() {
               )}
             </Autocomplete>
             <div className="flex gap-2">
-              <DatePicker
+              <DateRangePicker
                 placeholder="Cari tanggal invoice"
-                value={poQuery.date}
-                onChange={(val) => dispatch(setPoQuery({ date: val }))}
+                value={
+                  {
+                    start: poQuery.date_from,
+                    end: poQuery.date_to,
+                  } as any
+                }
+                onChange={(val: any) =>
+                  dispatch(
+                    setPoQuery({
+                      date_from: val?.start,
+                      date_to: val?.end,
+                    }),
+                  )
+                }
               />
               <Input
                 endContent={
