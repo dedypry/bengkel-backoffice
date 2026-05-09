@@ -30,6 +30,7 @@ import { setPoQuery } from "@/stores/features/po/po-slice";
 import PageSize from "@/components/page-size";
 import debounce from "@/utils/helpers/debounce";
 import { handleDownload } from "@/utils/helpers/global";
+import DatePicker from "@/components/forms/date-picker";
 
 export default function PoInvoicePage() {
   const { list, loading, poQuery } = useAppSelector((state) => state.po);
@@ -99,7 +100,14 @@ export default function PoInvoicePage() {
                 dispatch(setPoQuery({ pageSize: val }));
               }}
             />
-            <div>
+            <div className="flex gap-2">
+              <DatePicker
+                label="Tanggal Invoice"
+                labelPlacement="outside-left"
+                placeholder="Cari tanggal invoice"
+                value={poQuery.date}
+                onChange={(val) => dispatch(setPoQuery({ date: val }))}
+              />
               <Input
                 endContent={
                   search && (

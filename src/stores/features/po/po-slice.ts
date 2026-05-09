@@ -13,6 +13,7 @@ const poSlice = createSlice({
       q: "",
       page: 1,
       pageSize: 10,
+      date: "",
     },
     detail: null as IPo | null,
     detailLoading: false,
