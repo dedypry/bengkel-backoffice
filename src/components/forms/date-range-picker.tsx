@@ -64,6 +64,25 @@ function CustomDateRangePicker(
     }
   }
 
+  function applyYearPreset(yearOffset: 0 | -1) {
+    const base = dayjs().add(yearOffset, "year");
+    const startDate = base.startOf("year").toDate();
+    const endDate = base.endOf("year").toDate();
+
+    setDateRange({
+      ...dateRange,
+      startDate,
+      endDate,
+      key: "target",
+    });
+    if (props.onChange) {
+      props.onChange({
+        start: dayjs(startDate).format("YYYY-MM-DD"),
+        end: dayjs(endDate).format("YYYY-MM-DD"),
+      } as any);
+    }
+  }
+
   useEffect(() => {
     if (dates.start || dates.end) {
       setDateRange({
@@ -137,6 +156,22 @@ function CustomDateRangePicker(
             </PopoverTrigger>
             <PopoverContent className="mt-3">
               <div className="px-1 py-2">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={() => applyYearPreset(0)}
+                  >
+                    Tahun ini
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={() => applyYearPreset(-1)}
+                  >
+                    Tahun lalu
+                  </Button>
+                </div>
                 <DateRangePicker
                   color="#077fb6"
                   editableDateInputs={true}
