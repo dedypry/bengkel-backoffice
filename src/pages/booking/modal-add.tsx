@@ -29,7 +29,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formatTime } from "@/utils/helpers/global";
 import { getCustomer } from "@/stores/features/customer/customer-action";
-import { ICustomer, IVehicle } from "@/utils/interfaces/IUser";
+import { ICustomer } from "@/utils/interfaces/IUser";
 import { getBooking } from "@/stores/features/booking/booking-action";
 import { IBooking } from "@/utils/interfaces/IBooking";
 import { getVehicle } from "@/stores/features/vehicle/vehicle-action";
@@ -46,7 +46,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
   const { customers: cust } = useAppSelector((state) => state.customer);
   const [loading, setLoading] = useState(false);
   const [isAddCustomer, setIsAddCustomer] = useState(false);
-  const [vehicles, setVehicles] = useState<IVehicle[]>([]);
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
   const customers = (cust || []) as ICustomer[];
@@ -64,10 +63,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
       booking_date: dayjs().add(1, "day").toISOString(),
     },
   });
-
-  useEffect(() => {
-    setVehicles(dataVehicles?.data || []);
-  }, [dataVehicles]);
 
   useEffect(() => {
     if (company && !hasFetched.current) {
@@ -90,11 +85,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
 
   useEffect(() => {
     if (data) {
-      const customerSelect = customers.find((e) => e.id === data.customer_id);
-
-      if (customerSelect) {
-        setVehicles(customerSelect.vehicles || []);
-      }
       setValue("id", data.id);
       setValue("customer_id", data.customer_id.toString());
       setValue("vehicle_id", data.vehicle_id.toString());
@@ -149,7 +139,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                 );
                 setIsAddCustomer(false);
                 setValue("customer_id", val?.id.toString());
-                setVehicles(val?.vehicles || []);
                 if (val?.vehicles && val?.vehicles.length > 0) {
                   setValue("vehicle_id", String(val?.vehicles[0].id));
                 }
@@ -213,7 +202,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                           onInputChange={(val) => {
                             if (!val) {
                               setValue("vehicle_id", "");
-                              setVehicles([]);
                             }
                           }}
                           onSelectionChange={(key) => {
@@ -224,7 +212,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                             );
 
                             if (selectedCustomer) {
-                              setVehicles(selectedCustomer.vehicles || []);
                               if (
                                 selectedCustomer.vehicles &&
                                 selectedCustomer.vehicles.length > 0
