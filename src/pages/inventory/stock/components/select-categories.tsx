@@ -115,12 +115,10 @@ export default function SelectCategories() {
                   type="button"
                   onClick={() => {
                     handleSelectionChange(String(cat.id));
-                    console.log("CAT", cat);
                     setParentName(cat.name);
                   }}
                   onMouseEnter={() => {
                     handleSelectionChange(String(cat.id));
-                    console.log("CAT", cat);
                     setParentName(cat.name);
                   }}
                 >

@@ -130,7 +130,7 @@ export default function ServiceAddPage() {
       dispatch(getService(query));
       dispatch(getMechanic({ page: 1, pageSize: 500 }));
       dispatch(getVehicle({ page: 1, pageSize: 500 }));
-      dispatch(getMasterVehicle());
+      dispatch(getMasterVehicle({}));
 
       setTimeout(() => {
         hasFetchedService.current = false;
@@ -578,7 +578,6 @@ export default function ServiceAddPage() {
                       labelPlacement="outside"
                       value={field.value}
                       onValueChange={(val) => {
-                        console.log(val);
                         field.onChange(val?.toUpperCase());
                       }}
                     />

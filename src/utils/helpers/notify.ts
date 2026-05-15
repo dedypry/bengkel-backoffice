@@ -39,8 +39,6 @@ export const notifyError = (res: any) => {
     const errors: any[] = res.response.data.data;
 
     Object.keys(errors).forEach((key: any) => {
-      console.log("KEY", errors[key]);
-
       Toast.fire({
         icon: "error",
         title: errors[key][0],

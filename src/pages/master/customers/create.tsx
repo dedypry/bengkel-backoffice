@@ -49,12 +49,7 @@ export default function CustomerFormPage({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const {
-    control,
-    reset,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
+  const { control, reset, handleSubmit } = useForm({
     resolver: zodResolver(customerSchema),
     mode: "onChange",
     defaultValues: {
@@ -68,8 +63,6 @@ export default function CustomerFormPage({
       profile: { birth_date: new Date().toISOString() },
     },
   });
-
-  console.log("ERROR", errors);
 
   useEffect(() => {
     if (data) {

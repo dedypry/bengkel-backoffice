@@ -32,6 +32,7 @@ import { getCustomer } from "@/stores/features/customer/customer-action";
 import { ICustomer, IVehicle } from "@/utils/interfaces/IUser";
 import { getBooking } from "@/stores/features/booking/booking-action";
 import { IBooking } from "@/utils/interfaces/IBooking";
+import { getVehicle } from "@/stores/features/vehicle/vehicle-action";
 
 interface BookingModalProps {
   data?: IBooking;
@@ -40,6 +41,7 @@ interface BookingModalProps {
 }
 export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
   const { bookingQuery } = useAppSelector((state) => state.booking);
+  const { vehicles: dataVehicles } = useAppSelector((state) => state.vehicle);
   const { company } = useAppSelector((state) => state.auth);
   const { customers: cust } = useAppSelector((state) => state.customer);
   const [loading, setLoading] = useState(false);
@@ -64,6 +66,10 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
   });
 
   useEffect(() => {
+    setVehicles(dataVehicles?.data || []);
+  }, [dataVehicles]);
+
+  useEffect(() => {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
       dispatch(
@@ -73,6 +79,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
           isVehicle: 1,
         }),
       );
+      dispatch(getVehicle({ page: 1, pageSize: 500 }));
       setTimeout(() => {
         hasFetched.current = false;
       }, 1000);
@@ -197,7 +204,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                           label="Nama Pelanggan"
                           labelPlacement="outside"
                           placeholder="Cari nama pelanggan..."
-                          selectedKey={field.value}
+                          selectedKey={String(field.value)}
                           startContent={<Users />}
                           variant="bordered"
                           onClear={() => {
@@ -266,7 +273,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                       render={({ field, fieldState }) => (
                         <Autocomplete
                           allowsCustomValue
-                          defaultItems={vehicles || []}
+                          defaultItems={dataVehicles?.data || []}
                           errorMessage={fieldState.error?.message}
                           isInvalid={!!fieldState.error}
                           label="No. Polisi (Nopol)"
@@ -275,7 +282,24 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                           selectedKey={field.value}
                           startContent={<Users />}
                           variant="bordered"
-                          onSelectionChange={field.onChange}
+                          onSelectionChange={(val) => {
+                            field.onChange(val);
+
+                            const selectedVehicle = dataVehicles?.data.find(
+                              (v) => String(v.id) === String(val),
+                            );
+
+                            if (
+                              selectedVehicle &&
+                              selectedVehicle.customers &&
+                              selectedVehicle.customers.length > 0
+                            ) {
+                              setValue(
+                                "customer_id",
+                                String(selectedVehicle.customers[0].id),
+                              );
+                            }
+                          }}
                         >
                           {(item) => (
                             <AutocompleteItem

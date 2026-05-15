@@ -71,6 +71,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
   const [isLoading, setLoading] = useState(false);
   const [modalAddCat, setModalAddCat] = useState(false);
   const [subCategories, setSubCategories] = useState<IProductCategory[]>([]);
+  const [initialCategoryData, setInitialCategoryData] = useState<any>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -91,28 +92,21 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
     }
   }, [company, dispatch]);
 
-  const {
-    control,
-    reset,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
-    defaultValues: {
-      is_active: true,
-      images: [],
-      uom_id: 1,
-      category_id: 0,
-      stock: 0,
-      min_stock: 0,
-      purchase_price: 0,
-      sell_price: 0,
-      description: "",
-    },
-  } as any);
-
-  console.log("ERR", errors);
+  const { control, reset, handleSubmit, setValue, watch } =
+    useForm<ProductFormValues>({
+      resolver: zodResolver(productSchema),
+      defaultValues: {
+        is_active: true,
+        images: [],
+        uom_id: 1,
+        category_id: 0,
+        stock: 0,
+        min_stock: 0,
+        purchase_price: 0,
+        sell_price: 0,
+        description: "",
+      },
+    } as any);
 
   useEffect(() => {
     if (initialData) {
@@ -170,12 +164,24 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
     }
   };
 
+  const mainCategory = categories.find(
+    (e) => e.id == watch("main_category_id"),
+  );
+
   return (
     <>
       <ModalAddCategory
+        initialData={initialCategoryData}
         open={modalAddCat}
         setOpen={setModalAddCat}
-        onClose={() => dispatch(getCategories({}))}
+        onClose={(val) => {
+          if (val?.children && val?.children.length > 0) {
+            setSubCategories(val?.children);
+            setValue("category_id", val?.children[0]?.id);
+          }
+          console.log("val", val);
+          dispatch(getCategories({}));
+        }}
       />
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <Breadcrumbs
@@ -304,6 +310,29 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                   render={({ field, fieldState }) => (
                     <Autocomplete
                       defaultItems={subCategories}
+                      endContent={
+                        <Button
+                          isIconOnly
+                          color="success"
+                          size="sm"
+                          variant="light"
+                          onPress={() => {
+                            setInitialCategoryData({
+                              id: Number(watch("main_category_id")),
+                              name: mainCategory?.name,
+                              description: mainCategory?.description,
+                              is_active: true,
+                              children: [
+                                { name: "" },
+                                ...(mainCategory?.children || []),
+                              ],
+                            });
+                            setModalAddCat(true);
+                          }}
+                        >
+                          <PlusSquare />{" "}
+                        </Button>
+                      }
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label="Kategori"

@@ -37,8 +37,9 @@ type CategoryFormValues = z.infer<typeof categorySchema>;
 interface Props {
   open: boolean;
   setOpen: (val: boolean) => void;
-  onClose?: () => void;
+  onClose?: (data?: any) => void;
   initialData?: any;
+  isCreateSubCategory?: boolean;
 }
 
 export default function ModalAddCategory({
@@ -46,6 +47,7 @@ export default function ModalAddCategory({
   setOpen,
   onClose,
   initialData,
+  isCreateSubCategory = false,
 }: Props) {
   const { categoryQuery } = useAppSelector((state) => state.product);
   const [isLoading, setLoading] = useState(false);
@@ -66,6 +68,12 @@ export default function ModalAddCategory({
       subCategories: [],
     },
   });
+
+  useEffect(() => {
+    if (isCreateSubCategory) {
+      setValue("subCategories", [{ name: "" }]);
+    }
+  }, [isCreateSubCategory]);
 
   useEffect(() => {
     if (open) {
@@ -90,7 +98,7 @@ export default function ModalAddCategory({
         reset();
         setOpen(false);
         if (onClose) {
-          onClose();
+          onClose(data?.data);
         } else {
           dispatch(getCategories(categoryQuery));
         }
@@ -113,6 +121,7 @@ export default function ModalAddCategory({
         footer: "border-t border-gray-50",
       }}
       isOpen={open}
+      scrollBehavior="outside"
       size="lg"
       onOpenChange={setOpen}
     >

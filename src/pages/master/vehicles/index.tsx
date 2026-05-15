@@ -47,7 +47,7 @@ export default function VehiclePage() {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
       dispatch(getVehicleListMaster(query));
-      dispatch(getMasterVehicle());
+      dispatch(getMasterVehicle({}));
 
       setTimeout(() => {
         hasFetched.current = false;
@@ -128,7 +128,6 @@ export default function VehiclePage() {
               defaultItems={master}
               label="Merk"
               onSelectionChange={(val) => {
-                console.log(val);
                 handleSearch("merk", val);
               }}
             >
