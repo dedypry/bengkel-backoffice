@@ -37,12 +37,14 @@ type CategoryFormValues = z.infer<typeof categorySchema>;
 interface Props {
   open: boolean;
   setOpen: (val: boolean) => void;
+  onClose?: () => void;
   initialData?: any;
 }
 
 export default function ModalAddCategory({
   open,
   setOpen,
+  onClose,
   initialData,
 }: Props) {
   const { categoryQuery } = useAppSelector((state) => state.product);
@@ -87,7 +89,11 @@ export default function ModalAddCategory({
         setValue("subCategories", []);
         reset();
         setOpen(false);
-        dispatch(getCategories(categoryQuery));
+        if (onClose) {
+          onClose();
+        } else {
+          dispatch(getCategories(categoryQuery));
+        }
       })
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));

@@ -43,6 +43,8 @@ import HeaderAction from "@/components/header-action";
 import { IBooking } from "@/utils/interfaces/IBooking";
 import { formatTime } from "@/utils/helpers/global";
 import debounce from "@/utils/helpers/debounce";
+import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
+import { http } from "@/utils/libs/axios";
 
 const getStatusColor = (
   status: string,
@@ -85,6 +87,16 @@ export default function BookingPage() {
     (q) => dispatch(setBookingQuery({ q })),
     1000,
   );
+
+  const handleDelete = (id: number) => {
+    http
+      .delete(`/bookings/${id}`)
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(getBooking(bookingQuery));
+      })
+      .catch((err) => notifyError(err));
+  };
 
   return (
     <div className="space-y-6">
@@ -233,6 +245,19 @@ export default function BookingPage() {
                               className="text-danger"
                               color="danger"
                               startContent={<Trash2 size={16} />}
+                              onPress={() => {
+                                confirmSweat(() => handleDelete(row.id), {
+                                  title:
+                                    "Apakah anda yakin ingin membatalkan booking ini?",
+                                  text: "Data yang dihapus tidak dapat dikembalikan!",
+                                  icon: "warning",
+                                  showCancelButton: true,
+                                  confirmButtonColor: "#168BAB",
+                                  cancelButtonColor: "#d33",
+                                  confirmButtonText: "Ya, batalkan!",
+                                  cancelButtonText: "Batal",
+                                });
+                              }}
                             >
                               Batalkan Booking
                             </DropdownItem>

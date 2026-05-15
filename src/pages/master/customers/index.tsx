@@ -66,7 +66,7 @@ export default function MasterCustomerPage() {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
       dispatch(getCustomer(custQuery));
-      dispatch(getMasterVehicle());
+      dispatch(getMasterVehicle({}));
 
       setTimeout(() => {
         hasFetched.current = false;

@@ -155,6 +155,9 @@ export default function InventoryStockPage() {
       {/* Filter & Table Area */}
       <Card>
         <div className="p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+          <div className="w-full md:w-64">
+            <SelectCategories />
+          </div>
           <Input
             isClearable
             className="w-full md:max-w-sm"
@@ -164,9 +167,6 @@ export default function InventoryStockPage() {
             onChange={(e) => searchDebounce(e.target.value)}
             onClear={() => dispatch(setProductQuery({ q: "" }))}
           />
-          <div className="w-full md:w-64">
-            <SelectCategories />
-          </div>
         </div>
 
         <Table

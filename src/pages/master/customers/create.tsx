@@ -38,7 +38,13 @@ import City from "@/components/regions/city";
 import District from "@/components/regions/district";
 import CustomDatePicker from "@/components/forms/date-picker";
 
-export default function CustomerFormPage({ data }: { data?: ICustomer }) {
+export default function CustomerFormPage({
+  data,
+  onAction,
+}: {
+  data?: ICustomer;
+  onAction?: (val?: any) => void;
+}) {
   const [isLoading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -94,7 +100,11 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
       .post("/customers", values)
       .then(({ data }) => {
         notify(data.message);
-        navigate("/master/customers");
+        if (onAction) {
+          onAction(data?.data);
+        } else {
+          navigate("/master/customers");
+        }
       })
       .catch((err) => notifyError(err))
       .finally(() => setLoading(false));
@@ -126,7 +136,13 @@ export default function CustomerFormPage({ data }: { data?: ICustomer }) {
           <Button
             className="font-bold"
             variant="light"
-            onPress={() => navigate(-1)}
+            onPress={() => {
+              if (onAction) {
+                onAction();
+              } else {
+                navigate(-1);
+              }
+            }}
           >
             Batal
           </Button>
