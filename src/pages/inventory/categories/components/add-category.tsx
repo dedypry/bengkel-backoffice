@@ -21,8 +21,8 @@ import { getCategories } from "@/stores/features/product/product-action";
 
 const categorySchema = z.object({
   id: z.number().optional(),
-  name: z.string().min(3, "Nama kategori minimal 3 karakter"),
-  description: z.string().optional(),
+  name: z.string().min(2, "Nama kategori minimal 3 karakter"),
+  description: z.string().optional().nullable(),
   is_active: z.boolean(),
   subCategories: z.array(
     z.object({
@@ -68,6 +68,8 @@ export default function ModalAddCategory({
       subCategories: [],
     },
   });
+
+  console.log(errors);
 
   useEffect(() => {
     if (isCreateSubCategory) {
