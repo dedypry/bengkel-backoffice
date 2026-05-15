@@ -52,6 +52,7 @@ export default function ModalBulkCategory({
 }: Props) {
   const { categories, productQuery } = useAppSelector((state) => state.product);
   const [modalAddCat, setModalAddCat] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [categoryChildren, setCategoryChildren] = useState<IProductCategory[]>(
     [],
   );
@@ -79,6 +80,7 @@ export default function ModalBulkCategory({
   }, [dispatch]);
 
   function onSubmit(data: FormValues) {
+    setLoading(true);
     http
       .post("/products/categories/bulk-update", {
         productIds: catIds !== "all" ? Array.from(catIds) : "all",
@@ -93,7 +95,8 @@ export default function ModalBulkCategory({
           onSuccess();
         }
       })
-      .catch((err) => notifyError(err));
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   }
 
   return (
@@ -184,7 +187,7 @@ export default function ModalBulkCategory({
               </div>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" type="submit">
+              <Button color="primary" isLoading={isLoading} type="submit">
                 Bulk Update Kategori
               </Button>
             </ModalFooter>
