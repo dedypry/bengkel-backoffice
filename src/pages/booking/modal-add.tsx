@@ -52,7 +52,6 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
   const {
     control,
     handleSubmit,
-    reset,
     setValue,
     formState: { errors },
   } = useForm<BookingFormValues>({
