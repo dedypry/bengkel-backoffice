@@ -69,8 +69,6 @@ export default function ModalAddCategory({
     },
   });
 
-  console.log(errors);
-
   useEffect(() => {
     if (isCreateSubCategory) {
       setValue("subCategories", [{ name: "" }]);
