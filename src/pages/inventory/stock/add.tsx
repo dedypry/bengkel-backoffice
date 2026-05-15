@@ -323,8 +323,10 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                               description: mainCategory?.description,
                               is_active: true,
                               children: [
-                                { name: "" },
-                                ...(mainCategory?.children || []),
+                                ...(mainCategory?.children &&
+                                mainCategory?.children.length > 0
+                                  ? mainCategory?.children
+                                  : [{ name: "" }]),
                               ],
                             });
                             setModalAddCat(true);

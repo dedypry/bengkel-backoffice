@@ -174,7 +174,6 @@ export default function ModalAddCategory({
                   name="description"
                   render={({ field }) => (
                     <Textarea
-                      {...field}
                       classNames={{
                         label:
                           "text-tiny font-bold text-gray-500 uppercase tracking-wider",
@@ -185,7 +184,9 @@ export default function ModalAddCategory({
                       labelPlacement="outside"
                       minRows={3}
                       placeholder="Jelaskan jenis produk dalam kategori ini..."
+                      value={field.value || ""}
                       variant="bordered"
+                      onValueChange={field.onChange}
                     />
                   )}
                 />
