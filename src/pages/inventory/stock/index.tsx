@@ -6,9 +6,10 @@ import {
   ArrowUpDown,
   Download,
   ArrowRight,
+  Pencil,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Input,
@@ -22,10 +23,12 @@ import {
   TableRow,
   TableCell,
   Divider,
+  Selection,
 } from "@heroui/react";
 
 import SelectCategories from "./components/select-categories";
 import UpdateStock from "./components/update-stock";
+import ModalBulkCategory from "./components/modal-bulk-category";
 
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -42,6 +45,8 @@ import { handleDownloadExcel } from "@/utils/helpers/global";
 export default function InventoryStockPage() {
   const { company } = useAppSelector((state) => state.auth);
   const { products, productQuery } = useAppSelector((state) => state.product);
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
+  const [openBulkCategory, setOpenBulkCategory] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -72,6 +77,12 @@ export default function InventoryStockPage() {
   return (
     <div className="space-y-6 pb-10">
       {/* Header Section */}
+      <ModalBulkCategory
+        catIds={selectedKeys}
+        open={openBulkCategory}
+        setOpen={setOpenBulkCategory}
+        onSuccess={() => setSelectedKeys(new Set([]))}
+      />
       <HeaderAction
         actionContent={
           <div className="flex gap-2">
@@ -154,29 +165,41 @@ export default function InventoryStockPage() {
 
       {/* Filter & Table Area */}
       <Card>
-        <div className="p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+        <div className=" pt-4 px-4 flex flex-col md:flex-row gap-4 justify-between items-center">
           <div className="w-full md:w-64">
             <SelectCategories />
           </div>
-          <Input
-            isClearable
-            className="w-full md:max-w-sm"
-            placeholder="Cari nama barang atau kode SKU..."
-            startContent={<Search className="text-gray-400" size={18} />}
-            variant="bordered"
-            onChange={(e) => searchDebounce(e.target.value)}
-            onClear={() => dispatch(setProductQuery({ q: "" }))}
-          />
+          <div className="flex flex-col gap-2 w-1/2 items-end">
+            <Input
+              isClearable
+              className="w-full md:max-w-sm"
+              placeholder="Cari nama barang atau kode SKU..."
+              startContent={<Search className="text-gray-400" size={18} />}
+              variant="bordered"
+              onChange={(e) => searchDebounce(e.target.value)}
+              onClear={() => dispatch(setProductQuery({ q: "" }))}
+            />
+            <div>
+              {(selectedKeys === "all" || selectedKeys.size > 0) && (
+                <Button
+                  color="warning"
+                  size="sm"
+                  startContent={<Pencil className="size-4" />}
+                  onPress={() => setOpenBulkCategory(true)}
+                >
+                  Bulk Update Kategori
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         <Table
           aria-label="Tabel Inventaris"
-          classNames={{
-            wrapper: "p-0 rounded-none shadow-none",
-            th: "bg-gray-50 text-gray-500 font-bold h-12 text-[12px] uppercase tracking-wider",
-            td: "py-4 border-b border-gray-100 last:border-none",
-          }}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
           shadow="none"
+          onSelectionChange={setSelectedKeys}
         >
           <TableHeader>
             <TableColumn>INFO BARANG</TableColumn>
