@@ -41,6 +41,7 @@ import { uploadFile } from "@/utils/helpers/upload-file";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { IProductCategory } from "@/utils/interfaces/IProduct";
+import { setCategories } from "@/stores/features/product/product-slice";
 
 const productSchema = z.object({
   id: z.number().optional(),
@@ -118,6 +119,10 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
 
         if (find) {
           setSubCategories(find.children);
+        } else {
+          if (initialData.category) {
+            formatCategories();
+          }
         }
       }
 
@@ -134,7 +139,27 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
         }),
       });
     }
-  }, [initialData]);
+  }, [initialData, categories]);
+
+  function formatCategories() {
+    const cat = [
+      {
+        ...initialData.category.parent,
+        children: [
+          {
+            ...initialData.category,
+            parent: undefined,
+          },
+        ],
+      },
+    ];
+    const existingIds = new Set(categories.map((c) => c.id));
+    const newCategories = (cat as IProductCategory[]).filter(
+      (c) => !existingIds.has(c.id),
+    );
+
+    dispatch(setCategories([...categories, ...newCategories]));
+  }
 
   const onSubmit = async (data: ProductFormValues) => {
     setLoading(true);
@@ -179,7 +204,10 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
             setSubCategories(val?.children);
             setValue("category_id", val?.children[0]?.id);
           }
-          console.log("val", val);
+          if (val?.id) {
+            setValue("main_category_id", val?.id);
+          }
+
           dispatch(getCategories({}));
         }}
       />
@@ -297,8 +325,17 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       }}
                     >
                       {(item) => (
-                        <AutocompleteItem key={item.id} textValue={item.name}>
-                          {item.name}
+                        <AutocompleteItem
+                          key={item.id}
+                          isReadOnly={!!item.deleted_at}
+                          textValue={item.name}
+                        >
+                          {item.name}{" "}
+                          {!!item.deleted_at && (
+                            <span className="text-xs text-gray-400 hover:text-red-500">
+                              (Sudah Dihapus)
+                            </span>
+                          )}
                         </AutocompleteItem>
                       )}
                     </Autocomplete>

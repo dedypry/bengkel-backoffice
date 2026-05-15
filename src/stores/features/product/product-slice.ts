@@ -50,11 +50,20 @@ const productSlice = createSlice({
         ...action.payload,
       };
     },
+    setCategories: (state, action) => {
+      state.categories = action.payload;
+    },
   },
   extraReducers: (builder) =>
     builder
       .addCase(getCategories.fulfilled, (state, action) => {
         state.categories = action.payload;
+        // const existingIds = new Set(state.categories.map((c) => c.id));
+        // const newCategories = (action.payload as IProductCategory[]).filter(
+        //   (c) => !existingIds.has(c.id),
+        // );
+
+        // state.categories = [...state.categories, ...newCategories];
       })
       .addCase(getUoms.fulfilled, (state, action) => {
         state.uoms = action.payload;
@@ -77,5 +86,6 @@ const productSlice = createSlice({
       }),
 });
 
-export const { setCategoryQuery, setProductQuery } = productSlice.actions;
+export const { setCategoryQuery, setProductQuery, setCategories } =
+  productSlice.actions;
 export default productSlice.reducer;
