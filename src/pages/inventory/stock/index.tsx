@@ -47,6 +47,7 @@ export default function InventoryStockPage() {
   const { products, productQuery } = useAppSelector((state) => state.product);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [openBulkCategory, setOpenBulkCategory] = useState(false);
+  const [isExcelLoading, setIsExcelLoading] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -88,13 +89,15 @@ export default function InventoryStockPage() {
           <div className="flex gap-2">
             <Button
               color="primary"
-              startContent={<Download className="size-4" />}
+              isLoading={isExcelLoading}
+              startContent={!isExcelLoading && <Download className="size-4" />}
               variant="flat"
               onPress={() =>
                 handleDownloadExcel(
                   "/products/export/excel",
                   productQuery,
                   "product-list",
+                  setIsExcelLoading,
                 )
               }
             >

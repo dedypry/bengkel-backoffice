@@ -89,8 +89,12 @@ export async function handleDownloadExcel(
   url: string,
   params?: any,
   fileName: string = "export-data",
+  onLoading?: (val: boolean) => void,
 ) {
   try {
+    if (onLoading) {
+      onLoading(true);
+    }
     const response = await http.get(url, {
       responseType: "blob",
       params,
@@ -113,6 +117,10 @@ export async function handleDownloadExcel(
     window.URL.revokeObjectURL(downloadUrl);
   } catch (error) {
     console.error("Gagal mendownload Excel:", error);
+  } finally {
+    if (onLoading) {
+      onLoading(false);
+    }
   }
 }
 

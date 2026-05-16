@@ -514,14 +514,14 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
               <TableHeader>
                 <TableColumn>Kode Barang</TableColumn>
                 <TableColumn>Nama Barang</TableColumn>
-                <TableColumn>Quantity</TableColumn>
                 <TableColumn>Satuan</TableColumn>
-                <TableColumn>Harga Beli</TableColumn>
-                <TableColumn>Disc (%)</TableColumn>
-                <TableColumn>Nilai Disc</TableColumn>
+                <TableColumn className="text-center">Qty</TableColumn>
+                <TableColumn className="text-center">Harga Beli</TableColumn>
+                <TableColumn className="text-center">Disc (%)</TableColumn>
+                <TableColumn className="text-center">Nilai Disc</TableColumn>
                 <TableColumn>Pjk (%)</TableColumn>
-                <TableColumn>Jumlah</TableColumn>
-                <TableColumn>Aksi</TableColumn>
+                <TableColumn className="text-center">Jumlah</TableColumn>
+                <TableColumn className="text-center">Aksi</TableColumn>
               </TableHeader>
               <TableBody emptyContent={<div>Tidak Ada Barang</div>}>
                 {fields.map((field, index) => (
@@ -660,7 +660,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         )}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       {formatIDR(
                         Number(watch("items")[index].qty) *
                           Number(watch("items")[index].price) -
