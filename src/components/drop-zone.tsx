@@ -16,6 +16,85 @@ interface FileUploaderProps {
   placeholder?: string;
 }
 
+type PreviewItem = {
+  src: string | null;
+  name: string;
+};
+
+function getFileName(item: unknown): string {
+  if (!item) return "";
+
+  if (item instanceof File) {
+    return item.name;
+  }
+
+  if (item instanceof Blob) {
+    return ((item as File).name as string) || "";
+  }
+
+  if (typeof item === "string") {
+    const path = item.split("?")[0];
+
+    return path.split("/").pop() || item;
+  }
+
+  if (typeof item === "object") {
+    const file = item as Record<string, string>;
+
+    return (
+      file.original_name ||
+      file.originalName ||
+      file.name ||
+      file.filename ||
+      ""
+    );
+  }
+
+  return "";
+}
+
+function getPreviewSrc(item: unknown): string | null {
+  if (!item) return null;
+
+  if (typeof item === "string") {
+    const isExcel = item.endsWith("xlsx") || item.endsWith("xls");
+
+    if (isExcel) {
+      return Excel;
+    }
+
+    return item;
+  }
+
+  if (item instanceof File || item instanceof Blob) {
+    const name = ((item as File).name as string) || "";
+    const isExcel = name.endsWith("xlsx") || name.endsWith("xls");
+
+    if (isExcel) {
+      return Excel;
+    }
+
+    return URL.createObjectURL(item);
+  }
+
+  if (typeof item === "object") {
+    const file = item as Record<string, string>;
+    const path = file.path || file.url || "";
+
+    if (!path) return null;
+
+    const isExcel = path.endsWith("xlsx") || path.endsWith("xls");
+
+    if (isExcel) {
+      return Excel;
+    }
+
+    return path;
+  }
+
+  return null;
+}
+
 export default function FileUploader({
   value = [],
   onFileSelect,
@@ -28,36 +107,16 @@ export default function FileUploader({
 }: FileUploaderProps) {
   const safeValue = Array.isArray(value) ? value : [];
 
-  const previews = safeValue.map((e) => {
-    if (!e) return null;
-    if (typeof e === "string") {
-      const isExcel = e.endsWith("xlsx");
-
-      if (isExcel) {
-        return Excel;
-      }
-
-      return e;
-    }
-    if (e instanceof File || e instanceof Blob) {
-      const name = (e as any).name as string;
-      const isExcel = name.endsWith("xlsx");
-
-      if (isExcel) {
-        return Excel;
-      }
-
-      return URL.createObjectURL(e); // File mentah (baru dipilih)
-    }
-
-    return null;
-  });
+  const previews: PreviewItem[] = safeValue.map((item) => ({
+    src: getPreviewSrc(item),
+    name: getFileName(item),
+  }));
 
   useEffect(() => {
     return () => {
-      previews.forEach((url) => {
-        if (url && url.startsWith("blob:")) {
-          URL.revokeObjectURL(url);
+      previews.forEach(({ src }) => {
+        if (src?.startsWith("blob:")) {
+          URL.revokeObjectURL(src);
         }
       });
     };
@@ -96,29 +155,36 @@ export default function FileUploader({
         )}
       >
         {/* Tampilkan Berkas yang Sudah Dipilih */}
-        {previews?.map((file, index) => (
-          <div
-            key={index}
-            className="relative group aspect-square rounded-sm overflow-hidden border border-gray-200 hover:border-primary bg-slate-50"
-          >
-            {file ? (
-              <img
-                alt={`photo-${index}`}
-                className="object-cover w-full h-full"
-                src={file}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full p-2 text-center text-[10px] break-all">
-                {`photo-${index}`}
-              </div>
-            )}
-            <button
-              className="absolute top-2 right-2 p-1 cursor-pointer bg-rose-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-              type="button"
-              onClick={() => removeFile(index)}
-            >
-              <X className="h-3 w-3" />
-            </button>
+        {previews?.map((preview, index) => (
+          <div key={index} className="space-y-1 min-w-0">
+            <div className="relative group aspect-square rounded-sm overflow-hidden border border-gray-200 hover:border-primary bg-slate-50">
+              {preview.src ? (
+                <img
+                  alt={preview.name || `photo-${index}`}
+                  className="object-cover w-full h-full"
+                  src={preview.src}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full p-2 text-center text-[10px] break-all">
+                  {`photo-${index}`}
+                </div>
+              )}
+              <button
+                className="absolute top-2 right-2 p-1 cursor-pointer bg-rose-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                type="button"
+                onClick={() => removeFile(index)}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+            {preview.name ? (
+              <p
+                className="m-0 px-1 text-[10px] text-slate-600 text-center truncate"
+                title={preview.name}
+              >
+                {preview.name}
+              </p>
+            ) : null}
           </div>
         ))}
         {/* Tombol Add File (Muncul jika belum mencapai limit) */}

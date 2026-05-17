@@ -29,6 +29,7 @@ import {
 import SelectCategories from "./components/select-categories";
 import UpdateStock from "./components/update-stock";
 import ModalBulkCategory from "./components/modal-bulk-category";
+import UploadExcel from "./components/upload-excel";
 
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -87,6 +88,7 @@ export default function InventoryStockPage() {
       <HeaderAction
         actionContent={
           <div className="flex gap-2">
+            <UploadExcel />
             <Button
               color="primary"
               isLoading={isExcelLoading}
