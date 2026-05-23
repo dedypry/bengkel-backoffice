@@ -33,6 +33,10 @@ export default function TabService() {
   const { services: selectedServices } = useAppSelector((state) => state.wo);
   const { suppliers } = useAppSelector((state) => state.supplier);
 
+  console.log(services);
+  console.log(selectedServices);
+  console.log(suppliers);
+
   const [search, setSearch] = useState("");
 
   const selectedIds = selectedServices.map((e) => e.id);

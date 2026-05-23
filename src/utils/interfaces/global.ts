@@ -11,6 +11,7 @@ export interface IQuery {
   page?: number;
   q?: string;
   noStats?: number;
+  noPaginate?: number;
 }
 
 export const PROGRESS_CONFIG = {

@@ -33,6 +33,8 @@ import {
   AutocompleteItem,
 } from "@heroui/react";
 
+import UploadExcelCustomer from "./components/upload-excel-customer";
+
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getCustomer } from "@/stores/features/customer/customer-action";
@@ -94,6 +96,7 @@ export default function MasterCustomerPage() {
       <HeaderAction
         actionContent={
           <div className="flex gap-2">
+            <UploadExcelCustomer />
             <Button
               className="text-white"
               color="success"

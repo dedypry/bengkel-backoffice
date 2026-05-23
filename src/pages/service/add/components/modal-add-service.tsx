@@ -53,7 +53,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
   useEffect(() => {
     if (!hasFetch.current) {
       hasFetch.current = true;
-      dispatch(getSupplier({}));
+      dispatch(getSupplier({ noPaginate: 1 }));
 
       setTimeout(() => {
         hasFetch.current = false;

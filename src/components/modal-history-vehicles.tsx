@@ -92,64 +92,53 @@ export default function ModalHistotyVehicles({
               <TableColumn>KM Selanjutnya</TableColumn>
             </TableHeader>
             <TableBody>
-              {histories.map((item, i) => (
-                <>
-                  <TableRow
-                    key={i}
-                    className={i > 0 ? "border-t border-t-gray-300" : ""}
-                  >
-                    <TableCell>{dateTimeFormat(item.created_at)}</TableCell>
-                    <TableCell>{item.trx_no}</TableCell>
-                    <TableCell>{item.complaints}</TableCell>
-                    <TableCell>{formatNumber(item.current_km)}</TableCell>
-                    <TableCell>{formatNumber(item.next_km)}</TableCell>
+              {histories.flatMap((item, i) => [
+                <TableRow
+                  key={`hist-${i}`}
+                  className={i > 0 ? "border-t border-t-gray-300" : ""}
+                >
+                  <TableCell>{dateTimeFormat(item.created_at)}</TableCell>
+                  <TableCell>{item.trx_no}</TableCell>
+                  <TableCell>{item.complaints}</TableCell>
+                  <TableCell>{formatNumber(item.current_km)}</TableCell>
+                  <TableCell>{formatNumber(item.next_km)}</TableCell>
+                </TableRow>,
+                <TableRow key={`header-serv-${i}`}>
+                  <TableCell className="font-bold italic">No</TableCell>
+                  <TableCell className="font-bold italic">Kode Jasa</TableCell>
+                  <TableCell className="font-bold italic">Nama Jasa</TableCell>
+                  <TableCell className="font-bold italic">Qty</TableCell>
+                  <TableCell className="font-bold italic">Satuan</TableCell>
+                </TableRow>,
+                ...item.services.map((serv, s) => (
+                  <TableRow key={`item-serv-${i}-${s}`}>
+                    <TableCell>{s + 1}</TableCell>
+                    <TableCell>{serv.data.code}</TableCell>
+                    <TableCell>{serv.data.name}</TableCell>
+                    <TableCell>{Number(serv.qty)}</TableCell>
+                    <TableCell>JOB</TableCell>
                   </TableRow>
-                  <TableRow key={`header-serv-${i}`}>
-                    <TableCell className="font-bold italic">No</TableCell>
-                    <TableCell className="font-bold italic">
-                      Kode Jasa
-                    </TableCell>
-                    <TableCell className="font-bold italic">
-                      Nama Jasa
-                    </TableCell>
-                    <TableCell className="font-bold italic">Qty</TableCell>
-                    <TableCell className="font-bold italic">Satuan</TableCell>
+                )),
+                <TableRow
+                  key={`header-part-${i}`}
+                  className="border-b border-b-gray-200"
+                >
+                  <TableCell className="font-bold italic">No</TableCell>
+                  <TableCell className="font-bold italic">Kode Part</TableCell>
+                  <TableCell className="font-bold italic">Nama Part</TableCell>
+                  <TableCell className="font-bold italic">Qty</TableCell>
+                  <TableCell className="font-bold italic">Satuan</TableCell>
+                </TableRow>,
+                ...(item.spareparts || []).map((part, p) => (
+                  <TableRow key={`item-part-${i}-${p}`}>
+                    <TableCell>{p + 1}</TableCell>
+                    <TableCell>{part.data.code}</TableCell>
+                    <TableCell>{part.data.name}</TableCell>
+                    <TableCell>{Number(part.qty)}</TableCell>
+                    <TableCell>{part.data.unit}</TableCell>
                   </TableRow>
-                  {item.services.map((serv, s) => (
-                    <TableRow key={`item-serv-${s}`}>
-                      <TableCell>{s + 1}</TableCell>
-                      <TableCell>{serv.data.code}</TableCell>
-                      <TableCell>{serv.data.name}</TableCell>
-                      <TableCell>{Number(serv.qty)}</TableCell>
-                      <TableCell>JOB</TableCell>
-                    </TableRow>
-                  ))}
-
-                  <TableRow
-                    key={`header-serv-${i}`}
-                    className="border-b border-b-gray-200"
-                  >
-                    <TableCell className="font-bold italic">No</TableCell>
-                    <TableCell className="font-bold italic">
-                      Kode Part
-                    </TableCell>
-                    <TableCell className="font-bold italic">
-                      Nama Part
-                    </TableCell>
-                    <TableCell className="font-bold italic">Qty</TableCell>
-                    <TableCell className="font-bold italic">Satuan</TableCell>
-                  </TableRow>
-                  {(item.spareparts || []).map((part, p) => (
-                    <TableRow key={`item-part-${p}`}>
-                      <TableCell>{p + 1}</TableCell>
-                      <TableCell>{part.data.code}</TableCell>
-                      <TableCell>{part.data.name}</TableCell>
-                      <TableCell>{Number(part.qty)}</TableCell>
-                      <TableCell>{part.data.unit}</TableCell>
-                    </TableRow>
-                  ))}
-                </>
-              ))}
+                )),
+              ])}
             </TableBody>
           </Table>
         </ModalBody>
