@@ -547,7 +547,7 @@ export default function ServiceAddPage() {
                       errorMessage={fieldState.error?.message}
                       isDisabled={isVehicleDisable}
                       isInvalid={fieldState.invalid}
-                      items={vehilces.map((e) => e.type)}
+                      items={(vehilces || []).map((e) => e.type)}
                       label="Merk"
                       labelPlacement="outside"
                       value={field.value}

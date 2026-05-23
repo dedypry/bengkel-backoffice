@@ -21,7 +21,8 @@ export const notify = (msg: string, icon?: SweetAlertIcon) => {
 };
 
 export const notifyError = (res: any) => {
-  let msg: any = (res.response?.data as any).message || res;
+  console.log(res);
+  let msg: any = (res?.response?.data as any)?.message || res;
 
   const Toast = Swal.mixin({
     toast: true,

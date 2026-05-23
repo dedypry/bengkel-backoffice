@@ -233,17 +233,17 @@ export default function InventoryStockPage() {
                   <div className="flex items-center justify-center gap-3">
                     <div className="flex flex-col items-end">
                       <div className="font-black text-small text-gray-700">
-                        {item.stock}{" "}
+                        {Number(item.stock ?? 0)}{" "}
                         <span className="text-tiny font-normal text-gray-500 uppercase">
                           {item.uom?.code}
                         </span>
                       </div>
                       <span className="text-[9px] text-gray-400 italic">
-                        Min. {item.min_stock}
+                        Min. {Number(item.min_stock ?? 0)}
                       </span>
                     </div>
                     <UpdateStock
-                      currentStock={item.stock}
+                      currentStock={Number(item.stock ?? 0)}
                       id={item.id}
                       name={item.name}
                     />

@@ -92,7 +92,7 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
                       Stok Saat Ini
                     </span>
                     <span className="text-large font-black text-gray-800">
-                      {currentStock}
+                      {Number(currentStock)}
                     </span>
                   </div>
 

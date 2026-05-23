@@ -77,7 +77,7 @@ export default function DefaultSettingService() {
       .get("/settings")
       .then(({ data }) => {
         reset(data);
-        setValue("mechanic_roles", data.mechanic_roles.split(","));
+        setValue("mechanic_roles", data?.mechanic_roles?.split(","));
         dispatch(setWoSetting(data));
       })
       .catch(notifyError);
