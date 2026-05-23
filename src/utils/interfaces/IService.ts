@@ -28,6 +28,7 @@ export interface IServiceSettings {
   notes_service: string;
 
   notes_sales: string;
+  mechanic_roles: string;
 
   service_reg_prefix: string;
   service_pay_prefix: string;

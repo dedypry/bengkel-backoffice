@@ -138,18 +138,27 @@ export default function ServiceAddPage() {
     }
   }, [company]);
 
-  const { control, setValue, watch, reset, clearErrors, handleSubmit } =
-    useForm({
-      resolver: zodResolver(ServiceRegistrationSchema),
-      mode: "onChange",
-      defaultValues: {
-        priority: "normal",
-        customer: {
-          birth_date: "",
-        },
-        mechanic_ids: [],
+  const {
+    control,
+    setValue,
+    watch,
+    reset,
+    clearErrors,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(ServiceRegistrationSchema),
+    mode: "onChange",
+    defaultValues: {
+      priority: "normal",
+      customer: {
+        birth_date: "",
       },
-    });
+      mechanic_ids: [],
+    },
+  });
+
+  console.log(errors);
 
   useEffect(() => {
     setValue("pic_id", Number(settings.default_pic_id) ?? undefined);
@@ -437,7 +446,7 @@ export default function ServiceAddPage() {
                       startContent={
                         <Mail className="text-gray-500" size={18} />
                       }
-                      {...field}
+                      {...(field as any)}
                       placeholder="Masukan Email valid"
                     />
                   )}
@@ -546,7 +555,7 @@ export default function ServiceAddPage() {
                     <AutoCompleteVehilce
                       errorMessage={fieldState.error?.message}
                       isDisabled={isVehicleDisable}
-                      isInvalid={fieldState.invalid}
+                      isInvalid={!!fieldState.invalid}
                       items={(vehilces || []).map((e) => e.type)}
                       label="Merk"
                       labelPlacement="outside"
@@ -605,15 +614,15 @@ export default function ServiceAddPage() {
                   control={control}
                   name="vehicle.year"
                   render={({ field, fieldState }) => (
-                    <Input
-                      {...field}
+                    <InputNumber
                       disabled={isVehicleDisable}
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
                       label="Tahun"
                       labelPlacement="outside"
                       placeholder="Masukan Tahun"
-                      type="number"
+                      value={(field.value || 0) as any}
+                      onInput={field.onChange}
                     />
                   )}
                 />
@@ -623,7 +632,7 @@ export default function ServiceAddPage() {
                   name="vehicle.vin_number"
                   render={({ field, fieldState }) => (
                     <Input
-                      {...field}
+                      {...(field as any)}
                       disabled={isVehicleDisable}
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
@@ -639,7 +648,7 @@ export default function ServiceAddPage() {
                   name="vehicle.color"
                   render={({ field, fieldState }) => (
                     <Input
-                      {...field}
+                      {...(field as any)}
                       disabled={isVehicleDisable}
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
@@ -700,7 +709,7 @@ export default function ServiceAddPage() {
                       name="vehicle.engine_capacity"
                       render={({ field, fieldState }) => (
                         <Input
-                          {...field}
+                          {...(field as any)}
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
@@ -716,7 +725,7 @@ export default function ServiceAddPage() {
                       name="vehicle.fuel_type"
                       render={({ field, fieldState }) => (
                         <Input
-                          {...field}
+                          {...(field as any)}
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
@@ -732,7 +741,6 @@ export default function ServiceAddPage() {
                       name="vehicle.transmission_type"
                       render={({ field, fieldState }) => (
                         <Select
-                          {...field}
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
@@ -756,7 +764,7 @@ export default function ServiceAddPage() {
                       name="vehicle.engine_number"
                       render={({ field, fieldState }) => (
                         <Input
-                          {...field}
+                          {...(field as any)}
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
@@ -772,7 +780,7 @@ export default function ServiceAddPage() {
                       name="vehicle.tire_size"
                       render={({ field, fieldState }) => (
                         <Input
-                          {...field}
+                          {...(field as any)}
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
@@ -1114,7 +1122,7 @@ export default function ServiceAddPage() {
                         render={({ field }) => (
                           <Select
                             placeholder="Pilih Prioritas"
-                            selectedKeys={[field.value]}
+                            selectedKeys={field.value ? [field.value] : []}
                             size="sm"
                             onSelectionChange={(keys) =>
                               field.onChange(Array.from(keys)[0])

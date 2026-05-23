@@ -170,7 +170,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
         received_at: po.received_at,
         warehouse_id: po.warehouse_id,
         supplier_id: po.supplier_id,
-        items: po.items.map((item) => ({
+        items: (po.items || []).map((item) => ({
           id: item.product_id,
           code: item.product?.code,
           name: item.product?.name,

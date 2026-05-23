@@ -49,7 +49,7 @@ const invoiceData = {
 };
 
 export default function InvoicePage() {
-  const subtotal = invoiceData.items.reduce(
+  const subtotal = (invoiceData.items || []).reduce(
     (acc, item) => acc + item.price * item.qty,
     0,
   );
@@ -204,7 +204,7 @@ export default function InvoicePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {invoiceData.items.map((item) => (
+                {(invoiceData.items || []).map((item) => (
                   <tr key={item.id} className="group">
                     <td className="py-5">
                       <p className="font-bold text-slate-800">{item.desc}</p>

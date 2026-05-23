@@ -37,7 +37,7 @@ export default function PermissionTable({
   return (
     <div className="space-y-8 pb-10">
       {Object.entries(data).map(([groupName, items]) => {
-        const groupIds = items.map((i) => i.id);
+        const groupIds = (items || []).map((i) => i.id);
         const isAllGroupSelected = groupIds.every((id) =>
           selectedIds.includes(id),
         );
@@ -76,7 +76,7 @@ export default function PermissionTable({
 
             {/* Permission Items Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {items.map((item) => {
+              {(items || []).map((item) => {
                 const isSelected = selectedIds.includes(item.id);
 
                 return (

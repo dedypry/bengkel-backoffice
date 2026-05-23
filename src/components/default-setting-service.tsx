@@ -26,6 +26,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getEmploye } from "@/stores/features/employe/employe-action";
 import { setWoSetting } from "@/stores/features/work-order/wo-slice";
 import { getRole } from "@/stores/features/role/role-action";
+import { setSettings } from "@/stores/features/setting/setting-slice";
 
 // Schema Validasi menggunakan Zod
 const settingsSchema = z.object({
@@ -51,6 +52,7 @@ export default function DefaultSettingService() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { list } = useAppSelector((state) => state.employe);
   const { roles } = useAppSelector((state) => state.role);
+  const { settings } = useAppSelector((state) => state.setting);
   const [loading, setLoading] = useState(false);
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
@@ -63,7 +65,6 @@ export default function DefaultSettingService() {
   useEffect(() => {
     if (!hasFetched.current) {
       hasFetched.current = true;
-      getData();
       dispatch(getEmploye({ page: 1, pageSize: 500 }));
       dispatch(getRole());
       setTimeout(() => {
@@ -72,23 +73,31 @@ export default function DefaultSettingService() {
     }
   }, []);
 
-  function getData() {
-    http
-      .get("/settings")
-      .then(({ data }) => {
-        reset(data);
-        setValue("mechanic_roles", data?.mechanic_roles?.split(","));
-        dispatch(setWoSetting(data));
-      })
-      .catch(notifyError);
-  }
+  useEffect(() => {
+    if (settings) {
+      reset(settings as any);
+      setValue("mechanic_roles", settings?.mechanic_roles?.split(","));
+      dispatch(setWoSetting(settings));
+    }
+  }, [settings]);
+
+  // function getData() {
+  //   http
+  //     .get("/settings")
+  //     .then(({ data }) => {
+  //       reset(data);
+  //       setValue("mechanic_roles", data?.mechanic_roles?.split(","));
+  //       dispatch(setWoSetting(data));
+  //     })
+  //     .catch(notifyError);
+  // }
 
   const onSubmit: SubmitHandler<SettingsForm> = (data: SettingsForm) => {
     setLoading(true);
     http
       .post("/settings", data)
       .then(({ data }) => {
-        getData();
+        dispatch(setSettings(data));
         notify(data.message);
         onClose();
       })

@@ -11,7 +11,7 @@ export default function AutoCompleteVehilce({
   value,
   ...props
 }: Props & InputProps) {
-  const defaultItem = items.map((item) => ({
+  const defaultItem = (items || []).map((item) => ({
     label: item,
     value: item,
   }));
@@ -23,8 +23,10 @@ export default function AutoCompleteVehilce({
         textValue?.toLowerCase().includes(filterValue?.toLowerCase())
       }
       defaultItems={defaultItem}
+      errorMessage={props.errorMessage}
       inputProps={props}
       inputValue={value}
+      isInvalid={props.isInvalid}
       listboxProps={{
         emptyContent:
           "Kendaraan tidak ditemukan, tekan Enter untuk tambah baru.",

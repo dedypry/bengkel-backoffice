@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getProfile } from "@/stores/features/auth/auth-action";
+import { getSettings } from "@/stores/features/setting/setting-slice";
 
 export default function AuthGuard({ children }: IChild) {
   const { token } = useAppSelector((state) => state.auth);
@@ -23,6 +24,7 @@ export default function AuthGuard({ children }: IChild) {
     if (accessToken && !hasFetched.current) {
       hasFetched.current = true;
       dispatch(getProfile());
+      dispatch(getSettings());
 
       setTimeout(() => {
         hasFetched.current = false;

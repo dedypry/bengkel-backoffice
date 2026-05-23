@@ -31,6 +31,7 @@ import expense from "./features/expense/expense-slice";
 import vendor from "./features/vendor/vendor-slice";
 import warehouse from "./features/warehouse/warehouse-slice";
 import po from "./features/po/po-slice";
+import setting from "./features/setting/setting-slice";
 
 const persistedAuthReducer = persistReducer({ key: "auth", storage }, auth);
 const persistedLayoutReducer = persistReducer({ key: "auth", storage }, layout);
@@ -57,6 +58,7 @@ export const store = configureStore({
     vendor,
     warehouse,
     po,
+    setting,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -86,7 +86,7 @@ export function ModalPoDetail({ open, onOpen }: Props) {
             </TableHeader>
 
             <TableBody>
-              {detail.items.map((item) => (
+              {(detail.items || []).map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.product?.code}</TableCell>
                   <TableCell>{item.product?.name}</TableCell>

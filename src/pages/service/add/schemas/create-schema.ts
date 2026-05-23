@@ -17,10 +17,9 @@ export const ServiceRegistrationSchema = z.object({
       .string()
       .email("Format email tidak valid")
       .optional()
+      .nullable()
       .or(z.literal("")),
-    birth_date: z
-      .string({ message: "Tanggal Lahir wajib diisi" })
-      .min(1, { message: "Tanggal Lahir wajib diisi" }),
+    birth_date: z.string().optional().nullable(),
   }),
   vehicle: z.object({
     id: z.number().optional(),
@@ -29,14 +28,14 @@ export const ServiceRegistrationSchema = z.object({
       .min(4, "Nopol tidak valid"),
     brand: z.string({ message: "Merk wajib diisi" }).min(1, "Merk wajib diisi"),
     model: z.string({ message: "Tipe wajib diisi" }).min(1, "Tipe wajib diisi"),
-    year: z.string().optional(),
+    year: z.string().optional().nullable().default(null),
     color: z.string({ message: "Merk wajib diisi" }).optional(),
-    engine_capacity: z.string().optional(), // misal: 1500cc
-    transmission_type: z.string().optional(), // CVT, AT, MT
-    fuel_type: z.string().optional(), // Bensin, Diesel, Listrik
-    vin_number: z.string().optional(), // No. Rangka
-    engine_number: z.string().optional(), // No. Mesin
-    tire_size: z.string().optional(), // misal: 185/65 R15
+    engine_capacity: z.string().optional().nullable(), // misal: 1500cc
+    transmission_type: z.string().optional().nullable(), // CVT, AT, MT
+    fuel_type: z.string().optional().nullable(), // Bensin, Diesel, Listrik
+    vin_number: z.string().optional().nullable(), // No. Rangka
+    engine_number: z.string().optional().nullable(), // No. Mesin
+    tire_size: z.string().optional().nullable(), // misal: 185/65 R15
   }),
   next_km: z.coerce
     .number({ message: "Kilometer tidak boleh negatif" })
@@ -45,8 +44,8 @@ export const ServiceRegistrationSchema = z.object({
     .number({ message: "Kilometer tidak boleh negatif" })
     .min(0, "Kilometer tidak boleh negatif"),
   complaints: z.string().optional().default(""),
-  mechanic_ids: z.array(z.number()).optional(),
-  priority: z.string({ message: "Prioritas wajib diisi" }),
+  mechanic_ids: z.array(z.number()).optional().default([]),
+  priority: z.string({ message: "Prioritas wajib diisi" }).default("normal"),
 });
 
 export type TServiceRegistration = z.infer<typeof ServiceRegistrationSchema>;

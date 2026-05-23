@@ -1,11 +1,6 @@
 import type { ICustomer } from "@/utils/interfaces/IUser";
 
-import {
-  Autocomplete,
-  AutocompleteItem,
-  Avatar,
-  InputProps,
-} from "@heroui/react";
+import { Autocomplete, AutocompleteItem, InputProps } from "@heroui/react";
 import { Users } from "lucide-react";
 import { useEffect, useRef } from "react";
 
@@ -106,23 +101,7 @@ export default function CustomerSearch({
           className="capitalize"
           textValue={item.name}
         >
-          <div className="flex gap-3 items-center">
-            <Avatar
-              alt={item.name}
-              className="flex-shrink-0"
-              size="sm"
-              src={
-                item.profile?.photo_url ||
-                `https://ui-avatars.com/api/?name=${item.name}&background=random`
-              }
-            />
-            <div className="flex flex-col">
-              <span className="text-small font-bold">{item.name}</span>
-              <span className="text-tiny text-gray-500">
-                {item.phone || "Tidak ada nomor"}
-              </span>
-            </div>
-          </div>
+          {item.name}
         </AutocompleteItem>
       )}
     </Autocomplete>

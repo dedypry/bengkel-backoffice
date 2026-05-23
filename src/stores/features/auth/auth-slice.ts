@@ -82,7 +82,7 @@ export const authSlice = createSlice({
                 return nav;
               })
               // 4. Buang menu utama jika sub-items nya kosong (opsional)
-              .filter((nav) => !nav.items || nav.items.length > 0)
+              .filter((nav) => !nav.items || (nav.items || []).length > 0)
           );
         };
 

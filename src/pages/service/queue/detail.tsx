@@ -19,6 +19,9 @@ import WODetailSkeleton from "./components/detail-skeleton";
 import DetailInfoTab from "./components/detail-tab";
 import { InfoBlock, SectionHeader } from "./components/helper";
 import HistoryTab from "./components/history-tab";
+import EditUnitInfo from "./components/edit-unit-info";
+import WoComplaint from "./components/wo-complaint";
+import EditSupervisorInfo from "./components/edit-supervisor-info";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
@@ -129,7 +132,10 @@ export default function WorkOrderDetail() {
           {/* VEHICLE CARD */}
           <Card>
             <CardBody className="p-6  space-y-6">
-              <SectionHeader icon={<Car size={18} />} title="Unit Info" />
+              <div className="flex justify-between items-center">
+                <SectionHeader icon={<Car size={18} />} title="Unit Info" />
+                <EditUnitInfo />
+              </div>
               <div className="space-y-4">
                 <div className="text-center py-4 bg-gray-400 text-white rounded-sm">
                   <p className="text-[10px] font-bold  uppercase mb-1">
@@ -161,7 +167,13 @@ export default function WorkOrderDetail() {
           {/* COMPLAINTS */}
           <Card>
             <CardBody className="p-6 space-y-4">
-              <SectionHeader icon={<AlertCircle size={18} />} title="Keluhan" />
+              <div className="flex justify-between items-center">
+                <SectionHeader
+                  icon={<AlertCircle size={18} />}
+                  title="Keluhan"
+                />
+                <WoComplaint />
+              </div>
               <p className="text-xs font-bold text-gray-700 leading-relaxed uppercase">
                 {data.complaints || "TIDAK ADA KELUHAN TERKATEGORI"}
               </p>
@@ -169,7 +181,10 @@ export default function WorkOrderDetail() {
           </Card>
           <Card>
             <CardBody className="p-6 space-y-4">
-              <SectionHeader icon={<Users size={18} />} title="Supervisor" />
+              <div className="flex justify-between items-center">
+                <SectionHeader icon={<Users size={18} />} title="Supervisor" />
+                <EditSupervisorInfo />
+              </div>
               <Input
                 isDisabled
                 classNames={{ label: "!text-gray-800" }}
