@@ -1,5 +1,6 @@
 import { User, LogOut, Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Cookies from "js-cookie";
 import {
   Dropdown,
@@ -18,6 +19,7 @@ import { confirmSweat } from "@/utils/helpers/notify";
 export default function UserMenu() {
   const { user } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     localStorage.clear();
@@ -44,7 +46,7 @@ export default function UserMenu() {
       </DropdownTrigger>
 
       <DropdownMenu
-        aria-label="User Actions"
+        aria-label={t("common.user_actions")}
         className="p-1"
         itemClasses={{
           base: [
@@ -81,21 +83,21 @@ export default function UserMenu() {
           classNames={{
             heading: "px-4 pt-2 text-xs font-bold uppercase text-gray-500",
           }}
-          title="Akses Cepat"
+          title={t("common.quick_access")}
         >
           <DropdownItem
             key="my-profile"
             startContent={<User size={20} />}
             onPress={() => navigate("/my-profile")}
           >
-            Profil Saya
+            {t("common.my_profile")}
           </DropdownItem>
           <DropdownItem
             key="settings"
             startContent={<Wrench size={20} />}
             onPress={() => navigate("/settings/profile")}
           >
-            Konfigurasi Bengkel
+            {t("common.workshop_config")}
           </DropdownItem>
         </DropdownSection>
         <DropdownSection>
@@ -107,15 +109,15 @@ export default function UserMenu() {
             variant="light"
             onPress={() =>
               confirmSweat(handleLogout, {
-                title: "Akhiri Sesi?",
-                text: "Anda akan keluar dari sistem manajemen bengkel.",
+                title: t("common.end_session_title"),
+                text: t("common.end_session_text"),
                 icon: "question",
-                confirmButtonText: "Ya, Keluar",
-                cancelButtonText: "Batal",
+                confirmButtonText: t("common.confirm_logout"),
+                cancelButtonText: t("cancel"),
               })
             }
           >
-            Keluar Aplikasi
+            {t("common.logout")}
           </DropdownItem>
         </DropdownSection>
       </DropdownMenu>

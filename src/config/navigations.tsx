@@ -1,6 +1,7 @@
 export const navigation = [
   {
     title: "Dashboard",
+    i18nKey: "nav.dashboard",
     href: "/",
     icon: "SquareTerminal",
     isActive: true,
@@ -8,6 +9,7 @@ export const navigation = [
   },
   {
     title: "Kasir",
+    i18nKey: "nav.cashier",
     href: "/cashier",
     icon: "ShoppingCart",
     isActive: true,
@@ -15,6 +17,7 @@ export const navigation = [
   },
   {
     title: "Booking",
+    i18nKey: "nav.booking",
     href: "/booking",
     icon: "Book",
     isActive: true,
@@ -22,12 +25,14 @@ export const navigation = [
   },
   {
     header: "Transaksi Utama",
+    i18nKey: "nav.trx.header",
     href: "/service",
     icon: "ClipboardList",
     permissions: ["wo.view"],
     items: [
       {
         title: "Pendaftaran Servis",
+        i18nKey: "nav.trx.registration",
         href: "add",
         icon: "PlusCircle",
         roles: ["super-admin", "sa", "owner"],
@@ -35,24 +40,28 @@ export const navigation = [
       },
       {
         title: "Antrean Bengkel",
+        i18nKey: "nav.trx.workshop_queue",
         href: "queue",
         icon: "LayoutList",
         permissions: ["wo.view", "wo.create", "wo.update", "wo.delete"],
       },
       {
         title: "Antrean Mandiri",
+        i18nKey: "nav.trx.self_queue",
         href: "self-queue",
         icon: "Ticket",
         permissions: ["wo.view", "wo.create", "wo.update"],
       },
       {
         title: "Riwayat Servis",
+        i18nKey: "nav.trx.history",
         href: "history",
         icon: "History",
         permissions: ["wo.view"],
       },
       {
         title: "Jasa divendorkan",
+        i18nKey: "nav.trx.vendor",
         href: "vendor-transaction",
         icon: "Handshake",
         permissions: ["wo.view"],
@@ -61,12 +70,14 @@ export const navigation = [
   },
   {
     header: "Layar Antrean",
+    i18nKey: "nav.screen.header",
     href: "/queue",
     icon: "MonitorPlay",
     permissions: ["wo.view", "wo.create", "wo.update"],
     items: [
       {
         title: "Kiosk Pelanggan",
+        i18nKey: "nav.screen.kiosk",
         href: "/queue/kiosk",
         icon: "Ticket",
         external: true,
@@ -74,6 +85,7 @@ export const navigation = [
       },
       {
         title: "Display Antrean (TV)",
+        i18nKey: "nav.screen.display",
         href: "/queue/display",
         icon: "MonitorPlay",
         external: true,
@@ -84,17 +96,20 @@ export const navigation = [
   {
     roles: ["super-admin", "partsman", "owner"],
     header: "Pembelian Sparepart",
+    i18nKey: "nav.purchase.header",
     href: "/purchase",
     icon: "Package",
     permissions: ["purchase-order.view", "purchase-order.manage"],
     items: [
       {
         title: "Order Pembelian",
+        i18nKey: "nav.purchase.po",
         href: "po",
         icon: "Box",
       },
       {
         title: "Faktur Pembelian",
+        i18nKey: "nav.purchase.invoice",
         href: "invoice",
         icon: "FileText",
       },
@@ -103,17 +118,20 @@ export const navigation = [
   {
     roles: ["super-admin", "partsman", "owner"],
     header: "Inventaris Sparepart",
+    i18nKey: "nav.inventory.header",
     href: "/inventory",
     icon: "Package",
     permissions: ["product.view", "product.stock", "product.manage"],
     items: [
       {
         title: "Stok Barang",
+        i18nKey: "nav.inventory.stock",
         href: "stock",
         icon: "Boxes",
       },
       {
         title: "Kategori Produk",
+        i18nKey: "nav.inventory.categories",
         href: "categories",
         icon: "Tags",
       },
@@ -122,18 +140,21 @@ export const navigation = [
   {
     roles: ["super-admin", "owner", "cro"],
     header: "Data Master",
+    i18nKey: "nav.master.header",
     href: "/master",
     icon: "CarFront",
     permissions: ["master.manage"],
     items: [
       {
         title: "Data Pelanggan",
+        i18nKey: "nav.master.customers",
         href: "customers",
         icon: "Users",
         permissions: ["customer.view", "customer.manage"],
       },
       {
         title: "Data Kendaraan",
+        i18nKey: "nav.master.vehicles",
         href: "vehicles",
         icon: "Car",
         permissions: ["customer.view", "customer.manage"],
@@ -146,18 +167,21 @@ export const navigation = [
       // },
       {
         title: "Daftar Jasa Servis",
+        i18nKey: "nav.master.services",
         href: "services",
         icon: "ClipboardList",
         roles: ["super-admin", "owner", "partsman"],
       },
       {
         title: "Supplier",
+        i18nKey: "nav.master.suppliers",
         href: "suppliers",
         icon: "Truck",
         roles: ["super-admin", "owner", "partsman"],
       },
       {
         title: "Gudang",
+        i18nKey: "nav.master.warehouses",
         href: "warehouses",
         icon: "Building2",
         roles: ["super-admin", "owner", "partsman"],
@@ -178,29 +202,48 @@ export const navigation = [
   {
     roles: ["super-admin", "owner"],
     header: "Laporan",
+    i18nKey: "nav.reports.header",
     href: "/reports",
     permissions: ["report.manage"],
     icon: "FileBarChart",
     items: [
-      { title: "Laporan Pendapatan", href: "revenue", icon: "TrendingUp" },
-      { title: "Performa Mekanik", href: "mechanics", icon: "Award" },
-      { title: "Barang Terlaris", href: "top-parts", icon: "BarChart3" },
+      {
+        title: "Laporan Pendapatan",
+        i18nKey: "nav.reports.revenue",
+        href: "revenue",
+        icon: "TrendingUp",
+      },
+      {
+        title: "Performa Mekanik",
+        i18nKey: "nav.reports.mechanics",
+        href: "mechanics",
+        icon: "Award",
+      },
+      {
+        title: "Barang Terlaris",
+        i18nKey: "nav.reports.top_parts",
+        href: "top-parts",
+        icon: "BarChart3",
+      },
     ],
   },
   {
     roles: ["super-admin", "owner"],
     header: "Pengaturan",
+    i18nKey: "nav.settings.header",
     href: "/settings",
     icon: "Settings2",
     items: [
       {
         title: "Profil Bengkel",
+        i18nKey: "nav.settings.profile",
         href: "profile",
         icon: "Store",
         permissions: ["profile.manage"],
       },
       {
         title: "Management Role",
+        i18nKey: "nav.settings.roles",
         href: "roles",
         icon: "ShieldAlert",
         permissions: ["role.manage"],
@@ -215,22 +258,26 @@ export const navigation = [
   {
     roles: ["super-admin", "owner", "hrd"],
     header: "Human Resources",
+    i18nKey: "nav.hr.header",
     href: "/hr",
     icon: "Users",
     permissions: ["user.manage"],
     items: [
       {
         title: "Data Karyawan",
+        i18nKey: "nav.hr.employees",
         href: "employees",
         icon: "UserCircle",
       },
       {
         title: "Absensi Karyawan",
+        i18nKey: "nav.hr.attendance",
         href: "attendance",
         icon: "Clock",
       },
       {
         title: "Penggajian Karyawan",
+        i18nKey: "nav.hr.payroll",
         href: "payroll",
         icon: "Wallet",
       },

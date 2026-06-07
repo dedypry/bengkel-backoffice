@@ -24,5 +24,71 @@
     "cancel": "Cancel",
     "hours": "Hourse",
     "minute": "Minute",
-    "day": "Day"
+    "day": "Day",
+    "common": {
+        "language": "Language",
+        "indonesian": "Indonesian",
+        "english": "English",
+        "my_profile": "My Profile",
+        "workshop_config": "Workshop Settings",
+        "quick_access": "Quick Access",
+        "logout": "Sign Out",
+        "user_actions": "User Actions",
+        "end_session_title": "End Session?",
+        "end_session_text": "You will be logged out of the workshop management system.",
+        "confirm_logout": "Yes, Sign Out"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "cashier": "Cashier",
+        "booking": "Booking",
+        "trx": {
+            "header": "Main Transactions",
+            "registration": "Service Registration",
+            "workshop_queue": "Workshop Queue",
+            "self_queue": "Self Service Queue",
+            "history": "Service History",
+            "vendor": "Outsourced Jobs"
+        },
+        "purchase": {
+            "header": "Spare Part Purchasing",
+            "po": "Purchase Order",
+            "invoice": "Purchase Invoice"
+        },
+        "inventory": {
+            "header": "Spare Part Inventory",
+            "stock": "Stock",
+            "categories": "Product Categories"
+        },
+        "master": {
+            "header": "Master Data",
+            "customers": "Customers",
+            "vehicles": "Vehicles",
+            "services": "Service List",
+            "suppliers": "Suppliers",
+            "warehouses": "Warehouses"
+        },
+        "reports": {
+            "header": "Reports",
+            "revenue": "Revenue Report",
+            "mechanics": "Mechanic Performance",
+            "top_parts": "Best Selling Parts"
+        },
+        "settings": {
+            "header": "Settings",
+            "profile": "Workshop Profile",
+            "roles": "Role Management"
+        },
+        "hr": {
+            "header": "Human Resources",
+            "employees": "Employees",
+            "attendance": "Attendance",
+            "payroll": "Payroll"
+        },
+        "screen": {
+            "header": "Queue Screens",
+            "kiosk": "Customer Kiosk",
+            "display": "Queue Display (TV)"
+        }
+    }
 }

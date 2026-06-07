@@ -13,6 +13,7 @@ import { Outlet } from "react-router-dom";
 import SidebarMenu from "./partials/sidebar-menu";
 import UserMenu from "./partials/user-dropdown";
 import NotificationDropdown from "./partials/notification";
+import LanguageSwitch from "./partials/language-switch";
 
 import { responsive } from "@/config/responsive";
 import AuthGuard from "@/utils/guard/auth-guard";
@@ -98,6 +99,7 @@ export default function AdminLayout({ children }: Props) {
               <Button isIconOnly variant="ghost" onPress={toggleFullScreen}>
                 <Fullscreen />
               </Button>
+              <LanguageSwitch />
               <NotificationDropdown />
               <UserMenu />
             </NavbarContent>

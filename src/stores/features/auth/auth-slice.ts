@@ -10,11 +10,13 @@ interface INav {
   roles?: string[];
   header: string;
   title: string;
+  i18nKey?: string;
   href: string;
   icon?: string;
   items?: {
     roles?: string[];
     title: string;
+    i18nKey?: string;
     href: string;
   }[];
 }

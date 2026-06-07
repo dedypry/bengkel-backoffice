@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import {
   Avatar,
@@ -25,6 +26,7 @@ export default function SidebarMenu() {
   const [selected, setSelected] = useState<string>(window.location.pathname);
   const [modalOpen, setModalOpen] = useState(false);
   const { pathname } = useLocation();
+  const { t } = useTranslation();
 
   const dispatch = useAppDispatch();
 
@@ -138,7 +140,8 @@ export default function SidebarMenu() {
                   className={`sidebar-item ${selected === item.href ? "bg-white text-gray-800" : "text-white"}`}
                   to={item.href || ""}
                 >
-                  <IconParent size={20} /> {item.title}
+                  <IconParent size={20} />{" "}
+                  {item.i18nKey ? t(item.i18nKey) : item.title}
                 </Link>
               )}
             </div>

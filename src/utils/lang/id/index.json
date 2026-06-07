@@ -24,5 +24,71 @@
     "cancel": "Batal",
     "hours": "Jam",
     "minute": "Menit",
-    "day": "Hari"
+    "day": "Hari",
+    "common": {
+        "language": "Bahasa",
+        "indonesian": "Indonesia",
+        "english": "Inggris",
+        "my_profile": "Profil Saya",
+        "workshop_config": "Konfigurasi Bengkel",
+        "quick_access": "Akses Cepat",
+        "logout": "Keluar Aplikasi",
+        "user_actions": "Aksi Pengguna",
+        "end_session_title": "Akhiri Sesi?",
+        "end_session_text": "Anda akan keluar dari sistem manajemen bengkel.",
+        "confirm_logout": "Ya, Keluar"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "cashier": "Kasir",
+        "booking": "Booking",
+        "trx": {
+            "header": "Transaksi Utama",
+            "registration": "Pendaftaran Servis",
+            "workshop_queue": "Antrean Bengkel",
+            "self_queue": "Antrean Mandiri",
+            "history": "Riwayat Servis",
+            "vendor": "Jasa divendorkan"
+        },
+        "purchase": {
+            "header": "Pembelian Sparepart",
+            "po": "Order Pembelian",
+            "invoice": "Faktur Pembelian"
+        },
+        "inventory": {
+            "header": "Inventaris Sparepart",
+            "stock": "Stok Barang",
+            "categories": "Kategori Produk"
+        },
+        "master": {
+            "header": "Data Master",
+            "customers": "Data Pelanggan",
+            "vehicles": "Data Kendaraan",
+            "services": "Daftar Jasa Servis",
+            "suppliers": "Supplier",
+            "warehouses": "Gudang"
+        },
+        "reports": {
+            "header": "Laporan",
+            "revenue": "Laporan Pendapatan",
+            "mechanics": "Performa Mekanik",
+            "top_parts": "Barang Terlaris"
+        },
+        "settings": {
+            "header": "Pengaturan",
+            "profile": "Profil Bengkel",
+            "roles": "Management Role"
+        },
+        "hr": {
+            "header": "Human Resources",
+            "employees": "Data Karyawan",
+            "attendance": "Absensi Karyawan",
+            "payroll": "Penggajian Karyawan"
+        },
+        "screen": {
+            "header": "Layar Antrean",
+            "kiosk": "Kiosk Pelanggan",
+            "display": "Display Antrean (TV)"
+        }
+    }
 }
