@@ -7,6 +7,7 @@ import CashierPage from "./pages/cashier";
 import BookingPage from "./pages/booking";
 import ServiceAddPage from "./pages/service/add";
 import QueuePage from "./pages/service/queue";
+import SelfQueuePanelPage from "./pages/service/self-queue";
 import HistoryPage from "./pages/service/history";
 import InventoryStockPage from "./pages/inventory/stock";
 import FormAddStock from "./pages/inventory/stock/add";
@@ -49,6 +50,8 @@ import HomePage from "@/pages/dashboard/index";
 import PoInvoicePage from "./pages/purchase/invoice";
 import PoInvoiceCreatePage from "./pages/purchase/invoice/create";
 import PoInvoiceEditPage from "./pages/purchase/invoice/edit";
+import QueueKioskPage from "./pages/self-queue/kiosk";
+import QueueDisplayPage from "./pages/self-queue/display";
 
 function App() {
   return (
@@ -56,6 +59,8 @@ function App() {
       <Route element={<AuthLayout />}>
         <Route element={<LoginPage />} path="/login" />
       </Route>
+      <Route element={<QueueKioskPage />} path="/queue/kiosk" />
+      <Route element={<QueueDisplayPage />} path="/queue/display" />
       <Route element={<LayoutAdmin />}>
         <Route element={<HomePage />} path="/" />
         <Route element={<CashierPage />} path="/cashier" />
@@ -65,6 +70,7 @@ function App() {
         <Route path="/service">
           <Route element={<ServiceAddPage />} path="add" />
           <Route element={<QueuePage />} path="queue" />
+          <Route element={<SelfQueuePanelPage />} path="self-queue" />
           <Route element={<WorkOrderDetail />} path="queue/:id" />
           <Route element={<HistoryPage />} path="history" />
           <Route element={<VendorTrxPage />} path="vendor-transaction" />

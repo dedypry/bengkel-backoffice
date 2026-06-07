@@ -34,6 +34,7 @@ import po from "./features/po/po-slice";
 import setting from "./features/setting/setting-slice";
 import attendance from "./features/attendance/attendance-slice";
 import payroll from "./features/payroll/payroll-slice";
+import selfQueue from "./features/self-queue/queue-slice";
 
 const persistedAuthReducer = persistReducer({ key: "auth", storage }, auth);
 const persistedLayoutReducer = persistReducer({ key: "auth", storage }, layout);
@@ -63,6 +64,7 @@ export const store = configureStore({
     setting,
     attendance,
     payroll,
+    selfQueue,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

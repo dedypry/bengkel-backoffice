@@ -124,7 +124,12 @@ export default function SidebarMenu() {
               {item.header ? (
                 <MenuItem
                   item={
-                    { ...item, icon: IconParent, urlParent: item.href } as any
+                    {
+                      ...item,
+                      icon: IconParent,
+                      urlParent: item.href,
+                      companyId: company?.id,
+                    } as any
                   }
                   selected={selected}
                 />

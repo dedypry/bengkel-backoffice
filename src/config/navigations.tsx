@@ -40,6 +40,12 @@ export const navigation = [
         permissions: ["wo.view", "wo.create", "wo.update", "wo.delete"],
       },
       {
+        title: "Antrean Mandiri",
+        href: "self-queue",
+        icon: "Ticket",
+        permissions: ["wo.view", "wo.create", "wo.update"],
+      },
+      {
         title: "Riwayat Servis",
         href: "history",
         icon: "History",
@@ -50,6 +56,28 @@ export const navigation = [
         href: "vendor-transaction",
         icon: "Handshake",
         permissions: ["wo.view"],
+      },
+    ],
+  },
+  {
+    header: "Layar Antrean",
+    href: "/queue",
+    icon: "MonitorPlay",
+    permissions: ["wo.view", "wo.create", "wo.update"],
+    items: [
+      {
+        title: "Kiosk Pelanggan",
+        href: "/queue/kiosk",
+        icon: "Ticket",
+        external: true,
+        permissions: ["wo.view", "wo.create", "wo.update"],
+      },
+      {
+        title: "Display Antrean (TV)",
+        href: "/queue/display",
+        icon: "MonitorPlay",
+        external: true,
+        permissions: ["wo.view", "wo.create", "wo.update"],
       },
     ],
   },
