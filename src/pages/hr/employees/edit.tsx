@@ -53,6 +53,7 @@ export default function EmployeesEditPage() {
       id={id}
       userForm={{
         photo: detail.profile?.photo_url,
+        mesin_id: detail.mesin_id,
         name: detail.name,
         email: detail.email,
         phone: detail.profile?.phone_number!,

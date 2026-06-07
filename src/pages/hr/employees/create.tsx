@@ -173,6 +173,21 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   />
                   <Controller
                     control={control}
+                    name="mesin_id"
+                    render={({ field }) => (
+                      <Input
+                        {...(field as any)}
+                        description="Samakan dengan ID karyawan di mesin absensi agar absensi otomatis terhubung."
+                        errorMessage={errors.mesin_id?.message}
+                        isInvalid={!!errors.mesin_id}
+                        label="ID Mesin Absensi"
+                        placeholder="Contoh: 1, 25, 1024"
+                        value={field.value ?? ""}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={control}
                     name="email"
                     render={({ field }) => (
                       <Input

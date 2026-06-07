@@ -83,7 +83,8 @@ export default function AttendancePage() {
   const [openManual, setOpenManual] = useState(false);
   const [selected, setSelected] = useState<IAttendance | null>();
   const [openDevice, setOpenDevice] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState<IAttendanceDevice | null>();
+  const [selectedDevice, setSelectedDevice] =
+    useState<IAttendanceDevice | null>();
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -208,7 +209,10 @@ export default function AttendancePage() {
             {/* Summary */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {summaryCards.map((card) => (
-                <Card key={card.label} className="border border-gray-100 shadow-none">
+                <Card
+                  key={card.label}
+                  className="border border-gray-100 shadow-none"
+                >
                   <CardBody className="flex flex-row items-center gap-3 p-4">
                     <div
                       className={`flex items-center justify-center size-10 rounded-sm ${card.color}`}
@@ -230,19 +234,22 @@ export default function AttendancePage() {
 
             {/* Filter */}
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-md border border-gray-200 shadow-sm">
-              <Input
-                isClearable
-                className="md:max-w-xs"
-                defaultValue={attendanceQuery.q}
-                placeholder="Cari nama atau NIK..."
-                startContent={<Search className="text-gray-400" size={20} />}
-                onValueChange={searchDebounce}
-              />
-              <div className="flex gap-2 w-full md:w-auto">
+              <div>
+                <Input
+                  isClearable
+                  className="md:max-w-xs"
+                  defaultValue={attendanceQuery.q}
+                  placeholder="Cari nama atau NIK..."
+                  startContent={<Search className="text-gray-400" size={20} />}
+                  onValueChange={searchDebounce}
+                />
+              </div>
+              <div className="flex items-center gap-2 md:w-auto">
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  Tanggal
+                </span>
                 <Input
                   className="md:w-44"
-                  label="Tanggal"
-                  labelPlacement="outside-left"
                   type="date"
                   value={attendanceQuery.date}
                   onValueChange={(date) =>
@@ -394,7 +401,11 @@ export default function AttendancePage() {
                 {(devices || []).map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50/50">
                     <TableCell>
-                      <Chip className="font-black rounded-sm" size="sm" variant="flat">
+                      <Chip
+                        className="font-black rounded-sm"
+                        size="sm"
+                        variant="flat"
+                      >
                         {item.serial_number}
                       </Chip>
                     </TableCell>

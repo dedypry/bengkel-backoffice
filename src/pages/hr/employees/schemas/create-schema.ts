@@ -1,6 +1,7 @@
 import z from "zod";
 
 export const formSchema = z.object({
+  mesin_id: z.string().optional().nullable(),
   name: z
     .string({ message: "Nomor telepon wajib diisi." })
     .min(1, { message: "Nama wajib diisi." }),

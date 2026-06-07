@@ -70,6 +70,7 @@ export interface IUser {
   updated_at: string;
   work_status: string;
   nik: string;
+  mesin_id?: string | null;
   name: string;
   email: string;
   position: string | null;
