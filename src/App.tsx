@@ -27,6 +27,9 @@ import EmployeesPage from "./pages/hr/employees";
 import CreateEmployeePage from "./pages/hr/employees/create";
 import EmployeesDetailPage from "./pages/hr/employees/detail";
 import EmployeesEditPage from "./pages/hr/employees/edit";
+import AttendancePage from "./pages/hr/attendance";
+import PayrollPage from "./pages/hr/payroll";
+import PayrollDetailPage from "./pages/hr/payroll/detail";
 import EditCustomerPage from "./pages/master/customers/edit";
 import CustomerDetailPage from "./pages/master/customers/detail";
 import ProfilePage from "./pages/my-profile";
@@ -122,6 +125,9 @@ function App() {
           <Route element={<CreateEmployeePage />} path="employees/create" />
           <Route element={<EmployeesDetailPage />} path="employees/:id" />
           <Route element={<EmployeesEditPage />} path="employees/:id/edit" />
+          <Route element={<AttendancePage />} path="attendance" />
+          <Route element={<PayrollPage />} path="payroll" />
+          <Route element={<PayrollDetailPage />} path="payroll/:id" />
           <Route element={<RolesPage />} path="roles" />
         </Route>
       </Route>

@@ -196,6 +196,16 @@ export const navigation = [
         href: "employees",
         icon: "UserCircle",
       },
+      {
+        title: "Absensi Karyawan",
+        href: "attendance",
+        icon: "Clock",
+      },
+      {
+        title: "Penggajian Karyawan",
+        href: "payroll",
+        icon: "Wallet",
+      },
     ],
   },
 ];
