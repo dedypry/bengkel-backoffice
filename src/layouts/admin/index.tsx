@@ -1,84 +1,46 @@
-import { useEffect, ReactNode } from "react";
-import { useMediaQuery } from "react-responsive";
-import {
-  Button,
-  Drawer,
-  DrawerContent,
-  Navbar,
-  NavbarContent,
-} from "@heroui/react";
+import { ReactNode } from "react";
+import { Button, Navbar, NavbarContent } from "@heroui/react";
 import { Fullscreen, MenuIcon } from "lucide-react";
 import { Outlet } from "react-router-dom";
 
-import SidebarMenu from "./partials/sidebar-menu";
-import UserMenu from "./partials/user-dropdown";
-import NotificationDropdown from "./partials/notification";
+import { MobileDrawer } from "./sidebar/mobile-drawer";
+import { Sidebar } from "./sidebar/sidebar";
 import LanguageSwitch from "./partials/language-switch";
+import NotificationDropdown from "./partials/notification";
+import UserMenu from "./partials/user-dropdown";
 
-import { responsive } from "@/config/responsive";
+import { useSidebar } from "@/context/sidebar-context";
 import AuthGuard from "@/utils/guard/auth-guard";
-import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { setSidebar } from "@/stores/features/layout/layout-slice";
+import { useAppSelector } from "@/stores/hooks";
 
 interface Props {
   children?: ReactNode;
 }
+
 export default function AdminLayout({ children }: Props) {
   const { company } = useAppSelector((state) => state.auth);
-  const { sidebarOpen: isOpen } = useAppSelector((state) => state.layout);
-  const dispatch = useAppDispatch();
-  const isMobile = useMediaQuery(responsive.mobile);
-
-  function setIsOpen(val: boolean) {
-    dispatch(setSidebar(val));
-  }
-
-  useEffect(() => {
-    setIsOpen(!isMobile);
-  }, [isMobile]);
+  const { isMobile, toggleCollapsed, toggleMobile } = useSidebar();
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
-      // Jika belum fullscreen, aktifkan
       document.documentElement.requestFullscreen().catch((err) => {
         console.error(`Error gagal masuk mode fullscreen: ${err.message}`);
       });
-    } else {
-      // Jika sedang fullscreen, keluar
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
     }
   };
 
   return (
     <AuthGuard>
-      {isMobile ? (
-        <Drawer
-          className="bg-primary pl-4"
-          isOpen={isOpen}
-          placement="left"
-          size="xs"
-          onClose={() => setIsOpen(false)}
-        >
-          <DrawerContent>{() => <SidebarMenu />}</DrawerContent>
-        </Drawer>
-      ) : (
-        <aside
-          className={`translation-all fixed h-screen w-[266px] transform bg-gradient-to-tr from-primary-900 to-primary-600 pl-3 shadow-lg shadow-primary-200 duration-300 ease-in-out ${
-            !isOpen ? "-translate-x-full" : "translate-x-0"
-          } ${isMobile && "-translate-x-full"} `}
-        >
-          <SidebarMenu />
-        </aside>
-      )}
-      <div
-        className={`${!isOpen ? "pl-0" : "lg:pl-[266px]"} translation-all duration-300 ease-in-out`}
-      >
-        <main className="px-5 pt-1 relative">
+      <div className="flex h-svh overflow-hidden bg-default-50">
+        <Sidebar />
+        <MobileDrawer />
+
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Navbar
             isBordered
-            className="sticky top-1 h-[50px] rounded-md border shadow-md"
+            className="sticky top-0 z-30 h-14 rounded-none border-b border-default-200 bg-background shadow-sm"
             isBlurred={false}
             maxWidth="full"
           >
@@ -89,11 +51,15 @@ export default function AdminLayout({ children }: Props) {
                 radius="full"
                 size="sm"
                 variant="light"
-                onPress={() => setIsOpen(!isOpen)}
+                onPress={() =>
+                  isMobile ? toggleMobile() : toggleCollapsed()
+                }
               >
                 <MenuIcon />
               </Button>
-              <p className="font-bold text-primary">{company?.name}</p>
+              <p className="truncate font-semibold text-primary">
+                {company?.name}
+              </p>
             </NavbarContent>
             <NavbarContent justify="end">
               <Button isIconOnly variant="ghost" onPress={toggleFullScreen}>
@@ -104,11 +70,12 @@ export default function AdminLayout({ children }: Props) {
               <UserMenu />
             </NavbarContent>
           </Navbar>
-          <div className="py-5">
+
+          <main className="scrollbar-modern flex-1 overflow-y-auto px-4 py-5 lg:px-6">
             <Outlet />
             {children}
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     </AuthGuard>
   );

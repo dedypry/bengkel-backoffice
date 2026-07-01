@@ -4,21 +4,25 @@ import ListOrder from "./components/list-order";
 import PanelCustomer from "./components/panel-customer";
 import PanelProduct from "./components/panel-product";
 
+import { useSidebar, SIDEBAR_COLLAPSED_KEY } from "@/context/sidebar-context";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWo } from "@/stores/features/work-order/wo-action";
-import { setSidebar } from "@/stores/features/layout/layout-slice";
 
 export default function CashierPage() {
   const { woQuery, tabCashier } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
+  const { setCollapsed } = useSidebar();
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    setTimeout(() => {
-      dispatch(setSidebar(false));
-    }, 500);
-  }, []);
+    const previousCollapsed =
+      localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
+
+    setCollapsed(true);
+
+    return () => setCollapsed(previousCollapsed);
+  }, [setCollapsed]);
 
   useEffect(() => {
     if (company && !hasFetched.current) {

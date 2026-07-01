@@ -1,41 +1,47 @@
-import { Bell, CheckCircle2, Package, Clock } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+import { Bell } from "lucide-react";
 import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownSection,
-  DropdownItem,
-  Button,
   Badge,
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Spinner,
 } from "@heroui/react";
 
+import {
+  useNotifications,
+  type NotificationViewItem,
+} from "./use-notifications";
+
+type NotificationMenuEntry =
+  | { key: "header"; kind: "header" }
+  | { key: string; kind: "notification"; item: NotificationViewItem }
+  | { key: "empty"; kind: "empty" }
+  | { key: "view_all"; kind: "footer" };
+
 export default function NotificationDropdown() {
-  // Data dummy
-  const notifications = [
-    {
-      id: 1,
-      title: "SERVIS SELESAI",
-      desc: "Toyota Avanza B 1234 GHO siap diambil.",
-      time: "5 MENIT LALU",
-      icon: <CheckCircle2 className="size-4 text-emerald-500" />,
-      unread: true,
-    },
-    {
-      id: 2,
-      title: "STOK MENIPIS",
-      desc: "Oli Shell Helix sisa 2 botol lagi.",
-      time: "2 JAM LALU",
-      icon: <Package className="size-4 text-amber-500" />,
-      unread: true,
-    },
-    {
-      id: 3,
-      title: "BOOKING BARU",
-      desc: "Pelanggan baru melakukan pendaftaran.",
-      time: "1 HARI LALU",
-      icon: <Clock className="size-4 text-blue-500" />,
-      unread: false,
-    },
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } =
+    useNotifications();
+
+  const notificationEntries: NotificationMenuEntry[] = notifications.map(
+    (item) => ({
+      key: String(item.id),
+      kind: "notification" as const,
+      item,
+    }),
+  );
+
+  const emptyEntries: NotificationMenuEntry[] = [
+    { key: "empty", kind: "empty" },
+  ];
+
+  const menuEntries: NotificationMenuEntry[] = [
+    { key: "header", kind: "header" },
+    ...(notifications.length === 0 ? emptyEntries : notificationEntries),
+    { key: "view_all", kind: "footer" },
   ];
 
   return (
@@ -49,82 +55,144 @@ export default function NotificationDropdown() {
       <DropdownTrigger>
         <Button
           isIconOnly
-          className="relative transition-transform size-10 bg-gray-50 border border-gray-100"
+          className="relative size-10 border border-default-200 bg-default-50"
           radius="sm"
           variant="light"
         >
           <Badge
-            className="absolute top-1 right-1 border-2 border-white"
-            color="danger"
-            content=""
+            color="primary"
+            content={unreadCount > 0 ? unreadCount : undefined}
+            isInvisible={unreadCount === 0}
             shape="circle"
             size="sm"
           >
-            <Bell className="size-5 text-gray-600" />
+            <Bell className="size-5 text-default-600" />
           </Badge>
         </Button>
       </DropdownTrigger>
 
       <DropdownMenu
-        aria-label="Notifications"
+        aria-label="Notifikasi"
         className="p-0"
         itemClasses={{
           base: [
             "rounded-none",
-            "py-4",
-            "px-5",
+            "gap-3",
+            "py-3",
+            "px-4",
             "border-b",
             "border-divider",
-            "data-[hover=true]:bg-gray-50",
+            "data-[hover=true]:bg-primary-50",
+            "data-[hover=true]:text-primary",
           ],
         }}
+        items={menuEntries}
+        variant="flat"
       >
-        <DropdownSection
-          classNames={{
-            heading:
-              "px-5 py-3 text-md font-black uppercase text-gray-400 tracking-[0.2em] border-b border-divider bg-gray-50/50 w-full rounded-t-sm",
-          }}
-          title="NOTIFIKASI SISTEM"
-        >
-          {notifications.map((item) => (
+        {(entry) => {
+          if (entry.kind === "header") {
+            return (
+              <DropdownItem
+                key={entry.key}
+                isReadOnly
+                className="h-auto min-h-0 cursor-default rounded-none border-b border-divider bg-default-50/80 px-5 py-4 opacity-100 data-[hover=true]:bg-default-50/80"
+                textValue="Notifikasi"
+              >
+                <div className="flex w-full items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-default-700">
+                    Notifikasi
+                  </p>
+                  {unreadCount > 0 && (
+                    <button
+                      className="text-xs font-medium text-primary hover:underline"
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void markAllAsRead();
+                      }}
+                    >
+                      Tandai semua dibaca
+                    </button>
+                  )}
+                </div>
+              </DropdownItem>
+            );
+          }
+
+          if (entry.kind === "empty") {
+            return (
+              <DropdownItem
+                key={entry.key}
+                isReadOnly
+                className="cursor-default py-8 opacity-100 data-[hover=true]:bg-background"
+                textValue="Belum ada notifikasi"
+              >
+                <div className="flex w-full flex-col items-center gap-2 text-default-500">
+                  {loading ? (
+                    <Spinner color="primary" size="sm" />
+                  ) : (
+                    <>
+                      <Bell className="size-5" />
+                      <p className="text-sm">Belum ada notifikasi</p>
+                    </>
+                  )}
+                </div>
+              </DropdownItem>
+            );
+          }
+
+          if (entry.kind === "footer") {
+            return (
+              <DropdownItem
+                key={entry.key}
+                className="justify-center rounded-sm border-t border-divider p-2 text-primary data-[hover=true]:bg-primary data-[hover=true]:text-primary-foreground"
+                textValue="Lihat semua"
+              >
+                <span className="text-sm font-medium">
+                  Lihat semua aktivitas
+                </span>
+              </DropdownItem>
+            );
+          }
+
+          const { item } = entry;
+          const Icon: LucideIcon = item.icon;
+
+          return (
             <DropdownItem
-              key={item.id}
-              className={item.unread ? "bg-blue-50/30" : ""}
+              key={entry.key}
+              className={item.unread ? "bg-primary-50/40" : ""}
               description={
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-gray-500 leading-normal uppercase tracking-tight">
+                  <p className="text-xs leading-normal text-default-500">
                     {item.desc}
                   </p>
-                  <p className="text-[9px] font-bold text-gray-400 tracking-widest">
-                    {item.time}
-                  </p>
+                  <p className="text-xs text-default-400">{item.time}</p>
                 </div>
               }
               endContent={
-                item.unread && (
-                  <div className="size-2 bg-blue-600 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.5)]" />
-                )
+                item.unread ? (
+                  <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+                ) : null
               }
-              startContent={<div className="mt-1">{item.icon}</div>}
+              startContent={
+                <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-sm bg-primary-50 text-primary">
+                  <Icon className="size-4" />
+                </div>
+              }
+              textValue={item.title}
+              onPress={() => {
+                if (item.unread) {
+                  void markAsRead(item.id);
+                }
+              }}
             >
-              <span className="font-black text-[11px] tracking-wider text-gray-800 uppercase">
+              <span className="text-sm font-medium text-default-800">
                 {item.title}
               </span>
             </DropdownItem>
-          ))}
-        </DropdownSection>
-
-        <DropdownSection className="p-2">
-          <DropdownItem
-            key="view_all"
-            className="text-center rounded-sm data-[hover=true]:bg-gray-900 data-[hover=true]:text-white transition-all"
-            textValue="Lihat Semua"
-          >
-            <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-              Lihat Semua Aktivitas
-            </span>
-          </DropdownItem>
-        </DropdownSection>
+          );
+        }}
       </DropdownMenu>
     </Dropdown>
   );

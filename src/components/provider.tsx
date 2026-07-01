@@ -8,6 +8,7 @@ import { I18nextProvider } from "react-i18next";
 
 import Loading from "./loading/Loading";
 
+import { SidebarProvider } from "@/context/sidebar-context";
 import { persistor, store } from "@/stores";
 import i18n from "@/utils/libs/i18n";
 
@@ -24,7 +25,9 @@ export function Provider({ children }: { children: React.ReactNode }) {
     <HeroUIProvider navigate={navigate} useHref={useHref}>
       <ReduxProvider store={store}>
         <PersistGate loading={<Loading />} persistor={persistor}>
-          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+          <I18nextProvider i18n={i18n}>
+            <SidebarProvider>{children}</SidebarProvider>
+          </I18nextProvider>
         </PersistGate>
       </ReduxProvider>
     </HeroUIProvider>
