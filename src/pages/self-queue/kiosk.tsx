@@ -6,7 +6,15 @@ import type {
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Card, CardBody, Chip, Spinner } from "@heroui/react";
-import { Car, Gauge, Printer, RefreshCcw, Ticket, Users, Wrench } from "lucide-react";
+import {
+  Car,
+  Gauge,
+  Printer,
+  RefreshCcw,
+  Ticket,
+  Users,
+  Wrench,
+} from "lucide-react";
 
 import config from "@/config/api";
 import { useCompanyQueueRealtime } from "@/hooks/use-company-queue-realtime";
@@ -27,9 +35,9 @@ export default function QueueKioskPage() {
   const companyId = useMemo(() => getCompanyId(), []);
   const [categories, setCategories] = useState<IQueueCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
-  const [generatingCategoryId, setGeneratingCategoryId] = useState<number | null>(
-    null,
-  );
+  const [generatingCategoryId, setGeneratingCategoryId] = useState<
+    number | null
+  >(null);
   const [display, setDisplay] = useState<IQueueDisplay | null>(null);
   const [ticket, setTicket] = useState<IQueueGenerateResponse | null>(null);
 
@@ -92,7 +100,8 @@ export default function QueueKioskPage() {
               Pilih Jenis Servis
             </h1>
             <p className="mt-2 text-slate-500">
-              Ambil nomor antrean, cetak tiket, lalu tunggu nomor Anda dipanggil.
+              Ambil nomor antrean, cetak tiket, lalu tunggu nomor Anda
+              dipanggil.
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Chip

@@ -144,7 +144,10 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
     }));
   }, [settings?.next_service_notes]);
 
-  const applyRecommendationTemplate = (note: string, mode: "replace" | "append" = "replace") => {
+  const applyRecommendationTemplate = (
+    note: string,
+    mode: "replace" | "append" = "replace",
+  ) => {
     const trimmed = note.trim();
 
     if (!trimmed) {
@@ -152,6 +155,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
     }
 
     const html = noteTextToHtml(trimmed);
+
     setNextSugestion((prev) =>
       mode === "append" && prev ? `${prev}${html}` : html,
     );
@@ -735,6 +739,12 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                 placeholder="Pilih template — editor terisi otomatis"
                 variant="bordered"
                 onInputChange={setSelectedTemplate}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && selectedTemplate.trim()) {
+                    event.preventDefault();
+                    applyRecommendationTemplate(selectedTemplate, "replace");
+                  }
+                }}
                 onSelectionChange={(key) => {
                   if (!key || key === "all") {
                     return;
@@ -746,12 +756,6 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
 
                   if (selected) {
                     applyRecommendationTemplate(selected.label, "replace");
-                  }
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && selectedTemplate.trim()) {
-                    event.preventDefault();
-                    applyRecommendationTemplate(selectedTemplate, "replace");
                   }
                 }}
               >

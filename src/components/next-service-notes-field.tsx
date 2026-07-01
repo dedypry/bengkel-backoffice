@@ -106,7 +106,9 @@ export default function NextServiceNotesField({
                   variant="bordered"
                   onInputChange={setDraft}
                   onSelectionChange={(key) => {
-                    const selected = presetItems.find((item) => item.key === key);
+                    const selected = presetItems.find(
+                      (item) => item.key === key,
+                    );
 
                     if (selected) {
                       setDraft(selected.label);

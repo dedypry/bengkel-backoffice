@@ -51,9 +51,7 @@ export default function AdminLayout({ children }: Props) {
                 radius="full"
                 size="sm"
                 variant="light"
-                onPress={() =>
-                  isMobile ? toggleMobile() : toggleCollapsed()
-                }
+                onPress={() => (isMobile ? toggleMobile() : toggleCollapsed())}
               >
                 <MenuIcon />
               </Button>

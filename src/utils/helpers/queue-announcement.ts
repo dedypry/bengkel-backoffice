@@ -136,11 +136,15 @@ function speakIndonesian(text: string) {
 
   if (voices.length > 0) {
     startSpeaking();
+
     return;
   }
 
   const onVoicesChanged = () => {
-    window.speechSynthesis.removeEventListener("voiceschanged", onVoicesChanged);
+    window.speechSynthesis.removeEventListener(
+      "voiceschanged",
+      onVoicesChanged,
+    );
     startSpeaking();
   };
 

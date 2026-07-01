@@ -77,11 +77,16 @@ export default function InventoryCategoryPage() {
     }
   }, [categoryQuery, company, dispatch]);
 
-  const searchBounce = debounce((q: string) => dispatch(setCategoryQuery({ q })), 800);
+  const searchBounce = debounce(
+    (q: string) => dispatch(setCategoryQuery({ q })),
+    800,
+  );
 
   const stats = useMemo(() => {
     const activeCount = categories.filter((cat) => cat.is_active).length;
-    const withProducts = categories.filter((cat) => getProductCount(cat) > 0).length;
+    const withProducts = categories.filter(
+      (cat) => getProductCount(cat) > 0,
+    ).length;
     const subCategoryTotal = categories.reduce(
       (sum, cat) => sum + (cat.children?.length || 0),
       0,
@@ -178,7 +183,11 @@ export default function InventoryCategoryPage() {
             iconWrap: "bg-amber-100 text-amber-600",
           },
         ].map((item) => (
-          <Card key={item.label} className={`border shadow-sm ${item.card}`} shadow="none">
+          <Card
+            key={item.label}
+            className={`border shadow-sm ${item.card}`}
+            shadow="none"
+          >
             <CardBody className="flex flex-row items-center gap-4 p-4">
               <div className={`p-3 rounded-xl ${item.iconWrap}`}>
                 <item.icon size={20} />
@@ -214,6 +223,7 @@ export default function InventoryCategoryPage() {
               variant="bordered"
               onSelectionChange={(keys) => {
                 const value = Array.from(keys)[0] as string;
+
                 updateQuery({ is_active: value || "all" });
               }}
             >
@@ -228,6 +238,7 @@ export default function InventoryCategoryPage() {
               variant="bordered"
               onSelectionChange={(keys) => {
                 const value = Array.from(keys)[0] as string;
+
                 updateQuery({ productFilter: value || "all" });
               }}
             >
@@ -242,6 +253,7 @@ export default function InventoryCategoryPage() {
               variant="bordered"
               onSelectionChange={(keys) => {
                 const value = Array.from(keys)[0] as string;
+
                 updateQuery({ subCategoryFilter: value || "all" });
               }}
             >
@@ -252,11 +264,14 @@ export default function InventoryCategoryPage() {
 
             <Select
               label="Urutkan"
-              selectedKeys={[`${query.sortBy || "created_at"}:${query.sortOrder || "desc"}`]}
+              selectedKeys={[
+                `${query.sortBy || "created_at"}:${query.sortOrder || "desc"}`,
+              ]}
               variant="bordered"
               onSelectionChange={(keys) => {
                 const value = Array.from(keys)[0] as string;
                 const [sortBy, sortOrder] = value.split(":");
+
                 updateQuery({ sortBy, sortOrder });
               }}
             >
@@ -272,7 +287,9 @@ export default function InventoryCategoryPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-gray-500">
               Menampilkan{" "}
-              <span className="font-bold text-gray-700">{categories.length}</span>{" "}
+              <span className="font-bold text-gray-700">
+                {categories.length}
+              </span>{" "}
               kategori
             </p>
             <Button

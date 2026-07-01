@@ -49,7 +49,9 @@ function toViewItem(notification: INotification): NotificationViewItem {
 
 export function useNotifications() {
   const user = useAppSelector((state) => state.auth.user);
-  const [notifications, setNotifications] = useState<NotificationViewItem[]>([]);
+  const [notifications, setNotifications] = useState<NotificationViewItem[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
 
   const fetchNotifications = useCallback(async () => {
@@ -88,7 +90,9 @@ export function useNotifications() {
   const markAllAsRead = useCallback(async () => {
     try {
       await http.patch("/notifications/read-all");
-      setNotifications((prev) => prev.map((item) => ({ ...item, unread: false })));
+      setNotifications((prev) =>
+        prev.map((item) => ({ ...item, unread: false })),
+      );
     } catch (error) {
       console.error(error);
     }

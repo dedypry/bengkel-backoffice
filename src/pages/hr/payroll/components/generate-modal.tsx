@@ -58,14 +58,15 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
   const { payrollQuery } = useAppSelector((state) => state.payroll);
   const [loading, setLoading] = useState(false);
 
-  const { handleSubmit, control, reset, watch, setValue } =
-    useForm<FormValues>({
+  const { handleSubmit, control, reset, watch, setValue } = useForm<FormValues>(
+    {
       defaultValues: {
         period_type: "monthly",
         ...defaultRange("monthly"),
         note: "",
       },
-    });
+    },
+  );
 
   const periodType = watch("period_type");
 

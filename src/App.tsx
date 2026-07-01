@@ -46,13 +46,13 @@ import { PoPage } from "./pages/purchase/po";
 import PoCreatePage from "./pages/purchase/po/create";
 import WarehousesPage from "./pages/master/warehouses";
 import PoEditPage from "./pages/purchase/po/edit";
-
-import HomePage from "@/pages/dashboard/index";
 import PoInvoicePage from "./pages/purchase/invoice";
 import PoInvoiceCreatePage from "./pages/purchase/invoice/create";
 import PoInvoiceEditPage from "./pages/purchase/invoice/edit";
 import QueueKioskPage from "./pages/self-queue/kiosk";
 import QueueDisplayPage from "./pages/self-queue/display";
+
+import HomePage from "@/pages/dashboard/index";
 
 function App() {
   return (

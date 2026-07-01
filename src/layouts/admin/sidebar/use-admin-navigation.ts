@@ -1,8 +1,8 @@
+import type { AdminNavItem } from "./types";
+
 import { useMemo } from "react";
 import * as LucideIcons from "lucide-react";
 import { SquareTerminal, type LucideIcon } from "lucide-react";
-
-import type { AdminNavItem } from "./types";
 
 import { useAppSelector } from "@/stores/hooks";
 

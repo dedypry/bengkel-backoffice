@@ -6,14 +6,14 @@ import { ChevronDown } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Tooltip } from "@heroui/react";
 
-import { useSidebar } from "@/context/sidebar-context";
-
 import { CollapsedMenuFlyout } from "./collapsed-menu-flyout";
 import { sidebarItemRowClass } from "./sidebar-item-styles";
 import { submenuTransition } from "./sidebar.constants";
 import { SidebarLabel } from "./sidebar-label";
 import { useAdminNavigation } from "./use-admin-navigation";
 import { useNavItemLabel } from "./use-nav-item-label";
+
+import { useSidebar } from "@/context/sidebar-context";
 
 type SidebarItemProps = {
   item: AdminNavItem;
@@ -101,9 +101,7 @@ function SidebarItem({ item, collapsed, onNavigate }: SidebarItemProps) {
   const hasChildren = !!item.children?.length;
   const isChildActive = item.children?.some(
     (child) =>
-      child.href &&
-      !child.external &&
-      location.pathname.startsWith(child.href),
+      child.href && !child.external && location.pathname.startsWith(child.href),
   );
   const [open, setOpen] = useState(isChildActive ?? false);
 

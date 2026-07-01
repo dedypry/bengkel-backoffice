@@ -154,7 +154,9 @@ export default function ProfileOperationsFields({
               <InputNumber
                 label="Penambahan KM Servis Berikutnya"
                 placeholder="7000"
-                value={field.value as number}
+                value={
+                  field.value != null ? String(field.value) : undefined
+                }
                 onInput={field.onChange}
               />
             )}
@@ -166,7 +168,9 @@ export default function ProfileOperationsFields({
               <InputNumber
                 label="Jumlah Pit / Stall Servis"
                 placeholder="10"
-                value={field.value as number}
+                value={
+                  field.value != null ? String(field.value) : undefined
+                }
                 onInput={field.onChange}
               />
             )}
@@ -184,11 +188,15 @@ export default function ProfileOperationsFields({
                 variant="bordered"
                 onSelectionChange={(keys) => {
                   const value = Array.from(keys)[0];
+
                   field.onChange(value ? Number(value) : null);
                 }}
               >
                 {warehouseItems.map((warehouse) => (
-                  <SelectItem key={String(warehouse.id)} textValue={warehouse.name}>
+                  <SelectItem
+                    key={String(warehouse.id)}
+                    textValue={warehouse.name}
+                  >
                     {warehouse.code} — {warehouse.name}
                   </SelectItem>
                 ))}
@@ -203,7 +211,9 @@ export default function ProfileOperationsFields({
                 description="ID akun kas untuk pembayaran default"
                 label="Kas Pembayaran (Account ID)"
                 placeholder="Opsional"
-                value={field.value as number}
+                value={
+                  field.value != null ? String(field.value) : undefined
+                }
                 onInput={field.onChange}
               />
             )}

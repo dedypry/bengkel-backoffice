@@ -17,8 +17,7 @@ type EnvKeys = keyof IConfigs;
 
 const currentEnv = (import.meta.env.VITE_NODE_ENV || "local") as EnvKeys;
 
-const pusherKey =
-  import.meta.env.VITE_PUSHER_KEY || "a4cc33a43834e3273ccd";
+const pusherKey = import.meta.env.VITE_PUSHER_KEY || "a4cc33a43834e3273ccd";
 const pusherCluster = import.meta.env.VITE_PUSHER_CLUSTER || "ap1";
 
 const configs: IConfigs = {

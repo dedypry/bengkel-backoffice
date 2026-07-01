@@ -25,11 +25,7 @@ export default function LanguageSwitch() {
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>
-        <Button
-          isIconOnly
-          aria-label={t("common.language")}
-          variant="ghost"
-        >
+        <Button isIconOnly aria-label={t("common.language")} variant="ghost">
           <span className="relative">
             <Languages size={18} />
             <span className="absolute -bottom-3 -right-2 text-[9px] font-bold uppercase text-primary">

@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 import {
   ClipboardList,
   FileText,
@@ -5,7 +7,6 @@ import {
   Sparkles,
   UserPlus,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 

@@ -1,11 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
-import { useSidebar } from "@/context/sidebar-context";
-
 import { SidebarHeader } from "./sidebar-header";
 import { SidebarNav } from "./sidebar-nav";
 import { SIDEBAR_SURFACE_CLASS } from "./sidebar.constants";
+
+import { useSidebar } from "@/context/sidebar-context";
 
 export function MobileDrawer() {
   const { mobileOpen, setMobileOpen, isMobile } = useSidebar();

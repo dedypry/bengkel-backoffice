@@ -94,7 +94,9 @@ export default function VehiclePage() {
             <Button
               className="bg-emerald-50 text-emerald-700 font-bold"
               isLoading={isExcelLoading}
-              startContent={!isExcelLoading ? <Download size={16} /> : undefined}
+              startContent={
+                !isExcelLoading ? <Download size={16} /> : undefined
+              }
               variant="flat"
               onPress={() =>
                 void handleDownloadExcel(
@@ -107,10 +109,13 @@ export default function VehiclePage() {
             >
               Export Excel
             </Button>
-            <Button color="primary" onPress={() => {
-              setOpen(true);
-              setData(undefined);
-            }}>
+            <Button
+              color="primary"
+              onPress={() => {
+                setOpen(true);
+                setData(undefined);
+              }}
+            >
               Tambah Merk dan Type
             </Button>
           </div>

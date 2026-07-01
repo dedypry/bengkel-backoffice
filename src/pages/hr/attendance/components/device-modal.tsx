@@ -38,12 +38,7 @@ interface Props {
   onClose?: () => void;
 }
 
-export default function DeviceModal({
-  open,
-  setOpen,
-  device,
-  onClose,
-}: Props) {
+export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
 

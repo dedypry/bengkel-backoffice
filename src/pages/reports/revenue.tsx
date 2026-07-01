@@ -32,6 +32,7 @@ import {
 } from "@heroui/react";
 
 import InvoiceListPage from "../finance/list";
+
 import RevenueChart from "./components/revenue-chart";
 
 import HeaderAction from "@/components/header-action";
@@ -107,8 +108,7 @@ export default function RevenuePage() {
       {
         label: "Pertumbuhan",
         val: report?.growth || "0%",
-        icon:
-          report?.growthType === "decrement" ? ArrowDownLeft : ArrowUpRight,
+        icon: report?.growthType === "decrement" ? ArrowDownLeft : ArrowUpRight,
         card:
           report?.growthType === "decrement"
             ? "bg-rose-50/90 border-rose-100"
@@ -127,6 +127,7 @@ export default function RevenuePage() {
 
     if (!targetAmount || targetAmount <= 0) {
       notifyError("Target harus lebih dari 0");
+
       return;
     }
 
@@ -272,7 +273,9 @@ export default function RevenuePage() {
                   <h5 className="text-lg font-bold text-slate-700">
                     Target Bulanan
                   </h5>
-                  <p className="text-xs text-slate-500">{monthly?.month_name}</p>
+                  <p className="text-xs text-slate-500">
+                    {monthly?.month_name}
+                  </p>
                 </div>
               </CardHeader>
 
@@ -313,7 +316,9 @@ export default function RevenuePage() {
                     value={monthly?.progress_display || 0}
                   />
                   <div className="mt-2 flex items-center justify-between text-xs font-medium text-slate-500">
-                    <span>{(monthly?.progress_value || 0).toFixed(1)}% tercapai</span>
+                    <span>
+                      {(monthly?.progress_value || 0).toFixed(1)}% tercapai
+                    </span>
                     <span>
                       Sisa {formatIDR(monthly?.remaining_amount || 0)}
                     </span>
@@ -322,8 +327,8 @@ export default function RevenuePage() {
 
                 <div className="rounded-xl bg-sky-50 px-4 py-3 text-sm text-slate-600">
                   <Sparkles className="mb-1 inline size-4 text-sky-500" />{" "}
-                  {monthly?.growth_formatted} dibanding periode yang sama di bulan{" "}
-                  {monthly?.last_month_name}.
+                  {monthly?.growth_formatted} dibanding periode yang sama di
+                  bulan {monthly?.last_month_name}.
                 </div>
 
                 <Button

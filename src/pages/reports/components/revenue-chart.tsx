@@ -1,3 +1,5 @@
+import type { IRevenueTrendPoint } from "@/utils/interfaces/IReport";
+
 import {
   Area,
   AreaChart,
@@ -8,7 +10,6 @@ import {
   YAxis,
 } from "recharts";
 
-import type { IRevenueTrendPoint } from "@/utils/interfaces/IReport";
 import { formatIDR } from "@/utils/helpers/format";
 
 type RevenueChartProps = {
@@ -30,12 +31,12 @@ export default function RevenueChart({ data }: RevenueChartProps) {
             </linearGradient>
           </defs>
           <Tooltip
-            formatter={(value: number) => [formatIDR(value), "Pendapatan"]}
             contentStyle={{
               borderRadius: "12px",
               border: "1px solid #dbeafe",
               boxShadow: "0 10px 25px -12px rgb(0 111 238 / 0.35)",
             }}
+            formatter={(value) => [formatIDR(Number(value ?? 0)), "Pendapatan"]}
           />
           <CartesianGrid
             stroke="#e2e8f0"

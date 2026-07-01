@@ -25,7 +25,9 @@ export function InventoryAlert() {
             <AlertTriangle className="size-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-700">Peringatan Stok</h3>
+            <h3 className="text-sm font-bold text-slate-700">
+              Peringatan Stok
+            </h3>
             <p className="text-[11px] text-slate-500">
               Item kritis perlu restock
             </p>

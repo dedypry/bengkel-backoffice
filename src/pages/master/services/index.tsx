@@ -103,7 +103,9 @@ export default function MasterServicePage() {
             <Button
               className="bg-emerald-50 text-emerald-700 font-bold"
               isLoading={isExcelLoading}
-              startContent={!isExcelLoading ? <Download size={16} /> : undefined}
+              startContent={
+                !isExcelLoading ? <Download size={16} /> : undefined
+              }
               variant="flat"
               onPress={() =>
                 void handleDownloadExcel(

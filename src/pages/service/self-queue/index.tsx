@@ -31,7 +31,10 @@ import HeaderAction from "@/components/header-action";
 import { CustomPagination } from "@/components/custom-pagination";
 import { useCompanyQueueRealtime } from "@/hooks/use-company-queue-realtime";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { getQueueCategories, getQueues } from "@/stores/features/self-queue/queue-action";
+import {
+  getQueueCategories,
+  getQueues,
+} from "@/stores/features/self-queue/queue-action";
 import { setQueueQuery } from "@/stores/features/self-queue/queue-slice";
 import { http } from "@/utils/libs/axios";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
@@ -74,7 +77,10 @@ export default function SelfQueuePanelPage() {
     }
   }, [query, company?.id, dispatch]);
 
-  const refresh = useCallback(() => dispatch(getQueues(query)), [dispatch, query]);
+  const refresh = useCallback(
+    () => dispatch(getQueues(query)),
+    [dispatch, query],
+  );
 
   useCompanyQueueRealtime(company?.id, () => {
     dispatch(getQueues(query));
@@ -88,7 +94,9 @@ export default function SelfQueuePanelPage() {
     http
       .post("/queue/next", { counter_number: counterNumber })
       .then(({ data }) => {
-        notify(`Memanggil antrean ${data.queue_number || data.data?.queue_number}`);
+        notify(
+          `Memanggil antrean ${data.queue_number || data.data?.queue_number}`,
+        );
         refresh();
       })
       .catch((err) => notifyError(err));
@@ -111,7 +119,9 @@ export default function SelfQueuePanelPage() {
   const todayQueues = queues?.data || [];
   const waiting = todayQueues.filter((q) => q.status === "WAITING").length;
   const calling = todayQueues.filter((q) => q.status === "CALLING").length;
-  const processing = todayQueues.filter((q) => q.status === "PROCESSING").length;
+  const processing = todayQueues.filter(
+    (q) => q.status === "PROCESSING",
+  ).length;
 
   return (
     <div className="space-y-6 pb-20">
@@ -142,17 +152,33 @@ export default function SelfQueuePanelPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {[
-          { label: "Menunggu", value: waiting, color: "bg-gray-100 text-gray-700" },
-          { label: "Dipanggil", value: calling, color: "bg-amber-100 text-amber-700" },
-          { label: "Diproses", value: processing, color: "bg-primary/10 text-primary" },
+          {
+            label: "Menunggu",
+            value: waiting,
+            color: "bg-gray-100 text-gray-700",
+          },
+          {
+            label: "Dipanggil",
+            value: calling,
+            color: "bg-amber-100 text-amber-700",
+          },
+          {
+            label: "Diproses",
+            value: processing,
+            color: "bg-primary/10 text-primary",
+          },
         ].map((card) => (
           <Card key={card.label} className="shadow-none border border-gray-100">
             <CardBody className="flex flex-row items-center gap-3 p-4">
-              <div className={`size-10 rounded-sm flex items-center justify-center ${card.color}`}>
+              <div
+                className={`size-10 rounded-sm flex items-center justify-center ${card.color}`}
+              >
                 <Ticket size={20} />
               </div>
               <div>
-                <p className="text-2xl font-black text-gray-700">{card.value}</p>
+                <p className="text-2xl font-black text-gray-700">
+                  {card.value}
+                </p>
                 <p className="text-[10px] uppercase font-bold text-gray-400">
                   {card.label}
                 </p>
@@ -185,17 +211,16 @@ export default function SelfQueuePanelPage() {
             label="Status"
             labelPlacement="outside-left"
             selectedKeys={[query.status || "all"]}
-            onSelectionChange={(keys) =>
-              {
-                const selected = Array.from(keys)[0]?.toString() || "all";
-                dispatch(
-                  setQueueQuery({
-                    status: selected === "all" ? "" : selected,
-                    page: 1,
-                  }),
-                );
-              }
-            }
+            onSelectionChange={(keys) => {
+              const selected = Array.from(keys)[0]?.toString() || "all";
+
+              dispatch(
+                setQueueQuery({
+                  status: selected === "all" ? "" : selected,
+                  page: 1,
+                }),
+              );
+            }}
           >
             {STATUS_OPTIONS.map((option) => (
               <SelectItem key={option.key}>{option.label}</SelectItem>
@@ -224,7 +249,9 @@ export default function SelfQueuePanelPage() {
           {todayQueues.map((item) => (
             <TableRow key={item.id}>
               <TableCell>
-                <span className="text-xl font-black text-primary">{item.queue_number}</span>
+                <span className="text-xl font-black text-primary">
+                  {item.queue_number}
+                </span>
               </TableCell>
               <TableCell>
                 <div className="flex flex-col">
@@ -243,7 +270,11 @@ export default function SelfQueuePanelPage() {
               </TableCell>
               <TableCell>{item.counter_number || "-"}</TableCell>
               <TableCell>
-                <Chip color={STATUS_CONFIG[item.status]?.color || "default"} size="sm" variant="dot">
+                <Chip
+                  color={STATUS_CONFIG[item.status]?.color || "default"}
+                  size="sm"
+                  variant="dot"
+                >
                   {STATUS_CONFIG[item.status]?.label || item.status}
                 </Chip>
               </TableCell>

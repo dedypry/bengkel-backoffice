@@ -230,9 +230,7 @@ export default function PayrollDetailPage() {
               </TableCell>
               <TableCell>
                 <span className="text-xs text-indigo-600 font-bold">
-                  {formatIDR(
-                    Number(item.overtime_amount) + Number(item.bonus),
-                  )}
+                  {formatIDR(Number(item.overtime_amount) + Number(item.bonus))}
                 </span>
               </TableCell>
               <TableCell>

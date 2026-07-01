@@ -64,5 +64,6 @@ const vendorSlice = createSlice({
       }),
 });
 
-export const { setVendorQuery, setPaymentQuery, setTrxDetail } = vendorSlice.actions;
+export const { setVendorQuery, setPaymentQuery, setTrxDetail } =
+  vendorSlice.actions;
 export default vendorSlice.reducer;

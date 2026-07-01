@@ -112,7 +112,9 @@ export default function EditSupervisorInfo() {
                     }
                   >
                     {(item) => (
-                      <AutocompleteItem key={item.id}>{item.name}</AutocompleteItem>
+                      <AutocompleteItem key={item.id}>
+                        {item.name}
+                      </AutocompleteItem>
                     )}
                   </Autocomplete>
                 )}
@@ -132,7 +134,9 @@ export default function EditSupervisorInfo() {
                     }
                   >
                     {(item) => (
-                      <AutocompleteItem key={item.id}>{item.name}</AutocompleteItem>
+                      <AutocompleteItem key={item.id}>
+                        {item.name}
+                      </AutocompleteItem>
                     )}
                   </Autocomplete>
                 )}

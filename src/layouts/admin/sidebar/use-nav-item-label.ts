@@ -1,7 +1,7 @@
+import type { AdminNavItem } from "./types";
+
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-
-import type { AdminNavItem } from "./types";
 
 export function useNavItemLabel() {
   const { t } = useTranslation();

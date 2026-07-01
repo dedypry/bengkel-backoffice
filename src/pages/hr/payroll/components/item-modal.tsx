@@ -99,10 +99,7 @@ export default function ItemModal({
       .finally(() => setLoading(false));
   };
 
-  const moneyField = (
-    name: keyof FormValues,
-    label: string,
-  ) => (
+  const moneyField = (name: keyof FormValues, label: string) => (
     <Controller
       control={control}
       name={name}

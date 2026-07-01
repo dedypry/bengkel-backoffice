@@ -20,12 +20,12 @@ export function ServiceQueue() {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <Table
+        removeWrapper
         aria-label="Tabel Antrean Service"
         classNames={{
           th: "bg-slate-50 text-slate-600 font-bold text-xs uppercase",
           td: "py-4",
         }}
-        removeWrapper
       >
         <TableHeader>
           <TableColumn>KENDARAAN</TableColumn>

@@ -29,10 +29,7 @@ import FrequentCustomersChart from "./components/frequent-customers-chart";
 
 import HeaderAction from "@/components/header-action";
 import { formatIDR, formatNumber } from "@/utils/helpers/format";
-import {
-  handleDownload,
-  handleDownloadExcel,
-} from "@/utils/helpers/global";
+import { handleDownload, handleDownloadExcel } from "@/utils/helpers/global";
 import { http } from "@/utils/libs/axios";
 import { notifyError } from "@/utils/helpers/notify";
 
@@ -169,7 +166,9 @@ export default function ReportFrequentCustomers() {
             <Button
               className="bg-emerald-50 text-emerald-700 font-bold"
               isLoading={exportingExcel}
-              startContent={!exportingExcel ? <FileSpreadsheet size={16} /> : undefined}
+              startContent={
+                !exportingExcel ? <FileSpreadsheet size={16} /> : undefined
+              }
               variant="flat"
               onPress={() =>
                 void handleDownloadExcel(
@@ -218,9 +217,7 @@ export default function ReportFrequentCustomers() {
                 shadow="none"
               >
                 <CardBody className="flex flex-row items-center gap-4 p-5">
-                  <div
-                    className={`p-3 rounded-xl ${item.iconWrap}`}
-                  >
+                  <div className={`p-3 rounded-xl ${item.iconWrap}`}>
                     <item.icon size={22} />
                   </div>
                   <div>

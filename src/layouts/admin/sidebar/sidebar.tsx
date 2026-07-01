@@ -2,9 +2,6 @@ import { motion } from "framer-motion";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { useSidebar } from "@/context/sidebar-context";
-import { cn } from "@/lib/utils";
-
 import {
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_EXPANDED_WIDTH,
@@ -14,6 +11,9 @@ import {
 import { SidebarHeader } from "./sidebar-header";
 import { SidebarLabel } from "./sidebar-label";
 import { SidebarNav } from "./sidebar-nav";
+
+import { cn } from "@/lib/utils";
+import { useSidebar } from "@/context/sidebar-context";
 
 export function Sidebar() {
   const { collapsed, toggleCollapsed } = useSidebar();
@@ -31,10 +31,10 @@ export function Sidebar() {
       initial={false}
       transition={sidebarWidthTransition}
     >
-        <div
-          className="flex h-full w-full flex-col px-3"
-          style={{ width: SIDEBAR_EXPANDED_WIDTH }}
-        >
+      <div
+        className="flex h-full w-full flex-col px-3"
+        style={{ width: SIDEBAR_EXPANDED_WIDTH }}
+      >
         <SidebarHeader />
         <SidebarNav />
 
@@ -57,9 +57,7 @@ export function Sidebar() {
               )}
             </span>
             <SidebarLabel collapsed={collapsed}>
-              <span className="pl-3">
-                {t("common.collapse", "Ciutkan")}
-              </span>
+              <span className="pl-3">{t("common.collapse", "Ciutkan")}</span>
             </SidebarLabel>
           </button>
         </div>

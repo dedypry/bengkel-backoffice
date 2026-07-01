@@ -58,7 +58,10 @@ export default function FrequentCustomersChart({
               border: "1px solid #ede9fe",
               boxShadow: "0 10px 25px -12px rgb(124 58 237 / 0.25)",
             }}
-            formatter={(value: number) => [formatNumber(value), "Jumlah Service"]}
+            formatter={(value) => [
+              formatNumber(Number(value ?? 0)),
+              "Jumlah Service",
+            ]}
             labelFormatter={(_, payload) =>
               payload?.[0]?.payload?.fullName || ""
             }

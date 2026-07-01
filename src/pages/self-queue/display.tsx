@@ -1,8 +1,8 @@
+import type { IQueueDisplay } from "@/utils/interfaces/IQueue";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, CardBody, Chip } from "@heroui/react";
 import { Clock, Sparkles, Users, Volume2 } from "lucide-react";
-
-import type { IQueueDisplay } from "@/utils/interfaces/IQueue";
 
 import { useCompanyQueueRealtime } from "@/hooks/use-company-queue-realtime";
 import dayjs from "@/utils/helpers/dayjs";
@@ -186,7 +186,9 @@ export default function QueueDisplayPage() {
           </p>
           <p className="font-mono text-sm font-bold tabular-nums sm:text-lg lg:text-2xl">
             {dayjs(now).format("HH:mm:ss")}{" "}
-            <span className="text-xs font-bold text-amber-200 sm:text-sm">WIB</span>
+            <span className="text-xs font-bold text-amber-200 sm:text-sm">
+              WIB
+            </span>
           </p>
         </div>
       </header>

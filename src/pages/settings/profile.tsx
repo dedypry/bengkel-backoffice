@@ -30,9 +30,6 @@ import { useEffect, useRef, useState } from "react";
 
 import ProfileOperationsFields from "./components/profile-operations-fields";
 import {
-  parseNextServiceNotes,
-} from "@/utils/helpers/next-service-notes";
-import {
   companySchema,
   type CompanyFormValues,
 } from "./schemas/profile-schema";
@@ -42,6 +39,7 @@ import {
   type OperationsFormValues,
 } from "./schemas/operations-schema";
 
+import { parseNextServiceNotes } from "@/utils/helpers/next-service-notes";
 import HeaderAction from "@/components/header-action";
 import UploadAvatar from "@/components/upload-avatar";
 import Province from "@/components/regions/province";
@@ -61,17 +59,35 @@ import PhoneInput from "@/components/forms/phone-input";
 import NpwpInput from "@/components/forms/npwp-input";
 import InputNumber from "@/components/input-number";
 
-function mapSettingsToForm(settings: Record<string, unknown>): OperationsFormValues {
+function mapSettingsToForm(
+  settings: Record<string, unknown>,
+): OperationsFormValues {
   return {
     ...operationsDefaults,
-    service_reg_prefix: String(settings.service_reg_prefix ?? operationsDefaults.service_reg_prefix),
-    service_pay_prefix: String(settings.service_pay_prefix ?? operationsDefaults.service_pay_prefix),
-    job_order_prefix: String(settings.job_order_prefix ?? operationsDefaults.job_order_prefix),
-    sales_order_prefix: String(settings.sales_order_prefix ?? operationsDefaults.sales_order_prefix),
-    sales_inv_prefix: String(settings.sales_inv_prefix ?? operationsDefaults.sales_inv_prefix),
-    sales_ret_prefix: String(settings.sales_ret_prefix ?? operationsDefaults.sales_ret_prefix),
-    ar_pay_prefix: String(settings.ar_pay_prefix ?? operationsDefaults.ar_pay_prefix),
-    default_km_increment: Number(settings.default_km_increment ?? operationsDefaults.default_km_increment),
+    service_reg_prefix: String(
+      settings.service_reg_prefix ?? operationsDefaults.service_reg_prefix,
+    ),
+    service_pay_prefix: String(
+      settings.service_pay_prefix ?? operationsDefaults.service_pay_prefix,
+    ),
+    job_order_prefix: String(
+      settings.job_order_prefix ?? operationsDefaults.job_order_prefix,
+    ),
+    sales_order_prefix: String(
+      settings.sales_order_prefix ?? operationsDefaults.sales_order_prefix,
+    ),
+    sales_inv_prefix: String(
+      settings.sales_inv_prefix ?? operationsDefaults.sales_inv_prefix,
+    ),
+    sales_ret_prefix: String(
+      settings.sales_ret_prefix ?? operationsDefaults.sales_ret_prefix,
+    ),
+    ar_pay_prefix: String(
+      settings.ar_pay_prefix ?? operationsDefaults.ar_pay_prefix,
+    ),
+    default_km_increment: Number(
+      settings.default_km_increment ?? operationsDefaults.default_km_increment,
+    ),
     default_cash_account_id: settings.default_cash_account_id
       ? Number(settings.default_cash_account_id)
       : null,
@@ -79,7 +95,9 @@ function mapSettingsToForm(settings: Record<string, unknown>): OperationsFormVal
       ? Number(settings.default_warehouse_id)
       : null,
     pit_count: Number(settings.pit_count ?? operationsDefaults.pit_count),
-    default_pic_id: settings.default_pic_id ? Number(settings.default_pic_id) : null,
+    default_pic_id: settings.default_pic_id
+      ? Number(settings.default_pic_id)
+      : null,
     default_advisor_id: settings.default_advisor_id
       ? Number(settings.default_advisor_id)
       : null,
@@ -187,7 +205,9 @@ export default function ProfileSettingsPage() {
 
   useEffect(() => {
     if (settings) {
-      operationsForm.reset(mapSettingsToForm(settings as Record<string, unknown>));
+      operationsForm.reset(
+        mapSettingsToForm(settings as unknown as Record<string, unknown>),
+      );
     }
   }, [settings, operationsForm]);
 
@@ -199,6 +219,7 @@ export default function ProfileSettingsPage() {
 
     if (!companyValid || !operationsValid) {
       notifyError("Lengkapi data yang wajib diisi sebelum menyimpan.");
+
       return;
     }
 
@@ -249,7 +270,10 @@ export default function ProfileSettingsPage() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="border border-sky-100 bg-sky-50/60 shadow-sm" shadow="none">
+        <Card
+          className="border border-sky-100 bg-sky-50/60 shadow-sm"
+          shadow="none"
+        >
           <CardBody className="flex flex-row items-center gap-3 p-4">
             <Building2 className="text-sky-600" size={20} />
             <div>
@@ -262,7 +286,10 @@ export default function ProfileSettingsPage() {
             </div>
           </CardBody>
         </Card>
-        <Card className="border border-emerald-100 bg-emerald-50/60 shadow-sm" shadow="none">
+        <Card
+          className="border border-emerald-100 bg-emerald-50/60 shadow-sm"
+          shadow="none"
+        >
           <CardBody className="flex flex-row items-center gap-3 p-4">
             <Percent className="text-emerald-600" size={20} />
             <div>
@@ -275,7 +302,10 @@ export default function ProfileSettingsPage() {
             </div>
           </CardBody>
         </Card>
-        <Card className="border border-violet-100 bg-violet-50/60 shadow-sm" shadow="none">
+        <Card
+          className="border border-violet-100 bg-violet-50/60 shadow-sm"
+          shadow="none"
+        >
           <CardBody className="flex flex-row items-center gap-3 p-4">
             <Wrench className="text-violet-600" size={20} />
             <div>
@@ -294,13 +324,13 @@ export default function ProfileSettingsPage() {
         <CardBody className="p-4 md:p-6">
           <Tabs
             aria-label="Pengaturan bengkel"
-            selectedKey={activeTab}
-            variant="underlined"
             classNames={{
               tabList: "gap-6 w-full border-b border-gray-100",
               tab: "h-11 font-bold uppercase text-xs",
               panel: "pt-6",
             }}
+            selectedKey={activeTab}
+            variant="underlined"
             onSelectionChange={(key) => setActiveTab(String(key))}
           >
             <Tab
@@ -554,7 +584,11 @@ export default function ProfileSettingsPage() {
                           isDisabled={!watch("is_discount_birth_day")}
                           label="Nilai Promo"
                           placeholder="0"
-                          value={field.value as number}
+                          value={
+                            field.value != null
+                              ? String(field.value)
+                              : undefined
+                          }
                           onInput={field.onChange}
                         />
                       )}
@@ -570,6 +604,7 @@ export default function ProfileSettingsPage() {
                           selectedKeys={field.value ? [field.value] : []}
                           onSelectionChange={(keys) => {
                             const value = Array.from(keys)[0] as string;
+
                             field.onChange(value);
                           }}
                         >
@@ -592,7 +627,11 @@ export default function ProfileSettingsPage() {
                           startContent={
                             <span className="text-gray-400 text-xs">Rp</span>
                           }
-                          value={field.value as number}
+                          value={
+                            field.value != null
+                              ? String(field.value)
+                              : undefined
+                          }
                           onInput={field.onChange}
                         />
                       )}

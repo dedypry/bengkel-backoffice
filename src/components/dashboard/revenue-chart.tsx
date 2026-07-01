@@ -67,7 +67,13 @@ export function RevenueChart() {
           <ResponsiveContainer height="100%" width="100%">
             <AreaChart data={dashboard?.trends}>
               <defs>
-                <linearGradient id="dashboardRevenueFill" x1="0" x2="0" y1="0" y2="1">
+                <linearGradient
+                  id="dashboardRevenueFill"
+                  x1="0"
+                  x2="0"
+                  y1="0"
+                  y2="1"
+                >
                   <stop offset="5%" stopColor="#006FEE" stopOpacity={0.35} />
                   <stop offset="95%" stopColor="#006FEE" stopOpacity={0} />
                 </linearGradient>
@@ -106,8 +112,8 @@ export function RevenueChart() {
                   strokeWidth: 2,
                   strokeDasharray: "5 5",
                 }}
-                formatter={(value: number) => [
-                  formatIDR(value || 0),
+                formatter={(value) => [
+                  formatIDR(Number(value ?? 0)),
                   "Pendapatan",
                 ]}
               />

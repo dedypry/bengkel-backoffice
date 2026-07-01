@@ -70,7 +70,8 @@ export default function PayrollPage() {
   const [tab, setTab] = useState("runs");
   const [openGenerate, setOpenGenerate] = useState(false);
   const [openSalary, setOpenSalary] = useState(false);
-  const [selectedSalary, setSelectedSalary] = useState<IEmployeeSalary | null>();
+  const [selectedSalary, setSelectedSalary] =
+    useState<IEmployeeSalary | null>();
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -250,7 +251,11 @@ export default function PayrollPage() {
                 {(payrolls?.data || []).map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50/50">
                     <TableCell>
-                      <Chip className="font-black rounded-sm" size="sm" variant="flat">
+                      <Chip
+                        className="font-black rounded-sm"
+                        size="sm"
+                        variant="flat"
+                      >
                         {item.code}
                       </Chip>
                     </TableCell>
@@ -263,12 +268,16 @@ export default function PayrollPage() {
                     <TableCell>
                       <Chip
                         color={
-                          item.period_type === "monthly" ? "primary" : "secondary"
+                          item.period_type === "monthly"
+                            ? "primary"
+                            : "secondary"
                         }
                         size="sm"
                         variant="flat"
                       >
-                        {item.period_type === "monthly" ? "Bulanan" : "Mingguan"}
+                        {item.period_type === "monthly"
+                          ? "Bulanan"
+                          : "Mingguan"}
                       </Chip>
                     </TableCell>
                     <TableCell>
@@ -297,7 +306,10 @@ export default function PayrollPage() {
                             <MoreVertical className="text-gray-400" size={20} />
                           </Button>
                         </DropdownTrigger>
-                        <DropdownMenu aria-label="Aksi Penggajian" variant="flat">
+                        <DropdownMenu
+                          aria-label="Aksi Penggajian"
+                          variant="flat"
+                        >
                           <DropdownItem
                             key="detail"
                             startContent={<Eye size={16} />}

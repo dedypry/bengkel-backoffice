@@ -5,11 +5,11 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 
-import { cn } from "@/lib/utils";
-
 import { flyoutTransition } from "./sidebar.constants";
 import { sidebarItemRowClass } from "./sidebar-item-styles";
 import { useNavItemLabel } from "./use-nav-item-label";
+
+import { cn } from "@/lib/utils";
 
 const FLYOUT_GAP = 4;
 
@@ -42,9 +42,7 @@ export function CollapsedMenuFlyout({
 
   const isChildActive = item.children?.some(
     (child) =>
-      child.href &&
-      !child.external &&
-      location.pathname.startsWith(child.href),
+      child.href && !child.external && location.pathname.startsWith(child.href),
   );
 
   const clearCloseTimer = () => {
