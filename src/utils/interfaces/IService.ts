@@ -46,4 +46,16 @@ export interface IServiceSettings {
   pit_count: number;
 
   default_cash_account_id: number | null;
+
+  email_enabled?: boolean | string;
+  smtp_host?: string;
+  smtp_port?: number | string;
+  smtp_secure?: boolean | string;
+  smtp_user?: string;
+  smtp_password?: string;
+  smtp_from_name?: string;
+  smtp_from_email?: string;
+  email_notify_wo_ready?: boolean | string;
+  email_notify_payment_complete?: boolean | string;
+  email_notify_invoice?: boolean | string;
 }

@@ -248,6 +248,13 @@ export const navigation = [
         permissions: ["profile.manage"],
       },
       {
+        title: "Notifikasi",
+        i18nKey: "nav.settings.notifications",
+        href: "notifications",
+        icon: "Bell",
+        permissions: ["profile.manage"],
+      },
+      {
         title: "Management Role",
         i18nKey: "nav.settings.roles",
         href: "roles",

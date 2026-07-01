@@ -24,6 +24,7 @@ import ReportMechanic from "./pages/reports/mechanics";
 import ReportTopPart from "./pages/reports/top-parts";
 import ReportFrequentCustomers from "./pages/reports/frequent-customers";
 import ProfileSettingsPage from "./pages/settings/profile";
+import NotificationSettingsPage from "./pages/settings/notifications";
 import RolesPage from "./pages/settings/roles";
 import EmployeesPage from "./pages/hr/employees";
 import CreateEmployeePage from "./pages/hr/employees/create";
@@ -129,6 +130,7 @@ function App() {
 
         <Route path="/settings">
           <Route element={<ProfileSettingsPage />} path="profile" />
+          <Route element={<NotificationSettingsPage />} path="notifications" />
           <Route element={<RolesPage />} path="roles" />
         </Route>
         <Route path="/hr">
