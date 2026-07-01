@@ -1,4 +1,4 @@
-import type { Control } from "react-hook-form";
+import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
@@ -16,15 +16,17 @@ import {
   parseNextServiceNotes,
 } from "@/utils/helpers/next-service-notes";
 
-type NextServiceNotesFieldProps = {
-  control: Control<any>;
-  name?: string;
+type NextServiceNotesFieldProps<TFieldValues extends FieldValues> = {
+  control: Control<TFieldValues>;
+  name?: FieldPath<TFieldValues>;
 };
 
-export default function NextServiceNotesField({
+export default function NextServiceNotesField<
+  TFieldValues extends FieldValues,
+>({
   control,
-  name = "next_service_notes",
-}: NextServiceNotesFieldProps) {
+  name = "next_service_notes" as FieldPath<TFieldValues>,
+}: NextServiceNotesFieldProps<TFieldValues>) {
   const [draft, setDraft] = useState("");
   const [inputMode, setInputMode] = useState<"preset" | "custom">("preset");
 
