@@ -78,6 +78,7 @@
         "settings": {
             "header": "Settings",
             "profile": "Workshop Profile",
+            "notifications": "Notifications",
             "roles": "Role Management"
         },
         "hr": {

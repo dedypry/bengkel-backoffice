@@ -21,6 +21,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import {
+  isEmailConfigSaved,
   mapNotificationSettings,
   notificationDefaults,
   notificationSchema,
@@ -85,6 +86,9 @@ export default function NotificationSettingsPage() {
   });
 
   const emailEnabled = watch("email_enabled");
+  const isConfigSaved = isEmailConfigSaved(
+    settings as unknown as Record<string, unknown>,
+  );
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -296,30 +300,33 @@ export default function NotificationSettingsPage() {
             )}
           />
 
-          <Divider />
+          {isConfigSaved ? (
+            <>
+              <Divider />
 
-          <div className="flex flex-col gap-3 md:flex-row md:items-end">
-            <Input
-              className="md:flex-1"
-              isDisabled={!emailEnabled}
-              label="Email Tujuan Tes"
-              placeholder="customer@email.com"
-              type="email"
-              value={testEmail}
-              variant="bordered"
-              onValueChange={setTestEmail}
-            />
-            <Button
-              color="secondary"
-              isDisabled={!emailEnabled}
-              isLoading={testing}
-              startContent={!testing ? <Send size={16} /> : undefined}
-              variant="flat"
-              onPress={handleTestEmail}
-            >
-              Kirim Email Tes
-            </Button>
-          </div>
+              <div className="flex flex-col gap-3 md:flex-row md:items-end">
+                <Input
+                  className="md:flex-1"
+                  isDisabled={!emailEnabled}
+                  label="Email Tujuan Tes"
+                  placeholder="customer@email.com"
+                  type="email"
+                  value={testEmail}
+                  variant="bordered"
+                  onValueChange={setTestEmail}
+                />
+                <Button
+                  color="primary"
+                  isDisabled={!emailEnabled}
+                  isLoading={testing}
+                  startContent={!testing ? <Send size={16} /> : undefined}
+                  onPress={handleTestEmail}
+                >
+                  Kirim Email Tes
+                </Button>
+              </div>
+            </>
+          ) : null}
         </SectionCard>
 
         <SectionCard

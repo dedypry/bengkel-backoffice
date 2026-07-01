@@ -34,6 +34,20 @@ export const notificationSchema = z.object({
 
 export type NotificationFormValues = z.infer<typeof notificationSchema>;
 
+export function isEmailConfigSaved(
+  settings?: Record<string, unknown> | null,
+) {
+  if (!settings) {
+    return false;
+  }
+
+  const host = String(settings.smtp_host ?? "").trim();
+  const user = String(settings.smtp_user ?? "").trim();
+  const password = String(settings.smtp_password ?? "").trim();
+
+  return Boolean(host && user && password);
+}
+
 export function mapNotificationSettings(
   settings: Record<string, unknown>,
 ): NotificationFormValues {
