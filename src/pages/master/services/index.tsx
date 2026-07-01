@@ -10,6 +10,7 @@ import {
   PackageOpen,
   Search,
   X,
+  Download,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -36,12 +37,14 @@ import debounce from "@/utils/helpers/debounce";
 import HeaderAction from "@/components/header-action";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
+import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function MasterServicePage() {
   const { services, query } = useAppSelector((state) => state.service);
   const { company } = useAppSelector((state) => state.auth);
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [isExcelLoading, setIsExcelLoading] = useState(false);
   const [detail, setDetail] = useState<IService>();
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
@@ -95,12 +98,36 @@ export default function MasterServicePage() {
 
       {/* Header Eksklusif */}
       <HeaderAction
-        actionIcon={Plus}
-        actionTitle="Tambah Jasa"
+        actionContent={
+          <div className="flex gap-2">
+            <Button
+              className="bg-emerald-50 text-emerald-700 font-bold"
+              isLoading={isExcelLoading}
+              startContent={!isExcelLoading ? <Download size={16} /> : undefined}
+              variant="flat"
+              onPress={() =>
+                void handleDownloadExcel(
+                  "/services/export/excel",
+                  query,
+                  "master-jasa-servis",
+                  setIsExcelLoading,
+                )
+              }
+            >
+              Export Excel
+            </Button>
+            <Button
+              color="primary"
+              startContent={<Plus size={16} />}
+              onPress={() => setOpenModal(true)}
+            >
+              Tambah Jasa
+            </Button>
+          </div>
+        }
         leadIcon={Zap}
         subtitle="Standarisasi biaya & estimasi waktu kerja tim."
         title="Katalog Jasa"
-        onAction={() => setOpenModal(true)}
       />
 
       {/* Grid Kartu Jasa */}

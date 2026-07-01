@@ -1,72 +1,80 @@
-import { PlusCircle, FileText, UserPlus, ClipboardList } from "lucide-react";
-import { cloneElement } from "react";
+import {
+  ClipboardList,
+  FileText,
+  PlusCircle,
+  Sparkles,
+  UserPlus,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 
-export function QuickActions() {
-  const actions = [
-    {
-      label: "Work Order Baru",
-      icon: <PlusCircle />,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-      to: "/service/add",
-    },
-    {
-      label: "Tambah Pelanggan",
-      icon: <UserPlus />,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
-      to: "/master/customers/create",
-    },
-    {
-      label: "Kasir",
-      icon: <FileText />,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
-      to: "/cashier",
-    },
-    {
-      label: "Laporan Harian",
-      icon: <ClipboardList />,
-      color: "text-default-600",
-      bg: "bg-default-100",
-      to: "/reports/revenue",
-    },
-  ];
+type QuickAction = {
+  label: string;
+  icon: LucideIcon;
+  card: string;
+  iconWrap: string;
+  to: string;
+};
 
+const actions: QuickAction[] = [
+  {
+    label: "Work Order Baru",
+    icon: PlusCircle,
+    card: "bg-sky-50/80 border-sky-100 hover:bg-sky-50",
+    iconWrap: "bg-sky-100 text-sky-600",
+    to: "/service/add",
+  },
+  {
+    label: "Tambah Pelanggan",
+    icon: UserPlus,
+    card: "bg-violet-50/80 border-violet-100 hover:bg-violet-50",
+    iconWrap: "bg-violet-100 text-violet-600",
+    to: "/master/customers/create",
+  },
+  {
+    label: "Kasir",
+    icon: FileText,
+    card: "bg-emerald-50/80 border-emerald-100 hover:bg-emerald-50",
+    iconWrap: "bg-emerald-100 text-emerald-600",
+    to: "/cashier",
+  },
+  {
+    label: "Laporan Harian",
+    icon: ClipboardList,
+    card: "bg-amber-50/80 border-amber-100 hover:bg-amber-50",
+    iconWrap: "bg-amber-100 text-amber-600",
+    to: "/reports/revenue",
+  },
+];
+
+export function QuickActions() {
   const navigate = useNavigate();
 
   return (
-    <Card className="border-none bg-content1" shadow="sm">
-      <CardHeader className="pb-0 pt-5 px-5 flex-col items-start">
-        <h3 className="font-bold text-default-800">Aksi Cepat</h3>
+    <Card className="border border-slate-200 bg-white shadow-sm">
+      <CardHeader className="flex items-center gap-2 px-5 pb-0 pt-5">
+        <Sparkles className="size-4 text-primary-500" />
+        <h3 className="font-bold text-slate-700">Aksi Cepat</h3>
       </CardHeader>
-      <CardBody className="p-5">
-        <div className="grid grid-cols-2 gap-3">
-          {actions.map((action, i) => (
-            <Card
-              key={i}
-              isPressable
-              className="border border-default-100 hover:border-primary-200 bg-transparent shadow-none"
-              onPress={() => navigate(action.to)}
+      <CardBody className="grid grid-cols-2 gap-3 p-5">
+        {actions.map((action) => (
+          <button
+            key={action.label}
+            className={`group rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm ${action.card}`}
+            type="button"
+            onClick={() => navigate(action.to)}
+          >
+            <div
+              className={`mb-3 flex size-10 items-center justify-center rounded-xl transition-transform group-hover:scale-105 ${action.iconWrap}`}
             >
-              <CardBody className="flex flex-col items-center justify-center p-4 group">
-                <div
-                  className={`${action.bg} ${action.color} p-3 rounded-xl mb-3 group-hover:scale-110 transition-transform`}
-                >
-                  {cloneElement(
-                    action.icon as React.ReactElement,
-                    { size: 22 } as any,
-                  )}
-                </div>
-                <span className="text-[10px] font-bold text-default-600 text-center uppercase tracking-wider">
-                  {action.label}
-                </span>
-              </CardBody>
-            </Card>
-          ))}
-        </div>
+              <action.icon size={20} />
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+              {action.label}
+            </span>
+          </button>
+        ))}
       </CardBody>
     </Card>
   );

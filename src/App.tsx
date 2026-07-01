@@ -22,6 +22,7 @@ import FinanceExpensePage from "./pages/finance/expenses";
 import RevenuePage from "./pages/reports/revenue";
 import ReportMechanic from "./pages/reports/mechanics";
 import ReportTopPart from "./pages/reports/top-parts";
+import ReportFrequentCustomers from "./pages/reports/frequent-customers";
 import ProfileSettingsPage from "./pages/settings/profile";
 import RolesPage from "./pages/settings/roles";
 import EmployeesPage from "./pages/hr/employees";
@@ -120,6 +121,10 @@ function App() {
           <Route element={<RevenuePage />} path="revenue" />
           <Route element={<ReportMechanic />} path="mechanics" />
           <Route element={<ReportTopPart />} path="top-parts" />
+          <Route
+            element={<ReportFrequentCustomers />}
+            path="frequent-customers"
+          />
         </Route>
 
         <Route path="/settings">

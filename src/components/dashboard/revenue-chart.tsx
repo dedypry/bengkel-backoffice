@@ -1,13 +1,13 @@
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { LineChart, TrendingDown, TrendingUp } from "lucide-react";
 import { Card, CardBody, Chip } from "@heroui/react";
 
 import { useAppSelector } from "@/stores/hooks";
@@ -19,28 +19,30 @@ export function RevenueChart() {
   const isIncrease = dashboard?.revenueComparison.status === "increase";
 
   return (
-    <Card className="border-none bg-content1 p-2" shadow="sm">
-      <CardBody>
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h3 className="font-bold text-default-800 text-lg">
-              Tren Pendapatan
-            </h3>
-            <p className="text-tiny text-default-400 font-medium">
-              7 Hari Terakhir
-            </p>
+    <Card className="overflow-hidden border border-slate-200 bg-white shadow-sm">
+      <CardBody className="p-6">
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+              <LineChart size={20} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">
+                Tren Pendapatan
+              </h3>
+              <p className="text-xs text-slate-500">7 hari terakhir</p>
+            </div>
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <p className="text-2xl font-bold text-primary">
+          <div className="text-right">
+            <p className="text-2xl font-black text-primary">
               {formatIDR(
                 Number(dashboard?.revenueComparison.lastTotal || 0),
                 "short",
               )}
             </p>
-
-            <div className="flex items-center gap-2">
+            <div className="mt-1 flex items-center justify-end gap-2">
               <Chip
-                className="font-bold border-none"
+                className="font-bold"
                 color={isIncrease ? "success" : "danger"}
                 size="sm"
                 startContent={
@@ -54,25 +56,24 @@ export function RevenueChart() {
               >
                 {Math.abs(dashboard?.revenueComparison.percentageChange || 0)}%
               </Chip>
-              <span className="text-[10px] text-default-400 font-medium">
+              <span className="text-[10px] font-medium text-slate-400">
                 vs minggu lalu
               </span>
             </div>
           </div>
         </div>
 
-        <div className="h-72 w-full">
+        <div className="h-72 w-full rounded-2xl border border-slate-100 bg-slate-50/50 p-2">
           <ResponsiveContainer height="100%" width="100%">
             <AreaChart data={dashboard?.trends}>
               <defs>
-                <linearGradient id="colorTotal" x1="0" x2="0" y1="0" y2="1">
-                  {/* Menggunakan warna biru primary jika ingin match dengan brand HeroUI default */}
-                  <stop offset="5%" stopColor="#006FEE" stopOpacity={0.2} />
+                <linearGradient id="dashboardRevenueFill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="5%" stopColor="#006FEE" stopOpacity={0.35} />
                   <stop offset="95%" stopColor="#006FEE" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid
-                stroke="#e4e4e7" // default-200
+                stroke="#e2e8f0"
                 strokeDasharray="3 3"
                 vertical={false}
               />
@@ -80,33 +81,40 @@ export function RevenueChart() {
                 axisLine={false}
                 dataKey="day"
                 dy={10}
-                tick={{ fontSize: 11, fill: "#a1a1aa", fontWeight: 500 }}
+                tick={{ fontSize: 11, fill: "#64748b", fontWeight: 500 }}
                 tickLine={false}
               />
-              <YAxis hide={true} />
+              <YAxis
+                axisLine={false}
+                tick={{ fill: "#94a3b8", fontSize: 10 }}
+                tickFormatter={(value) =>
+                  value >= 1_000_000
+                    ? `${Math.round(value / 1_000_000)}jt`
+                    : `${Math.round(value / 1000)}rb`
+                }
+                tickLine={false}
+                width={42}
+              />
               <Tooltip
                 contentStyle={{
                   borderRadius: "12px",
-                  border: "none",
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  backdropFilter: "blur(4px)",
-                  boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                  border: "1px solid #dbeafe",
+                  boxShadow: "0 10px 25px -12px rgb(0 111 238 / 0.35)",
                 }}
                 cursor={{
                   stroke: "#006FEE",
                   strokeWidth: 2,
                   strokeDasharray: "5 5",
                 }}
-                formatter={(value: any) => [
+                formatter={(value: number) => [
                   formatIDR(value || 0),
                   "Pendapatan",
                 ]}
-                itemStyle={{ color: "#006FEE", fontWeight: "bold" }}
               />
               <Area
-                animationDuration={1500}
+                animationDuration={1200}
                 dataKey="total"
-                fill="url(#colorTotal)"
+                fill="url(#dashboardRevenueFill)"
                 fillOpacity={1}
                 stroke="#006FEE"
                 strokeWidth={3}

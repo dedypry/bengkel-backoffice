@@ -72,7 +72,8 @@
             "header": "Laporan",
             "revenue": "Laporan Pendapatan",
             "mechanics": "Performa Mekanik",
-            "top_parts": "Barang Terlaris"
+            "top_parts": "Barang Terlaris",
+            "frequent_customers": "Pelanggan Sering Service"
         },
         "settings": {
             "header": "Pengaturan",

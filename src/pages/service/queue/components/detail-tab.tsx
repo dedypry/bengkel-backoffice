@@ -17,6 +17,8 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 import {
   Receipt,
@@ -29,7 +31,7 @@ import {
   Wrench,
   Printer,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import ModalAddService from "../../add/components/modal-add-service";
@@ -59,6 +61,11 @@ import { ISupplier } from "@/utils/interfaces/ISupplier";
 import SelectSupplierPopover from "@/components/select-supplier-popover";
 import { usePermission } from "@/components/use-permission";
 import { setMechanic } from "@/stores/features/mechanic/mechanic-slice";
+import {
+  DEFAULT_NEXT_SERVICE_NOTES,
+  noteTextToHtml,
+  parseNextServiceNotes,
+} from "@/utils/helpers/next-service-notes";
 
 interface Props {
   id: any;
@@ -71,6 +78,8 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [nextSugestion, setNextSugestion] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const { settings } = useAppSelector((state) => state.setting);
   const { hasPermission } = usePermission();
   const canUpdate = hasPermission("wo.update");
   const canDelete = hasPermission("wo.delete");
@@ -123,6 +132,30 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
       .patch(`/work-order/${id}/sugestion`, { next_sugestion: nextSugestion })
       .then(({ data }) => notify(data.message))
       .catch((err) => notifyError(err));
+  };
+
+  const recommendationTemplates = useMemo(() => {
+    const saved = parseNextServiceNotes(settings?.next_service_notes);
+    const merged = [...new Set([...saved, ...DEFAULT_NEXT_SERVICE_NOTES])];
+
+    return merged.map((note, index) => ({
+      key: `note-${index}`,
+      label: note,
+    }));
+  }, [settings?.next_service_notes]);
+
+  const applyRecommendationTemplate = (note: string, mode: "replace" | "append" = "replace") => {
+    const trimmed = note.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    const html = noteTextToHtml(trimmed);
+    setNextSugestion((prev) =>
+      mode === "append" && prev ? `${prev}${html}` : html,
+    );
+    setSelectedTemplate(trimmed);
   };
 
   const editPart = debounce((price: number, qty: number, item: ISparepart) => {
@@ -691,6 +724,57 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               Tampil di Invoice Customer
             </Chip>
           </div>
+
+          {!["cancel"].includes(data.status) && canUpdate && (
+            <div className="space-y-2">
+              <Autocomplete
+                allowsCustomValue
+                className="max-w-2xl"
+                inputValue={selectedTemplate}
+                label="Template Rekomendasi"
+                placeholder="Pilih template — editor terisi otomatis"
+                variant="bordered"
+                onInputChange={setSelectedTemplate}
+                onSelectionChange={(key) => {
+                  if (!key || key === "all") {
+                    return;
+                  }
+
+                  const selected = recommendationTemplates.find(
+                    (item) => item.key === String(key),
+                  );
+
+                  if (selected) {
+                    applyRecommendationTemplate(selected.label, "replace");
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && selectedTemplate.trim()) {
+                    event.preventDefault();
+                    applyRecommendationTemplate(selectedTemplate, "replace");
+                  }
+                }}
+              >
+                {recommendationTemplates.map((item) => (
+                  <AutocompleteItem key={item.key} textValue={item.label}>
+                    {item.label}
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="light"
+                  onPress={() => {
+                    setSelectedTemplate("");
+                    setNextSugestion("");
+                  }}
+                >
+                  Kosongkan
+                </Button>
+              </div>
+            </div>
+          )}
 
           <div className="border border-gray-100 rounded-sm overflow-hidden">
             <BlogEditor

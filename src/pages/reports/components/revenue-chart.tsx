@@ -1,48 +1,44 @@
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 
-// Contoh data trend penjualan
-const data = [
-  { name: "Sen", total: 4000 },
-  { name: "Sel", total: 3000 },
-  { name: "Rab", total: 5000 },
-  { name: "Kam", total: 2780 },
-  { name: "Jum", total: 1890 },
-  { name: "Sab", total: 2390 },
-  { name: "Min", total: 3490 },
-];
+import type { IRevenueTrendPoint } from "@/utils/interfaces/IReport";
+import { formatIDR } from "@/utils/helpers/format";
 
-export default function RevenueChart() {
+type RevenueChartProps = {
+  data: IRevenueTrendPoint[];
+};
+
+export default function RevenueChart({ data }: RevenueChartProps) {
   return (
-    <div className="w-full h-52 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+    <div className="h-56 w-full rounded-2xl border border-primary-100 bg-gradient-to-br from-white to-primary-50/40 p-4 shadow-sm">
       <ResponsiveContainer height="100%" width="100%">
         <AreaChart
           data={data}
-          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
         >
           <defs>
-            {/* Gradien warna untuk area chart agar terlihat modern */}
-            <linearGradient id="colorTotal" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
+            <linearGradient id="revenueTrendFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="5%" stopColor="#006fee" stopOpacity={0.35} />
+              <stop offset="95%" stopColor="#006fee" stopOpacity={0} />
             </linearGradient>
           </defs>
           <Tooltip
+            formatter={(value: number) => [formatIDR(value), "Pendapatan"]}
             contentStyle={{
-              borderRadius: "1rem",
-              border: "none",
-              boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+              borderRadius: "12px",
+              border: "1px solid #dbeafe",
+              boxShadow: "0 10px 25px -12px rgb(0 111 238 / 0.35)",
             }}
           />
           <CartesianGrid
-            stroke="#f1f5f9"
+            stroke="#e2e8f0"
             strokeDasharray="3 3"
             vertical={false}
           />
@@ -50,19 +46,25 @@ export default function RevenueChart() {
             axisLine={false}
             dataKey="name"
             dy={10}
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            minTickGap={24}
+            tick={{ fill: "#64748b", fontSize: 11 }}
             tickLine={false}
           />
           <YAxis
             axisLine={false}
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            tick={{ fill: "#64748b", fontSize: 11 }}
+            tickFormatter={(value) =>
+              value >= 1_000_000
+                ? `${Math.round(value / 1_000_000)}jt`
+                : `${Math.round(value / 1000)}rb`
+            }
             tickLine={false}
           />
           <Area
             dataKey="total"
-            fill="url(#colorTotal)"
+            fill="url(#revenueTrendFill)"
             fillOpacity={1}
-            stroke="#0ea5e9"
+            stroke="#006fee"
             strokeWidth={3}
             type="monotone"
           />

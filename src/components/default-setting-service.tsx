@@ -19,14 +19,16 @@ import * as z from "zod";
 import { useEffect, useRef, useState } from "react";
 
 import InputNumber from "./input-number";
+import NextServiceNotesField from "./next-service-notes-field";
 
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
+import { parseNextServiceNotes } from "@/utils/helpers/next-service-notes";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getEmploye } from "@/stores/features/employe/employe-action";
 import { setWoSetting } from "@/stores/features/work-order/wo-slice";
 import { getRole } from "@/stores/features/role/role-action";
-import { setSettings } from "@/stores/features/setting/setting-slice";
+import { getSettings } from "@/stores/features/setting/setting-slice";
 
 // Schema Validasi menggunakan Zod
 const settingsSchema = z.object({
@@ -44,6 +46,7 @@ const settingsSchema = z.object({
   pit_count: z.coerce.number().optional().nullable(),
   default_pic_id: z.coerce.number().optional().nullable(),
   default_advisor_id: z.coerce.number().optional().nullable(),
+  next_service_notes: z.array(z.string()).optional(),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -75,11 +78,17 @@ export default function DefaultSettingService() {
 
   useEffect(() => {
     if (settings) {
-      reset(settings as any);
-      setValue("mechanic_roles", settings?.mechanic_roles?.split(","));
+      reset({
+        ...(settings as any),
+        next_service_notes: parseNextServiceNotes(settings.next_service_notes),
+      });
+      setValue(
+        "mechanic_roles",
+        settings?.mechanic_roles?.split(",").filter(Boolean),
+      );
       dispatch(setWoSetting(settings));
     }
-  }, [settings]);
+  }, [dispatch, reset, setValue, settings]);
 
   // function getData() {
   //   http
@@ -95,10 +104,14 @@ export default function DefaultSettingService() {
   const onSubmit: SubmitHandler<SettingsForm> = (data: SettingsForm) => {
     setLoading(true);
     http
-      .post("/settings", data)
-      .then(({ data }) => {
-        dispatch(setSettings(data));
-        notify(data.message);
+      .post("/settings", {
+        ...data,
+        mechanic_roles: data.mechanic_roles || [],
+        next_service_notes: data.next_service_notes || [],
+      })
+      .then(() => {
+        dispatch(getSettings());
+        notify("Pengaturan berhasil disimpan");
         onClose();
       })
       .catch(notifyError)
@@ -109,7 +122,7 @@ export default function DefaultSettingService() {
     <>
       <Modal
         isOpen={isOpen}
-        scrollBehavior="inside"
+        scrollBehavior="outside"
         size="4xl"
         onOpenChange={onOpenChange}
       >
@@ -283,6 +296,8 @@ export default function DefaultSettingService() {
                     </section>
                   </div>
                 </div>
+
+                <NextServiceNotesField control={control} />
               </ModalBody>
 
               <ModalFooter>

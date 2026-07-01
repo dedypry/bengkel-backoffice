@@ -1,4 +1,4 @@
-import { Building2, Edit, Search, Trash2 } from "lucide-react";
+import { Building2, Edit, Search, Trash2, Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   Button,
@@ -21,6 +21,7 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { setWarehouseQuery } from "@/stores/features/warehouse/warehouse-slice";
 import PageSize from "@/components/page-size";
 import debounce from "@/utils/helpers/debounce";
+import { handleDownloadExcel } from "@/utils/helpers/global";
 import { IWarehouse } from "@/utils/interfaces/warehouse";
 import { http } from "@/utils/libs/axios";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
@@ -31,6 +32,7 @@ export default function WarehousesPage() {
   );
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
+  const [isExcelLoading, setIsExcelLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [data, setData] = useState<IWarehouse>();
   const hasFetch = useRef(false);
@@ -64,14 +66,38 @@ export default function WarehousesPage() {
     <>
       <WarehouseCreateModal data={data} open={open} onOpen={setOpen} />
       <HeaderAction
-        actionIcon={Building2}
-        actionTitle="Buat Gudang Baru"
+        actionContent={
+          <div className="flex gap-2">
+            <Button
+              className="bg-emerald-50 text-emerald-700 font-bold"
+              isLoading={isExcelLoading}
+              startContent={!isExcelLoading ? <Download size={16} /> : undefined}
+              variant="flat"
+              onPress={() =>
+                void handleDownloadExcel(
+                  "/warehouse/export/excel",
+                  warehouseQuery,
+                  "master-gudang",
+                  setIsExcelLoading,
+                )
+              }
+            >
+              Export Excel
+            </Button>
+            <Button
+              color="primary"
+              startContent={<Building2 size={16} />}
+              onPress={() => {
+                setData(undefined);
+                setOpen(true);
+              }}
+            >
+              Buat Gudang Baru
+            </Button>
+          </div>
+        }
         subtitle="Master"
         title="Gudang"
-        onAction={() => {
-          setData(undefined);
-          setOpen(true);
-        }}
       />
       <Table
         bottomContent={

@@ -26,6 +26,11 @@ const productSlice = createSlice({
     uoms: [] as IUom[],
     categoryQuery: {
       q: "",
+      is_active: "all",
+      productFilter: "all",
+      subCategoryFilter: "all",
+      sortBy: "created_at",
+      sortOrder: "desc",
     },
     productQuery: {
       q: "",

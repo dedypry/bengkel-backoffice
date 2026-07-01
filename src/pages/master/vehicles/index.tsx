@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
-import { Edit, Search, Trash2 } from "lucide-react";
+import { Edit, Search, Trash2, Download } from "lucide-react";
 
 import ModalAdd from "./components/add-modal";
 
@@ -28,12 +28,14 @@ import { http } from "@/utils/libs/axios";
 import { CustomPagination } from "@/components/custom-pagination";
 import PageSize from "@/components/page-size";
 import debounce from "@/utils/helpers/debounce";
+import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function VehiclePage() {
   const { vehicleMaster, master } = useAppSelector((state) => state.vehicle);
   const { company } = useAppSelector((state) => state.auth);
   const [data, setData] = useState<IVehicleItem>();
   const [open, setOpen] = useState(false);
+  const [isExcelLoading, setIsExcelLoading] = useState(false);
   const [query, setQuery] = useState({
     q: "",
     page: 1,
@@ -87,13 +89,34 @@ export default function VehiclePage() {
       />
 
       <HeaderAction
-        actionTitle="Tambah Merk dan Type"
+        actionContent={
+          <div className="flex gap-2">
+            <Button
+              className="bg-emerald-50 text-emerald-700 font-bold"
+              isLoading={isExcelLoading}
+              startContent={!isExcelLoading ? <Download size={16} /> : undefined}
+              variant="flat"
+              onPress={() =>
+                void handleDownloadExcel(
+                  "/vehicle-master/export/excel",
+                  { q: query.q, merk: query.merk },
+                  "master-kendaraan",
+                  setIsExcelLoading,
+                )
+              }
+            >
+              Export Excel
+            </Button>
+            <Button color="primary" onPress={() => {
+              setOpen(true);
+              setData(undefined);
+            }}>
+              Tambah Merk dan Type
+            </Button>
+          </div>
+        }
         subtitle="Daftar Merk dan Type Kendaraan"
         title="Daftar Kendaraan"
-        onAction={() => {
-          setOpen(true);
-          setData(undefined);
-        }}
       />
 
       <Table

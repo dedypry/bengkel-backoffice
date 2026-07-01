@@ -27,6 +27,7 @@ import {
   ExternalLink,
   Plus,
   Truck,
+  Download,
 } from "lucide-react";
 
 import AddSupplierModal from "./components/add-modal";
@@ -39,6 +40,7 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import HeaderAction from "@/components/header-action";
 import { http } from "@/utils/libs/axios";
 import debounce from "@/utils/helpers/debounce";
+import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function MasterSupplierPage() {
   const { suppliers, supplierQuery } = useAppSelector(
@@ -47,6 +49,7 @@ export default function MasterSupplierPage() {
   const { company } = useAppSelector((state) => state.auth);
 
   const [open, setOpen] = useState(false);
+  const [isExcelLoading, setIsExcelLoading] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<ISupplier | null>();
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
@@ -86,12 +89,36 @@ export default function MasterSupplierPage() {
       />
 
       <HeaderAction
-        actionIcon={Plus}
-        actionTitle="Tambah Supplier"
+        actionContent={
+          <div className="flex gap-2">
+            <Button
+              className="bg-emerald-50 text-emerald-700 font-bold"
+              isLoading={isExcelLoading}
+              startContent={!isExcelLoading ? <Download size={16} /> : undefined}
+              variant="flat"
+              onPress={() =>
+                void handleDownloadExcel(
+                  "/suppliers/export/excel",
+                  supplierQuery,
+                  "master-supplier",
+                  setIsExcelLoading,
+                )
+              }
+            >
+              Export Excel
+            </Button>
+            <Button
+              color="primary"
+              startContent={<Plus size={16} />}
+              onPress={() => setOpen(true)}
+            >
+              Tambah Supplier
+            </Button>
+          </div>
+        }
         leadIcon={Truck}
         subtitle="Kelola data vendor dan penyedia jasa bengkel Anda."
         title="Master Supplier"
-        onAction={() => setOpen(true)}
       />
 
       {/* Control Bar: Pencarian & Filter */}

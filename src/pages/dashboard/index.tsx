@@ -1,11 +1,9 @@
-/* eslint-disable import/order */
-import { Car, CalendarDays, Plus } from "lucide-react";
+import { CalendarDays, Car, Plus, Sparkles } from "lucide-react";
 import { useEffect, useRef } from "react";
 import dayjs from "dayjs";
+import "dayjs/locale/id";
 import { useNavigate } from "react-router-dom";
-
-// Import HeroUI Components
-import { Button, Card, CardBody, Chip, Divider } from "@heroui/react";
+import { Button, Chip } from "@heroui/react";
 
 import { ServiceQueue } from "@/components/dashboard/service-queue";
 import { StatsGrid } from "@/components/dashboard/stats-card";
@@ -14,6 +12,8 @@ import { InventoryAlert } from "@/components/dashboard/inventory-alert";
 import { QuickActions } from "@/components/dashboard/quick-action";
 import { useAppDispatch } from "@/stores/hooks";
 import { getDashboard } from "@/stores/features/dashboard/dashboard-action";
+
+dayjs.locale("id");
 
 export default function HomePage() {
   const dispatch = useAppDispatch();
@@ -32,112 +32,94 @@ export default function HomePage() {
   }, [dispatch]);
 
   return (
-    <div className="pb-10 space-y-8">
-      {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-default-100 pb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-default-900">
-            Ringkasan Bengkel
-          </h1>
-          <div className="flex items-center gap-2 mt-1 text-gray-500 text-sm">
-            <CalendarDays className="size-4" />
-            <span>{dayjs().format("dddd, DD MMMM YYYY")}</span>
-            <Divider className="h-3 mx-1" orientation="vertical" />
-            <Chip
-              className="font-medium h-5"
-              color="success"
-              size="sm"
-              variant="flat"
-            >
-              Sistem Online
-            </Chip>
+    <div className="space-y-8 pb-10">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 via-sky-50/80 to-violet-50/60 p-6 shadow-sm md:p-8">
+        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
+          <div>
+            <p className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <Sparkles className="size-4 text-sky-500" />
+              Dashboard Operasional
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-800 md:text-4xl">
+              Ringkasan Bengkel
+            </h1>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+              <CalendarDays className="size-4 text-slate-400" />
+              <span>{dayjs().format("dddd, DD MMMM YYYY")}</span>
+              <Chip color="success" size="sm" variant="flat">
+                Sistem Online
+              </Chip>
+            </div>
           </div>
-        </div>
 
-        <Button
-          className="font-medium"
-          color="primary"
-          startContent={<Plus size={18} />}
-          onPress={() => navigate("/service/add")}
-        >
-          Work Order Baru
-        </Button>
+          <Button
+            color="primary"
+            size="lg"
+            startContent={<Plus size={18} />}
+            variant="flat"
+            onPress={() => navigate("/service/add")}
+          >
+            Work Order Baru
+          </Button>
+        </div>
       </div>
 
-      {/* STATS SECTION */}
       <StatsGrid />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* MAIN CONTENT (LEFT) */}
-        <div className="lg:col-span-8 space-y-8">
-          <Card shadow="sm">
-            <CardBody className="p-0 overflow-hidden">
-              {/* Tempat untuk Header Chart jika ada */}
-              <RevenueChart />
-            </CardBody>
-          </Card>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="space-y-8 lg:col-span-8">
+          <RevenueChart />
 
           <section>
-            <div className="flex items-center justify-between mb-4 px-1">
-              <h2 className="text-xl font-bold text-default-800">
-                Antrean Workshop
-              </h2>
+            <div className="mb-4 flex items-center justify-between px-1">
+              <div>
+                <h2 className="text-xl font-bold text-slate-800">
+                  Antrean Workshop
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Unit servis yang sedang berjalan hari ini
+                </p>
+              </div>
               <Button
+                className="font-semibold"
                 color="primary"
                 size="sm"
                 variant="flat"
                 onPress={() => navigate("/service/queue")}
               >
-                Lihat Semua Antrean
+                Lihat Semua
               </Button>
             </div>
             <ServiceQueue />
           </section>
         </div>
 
-        {/* SIDEBAR CONTENT (RIGHT) */}
-        <div className="lg:col-span-4 space-y-8">
-          {/* PROMO / QUICK ACTION CARD */}
-          <Card
-            // Tambahkan overflow-hidden di sini untuk memotong ikon yang keluar batas
-            className="relative bg-primary p-2 border-none overflow-hidden"
-            shadow="lg"
-          >
-            <CardBody className="relative z-10 p-6">
-              {/* Ikon tetap absolut, tapi tidak akan memicu scroll karena card sudah overflow-hidden */}
-              <div className="absolute right-6 -top-6 text-white/10 rotate-12 transition-transform pointer-events-none">
-                <Car size={140} />
-              </div>
-
-              <div className="relative z-20">
-                {" "}
-                {/* Tambahkan z-index agar teks tetap di atas ikon */}
-                <h4 className="text-white font-bold text-xl leading-tight">
-                  Efisiensi Pengerjaan <br /> Meningkat 20%
-                </h4>
-                <p className="text-white/80 text-xs mt-2 max-w-[180px]">
-                  Gunakan fitur scan QR untuk mempercepat input data kendaraan.
-                </p>
-                <Button
-                  className="mt-4 bg-white/20 text-white border-white/40 hover:bg-white/30"
-                  size="sm"
-                  variant="bordered"
-                >
-                  Pelajari Fitur
-                </Button>
-              </div>
-            </CardBody>
-          </Card>
+        <div className="space-y-8 lg:col-span-4">
+          <div className="relative overflow-hidden rounded-3xl border border-violet-100 bg-gradient-to-br from-violet-50/90 via-white to-sky-50/80 p-6 shadow-sm">
+            <div className="pointer-events-none absolute -right-8 -top-10 rotate-12 text-violet-100">
+              <Car size={160} />
+            </div>
+            <div className="relative z-10">
+              <h4 className="text-xl font-bold leading-tight text-slate-700">
+                Tingkatkan efisiensi servis harian
+              </h4>
+              <p className="mt-2 max-w-[220px] text-sm text-slate-500">
+                Pantau antrean, stok kritis, dan pendapatan dari satu dashboard.
+              </p>
+              <Button
+                className="mt-4 font-semibold"
+                color="secondary"
+                size="sm"
+                variant="flat"
+                onPress={() => navigate("/reports/revenue")}
+              >
+                Lihat Laporan
+              </Button>
+            </div>
+          </div>
 
           <QuickActions />
-
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 px-1">
-              <div className="h-5 w-1.5 bg-danger rounded-full shadow-[0_0_10px_rgba(243,18,96,0.3)]" />
-              <h3 className="font-bold text-default-800">Peringatan Stok</h3>
-            </div>
-            <InventoryAlert />
-          </div>
+          <InventoryAlert />
         </div>
       </div>
     </div>

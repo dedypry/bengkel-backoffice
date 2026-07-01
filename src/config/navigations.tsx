@@ -225,6 +225,12 @@ export const navigation = [
         href: "top-parts",
         icon: "BarChart3",
       },
+      {
+        title: "Pelanggan Sering Service",
+        i18nKey: "nav.reports.frequent_customers",
+        href: "frequent-customers",
+        icon: "Users",
+      },
     ],
   },
   {

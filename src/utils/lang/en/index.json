@@ -72,7 +72,8 @@
             "header": "Reports",
             "revenue": "Revenue Report",
             "mechanics": "Mechanic Performance",
-            "top_parts": "Best Selling Parts"
+            "top_parts": "Best Selling Parts",
+            "frequent_customers": "Frequent Service Customers"
         },
         "settings": {
             "header": "Settings",

@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Button, Card, CardBody, Tooltip } from "@heroui/react";
+import { useEffect } from "react";
 import {
   Bold,
   Italic,
@@ -135,6 +136,19 @@ export default function BlogEditor({
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const current = editor.getHTML();
+    const nextValue = value || "";
+
+    if (nextValue !== current) {
+      editor.commands.setContent(nextValue, { emitUpdate: false });
+    }
+  }, [editor, value]);
 
   if (disabled) {
     return (

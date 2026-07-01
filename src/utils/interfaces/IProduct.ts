@@ -13,6 +13,8 @@ export interface IProductCategory {
   updated_at: string; // ISO Date String
   deleted_at: string | null;
   total_product: string;
+  total_product_all?: number;
+  sub_category_count?: number;
   children: IProductCategory[];
   parent: IProductCategory;
 }

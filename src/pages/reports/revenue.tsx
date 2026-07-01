@@ -1,256 +1,411 @@
 import type { IReport } from "@/utils/interfaces/IReport";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  DollarSign,
+  ArrowDownLeft,
+  ArrowRight,
   ArrowUpRight,
   BarChart3,
-  PieChart,
-  Target,
-  ArrowRight,
-  Zap,
-  ArrowDownLeft,
+  DollarSign,
   FileSpreadsheet,
+  LineChart,
+  PieChart,
+  Sparkles,
+  Target,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import {
   Button,
   Card,
   CardBody,
   CardHeader,
-  Progress,
   Chip,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Progress,
+  Spinner,
 } from "@heroui/react";
 
 import InvoiceListPage from "../finance/list";
+import RevenueChart from "./components/revenue-chart";
 
 import HeaderAction from "@/components/header-action";
 import { formatIDR, formatNumber } from "@/utils/helpers/format";
 import { http } from "@/utils/libs/axios";
-import { notifyError } from "@/utils/helpers/notify";
+import { notify, notifyError } from "@/utils/helpers/notify";
+
+function getProgressColor(progress: number) {
+  if (progress >= 100) {
+    return "success" as const;
+  }
+
+  if (progress >= 75) {
+    return "primary" as const;
+  }
+
+  if (progress >= 50) {
+    return "warning" as const;
+  }
+
+  return "danger" as const;
+}
 
 export default function RevenuePage() {
   const [report, setReport] = useState<IReport>();
-  const hasFetched = useRef(false);
+  const [loading, setLoading] = useState(true);
+  const [targetModalOpen, setTargetModalOpen] = useState(false);
+  const [targetInput, setTargetInput] = useState("");
+  const [savingTarget, setSavingTarget] = useState(false);
 
-  useEffect(() => {
-    if (!hasFetched.current) {
-      hasFetched.current = true;
-      getReport();
-      setTimeout(() => {
-        hasFetched.current = false;
-      }, 1000);
-    }
-  }, []);
-
-  async function getReport() {
+  const getReport = useCallback(async () => {
+    setLoading(true);
     http
       .get("/reports/revenue")
       .then(({ data }) => {
         setReport(data);
+        setTargetInput(String(data.reportMonthly?.target_amount || ""));
       })
-      .catch((err) => notifyError(err));
-  }
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const stats = [
-    {
-      label: "Total Pendapatan",
-      val: report?.revenue || 0,
-      icon: DollarSign,
-      color: "text-emerald-500",
-      bg: "bg-emerald-50",
-    },
-    {
-      label: "Unit Servis",
-      val: formatNumber(report?.wo || 0) + " Unit",
-      icon: Zap,
-      color: "text-blue-500",
-      bg: "bg-blue-50",
-    },
-    {
-      label: "Rata-rata Transaksi",
-      val: report?.avg || 0,
-      icon: BarChart3,
-      color: "text-purple-500",
-      bg: "bg-purple-50",
-    },
-    {
-      label: "Pertumbuhan",
-      val: report?.growth,
-      icon: report?.growthType === "decrement" ? ArrowDownLeft : ArrowUpRight,
-      color:
-        report?.growthType === "decrement"
-          ? "text-rose-500"
-          : "text-emerald-500",
-      bg: report?.growthType === "decrement" ? "bg-rose-50" : "bg-emerald-50",
-    },
-  ];
+  useEffect(() => {
+    void getReport();
+  }, [getReport]);
+
+  const monthly = report?.reportMonthly;
+  const progressColor = getProgressColor(monthly?.progress_value || 0);
+
+  const stats = useMemo(
+    () => [
+      {
+        label: "Total Pendapatan",
+        val: formatIDR(report?.revenue || 0),
+        icon: DollarSign,
+        card: "bg-emerald-50/90 border-emerald-100",
+        iconWrap: "bg-emerald-100 text-emerald-600",
+      },
+      {
+        label: "Unit Servis",
+        val: `${formatNumber(report?.wo || 0)} Unit`,
+        icon: Zap,
+        card: "bg-sky-50/90 border-sky-100",
+        iconWrap: "bg-sky-100 text-sky-600",
+      },
+      {
+        label: "Rata-rata Transaksi",
+        val: formatIDR(report?.avg || 0),
+        icon: BarChart3,
+        card: "bg-violet-50/90 border-violet-100",
+        iconWrap: "bg-violet-100 text-violet-600",
+      },
+      {
+        label: "Pertumbuhan",
+        val: report?.growth || "0%",
+        icon:
+          report?.growthType === "decrement" ? ArrowDownLeft : ArrowUpRight,
+        card:
+          report?.growthType === "decrement"
+            ? "bg-rose-50/90 border-rose-100"
+            : "bg-amber-50/90 border-amber-100",
+        iconWrap:
+          report?.growthType === "decrement"
+            ? "bg-rose-100 text-rose-600"
+            : "bg-amber-100 text-amber-600",
+      },
+    ],
+    [report],
+  );
+
+  const saveTarget = async () => {
+    const targetAmount = Number(targetInput.replace(/\D/g, ""));
+
+    if (!targetAmount || targetAmount <= 0) {
+      notifyError("Target harus lebih dari 0");
+      return;
+    }
+
+    setSavingTarget(true);
+    http
+      .post("/reports/revenue-target", { target_amount: targetAmount })
+      .then(({ data }) => {
+        notify(data.message || "Target berhasil disimpan");
+        setReport((prev) =>
+          prev
+            ? {
+                ...prev,
+                reportMonthly: data.reportMonthly,
+              }
+            : prev,
+        );
+        setTargetModalOpen(false);
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setSavingTarget(false));
+  };
 
   return (
-    <div className="space-y-8 pb-20 px-4 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 pb-20">
       <HeaderAction
         actionIcon={FileSpreadsheet}
-        // actionTitle="EXPORT EXCEL"
-        subtitle="Analisis pemasukan dan pertumbuhan bengkel secara akurat."
+        subtitle="Analisis pemasukan, target bulanan, dan pertumbuhan bengkel secara akurat."
         title="Laporan Pendapatan"
         onAction={() => {
           /* Logic Export */
         }}
       />
 
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((item, i) => (
-          <Card
-            key={i}
-            className="hover:translate-y-[-4px] transition-transform"
-          >
-            <CardBody className="flex flex-row items-center gap-4">
-              <div
-                className={`${item.bg} ${item.color} p-3 rounded-sm shadow-inner`}
+      {loading && !report ? (
+        <div className="flex justify-center py-24">
+          <Spinner color="primary" size="lg" />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((item) => (
+              <Card
+                key={item.label}
+                className={`border shadow-sm transition-transform hover:-translate-y-0.5 ${item.card}`}
               >
-                <item.icon size={24} strokeWidth={2.5} />
+                <CardBody className="flex flex-row items-center gap-4 p-5">
+                  <div
+                    className={`flex size-12 items-center justify-center rounded-2xl ${item.iconWrap}`}
+                  >
+                    <item.icon size={22} strokeWidth={2.2} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      {item.label}
+                    </p>
+                    <p className="truncate text-lg font-bold text-slate-700">
+                      {item.val}
+                    </p>
+                  </div>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="border border-primary-100 bg-white/90 shadow-sm">
+            <CardHeader className="flex items-center justify-between px-6 pb-0 pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                  <LineChart size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">
+                    Trend Pendapatan Bulan Ini
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Akumulasi harian pendapatan {monthly?.month_name}
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <p className="text-[10px] font-black text-gray-400 uppercase">
-                  {item.label}
-                </p>
-                <p className="text-md font-black text-gray-500 uppercase">
-                  {typeof item.val === "number"
-                    ? formatIDR(item.val)
-                    : item.val}
-                </p>
-              </div>
+              <Chip color="primary" size="sm" variant="flat">
+                Live
+              </Chip>
+            </CardHeader>
+            <CardBody className="px-6 pb-6 pt-4">
+              <RevenueChart data={report?.trend || []} />
             </CardBody>
           </Card>
-        ))}
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Section: Revenue Source */}
-        <Card className="lg:col-span-2 p-4">
-          <CardHeader className="flex justify-between items-center px-4 pb-0">
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-100 p-2 rounded-sm">
-                <PieChart className="text-gray-600" size={20} />
-              </div>
-              <h3 className="text-lg font-black text-gray-500 uppercase">
-                Sumber Pendapatan
-              </h3>
-            </div>
-            <Chip
-              className="font-black text-[9px] uppercase"
-              color="primary"
-              size="sm"
-              variant="flat"
-            >
-              Live Data
-            </Chip>
-          </CardHeader>
-          <CardBody className="px-4 py-8">
-            <div className="grid gap-8">
-              {report?.grafik.map((cat, i) => (
-                <div key={i} className="space-y-3">
-                  <div className="flex justify-between items-end">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-black uppercase text-gray-500">
-                        {cat.label}
-                      </span>
-                      <span className="text-[10px] font-semibold text-gray-400 italic">
-                        Distribusi Layanan
-                      </span>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <Card className="border border-slate-200 bg-white shadow-sm lg:col-span-2">
+              <CardHeader className="flex items-center justify-between px-6 pb-0 pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-secondary/10 p-2 text-secondary">
+                    <PieChart size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800">
+                      Sumber Pendapatan
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Distribusi layanan, suku cadang, dan penjualan
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardBody className="space-y-6 px-6 py-6">
+                {report?.grafik.map((cat) => (
+                  <div key={cat.label} className="space-y-2">
+                    <div className="flex items-end justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-bold text-slate-700">
+                          {cat.label}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {formatIDR(cat.value)}
+                        </p>
+                      </div>
+                      <Chip
+                        color={(cat.color as "primary") || "primary"}
+                        size="sm"
+                        variant="flat"
+                      >
+                        {cat.percentage}%
+                      </Chip>
                     </div>
-                    <span className="text-sm font-black text-gray-500">
-                      {cat.percentage}%
+                    <Progress
+                      aria-label={cat.label}
+                      className="h-3"
+                      color={(cat.color as "primary") || "primary"}
+                      value={cat.percentage}
+                    />
+                  </div>
+                ))}
+              </CardBody>
+            </Card>
+
+            <Card className="overflow-hidden border border-violet-100 bg-violet-50/60 shadow-sm">
+              <CardHeader className="flex items-center gap-3 px-6 pb-0 pt-6">
+                <div className="rounded-xl bg-violet-100 p-2 text-violet-600">
+                  <Target size={20} />
+                </div>
+                <div>
+                  <h5 className="text-lg font-bold text-slate-700">
+                    Target Bulanan
+                  </h5>
+                  <p className="text-xs text-slate-500">{monthly?.month_name}</p>
+                </div>
+              </CardHeader>
+
+              <CardBody className="space-y-4 px-6 py-5">
+                <div className="rounded-2xl border border-violet-100 bg-white/80 p-4">
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Target
+                    </p>
+                    {!monthly?.is_target_set && (
+                      <Chip color="warning" size="sm" variant="flat">
+                        Estimasi
+                      </Chip>
+                    )}
+                  </div>
+                  <p className="text-2xl font-bold text-slate-700">
+                    {formatIDR(monthly?.target_amount || 0)}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-violet-100 bg-white/80 p-4">
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Pencapaian
+                    </p>
+                    <TrendingUp className="text-emerald-500" size={16} />
+                  </div>
+                  <p className="text-xl font-bold text-slate-700">
+                    {formatIDR(monthly?.current_revenue || 0)}
+                  </p>
+                  <Progress
+                    aria-label="Monthly Target"
+                    className="mt-4 h-3"
+                    classNames={{
+                      track: "bg-violet-100",
+                    }}
+                    color={progressColor}
+                    value={monthly?.progress_display || 0}
+                  />
+                  <div className="mt-2 flex items-center justify-between text-xs font-medium text-slate-500">
+                    <span>{(monthly?.progress_value || 0).toFixed(1)}% tercapai</span>
+                    <span>
+                      Sisa {formatIDR(monthly?.remaining_amount || 0)}
                     </span>
                   </div>
-                  <Progress
-                    aria-label={cat.label}
-                    className="h-2.5"
-                    classNames={{
-                      track: "bg-gray-100",
-                    }}
-                    color={(cat.color as any) || "primary"}
-                    value={cat.percentage}
-                  />
                 </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
 
-        {/* Section: Monthly Target */}
-        <Card className=" p-4 relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
-          <CardHeader className="flex gap-3 px-4">
-            <div className="bg-gray-200 p-2 rounded-sm">
-              <Target className="text-rose-400" size={20} />
-            </div>
-            <h5 className="text-lg text-gray-500 font-black uppercase">
-              Target Bulanan
-            </h5>
-          </CardHeader>
-          <CardBody className="px-4 py-2 relative z-10">
-            <p className="text-gray-400 text-xs mb-6 font-medium italic">
-              Pencapaian{" "}
-              <span className="font-bold text-gray-700">
-                {report?.reportMonthly.growth_formatted}
-              </span>{" "}
-              dari target bulan {report?.reportMonthly.last_month_name}.
-            </p>
+                <div className="rounded-xl bg-sky-50 px-4 py-3 text-sm text-slate-600">
+                  <Sparkles className="mb-1 inline size-4 text-sky-500" />{" "}
+                  {monthly?.growth_formatted} dibanding periode yang sama di bulan{" "}
+                  {monthly?.last_month_name}.
+                </div>
 
-            <div className="bg-gray-200 rounded-sm p-6 border border-gray-200 backdrop-blur-sm">
-              <div className="flex justify-between items-center mb-2">
-                <p className="text-[10px] font-black uppercase text-gray-500">
-                  Pencapaian Saat Ini
-                </p>
-                <TrendingUp className="text-success" size={14} />
-              </div>
-              <p className="text-lg font-black mb-6 text-gray-500">
-                {formatIDR(report?.reportMonthly.current_revenue || 0)}
-              </p>
-              <Progress
-                aria-label="Monthly Target"
-                className="h-4"
-                classNames={{
-                  track: "bg-gray-100",
-                  indicator: "bg-danger shadow-[0_0_15px_rgba(244,63,94,0.5)]",
-                }}
-                color="danger"
-                value={report?.reportMonthly.growth_value}
-              />
-              <div className="flex justify-between items-center mt-3">
-                <span className="text-xs font-black text-danger uppercase">
-                  {report?.reportMonthly.growth_value.toFixed(2)}%
-                </span>
-                <span className="text-xs font-black text-danger uppercase">
-                  Achieved
-                </span>
-              </div>
-            </div>
-          </CardBody>
-          <div className="p-4 pt-0">
-            <Button
-              fullWidth
-              color="primary"
-              endContent={<ArrowRight size={16} />}
-            >
-              Sesuaikan Target
-            </Button>
+                <Button
+                  fullWidth
+                  color="secondary"
+                  endContent={<ArrowRight size={16} />}
+                  size="lg"
+                  variant="flat"
+                  onPress={() => {
+                    setTargetInput(String(monthly?.target_amount || ""));
+                    setTargetModalOpen(true);
+                  }}
+                >
+                  Sesuaikan Target
+                </Button>
+              </CardBody>
+            </Card>
           </div>
-        </Card>
-      </div>
+        </>
+      )}
 
-      {/* List Invoice Integration */}
-      <div className="pt-4">
-        <div className="flex items-center gap-3 mb-6 px-2">
-          <div className="h-8 w-1.5 bg-danger rounded-full" />
-          <h2 className="text-lg font-black uppercase  text-gray-500">
-            Riwayat Transaksi Terakhir
-          </h2>
+      <div className="pt-2">
+        <div className="mb-6 flex items-center gap-3 px-1">
+          <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-primary to-secondary" />
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">
+              Riwayat Transaksi Terakhir
+            </h2>
+            <p className="text-xs text-slate-500">
+              Daftar invoice dan pembayaran terbaru
+            </p>
+          </div>
         </div>
         <InvoiceListPage noHeader />
       </div>
+
+      <Modal
+        isOpen={targetModalOpen}
+        placement="center"
+        onOpenChange={setTargetModalOpen}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <span className="text-primary">Target Pendapatan</span>
+                <span className="text-sm font-normal text-default-500">
+                  Tetapkan target bulan {monthly?.month_name}
+                </span>
+              </ModalHeader>
+              <ModalBody>
+                <Input
+                  label="Nominal Target Bulanan"
+                  placeholder="Contoh: 50000000"
+                  startContent={<Target className="text-primary" size={16} />}
+                  type="number"
+                  value={targetInput}
+                  onValueChange={setTargetInput}
+                />
+                <p className="text-xs text-default-400">
+                  Pencapaian saat ini:{" "}
+                  <span className="font-semibold text-default-600">
+                    {formatIDR(monthly?.current_revenue || 0)}
+                  </span>
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" onPress={onClose}>
+                  Batal
+                </Button>
+                <Button
+                  color="primary"
+                  isLoading={savingTarget}
+                  onPress={saveTarget}
+                >
+                  Simpan Target
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
