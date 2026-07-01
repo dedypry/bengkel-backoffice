@@ -1,6 +1,6 @@
 import type { IQueue, QueueStatus } from "@/utils/interfaces/IQueue";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Button,
   Card,
@@ -29,6 +29,7 @@ import {
 
 import HeaderAction from "@/components/header-action";
 import { CustomPagination } from "@/components/custom-pagination";
+import { useCompanyQueueRealtime } from "@/hooks/use-company-queue-realtime";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getQueueCategories, getQueues } from "@/stores/features/self-queue/queue-action";
 import { setQueueQuery } from "@/stores/features/self-queue/queue-slice";
@@ -73,7 +74,11 @@ export default function SelfQueuePanelPage() {
     }
   }, [query, company?.id, dispatch]);
 
-  const refresh = () => dispatch(getQueues(query));
+  const refresh = useCallback(() => dispatch(getQueues(query)), [dispatch, query]);
+
+  useCompanyQueueRealtime(company?.id, () => {
+    dispatch(getQueues(query));
+  });
 
   const searchDebounce = debounce((q: string) => {
     dispatch(setQueueQuery({ q, page: 1 }));
