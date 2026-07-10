@@ -71,6 +71,8 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const resDelete = hasPermission("wo.delete");
   const { t } = useTranslation();
 
+  console.log(resDelete);
+
   const debounceSearch = debounce((q) => dispatch(getWo({ q })), 500);
   const statusOptions = [
     { key: "all", label: t("all") },
@@ -286,7 +288,9 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                               <DropdownItem key="spacer" className="hidden" />
                             )}
 
-                            {item.progress === "queue" && resDelete ? (
+                            {!["finish", "cancel", "rejected"].includes(
+                              item.progress || "",
+                            ) && resDelete ? (
                               <DropdownItem
                                 key="delete"
                                 className="text-danger"
