@@ -1,7 +1,7 @@
 import type { IWorkOrder } from "@/utils/interfaces/IUser";
 
 import React, { useState } from "react";
-import { Button } from "@heroui/react";
+import { Button, Tooltip } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Play, CheckCircle2, ReceiptText } from "lucide-react";
 
@@ -42,6 +42,23 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
   };
 
   const restriction = hasRoles(["foreman", "super-admin"]);
+  const needsMechanic = (item.mechanics?.length ?? 0) < 1;
+  const startWorkDisabled = needsMechanic || !restriction;
+
+  const startWorkButton = (
+    <Button
+      className="font-bold"
+      color="primary"
+      isDisabled={startWorkDisabled}
+      isLoading={isLoading}
+      size="sm"
+      startContent={<Play fill="currentColor" size={16} />}
+      variant="shadow"
+      onPress={() => handleUpdateStatus(item.id, "on_progress")}
+    >
+      MULAI KERJA
+    </Button>
+  );
 
   return (
     <React.Fragment>
@@ -54,20 +71,20 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
       />
 
       {/* STATUS: QUEUE / PICK UP */}
-      {["queue", "pick_up"].includes(item.progress as any) && (
-        <Button
-          className="font-bold"
-          color="primary"
-          isDisabled={item.mechanics?.length! < 1 || !restriction}
-          isLoading={isLoading}
-          size="sm"
-          startContent={<Play fill="currentColor" size={16} />}
-          variant="shadow"
-          onPress={() => handleUpdateStatus(item.id, "on_progress")}
-        >
-          MULAI KERJA
-        </Button>
-      )}
+      {["queue", "pick_up"].includes(item.progress as any) &&
+        (startWorkDisabled ? (
+          <Tooltip
+            content={
+              needsMechanic
+                ? "Pilih mekanik terlebih dahulu"
+                : "Hanya foreman yang dapat memulai pekerjaan"
+            }
+          >
+            <span className="inline-flex">{startWorkButton}</span>
+          </Tooltip>
+        ) : (
+          startWorkButton
+        ))}
 
       {/* STATUS: ON PROGRESS */}
       {item.progress === "on_progress" && (

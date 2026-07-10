@@ -28,6 +28,7 @@ import {
   CalendarDays,
   Search,
   Trash2,
+  PencilIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -38,6 +39,7 @@ import StatusQueue from "./status-queue";
 import ButtonStatus from "./button-status";
 import ChipPriority from "./chip-priority";
 import CancelConfirm from "./cancel-confirm";
+import ManualStatusModal from "./manual-status-modal";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import {
@@ -61,7 +63,8 @@ interface Props {
 
 export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { orders, woQuery } = useAppSelector((state) => state.wo);
-  const [open, setOpen] = useState(false);
+  const [openCancel, setOpenCancel] = useState(false);
+  const [openManual, setOpenManual] = useState(false);
   const [woItem, setWoItem] = useState<IWorkOrder>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -70,8 +73,6 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const resUpdate = hasPermission("wo.update");
   const resDelete = hasPermission("wo.delete");
   const { t } = useTranslation();
-
-  console.log(resDelete);
 
   const debounceSearch = debounce((q) => dispatch(getWo({ q })), 500);
   const statusOptions = [
@@ -84,7 +85,20 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
 
   return (
     <div className="space-y-4">
-      {woItem && <CancelConfirm item={woItem} open={open} setOpen={setOpen} />}
+      {woItem && (
+        <>
+          <CancelConfirm
+            item={woItem}
+            open={openCancel}
+            setOpen={setOpenCancel}
+          />
+          <ManualStatusModal
+            item={woItem}
+            open={openManual}
+            setOpen={setOpenManual}
+          />
+        </>
+      )}
 
       <Card>
         <CardHeader className="flex justify-between gap-2">
@@ -244,71 +258,84 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                           onSuccess={() => dispatch(getWo(woQuery))}
                         />
                       )}
+                      <Dropdown placement="bottom-end">
+                        <DropdownTrigger>
+                          <Button
+                            isIconOnly
+                            className="text-gray-400"
+                            size="sm"
+                            variant="light"
+                          >
+                            <MoreVertical size={20} />
+                          </Button>
+                        </DropdownTrigger>
+                        <DropdownMenu aria-label="Aksi Antrean">
+                          <DropdownItem
+                            key="detail"
+                            startContent={<EyeIcon size={18} />}
+                            onPress={() =>
+                              navigate(`/service/queue/${item.id}`)
+                            }
+                          >
+                            Detail Order
+                          </DropdownItem>
 
-                      {item.progress !== "cancel" && (
-                        <Dropdown placement="bottom-end">
-                          <DropdownTrigger>
-                            <Button
-                              isIconOnly
-                              className="text-gray-400"
-                              size="sm"
-                              variant="light"
-                            >
-                              <MoreVertical size={20} />
-                            </Button>
-                          </DropdownTrigger>
-                          <DropdownMenu aria-label="Aksi Antrean">
+                          {resUpdate ? (
                             <DropdownItem
-                              key="detail"
-                              startContent={<EyeIcon size={18} />}
-                              onPress={() =>
-                                navigate(`/service/queue/${item.id}`)
-                              }
+                              key="mech"
+                              startContent={<UserCircleIcon size={18} />}
+                              onPress={() => {
+                                dispatch(
+                                  setMechanic(item.mechanics?.map((m) => m.id)),
+                                );
+                                setOpenModal(true);
+                                setWoId(item.id);
+                              }}
                             >
-                              Detail Order
+                              Pilih Mekanik
                             </DropdownItem>
+                          ) : (
+                            <DropdownItem key="spacer" className="hidden" />
+                          )}
 
-                            {resUpdate ? (
-                              <DropdownItem
-                                key="mech"
-                                startContent={<UserCircleIcon size={18} />}
-                                onPress={() => {
-                                  dispatch(
-                                    setMechanic(
-                                      item.mechanics?.map((m) => m.id),
-                                    ),
-                                  );
-                                  setOpenModal(true);
-                                  setWoId(item.id);
-                                }}
-                              >
-                                Pilih Mekanik
-                              </DropdownItem>
-                            ) : (
-                              <DropdownItem key="spacer" className="hidden" />
-                            )}
+                          {resUpdate ? (
+                            <DropdownItem
+                              key="manual-change-status"
+                              startContent={<PencilIcon size={18} />}
+                              onPress={() => {
+                                setWoItem(item);
+                                setOpenManual(true);
+                              }}
+                            >
+                              Ubah Status Manual
+                            </DropdownItem>
+                          ) : (
+                            <DropdownItem
+                              key="manual-change-status-spacer"
+                              className="hidden"
+                            />
+                          )}
 
-                            {!["finish", "cancel", "rejected"].includes(
-                              item.progress || "",
-                            ) && resDelete ? (
-                              <DropdownItem
-                                key="delete"
-                                className="text-danger"
-                                color="danger"
-                                startContent={<Trash2 size={18} />}
-                                onPress={() => {
-                                  setWoItem(item);
-                                  setOpen(true);
-                                }}
-                              >
-                                Batalkan Service
-                              </DropdownItem>
-                            ) : (
-                              <DropdownItem key="spacer-2" className="hidden" />
-                            )}
-                          </DropdownMenu>
-                        </Dropdown>
-                      )}
+                          {!["finish", "cancel", "rejected"].includes(
+                            item.progress || "",
+                          ) && resDelete ? (
+                            <DropdownItem
+                              key="delete"
+                              className="text-danger"
+                              color="danger"
+                              startContent={<Trash2 size={18} />}
+                              onPress={() => {
+                                setWoItem(item);
+                                setOpenCancel(true);
+                              }}
+                            >
+                              Batalkan Service
+                            </DropdownItem>
+                          ) : (
+                            <DropdownItem key="spacer-2" className="hidden" />
+                          )}
+                        </DropdownMenu>
+                      </Dropdown>
                     </div>
                   </TableCell>
                 </TableRow>
