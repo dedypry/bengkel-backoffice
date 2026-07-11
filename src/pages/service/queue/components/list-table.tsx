@@ -29,6 +29,7 @@ import {
   Search,
   Trash2,
   PencilIcon,
+  BellRing,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -55,6 +56,8 @@ import PageSize from "@/components/page-size";
 import CustomDatePicker from "@/components/forms/date-picker";
 import { usePermission } from "@/components/use-permission";
 import { IWorkOrder } from "@/utils/interfaces/IUser";
+import { http } from "@/utils/libs/axios";
+import { notify, notifyError } from "@/utils/helpers/notify";
 
 interface Props {
   setOpenModal: (val: boolean) => void;
@@ -66,6 +69,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const [openCancel, setOpenCancel] = useState(false);
   const [openManual, setOpenManual] = useState(false);
   const [woItem, setWoItem] = useState<IWorkOrder>();
+  const [callingCashierId, setCallingCashierId] = useState<number | null>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -75,6 +79,16 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { t } = useTranslation();
 
   const debounceSearch = debounce((q) => dispatch(getWo({ q })), 500);
+
+  const handleCallCashier = (item: IWorkOrder) => {
+    setCallingCashierId(item.id);
+    http
+      .post(`/work-order/call-cashier/${item.id}`)
+      .then(({ data }) => notify(data.message))
+      .catch((err) => notifyError(err))
+      .finally(() => setCallingCashierId(null));
+  };
+
   const statusOptions = [
     { key: "all", label: t("all") },
     { key: "queue", label: t("queue") },
@@ -252,6 +266,20 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
 
                   <TableCell>
                     <div className="flex items-center gap-2 justify-end">
+                      {resUpdate && item.progress === "ready" && (
+                        <Tooltip content="Panggil kasir untuk pembayaran">
+                          <Button
+                            isIconOnly
+                            color="warning"
+                            isLoading={callingCashierId === item.id}
+                            size="sm"
+                            variant="flat"
+                            onPress={() => handleCallCashier(item)}
+                          >
+                            <BellRing size={18} />
+                          </Button>
+                        </Tooltip>
+                      )}
                       {resUpdate && (
                         <ButtonStatus
                           item={item}
@@ -312,6 +340,21 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                           ) : (
                             <DropdownItem
                               key="manual-change-status-spacer"
+                              className="hidden"
+                            />
+                          )}
+
+                          {resUpdate && item.progress === "ready" ? (
+                            <DropdownItem
+                              key="call-cashier"
+                              startContent={<BellRing size={18} />}
+                              onPress={() => handleCallCashier(item)}
+                            >
+                              Panggil Kasir
+                            </DropdownItem>
+                          ) : (
+                            <DropdownItem
+                              key="call-cashier-spacer"
                               className="hidden"
                             />
                           )}

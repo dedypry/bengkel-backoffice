@@ -90,7 +90,8 @@
         "screen": {
             "header": "Layar Antrean",
             "kiosk": "Kiosk Pelanggan",
-            "display": "Display Antrean (TV)"
+            "display": "Display Antrean (TV)",
+            "service_display": "Display Status Service (TV)"
         }
     }
 }

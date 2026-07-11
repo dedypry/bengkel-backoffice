@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 import ListOrder from "./components/list-order";
 import PanelCustomer from "./components/panel-customer";
@@ -7,6 +7,12 @@ import PanelProduct from "./components/panel-product";
 import { useSidebar, SIDEBAR_COLLAPSED_KEY } from "@/context/sidebar-context";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWo } from "@/stores/features/work-order/wo-action";
+import { useServiceQueueRealtime } from "@/hooks/use-service-queue-realtime";
+import {
+  announceCashierCall,
+  unlockQueueAudio,
+} from "@/utils/helpers/queue-announcement";
+import { notify } from "@/utils/helpers/notify";
 
 export default function CashierPage() {
   const { woQuery, tabCashier } = useAppSelector((state) => state.wo);
@@ -14,6 +20,33 @@ export default function CashierPage() {
   const { setCollapsed } = useSidebar();
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
+
+  const refreshCashierList = useCallback(() => {
+    dispatch(getWo({ ...woQuery, pageSize: 100, date: "" } as any));
+  }, [dispatch, woQuery]);
+
+  useEffect(() => {
+    unlockQueueAudio();
+  }, []);
+
+  useServiceQueueRealtime(company?.id, {
+    onServiceUpdate: refreshCashierList,
+    onCashierCall: (payload) => {
+      refreshCashierList();
+
+      if (payload.plate_number) {
+        announceCashierCall({
+          plateNumber: payload.plate_number,
+          trxNo: payload.trx_no,
+        });
+
+        notify(
+          `Panggilan kasir: ${payload.plate_number}${payload.trx_no ? ` (${payload.trx_no})` : ""}`,
+          "info",
+        );
+      }
+    },
+  });
 
   useEffect(() => {
     const previousCollapsed =

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { ListOrdered, Plus } from "lucide-react";
 import { Card, CardBody } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import ListTable from "./components/list-table";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWo } from "@/stores/features/work-order/wo-action";
 import HeaderAction from "@/components/header-action";
+import { useServiceQueueRealtime } from "@/hooks/use-service-queue-realtime";
 
 export default function QueuePage() {
   const [openModal, setOpenModal] = useState(false);
@@ -20,6 +21,14 @@ export default function QueuePage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
+
+  const refreshQueue = useCallback(() => {
+    dispatch(getWo(woQuery));
+  }, [dispatch, woQuery]);
+
+  useServiceQueueRealtime(company?.id, {
+    onServiceUpdate: refreshQueue,
+  });
 
   useEffect(() => {
     if (company && !hasFetched.current) {

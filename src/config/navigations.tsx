@@ -91,6 +91,14 @@ export const navigation = [
         external: true,
         permissions: ["wo.view", "wo.create", "wo.update"],
       },
+      {
+        title: "Display Status Service (TV)",
+        i18nKey: "nav.screen.service_display",
+        href: "/service/display",
+        icon: "Car",
+        external: true,
+        permissions: ["wo.view", "wo.create", "wo.update"],
+      },
     ],
   },
   {

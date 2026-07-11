@@ -188,6 +188,25 @@ export function announceQueueCall({
   speakIndonesian(text);
 }
 
+export function announceCashierCall({
+  plateNumber,
+  trxNo,
+}: {
+  plateNumber: string;
+  trxNo?: string | null;
+}) {
+  if (!audioUnlocked) {
+    return;
+  }
+
+  playUnlockTone();
+
+  const orderRef = trxNo ? ` nomor order ${trxNo}` : "";
+  const text = `Perhatian. Kendaraan dengan nomor polisi ${plateNumber}${orderRef} siap dibayar. Silakan menuju kasir.`;
+
+  speakIndonesian(text);
+}
+
 export function preloadIndonesianVoice() {
   if (!("speechSynthesis" in window)) {
     return;

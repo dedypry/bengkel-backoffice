@@ -14,7 +14,7 @@ export type QueueRealtimePayload = {
 
 let publicPusherClient: Pusher | null = null;
 
-function getPublicPusherClient() {
+export function getPublicPusherClient() {
   if (!publicPusherClient) {
     publicPusherClient = new Pusher(config.pusher.key, {
       cluster: config.pusher.cluster,

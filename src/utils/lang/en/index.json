@@ -90,7 +90,8 @@
         "screen": {
             "header": "Queue Screens",
             "kiosk": "Customer Kiosk",
-            "display": "Queue Display (TV)"
+            "display": "Queue Display (TV)",
+            "service_display": "Service Status Display (TV)"
         }
     }
 }

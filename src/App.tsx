@@ -52,6 +52,7 @@ import PoInvoiceCreatePage from "./pages/purchase/invoice/create";
 import PoInvoiceEditPage from "./pages/purchase/invoice/edit";
 import QueueKioskPage from "./pages/self-queue/kiosk";
 import QueueDisplayPage from "./pages/self-queue/display";
+import ServiceDisplayPage from "./pages/service/display";
 
 import HomePage from "@/pages/dashboard/index";
 
@@ -63,6 +64,7 @@ function App() {
       </Route>
       <Route element={<QueueKioskPage />} path="/queue/kiosk" />
       <Route element={<QueueDisplayPage />} path="/queue/display" />
+      <Route element={<ServiceDisplayPage />} path="/service/display" />
       <Route element={<LayoutAdmin />}>
         <Route element={<HomePage />} path="/" />
         <Route element={<CashierPage />} path="/cashier" />
