@@ -14,41 +14,38 @@ export const customerSchema = z.object({
     .optional()
     .or(z.literal("")),
   profile: z.object({
-    id: z.number().optional(),
-    province_id: z.number().optional(),
-    city_id: z.number().optional(),
-    district_id: z.number().optional(),
-    birth_date: z
-      .string({ message: "Tanggal Lahir wajib diisi" })
-      .min(1, { message: "Tanggal Lahir wajib diisi" }),
-    address: z
-      .string({ message: "Alamat Wajib diisi" })
-      .min(5, "Alamat minimal 5 karakter"),
+    id: z.number().optional().nullable(),
+    province_id: z.number().optional().nullable(),
+    city_id: z.number().optional().nullable(),
+    district_id: z.number().optional().nullable(),
+    birth_date: z.string().optional().nullable(),
+    address: z.string({ message: "Alamat Wajib diisi" }).optional().nullable(),
   }),
   customer_type: z.enum(["personal", "corporate"]),
   nik_ktp: z
     .string()
     .length(16, "NIK harus 16 digit")
     .optional()
+    .nullable()
     .or(z.literal("")),
-  credit_limit: z.string().default("0"),
-  notes: z.string().optional(),
+  credit_limit: z.string().optional().nullable().default("0"),
+  notes: z.string().optional().nullable(),
 
   vehicles: z
     .array(
       z.object({
-        id: z.number().optional(),
+        id: z.number().optional().nullable(),
         plate_number: z.string().min(4, "Nopol tidak valid"),
         brand: z.string().min(1, "Merk wajib diisi"),
         model: z.string().min(1, "Tipe wajib diisi"),
-        year: z.string().optional(),
-        color: z.string().optional(),
+        year: z.string().optional().nullable(),
+        color: z.string().optional().nullable(),
         engine_capacity: z.string().optional(), // misal: 1500cc
-        transmission_type: z.string().optional(), // CVT, AT, MT
-        fuel_type: z.string().optional(), // Bensin, Diesel, Listrik
-        vin_number: z.string().optional(), // No. Rangka
-        engine_number: z.string().optional(), // No. Mesin
-        tire_size: z.string().optional(), // misal: 185/65 R15
+        transmission_type: z.string().optional().nullable(), // CVT, AT, MT
+        fuel_type: z.string().optional().nullable(), // Bensin, Diesel, Listrik
+        vin_number: z.string().optional().nullable(), // No. Rangka
+        engine_number: z.string().optional().nullable(), // No. Mesin
+        tire_size: z.string().optional().nullable(), // misal: 185/65 R15
       }),
     )
     .optional(),

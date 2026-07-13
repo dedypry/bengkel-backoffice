@@ -15,7 +15,6 @@ import {
   CardFooter,
   Input,
   Button,
-  Divider,
   Link,
 } from "@heroui/react";
 
@@ -125,23 +124,6 @@ export default function LoginPage() {
                 type="submit"
               >
                 Masuk
-              </Button>
-
-              <div className="relative flex items-center w-full py-2">
-                <Divider className="flex-grow" />
-                <span className="mx-2 text-xs text-default-400 uppercase">
-                  Atau
-                </span>
-                <Divider className="flex-grow" />
-              </div>
-
-              <Button
-                fullWidth
-                startContent={<img alt="google" src="/google.png" width={16} />}
-                type="button"
-                variant="flat"
-              >
-                Masuk dengan Google
               </Button>
             </CardFooter>
           </Card>
