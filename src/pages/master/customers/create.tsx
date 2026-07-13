@@ -265,7 +265,7 @@ export default function CustomerFormPage({
                   name="profile.address"
                   render={({ field, fieldState }) => (
                     <Textarea
-                      {...field}
+                      {...(field as any)}
                       errorMessage={fieldState.error?.message as string}
                       isInvalid={!!fieldState.error}
                       label="Alamat Lengkap"
@@ -366,7 +366,7 @@ export default function CustomerFormPage({
                         name={`vehicles.${index}.year`}
                         render={({ field, fieldState }) => (
                           <Input
-                            {...field}
+                            {...(field as any)}
                             errorMessage={fieldState.error?.message as string}
                             isInvalid={!!fieldState.error}
                             label="Tahun"
@@ -391,7 +391,7 @@ export default function CustomerFormPage({
                           name={`vehicles.${index}.vin_number`}
                           render={({ field, fieldState }) => (
                             <Input
-                              {...field}
+                              {...(field as any)}
                               errorMessage={fieldState.error?.message as string}
                               isInvalid={!!fieldState.error}
                               label="No. Rangka"
@@ -403,7 +403,7 @@ export default function CustomerFormPage({
                           name={`vehicles.${index}.engine_number`}
                           render={({ field, fieldState }) => (
                             <Input
-                              {...field}
+                              {...(field as any)}
                               errorMessage={fieldState.error?.message as string}
                               isInvalid={!!fieldState.error}
                               label="No. Mesin"
@@ -474,7 +474,7 @@ export default function CustomerFormPage({
                 name="nik_ktp"
                 render={({ field, fieldState }) => (
                   <Input
-                    {...field}
+                    {...(field as any)}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="NIK (KTP)"
@@ -503,7 +503,7 @@ export default function CustomerFormPage({
                 name="notes"
                 render={({ field, fieldState }) => (
                   <Textarea
-                    {...field}
+                    {...(field as any)}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Catatan Internal"
