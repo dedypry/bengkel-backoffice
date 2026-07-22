@@ -18,6 +18,8 @@ export const operationsSchema = z.object({
   notes_service: z.string().optional(),
   notes_sales: z.string().optional(),
   next_service_notes: z.array(z.string()).optional(),
+  next_service_reminder_days: z.number().min(0).optional(),
+  next_service_interval_days: z.number().min(1).optional(),
 });
 
 export type OperationsFormValues = z.infer<typeof operationsSchema>;
@@ -40,4 +42,6 @@ export const operationsDefaults: OperationsFormValues = {
   notes_service: "",
   notes_sales: "",
   next_service_notes: [],
+  next_service_reminder_days: 7,
+  next_service_interval_days: 90,
 };

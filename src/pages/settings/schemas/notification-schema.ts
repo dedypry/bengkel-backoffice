@@ -12,6 +12,7 @@ export const notificationDefaults = {
   email_notify_wo_ready: true,
   email_notify_payment_complete: true,
   email_notify_invoice: true,
+  email_notify_next_service: true,
 };
 
 export const notificationSchema = z.object({
@@ -30,6 +31,7 @@ export const notificationSchema = z.object({
   email_notify_wo_ready: z.boolean(),
   email_notify_payment_complete: z.boolean(),
   email_notify_invoice: z.boolean(),
+  email_notify_next_service: z.boolean(),
 });
 
 export type NotificationFormValues = z.infer<typeof notificationSchema>;
@@ -78,6 +80,10 @@ export function mapNotificationSettings(
     email_notify_invoice: parseBool(
       settings.email_notify_invoice,
       notificationDefaults.email_notify_invoice,
+    ),
+    email_notify_next_service: parseBool(
+      settings.email_notify_next_service,
+      notificationDefaults.email_notify_next_service,
     ),
   };
 }

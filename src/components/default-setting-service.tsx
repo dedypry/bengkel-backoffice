@@ -47,6 +47,8 @@ const settingsSchema = z.object({
   default_pic_id: z.coerce.number().optional().nullable(),
   default_advisor_id: z.coerce.number().optional().nullable(),
   next_service_notes: z.array(z.string()).optional(),
+  next_service_reminder_days: z.coerce.number().min(0).optional(),
+  next_service_interval_days: z.coerce.number().min(1).optional(),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -81,6 +83,12 @@ export default function DefaultSettingService() {
       reset({
         ...(settings as any),
         next_service_notes: parseNextServiceNotes(settings.next_service_notes),
+        next_service_reminder_days: Number(
+          settings.next_service_reminder_days ?? 7,
+        ),
+        next_service_interval_days: Number(
+          settings.next_service_interval_days ?? 90,
+        ),
       });
       setValue(
         "mechanic_roles",
@@ -203,6 +211,18 @@ export default function DefaultSettingService() {
                           control={control}
                           label="Penambahan Km"
                           name="default_km_increment"
+                          type="number"
+                        />
+                        <InputControl
+                          control={control}
+                          label="Interval Servis (Hari)"
+                          name="next_service_interval_days"
+                          type="number"
+                        />
+                        <InputControl
+                          control={control}
+                          label="Pengingat Sebelum (Hari)"
+                          name="next_service_reminder_days"
                           type="number"
                         />
 

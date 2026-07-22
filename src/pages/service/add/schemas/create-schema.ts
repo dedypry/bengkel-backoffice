@@ -46,6 +46,7 @@ export const ServiceRegistrationSchema = z.object({
   complaints: z.string().optional().default(""),
   mechanic_ids: z.array(z.number()).optional().default([]),
   priority: z.string({ message: "Prioritas wajib diisi" }).default("normal"),
+  remind_next_service: z.boolean().optional().default(false),
 });
 
 export type TServiceRegistration = z.infer<typeof ServiceRegistrationSchema>;

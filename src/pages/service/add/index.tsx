@@ -32,6 +32,7 @@ import {
   Button,
   Card,
   CardBody,
+  Checkbox,
   Chip,
   Divider,
   Form,
@@ -151,6 +152,7 @@ export default function ServiceAddPage() {
     mode: "onChange",
     defaultValues: {
       priority: "normal",
+      remind_next_service: false,
       customer: {
         birth_date: "",
       },
@@ -360,12 +362,24 @@ export default function ServiceAddPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Section 1: Data Pemilik */}
             <Card className="p-6">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center mb-5">
                 <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                   <User className="size-5" />
                   <h5 className="font-bold">Informasi Pelanggan</h5>
                 </div>
-                <div>
+                <div className="flex items-center gap-2">
+                  <Controller
+                    control={control}
+                    name="remind_next_service"
+                    render={({ field }) => (
+                      <Checkbox
+                        isSelected={!!field.value}
+                        onValueChange={field.onChange}
+                      >
+                        Ingatkan Untuk servis berikutnya
+                      </Checkbox>
+                    )}
+                  />
                   <Button
                     color="danger"
                     size="sm"

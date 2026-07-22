@@ -88,6 +88,14 @@ function mapSettingsToForm(
     default_km_increment: Number(
       settings.default_km_increment ?? operationsDefaults.default_km_increment,
     ),
+    next_service_reminder_days: Number(
+      settings.next_service_reminder_days ??
+        operationsDefaults.next_service_reminder_days,
+    ),
+    next_service_interval_days: Number(
+      settings.next_service_interval_days ??
+        operationsDefaults.next_service_interval_days,
+    ),
     default_cash_account_id: settings.default_cash_account_id
       ? Number(settings.default_cash_account_id)
       : null,

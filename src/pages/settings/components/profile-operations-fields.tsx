@@ -163,6 +163,34 @@ export default function ProfileOperationsFields({
           />
           <Controller
             control={control}
+            name="next_service_interval_days"
+            render={({ field }) => (
+              <InputNumber
+                label="Interval Servis Berikutnya (Hari)"
+                placeholder="90"
+                value={
+                  field.value != null ? String(field.value) : undefined
+                }
+                onInput={field.onChange}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="next_service_reminder_days"
+            render={({ field }) => (
+              <InputNumber
+                label="Pengingat Email Sebelum Jadwal (Hari)"
+                placeholder="7"
+                value={
+                  field.value != null ? String(field.value) : undefined
+                }
+                onInput={field.onChange}
+              />
+            )}
+          />
+          <Controller
+            control={control}
             name="pit_count"
             render={({ field }) => (
               <InputNumber

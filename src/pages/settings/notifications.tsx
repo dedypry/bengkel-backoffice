@@ -400,6 +400,28 @@ export default function NotificationSettingsPage() {
                 </div>
               )}
             />
+            <Controller
+              control={control}
+              name="email_notify_next_service"
+              render={({ field }) => (
+                <div className="flex items-center justify-between rounded-xl border border-default-200 px-4 py-3">
+                  <div>
+                    <p className="font-semibold text-default-900">
+                      Pengingat Servis Berkala
+                    </p>
+                    <p className="text-sm text-default-500">
+                      Dikirim otomatis sebelum jadwal servis berikutnya jika
+                      pelanggan mencentang pengingat saat pendaftaran.
+                    </p>
+                  </div>
+                  <Switch
+                    isDisabled={!emailEnabled}
+                    isSelected={field.value}
+                    onValueChange={field.onChange}
+                  />
+                </div>
+              )}
+            />
           </div>
 
           <Chip

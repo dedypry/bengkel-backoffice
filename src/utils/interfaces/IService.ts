@@ -43,6 +43,9 @@ export interface IServiceSettings {
 
   default_km_increment: number;
 
+  next_service_reminder_days?: number;
+  next_service_interval_days?: number;
+
   pit_count: number;
 
   default_cash_account_id: number | null;
@@ -58,4 +61,5 @@ export interface IServiceSettings {
   email_notify_wo_ready?: boolean | string;
   email_notify_payment_complete?: boolean | string;
   email_notify_invoice?: boolean | string;
+  email_notify_next_service?: boolean | string;
 }
