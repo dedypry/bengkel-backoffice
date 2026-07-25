@@ -87,7 +87,12 @@ export default function EditSupervisorInfo() {
 
   return (
     <>
-      <Modal isOpen={open} size="2xl" onOpenChange={setOpen}>
+      <Modal
+        isOpen={open}
+        scrollBehavior="outside"
+        size="2xl"
+        onOpenChange={setOpen}
+      >
         <ModalContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <ModalHeader>

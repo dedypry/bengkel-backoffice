@@ -102,7 +102,7 @@ export default function WarehouseCreateModal({ open, onOpen, data }: Props) {
   }
 
   return (
-    <Modal isOpen={open} onOpenChange={onOpen}>
+    <Modal isOpen={open} scrollBehavior="outside" onOpenChange={onOpen}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ModalContent>
           <ModalHeader>Buat Gudang Baru</ModalHeader>

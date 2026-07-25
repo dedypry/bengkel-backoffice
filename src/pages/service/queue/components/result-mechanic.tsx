@@ -95,7 +95,7 @@ export default function ResultMechanic({
     <Modal
       backdrop="blur"
       isOpen={open}
-      scrollBehavior="inside"
+      scrollBehavior="outside"
       size="3xl"
       onOpenChange={setOpen}
     >

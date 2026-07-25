@@ -43,7 +43,7 @@ export default function CancelConfirm({ item, open, setOpen }: Props) {
 
   return (
     <>
-      <Modal isOpen={open} onOpenChange={setOpen}>
+      <Modal isOpen={open} scrollBehavior="outside" onOpenChange={setOpen}>
         <ModalContent>
           <ModalHeader>Alasan dibatalkan</ModalHeader>
           <ModalBody>

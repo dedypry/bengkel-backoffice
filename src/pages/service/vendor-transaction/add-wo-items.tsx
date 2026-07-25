@@ -80,7 +80,7 @@ export default function AddWoItems({ supplierId, onSave, selectedIds }: Props) {
     <>
       <Modal
         isOpen={open}
-        scrollBehavior="inside"
+        scrollBehavior="outside"
         size="2xl"
         onOpenChange={setOpen}
       >

@@ -116,7 +116,13 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
   };
 
   return (
-    <Modal backdrop="blur" isOpen={open} size="3xl" onOpenChange={handleClose}>
+    <Modal
+      backdrop="blur"
+      isOpen={open}
+      scrollBehavior="outside"
+      size="3xl"
+      onOpenChange={handleClose}
+    >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <h2 className="text-xl font-black uppercase">

@@ -9,6 +9,7 @@ import {
   CardFooter,
   Input,
 } from "@heroui/react";
+import dayjs from "dayjs";
 
 import ListCustomer from "./list-customer";
 import ListProduct from "./list-product";
@@ -22,9 +23,10 @@ import {
 import { getProduct } from "@/stores/features/product/product-action";
 import { setProductQuery } from "@/stores/features/product/product-slice";
 import { CustomPagination } from "@/components/custom-pagination";
+import CustomDatePicker from "@/components/forms/date-picker";
 
 export default function ListOrder() {
-  const { orders, tabCashier } = useAppSelector((state) => state.wo);
+  const { orders, tabCashier, woQuery } = useAppSelector((state) => state.wo);
   const { productQuery, products } = useAppSelector((state) => state.product);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -43,7 +45,12 @@ export default function ListOrder() {
   }, [productQuery]);
 
   const debounceSearch = debounce(
-    (q) => dispatch(isProduct ? setProductQuery({ q }) : setWoQuery({ q })),
+    (q) =>
+      dispatch(
+        isProduct
+          ? setProductQuery({ q, page: 1 })
+          : setWoQuery({ q, page: 1 }),
+      ),
     500,
   );
 
@@ -58,16 +65,49 @@ export default function ListOrder() {
                 "text-gray-600 font-medium group-data-[selected=true]:text-gray-800",
             }}
             selectedKey={tabCashier}
-            onSelectionChange={(key) => dispatch(setTabCashier(key as string))}
+            onSelectionChange={(key) => {
+              dispatch(setTabCashier(key as string));
+              setSearchTerm("");
+            }}
           >
             <Tab key="customer" title="Customer" />
             <Tab key="product" title="Sparepart" />
           </Tabs>
+
+          {!isProduct && (
+            <CustomDatePicker
+              label="Tanggal"
+              labelPlacement="outside"
+              placeholder="Semua tanggal"
+              size="sm"
+              value={
+                woQuery.date
+                  ? dayjs(woQuery.date).format("YYYY-MM-DD")
+                  : ("" as any)
+              }
+              variant="bordered"
+              onChange={(date) =>
+                dispatch(
+                  setWoQuery({
+                    date: date || "",
+                    page: 1,
+                  }),
+                )
+              }
+            />
+          )}
+
           <Input
             className="placeholder:text-xs"
-            placeholder="Cari plat nomor atau nama..."
-            startContent={<Search size={20} />}
+            placeholder={
+              isProduct
+                ? "Cari nama atau kode sparepart..."
+                : "Cari plat nomor atau nama..."
+            }
+            size="sm"
+            startContent={<Search size={18} />}
             value={searchTerm}
+            variant="bordered"
             onChange={(e) => {
               setSearchTerm(e.target.value);
               debounceSearch(e.target.value);

@@ -114,7 +114,11 @@ export default function ModalBulkCategory({
           dispatch(getCategories({}));
         }}
       />
-      <Modal isOpen={open} onClose={() => setOpen(false)}>
+      <Modal
+        isOpen={open}
+        scrollBehavior="outside"
+        onClose={() => setOpen(false)}
+      >
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalContent>
             <ModalHeader>Bulk Update Kategori</ModalHeader>

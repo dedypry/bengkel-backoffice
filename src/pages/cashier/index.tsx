@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
+import dayjs from "dayjs";
 
 import ListOrder from "./components/list-order";
 import PanelCustomer from "./components/panel-customer";
@@ -19,7 +20,15 @@ export default function CashierPage() {
   const dispatch = useAppDispatch();
 
   const refreshCashierList = useCallback(() => {
-    dispatch(getWo({ ...woQuery, pageSize: 100, date: "" } as any));
+    dispatch(
+      getWo({
+        ...woQuery,
+        pageSize: 100,
+        date: woQuery.date
+          ? dayjs(woQuery.date).format("YYYY-MM-DD")
+          : "",
+      } as any),
+    );
   }, [dispatch, woQuery]);
 
   useServiceQueueRealtime(company?.id, {
@@ -53,7 +62,15 @@ export default function CashierPage() {
   useEffect(() => {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
-      dispatch(getWo({ ...woQuery, pageSize: 100, date: "" } as any));
+      dispatch(
+        getWo({
+          ...woQuery,
+          pageSize: 100,
+          date: woQuery.date
+            ? dayjs(woQuery.date).format("YYYY-MM-DD")
+            : "",
+        } as any),
+      );
       setTimeout(() => {
         hasFetched.current = false;
       }, 1000);

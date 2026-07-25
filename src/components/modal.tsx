@@ -50,7 +50,7 @@ export default function Modal({
   isLoading,
   disable,
   onClose,
-  scrollBehavior = "inside",
+  scrollBehavior = "outside",
 }: ModalProps) {
   // Custom close handler untuk memastikan onClose terpanggil
   const handleClose = () => {

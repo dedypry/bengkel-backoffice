@@ -38,7 +38,12 @@ export default function ModalHistotyVehicles({
   const [loading, setLoading] = useState(false);
 
   return (
-    <Modal isOpen={open} size="4xl" onOpenChange={setOpen}>
+    <Modal
+      isOpen={open}
+      scrollBehavior="outside"
+      size="4xl"
+      onOpenChange={setOpen}
+    >
       <ModalContent>
         <ModalHeader>Riwayat Service Kendaraan</ModalHeader>
         <ModalBody>

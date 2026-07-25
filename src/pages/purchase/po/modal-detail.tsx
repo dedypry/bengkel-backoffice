@@ -34,7 +34,12 @@ export function ModalPoDetail({ open, onOpen }: Props) {
   if (!detail) return null;
 
   return (
-    <Modal isOpen={open} size="5xl" onOpenChange={onOpen}>
+    <Modal
+      isOpen={open}
+      scrollBehavior="outside"
+      size="5xl"
+      onOpenChange={onOpen}
+    >
       <ModalContent>
         <ModalHeader>Detail Pesanan Pembelian</ModalHeader>
         <ModalBody>

@@ -49,7 +49,7 @@ export default function UploadExcelCustomer() {
 
   return (
     <>
-      <Modal isOpen={open} onOpenChange={setOpen}>
+      <Modal isOpen={open} scrollBehavior="outside" onOpenChange={setOpen}>
         <ModalContent>
           <ModalHeader className="flex flex-col">
             <h3 className="text-lg font-black uppercase text-gray-500">

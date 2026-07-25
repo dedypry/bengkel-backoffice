@@ -368,6 +368,7 @@ export default function RevenuePage() {
       <Modal
         isOpen={targetModalOpen}
         placement="center"
+        scrollBehavior="outside"
         onOpenChange={setTargetModalOpen}
       >
         <ModalContent>

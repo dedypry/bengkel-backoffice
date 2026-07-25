@@ -35,7 +35,7 @@ export default function PaymentMethod({ onSave }: Props) {
 
   return (
     <>
-      <Modal isOpen={open} onOpenChange={setOpen}>
+      <Modal isOpen={open} scrollBehavior="outside" onOpenChange={setOpen}>
         <ModalContent>
           <ModalHeader>Detail Pembayaran</ModalHeader>
           <ModalBody>

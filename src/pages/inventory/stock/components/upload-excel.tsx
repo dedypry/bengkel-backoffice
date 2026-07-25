@@ -42,7 +42,12 @@ export default function UploadExcel() {
 
   return (
     <>
-      <Modal isOpen={open} title="Upload Excel" onOpenChange={setOpen}>
+      <Modal
+        isOpen={open}
+        scrollBehavior="outside"
+        title="Upload Excel"
+        onOpenChange={setOpen}
+      >
         <ModalContent>
           <ModalHeader className="flex flex-col">
             <h3 className="text-lg font-black uppercase text-gray-500">

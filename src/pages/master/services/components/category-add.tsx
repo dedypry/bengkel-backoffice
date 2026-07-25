@@ -81,6 +81,7 @@ export default function CategoryAdd({ onFinish }: Props) {
       <Modal
         backdrop="blur"
         isOpen={isOpen}
+        scrollBehavior="outside"
         size="md"
         onOpenChange={handleClose}
       >

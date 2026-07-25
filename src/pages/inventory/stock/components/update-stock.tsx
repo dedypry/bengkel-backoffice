@@ -68,6 +68,7 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
         }}
         isOpen={open}
         placement="center"
+        scrollBehavior="outside"
         onOpenChange={setOpen}
       >
         <ModalContent>

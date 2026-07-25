@@ -82,7 +82,12 @@ export default function ModalPart({ open, setOpen, onProducts }: Props) {
   const searchProduct = debounce((q) => dispatch(setProductQuery({ q })), 500);
 
   return (
-    <Modal isOpen={open} size="5xl" onClose={() => setOpen(false)}>
+    <Modal
+      isOpen={open}
+      scrollBehavior="outside"
+      size="5xl"
+      onClose={() => setOpen(false)}
+    >
       <ModalContent>
         <ModalHeader>List Sparepart</ModalHeader>
         <ModalBody>
