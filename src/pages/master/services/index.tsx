@@ -17,6 +17,8 @@ import {
   Button,
   Chip,
   Input,
+  Select,
+  SelectItem,
   Table,
   TableBody,
   TableCell,
@@ -30,7 +32,10 @@ import ModalAdd from "./components/modal-add";
 import UploadExcelService from "./components/upload-excel";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { getService } from "@/stores/features/service/service-action";
+import {
+  getCategories,
+  getService,
+} from "@/stores/features/service/service-action";
 import { formatIDR } from "@/utils/helpers/format";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setServiceQuery } from "@/stores/features/service/service-slice";
@@ -40,8 +45,17 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
+const DIFFICULTY_OPTIONS = [
+  { key: "easy", label: "Easy (Mudah)" },
+  { key: "medium", label: "Medium (Sedang)" },
+  { key: "hard", label: "Hard (Sulit)" },
+  { key: "extreme", label: "Extreme (Sangat Sulit)" },
+];
+
 export default function MasterServicePage() {
-  const { services, query } = useAppSelector((state) => state.service);
+  const { services, query, categories } = useAppSelector(
+    (state) => state.service,
+  );
   const { company } = useAppSelector((state) => state.auth);
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -49,6 +63,10 @@ export default function MasterServicePage() {
   const [detail, setDetail] = useState<IService>();
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
+
+  useEffect(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -61,7 +79,7 @@ export default function MasterServicePage() {
   }, [company, query, dispatch]);
 
   const handleSearch = debounce((search) => {
-    dispatch(setServiceQuery({ q: search }));
+    dispatch(setServiceQuery({ q: search, page: 1 }));
   }, 1000);
 
   // Helper untuk menentukan warna Chip kesulitan
@@ -138,9 +156,63 @@ export default function MasterServicePage() {
       <Table
         aria-label="Tabel katalog jasa"
         topContent={
-          <div className="grid grid-cols-2 items-center justify-between">
-            <div />
+          <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+            <div className="flex w-full md:w-auto flex-col sm:flex-row gap-2">
+              <Select
+                isClearable
+                aria-label="Filter kategori"
+                className="w-full sm:w-52"
+                placeholder="Semua Kategori"
+                selectedKeys={
+                  query.category_id ? [String(query.category_id)] : []
+                }
+                size="sm"
+                variant="bordered"
+                onSelectionChange={(keys) => {
+                  const value = Array.from(keys)[0];
+
+                  dispatch(
+                    setServiceQuery({
+                      category_id: value ? String(value) : undefined,
+                      page: 1,
+                    }),
+                  );
+                }}
+              >
+                {(categories || []).map((cat) => (
+                  <SelectItem key={String(cat.id)} textValue={cat.name}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </Select>
+              <Select
+                isClearable
+                aria-label="Filter kesulitan"
+                className="w-full sm:w-48"
+                placeholder="Semua Kesulitan"
+                selectedKeys={query.difficulty ? [query.difficulty] : []}
+                size="sm"
+                variant="bordered"
+                onSelectionChange={(keys) => {
+                  const value = Array.from(keys)[0];
+
+                  dispatch(
+                    setServiceQuery({
+                      difficulty: value ? String(value) : undefined,
+                      page: 1,
+                    }),
+                  );
+                }}
+              >
+                {DIFFICULTY_OPTIONS.map((item) => (
+                  <SelectItem key={item.key} textValue={item.label}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
             <Input
+              className="w-full md:max-w-sm"
               endContent={
                 search && (
                   <Button

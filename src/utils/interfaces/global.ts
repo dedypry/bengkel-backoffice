@@ -12,6 +12,8 @@ export interface IQuery {
   q?: string;
   noStats?: number;
   noPaginate?: number;
+  category_id?: string | number;
+  difficulty?: string;
 }
 
 export const PROGRESS_CONFIG = {
