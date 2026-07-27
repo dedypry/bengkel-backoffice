@@ -24,6 +24,8 @@ import {
   TableCell,
   Divider,
   Selection,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 
 import SelectCategories from "./components/select-categories";
@@ -171,10 +173,38 @@ export default function InventoryStockPage() {
       {/* Filter & Table Area */}
       <Card>
         <div className=" pt-4 px-4 flex flex-col md:flex-row gap-4 justify-between items-center">
-          <div className="w-full md:w-64">
+          <div className="flex w-full md:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <SelectCategories />
+            <Select
+              isClearable
+              aria-label="Filter status stok"
+              className="w-full sm:w-40"
+              placeholder="Semua Status"
+              selectedKeys={productQuery.status ? [productQuery.status] : []}
+              variant="bordered"
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0];
+
+                dispatch(
+                  setProductQuery({
+                    status: value ? String(value) : undefined,
+                    page: 1,
+                  }),
+                );
+              }}
+            >
+              <SelectItem key="empty" textValue="Kosong">
+                Kosong
+              </SelectItem>
+              <SelectItem key="low" textValue="Menipis">
+                Menipis
+              </SelectItem>
+              <SelectItem key="ok" textValue="Aman">
+                Aman
+              </SelectItem>
+            </Select>
           </div>
-          <div className="flex flex-col gap-2 w-1/2 items-end">
+          <div className="flex flex-col gap-2 w-full md:w-1/2 items-end">
             <Input
               isClearable
               className="w-full md:max-w-sm"
@@ -279,7 +309,7 @@ export default function InventoryStockPage() {
                 </TableCell>
 
                 <TableCell>
-                  {item.stock === 0 ? (
+                  {Number(item.stock ?? 0) <= 0 ? (
                     <Chip
                       className="font-bold text-tiny"
                       color="danger"
@@ -287,7 +317,7 @@ export default function InventoryStockPage() {
                     >
                       Kosong
                     </Chip>
-                  ) : item.stock <= item.min_stock ? (
+                  ) : Number(item.stock) <= Number(item.min_stock) ? (
                     <Chip
                       className="font-bold text-tiny"
                       color="warning"
