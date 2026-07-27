@@ -7,23 +7,31 @@ import {
   ModalHeader,
 } from "@heroui/react";
 import { useState } from "react";
-import { UploadCloud } from "lucide-react";
+import { Download, Info, UploadCloud } from "lucide-react";
 
 import FileUploader from "@/components/drop-zone";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getProduct } from "@/stores/features/product/product-action";
+import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function UploadExcel() {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const { productQuery } = useAppSelector((state) => state.product);
 
   const dispatch = useAppDispatch();
 
   function onSubmit() {
+    if (!files[0]) {
+      notify("Pilih file Excel terlebih dahulu", "warning");
+
+      return;
+    }
+
     setIsLoading(true);
     const form = new FormData();
 
@@ -40,14 +48,18 @@ export default function UploadExcel() {
       .finally(() => setIsLoading(false));
   }
 
+  function onDownloadTemplate() {
+    handleDownloadExcel(
+      "/products/import/template",
+      undefined,
+      "template-produk",
+      setIsDownloading,
+    );
+  }
+
   return (
     <>
-      <Modal
-        isOpen={open}
-        scrollBehavior="outside"
-        title="Upload Excel"
-        onOpenChange={setOpen}
-      >
+      <Modal isOpen={open} scrollBehavior="outside" onOpenChange={setOpen}>
         <ModalContent>
           <ModalHeader className="flex flex-col">
             <h3 className="text-lg font-black uppercase text-gray-500">
@@ -58,6 +70,33 @@ export default function UploadExcel() {
             </p>
           </ModalHeader>
           <ModalBody>
+            <div className="flex items-start gap-2 rounded-md bg-warning-50 border border-warning-200 p-3 text-warning-700">
+              <Info className="mt-0.5 shrink-0" size={16} />
+              <div className="flex-1 text-xs space-y-1">
+                <p className="font-semibold">Belum punya template?</p>
+                <p>
+                  Download template Excel terlebih dahulu. Format kolom:{" "}
+                  <span className="font-medium">
+                    KODE, NAMA, GROUP, SUB GROUP, SATUAN, HARGA JUAL, RAK, STOK,
+                    MIN STOK
+                  </span>
+                  . Sheet harus bernama{" "}
+                  <span className="font-medium">Laporan</span>.
+                </p>
+                <Button
+                  className="mt-2"
+                  color="warning"
+                  isLoading={isDownloading}
+                  size="sm"
+                  startContent={!isDownloading && <Download size={14} />}
+                  variant="flat"
+                  onPress={onDownloadTemplate}
+                >
+                  Download Template
+                </Button>
+              </div>
+            </div>
+
             <FileUploader
               accept={{
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
@@ -65,10 +104,7 @@ export default function UploadExcel() {
               }}
               maxFiles={1}
               value={files}
-              onFileSelect={function (files: any[]): void {
-                console.log(files);
-                setFiles(files);
-              }}
+              onFileSelect={(selected) => setFiles(selected)}
             />
           </ModalBody>
           <ModalFooter>
@@ -80,7 +116,12 @@ export default function UploadExcel() {
             >
               Batal
             </Button>
-            <Button color="primary" isLoading={isLoading} onPress={onSubmit}>
+            <Button
+              color="primary"
+              isDisabled={files.length === 0}
+              isLoading={isLoading}
+              onPress={onSubmit}
+            >
               Kirim Produk
             </Button>
           </ModalFooter>

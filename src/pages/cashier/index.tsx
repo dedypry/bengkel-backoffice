@@ -24,9 +24,7 @@ export default function CashierPage() {
       getWo({
         ...woQuery,
         pageSize: 100,
-        date: woQuery.date
-          ? dayjs(woQuery.date).format("YYYY-MM-DD")
-          : "",
+        date: woQuery.date ? dayjs(woQuery.date).format("YYYY-MM-DD") : "",
       } as any),
     );
   }, [dispatch, woQuery]);
@@ -66,9 +64,7 @@ export default function CashierPage() {
         getWo({
           ...woQuery,
           pageSize: 100,
-          date: woQuery.date
-            ? dayjs(woQuery.date).format("YYYY-MM-DD")
-            : "",
+          date: woQuery.date ? dayjs(woQuery.date).format("YYYY-MM-DD") : "",
         } as any),
       );
       setTimeout(() => {
