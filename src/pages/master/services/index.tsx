@@ -27,6 +27,7 @@ import {
 } from "@heroui/react";
 
 import ModalAdd from "./components/modal-add";
+import UploadExcelService from "./components/upload-excel";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getService } from "@/stores/features/service/service-action";
@@ -118,6 +119,7 @@ export default function MasterServicePage() {
             >
               Export Excel
             </Button>
+            <UploadExcelService />
             <Button
               color="primary"
               startContent={<Plus size={16} />}
@@ -218,7 +220,12 @@ export default function MasterServicePage() {
               <TableCell>
                 <div className="flex items-center gap-2 text-xs font-semibold text-gray-600">
                   <Clock size={14} />
-                  {srv.estimated_duration}
+                  {srv.estimated_duration}{" "}
+                  {srv.estimated_type === "minutes"
+                    ? "Menit"
+                    : srv.estimated_type === "days"
+                      ? "Hari"
+                      : "Jam"}
                 </div>
               </TableCell>
               <TableCell>
