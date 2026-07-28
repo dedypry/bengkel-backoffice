@@ -18,8 +18,8 @@ import {
   CardFooter,
   CardHeader,
   Input,
-  Select,
-  SelectItem,
+  Tabs,
+  Tab,
 } from "@heroui/react";
 import {
   EyeIcon,
@@ -33,8 +33,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, type Key } from "react";
 
 import StatusQueue from "./status-queue";
 import ButtonStatus from "./button-status";
@@ -53,8 +52,9 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { setWoQuery } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
 import PageSize from "@/components/page-size";
-import CustomDatePicker from "@/components/forms/date-picker";
+import CustomDateRangePicker from "@/components/forms/date-range-picker";
 import { usePermission } from "@/components/use-permission";
+import { useSidebar } from "@/context/sidebar-context";
 import { IWorkOrder } from "@/utils/interfaces/IUser";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
@@ -64,8 +64,45 @@ interface Props {
   setWoId: (id: number) => void;
 }
 
+function MechanicCell({ item }: { item: IWorkOrder }) {
+  if (item.mechanics && item.mechanics.length > 0) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {item.mechanics.map((mc) => (
+          <Tooltip key={mc.id} content={mc.name} placement="top">
+            <Chip
+              avatar={
+                <Avatar
+                  className="uppercase"
+                  name={mc.name}
+                  src={mc.profile?.photo_url || getAvatarByName(mc.name)}
+                />
+              }
+              color="success"
+              variant="flat"
+            >
+              {mc.name.split(" ")[0]}
+            </Chip>
+          </Tooltip>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <Chip
+      className="text-danger border-danger text-xs italic"
+      color="danger"
+      variant="dot"
+    >
+      Belum ada mekanik
+    </Chip>
+  );
+}
+
 export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { orders, woQuery } = useAppSelector((state) => state.wo);
+  const { collapsed } = useSidebar();
   const [openCancel, setOpenCancel] = useState(false);
   const [openManual, setOpenManual] = useState(false);
   const [woItem, setWoItem] = useState<IWorkOrder>();
@@ -76,9 +113,13 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { hasPermission } = usePermission();
   const resUpdate = hasPermission("wo.update");
   const resDelete = hasPermission("wo.delete");
-  const { t } = useTranslation();
+  // Sidebar expanded → kolom digabung; collapsed → dipisah
+  const mergePriorityMechanic = !collapsed;
 
-  const debounceSearch = debounce((q) => dispatch(getWo({ q })), 500);
+  const debounceSearch = debounce(
+    (q) => dispatch(setWoQuery({ q, page: 1 })),
+    500,
+  );
 
   const handleCallCashier = (item: IWorkOrder) => {
     setCallingCashierId(item.id);
@@ -89,13 +130,199 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
       .finally(() => setCallingCashierId(null));
   };
 
-  const statusOptions = [
-    { key: "all", label: t("all") },
-    { key: "queue", label: t("queue") },
-    { key: "on_progress", label: t("on_progress") },
-    { key: "ready", label: t("ready") },
-    { key: "finish", label: t("finish") },
-  ];
+  const activeTab = ["active", "finish", "cancel"].includes(woQuery.status)
+    ? woQuery.status
+    : "active";
+
+  const columns = mergePriorityMechanic
+    ? [
+        { key: "estimasi", label: "ESTIMASI/ANTREAN" },
+        { key: "pelanggan", label: "PELANGGAN & UNIT" },
+        { key: "priority_mech", label: "PRIORITAS & MEKANIK" },
+        { key: "tanggal", label: "TANGGAL MASUK" },
+        { key: "status", label: "STATUS" },
+        { key: "aksi", label: "AKSI" },
+      ]
+    : [
+        { key: "estimasi", label: "ESTIMASI/ANTREAN" },
+        { key: "pelanggan", label: "PELANGGAN & UNIT" },
+        { key: "priority", label: "PRIORITAS" },
+        { key: "tanggal", label: "TANGGAL MASUK" },
+        { key: "mechanic", label: "DIKERJAKAN OLEH" },
+        { key: "status", label: "STATUS" },
+        { key: "aksi", label: "AKSI" },
+      ];
+
+  const renderCell = (item: IWorkOrder, columnKey: Key) => {
+    switch (columnKey) {
+      case "estimasi":
+        return (
+          <button
+            className="flex w-full flex-col items-center bg-default-100 rounded-lg py-1 px-2 border border-default-200"
+            type="button"
+            onClick={() => navigate(`/service/queue/${item.id}`)}
+          >
+            <span className="text-[10px] font-bold text-gray-500 uppercase">
+              {calculateTotalEstimation(
+                item.services.map((svc) => ({
+                  estimated: svc.data.estimated_duration,
+                  type: svc.data.estimated_type,
+                })),
+              )}
+            </span>
+            <span className="text-sm font-black text-primary tracking-tight">
+              {item.trx_no || item.queue_no}
+            </span>
+          </button>
+        );
+      case "pelanggan":
+        return (
+          <div className="flex flex-col">
+            <span className="font-bold text-default-800 uppercase tracking-wide">
+              {item.vehicle.plate_number}
+            </span>
+            <span className="text-tiny text-gray-500 truncate max-w-[150px]">
+              {item.customer.name} • {item.vehicle.brand} {item.vehicle.model}
+            </span>
+          </div>
+        );
+      case "priority":
+        return <ChipPriority wo={item} />;
+      case "priority_mech":
+        return (
+          <div className="flex flex-col gap-2">
+            <ChipPriority wo={item} />
+            <MechanicCell item={item} />
+          </div>
+        );
+      case "tanggal":
+        return (
+          <div className="flex items-center gap-2 text-default-600">
+            <CalendarDays className="text-gray-400" size={14} />
+            <span className="text-tiny font-medium">
+              {dayjs(item.created_at).format("DD MMM YY | HH:mm")}
+            </span>
+          </div>
+        );
+      case "mechanic":
+        return <MechanicCell item={item} />;
+      case "status":
+        return <StatusQueue wo={item} />;
+      case "aksi":
+        return (
+          <div className="flex items-center gap-2 justify-end">
+            {resUpdate && item.progress === "ready" && (
+              <Tooltip content="Panggil kasir untuk pembayaran">
+                <Button
+                  isIconOnly
+                  color="warning"
+                  isLoading={callingCashierId === item.id}
+                  size="sm"
+                  variant="flat"
+                  onPress={() => handleCallCashier(item)}
+                >
+                  <BellRing size={18} />
+                </Button>
+              </Tooltip>
+            )}
+            {resUpdate && (
+              <ButtonStatus
+                item={item}
+                onSuccess={() => dispatch(getWo(woQuery))}
+              />
+            )}
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Button
+                  isIconOnly
+                  className="text-gray-400"
+                  size="sm"
+                  variant="light"
+                >
+                  <MoreVertical size={20} />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Aksi Antrean">
+                <DropdownItem
+                  key="detail"
+                  startContent={<EyeIcon size={18} />}
+                  onPress={() => navigate(`/service/queue/${item.id}`)}
+                >
+                  Detail Order
+                </DropdownItem>
+
+                {resUpdate ? (
+                  <DropdownItem
+                    key="mech"
+                    startContent={<UserCircleIcon size={18} />}
+                    onPress={() => {
+                      dispatch(setMechanic(item.mechanics?.map((m) => m.id)));
+                      setOpenModal(true);
+                      setWoId(item.id);
+                    }}
+                  >
+                    Pilih Mekanik
+                  </DropdownItem>
+                ) : (
+                  <DropdownItem key="spacer" className="hidden" />
+                )}
+
+                {resUpdate ? (
+                  <DropdownItem
+                    key="manual-change-status"
+                    startContent={<PencilIcon size={18} />}
+                    onPress={() => {
+                      setWoItem(item);
+                      setOpenManual(true);
+                    }}
+                  >
+                    Ubah Status Manual
+                  </DropdownItem>
+                ) : (
+                  <DropdownItem
+                    key="manual-change-status-spacer"
+                    className="hidden"
+                  />
+                )}
+
+                {resUpdate && item.progress === "ready" ? (
+                  <DropdownItem
+                    key="call-cashier"
+                    startContent={<BellRing size={18} />}
+                    onPress={() => handleCallCashier(item)}
+                  >
+                    Panggil Kasir
+                  </DropdownItem>
+                ) : (
+                  <DropdownItem key="call-cashier-spacer" className="hidden" />
+                )}
+
+                {!["finish", "cancel", "rejected"].includes(
+                  item.progress || "",
+                ) && resDelete ? (
+                  <DropdownItem
+                    key="delete"
+                    className="text-danger"
+                    color="danger"
+                    startContent={<Trash2 size={18} />}
+                    onPress={() => {
+                      setWoItem(item);
+                      setOpenCancel(true);
+                    }}
+                  >
+                    Batalkan Service
+                  </DropdownItem>
+                ) : (
+                  <DropdownItem key="spacer-2" className="hidden" />
+                )}
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -114,6 +341,25 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
         </>
       )}
 
+      <Tabs
+        aria-label="Filter antrean"
+        classNames={{
+          cursor: "bg-primary",
+          tabContent:
+            "group-data-[selected=true]:text-primary text-black font-semibold",
+        }}
+        color="primary"
+        selectedKey={activeTab}
+        variant="underlined"
+        onSelectionChange={(key) =>
+          dispatch(setWoQuery({ status: String(key), page: 1 }))
+        }
+      >
+        <Tab key="active" title="On Progress" />
+        <Tab key="finish" title="Finish" />
+        <Tab key="cancel" title="Batal" />
+      </Tabs>
+
       <Card>
         <CardHeader className="flex justify-between gap-2">
           <PageSize
@@ -122,7 +368,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
             onSelectionChange={(key) => {
               const val = Array.from(key)[0];
 
-              dispatch(setWoQuery({ pageSize: val }));
+              dispatch(setWoQuery({ pageSize: val, page: 1 }));
             }}
           />
           <div className="flex justify-end gap-2">
@@ -133,256 +379,67 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
               placeholder="Cari No. Polisi atau Nama..."
               startContent={<Search size={18} />}
               onChange={(e) => debounceSearch(e.target.value)}
-              onClear={() => dispatch(getWo({ q: "" }))}
+              onClear={() => dispatch(setWoQuery({ q: "", page: 1 }))}
             />
-
-            <Select
-              className="max-w-[200px]"
-              label="Status"
-              placeholder="Filter Status"
-              selectedKeys={woQuery.status ? [woQuery.status] : ["all"]}
-              onSelectionChange={(keys) => {
-                const selectedValue = Array.from(keys)[0] as string;
-
-                dispatch(setWoQuery({ status: selectedValue }));
-              }}
-            >
-              {statusOptions.map((status) => (
-                <SelectItem key={status.key} textValue={status.label}>
-                  {status.label}
-                </SelectItem>
-              ))}
-            </Select>
-            <CustomDatePicker
+            <CustomDateRangePicker
+              className="w-[300px]"
               label="Tanggal"
-              value={woQuery.date}
-              onChange={(date) => dispatch(setWoQuery({ date }))}
+              value={
+                {
+                  start: woQuery.date_from,
+                  end: woQuery.date_to,
+                } as any
+              }
+              onChange={(val: any) => {
+                dispatch(
+                  setWoQuery({
+                    date: "",
+                    date_from: val?.start || "",
+                    date_to: val?.end || "",
+                    page: 1,
+                  }),
+                );
+              }}
             />
           </div>
         </CardHeader>
         <CardBody>
-          <Table removeWrapper aria-label="Tabel Antrean Bengkel">
-            <TableHeader>
-              <TableColumn width={160}>ESTIMASI/ANTREAN</TableColumn>
-              <TableColumn>PELANGGAN & UNIT</TableColumn>
-              <TableColumn align="center">PRIORITAS</TableColumn>
-              <TableColumn>TANGGAL MASUK</TableColumn>
-              <TableColumn>DIKERJAKAN OLEH</TableColumn>
-              <TableColumn align="center">STATUS</TableColumn>
-              <TableColumn align="center">AKSI</TableColumn>
+          <Table
+            key={mergePriorityMechanic ? "merged" : "split"}
+            removeWrapper
+            aria-label="Tabel Antrean Bengkel"
+          >
+            <TableHeader columns={columns}>
+              {(column) => (
+                <TableColumn
+                  key={column.key}
+                  align={
+                    column.key === "status" || column.key === "aksi"
+                      ? "center"
+                      : column.key === "priority"
+                        ? "center"
+                        : "start"
+                  }
+                  width={column.key === "estimasi" ? 160 : undefined}
+                >
+                  {column.label}
+                </TableColumn>
+              )}
             </TableHeader>
-            <TableBody emptyContent="Tidak ada antrean saat ini">
-              {(orders?.data || []).map((item) => (
+            <TableBody
+              emptyContent="Tidak ada antrean saat ini"
+              items={orders?.data || []}
+            >
+              {(item) => (
                 <TableRow
                   key={item.id}
                   className="border-b border-default-50 last:border-none"
                 >
-                  <TableCell
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/service/queue/${item.id}`)}
-                  >
-                    <div className="flex flex-col items-center bg-default-100 rounded-lg py-1 px-2 border border-default-200">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase">
-                        {calculateTotalEstimation(
-                          item.services.map((item) => ({
-                            estimated: item.data.estimated_duration,
-                            type: item.data.estimated_type,
-                          })),
-                        )}
-                      </span>
-                      <span className="text-sm font-black text-primary tracking-tight">
-                        {item.trx_no || item.queue_no}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-default-800 uppercase tracking-wide">
-                        {item.vehicle.plate_number}
-                      </span>
-                      <span className="text-tiny text-gray-500 truncate max-w-[150px]">
-                        {item.customer.name} • {item.vehicle.brand}{" "}
-                        {item.vehicle.model}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <ChipPriority wo={item} />
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex items-center gap-2 text-default-600">
-                      <CalendarDays className="text-gray-400" size={14} />
-                      <span className="text-tiny font-medium">
-                        {dayjs(item.created_at).format("DD MMM YY | HH:mm")}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    {item.mechanics && item.mechanics.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {item.mechanics.map((mc) => (
-                          <Tooltip
-                            key={mc.id}
-                            content={mc.name}
-                            placement="top"
-                          >
-                            <Chip
-                              avatar={
-                                <Avatar
-                                  className="uppercase"
-                                  name={mc.name}
-                                  src={
-                                    mc.profile?.photo_url ||
-                                    getAvatarByName(mc.name)
-                                  }
-                                />
-                              }
-                              color="success"
-                              variant="flat"
-                            >
-                              {mc.name.split(" ")[0]}
-                            </Chip>
-                          </Tooltip>
-                        ))}
-                      </div>
-                    ) : (
-                      <Chip
-                        className="text-danger border-danger text-xs italic"
-                        color="danger"
-                        variant="dot"
-                      >
-                        Belum ada mekanik
-                      </Chip>
-                    )}
-                  </TableCell>
-
-                  <TableCell>
-                    <StatusQueue wo={item} />
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex items-center gap-2 justify-end">
-                      {resUpdate && item.progress === "ready" && (
-                        <Tooltip content="Panggil kasir untuk pembayaran">
-                          <Button
-                            isIconOnly
-                            color="warning"
-                            isLoading={callingCashierId === item.id}
-                            size="sm"
-                            variant="flat"
-                            onPress={() => handleCallCashier(item)}
-                          >
-                            <BellRing size={18} />
-                          </Button>
-                        </Tooltip>
-                      )}
-                      {resUpdate && (
-                        <ButtonStatus
-                          item={item}
-                          onSuccess={() => dispatch(getWo(woQuery))}
-                        />
-                      )}
-                      <Dropdown placement="bottom-end">
-                        <DropdownTrigger>
-                          <Button
-                            isIconOnly
-                            className="text-gray-400"
-                            size="sm"
-                            variant="light"
-                          >
-                            <MoreVertical size={20} />
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu aria-label="Aksi Antrean">
-                          <DropdownItem
-                            key="detail"
-                            startContent={<EyeIcon size={18} />}
-                            onPress={() =>
-                              navigate(`/service/queue/${item.id}`)
-                            }
-                          >
-                            Detail Order
-                          </DropdownItem>
-
-                          {resUpdate ? (
-                            <DropdownItem
-                              key="mech"
-                              startContent={<UserCircleIcon size={18} />}
-                              onPress={() => {
-                                dispatch(
-                                  setMechanic(item.mechanics?.map((m) => m.id)),
-                                );
-                                setOpenModal(true);
-                                setWoId(item.id);
-                              }}
-                            >
-                              Pilih Mekanik
-                            </DropdownItem>
-                          ) : (
-                            <DropdownItem key="spacer" className="hidden" />
-                          )}
-
-                          {resUpdate ? (
-                            <DropdownItem
-                              key="manual-change-status"
-                              startContent={<PencilIcon size={18} />}
-                              onPress={() => {
-                                setWoItem(item);
-                                setOpenManual(true);
-                              }}
-                            >
-                              Ubah Status Manual
-                            </DropdownItem>
-                          ) : (
-                            <DropdownItem
-                              key="manual-change-status-spacer"
-                              className="hidden"
-                            />
-                          )}
-
-                          {resUpdate && item.progress === "ready" ? (
-                            <DropdownItem
-                              key="call-cashier"
-                              startContent={<BellRing size={18} />}
-                              onPress={() => handleCallCashier(item)}
-                            >
-                              Panggil Kasir
-                            </DropdownItem>
-                          ) : (
-                            <DropdownItem
-                              key="call-cashier-spacer"
-                              className="hidden"
-                            />
-                          )}
-
-                          {!["finish", "cancel", "rejected"].includes(
-                            item.progress || "",
-                          ) && resDelete ? (
-                            <DropdownItem
-                              key="delete"
-                              className="text-danger"
-                              color="danger"
-                              startContent={<Trash2 size={18} />}
-                              onPress={() => {
-                                setWoItem(item);
-                                setOpenCancel(true);
-                              }}
-                            >
-                              Batalkan Service
-                            </DropdownItem>
-                          ) : (
-                            <DropdownItem key="spacer-2" className="hidden" />
-                          )}
-                        </DropdownMenu>
-                      </Dropdown>
-                    </div>
-                  </TableCell>
+                  {(columnKey) => (
+                    <TableCell>{renderCell(item, columnKey)}</TableCell>
+                  )}
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardBody>
