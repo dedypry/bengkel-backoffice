@@ -42,6 +42,7 @@ export interface IQueue {
 
 export interface IQueueDisplay {
   date: string;
+  company_name?: string;
   calling: IQueue[];
   waiting: IQueue[];
   total_waiting: number;

@@ -389,7 +389,7 @@ export default function ProfileSettingsPage() {
                           errorMessage={errors.name?.message}
                           isInvalid={!!errors.name}
                           label="Nama Cabang / Bengkel"
-                          placeholder="Bengkel Maju Jaya"
+                          placeholder="Masukkan nama cabang / bengkel"
                           variant="bordered"
                         />
                       )}

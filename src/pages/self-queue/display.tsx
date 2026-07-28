@@ -174,7 +174,7 @@ export default function QueueDisplayPage() {
         <div className="min-w-0">
           <p className="flex items-center gap-1.5 truncate text-xs font-bold uppercase tracking-wide text-white/90 sm:text-sm">
             <Sparkles className="size-3.5 shrink-0 text-amber-200 sm:size-4" />
-            Bengkel Maju Jaya
+            {display?.company_name || "Bengkel"}
           </p>
           <h1 className="truncate text-xl font-black sm:text-2xl lg:text-3xl">
             Display Antrean Servis
