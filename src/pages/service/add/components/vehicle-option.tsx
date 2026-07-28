@@ -66,14 +66,7 @@ export default function VehicleOption({ value, onChange }: Props) {
     >
       {(item) => (
         <AutocompleteItem key={item.plate_number} textValue={item.plate_number}>
-          <div className="flex flex-col">
-            <span className="font-bold text-small uppercase">
-              {item.plate_number}
-            </span>
-            <span className="text-tiny">
-              {item.brand} {item.model} ({item.year})
-            </span>
-          </div>
+          {item.plate_number} - {item.model}
         </AutocompleteItem>
       )}
     </Autocomplete>
