@@ -3,6 +3,7 @@ import {
   AutocompleteItem,
   Button,
   Input,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -18,7 +19,6 @@ import ModalAdd from "./components/add-modal";
 import HeaderAction from "@/components/header-action";
 import {
   getMasterVehicle,
-  getVehicle,
   getVehicleListMaster,
 } from "@/stores/features/vehicle/vehicle-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -31,7 +31,9 @@ import debounce from "@/utils/helpers/debounce";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function VehiclePage() {
-  const { vehicleMaster, master } = useAppSelector((state) => state.vehicle);
+  const { vehicleMaster, master, isLoadingMaster } = useAppSelector(
+    (state) => state.vehicle,
+  );
   const { company } = useAppSelector((state) => state.auth);
   const [data, setData] = useState<IVehicleItem>();
   const [open, setOpen] = useState(false);
@@ -71,6 +73,7 @@ export default function VehiclePage() {
     const payload = {
       ...query,
       [key]: value,
+      ...(key !== "page" ? { page: 1 } : {}),
     };
 
     setQuery(payload);
@@ -78,6 +81,11 @@ export default function VehiclePage() {
   }
 
   const searchVehicle = debounce((q) => handleSearch("q", q), 500);
+
+  const page = Number(vehicleMaster?.meta?.page || query.page || 1);
+  const pageSize = Number(
+    vehicleMaster?.meta?.pageSize || query.pageSize || 10,
+  );
 
   return (
     <>
@@ -128,15 +136,7 @@ export default function VehiclePage() {
         bottomContent={
           <CustomPagination
             meta={vehicleMaster?.meta!}
-            onPageChange={(page) => {
-              setQuery({ ...query, page });
-              dispatch(
-                getVehicle({
-                  ...query,
-                  page,
-                }),
-              );
-            }}
+            onPageChange={(nextPage) => handleSearch("page", nextPage)}
           />
         }
         topContent={
@@ -148,7 +148,7 @@ export default function VehiclePage() {
               onSelectionChange={(key) => {
                 const val = Array.from(key)[0];
 
-                handleSearch("pageSize", val);
+                handleSearch("pageSize", Number(val));
               }}
             />
             <Autocomplete
@@ -156,7 +156,7 @@ export default function VehiclePage() {
               defaultItems={master}
               label="Merk"
               onSelectionChange={(val) => {
-                handleSearch("merk", val);
+                handleSearch("merk", val ? String(val) : "");
               }}
             >
               {(item) => (
@@ -186,10 +186,14 @@ export default function VehiclePage() {
           <TableColumn>CC</TableColumn>
           <TableColumn className="w-32"> </TableColumn>
         </TableHeader>
-        <TableBody>
+        <TableBody
+          emptyContent="Data kendaraan tidak ditemukan"
+          isLoading={isLoadingMaster}
+          loadingContent={<Spinner color="primary" label="Memuat data..." />}
+        >
           {(vehicleMaster?.data || []).map((row, index) => (
-            <TableRow key={index}>
-              <TableCell>{index + 1}</TableCell>
+            <TableRow key={row.id || index}>
+              <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
               <TableCell>{row.type || "Tidak Ada Nama"}</TableCell>
               <TableCell>{row.merk}</TableCell>
               <TableCell>{row.cc}</TableCell>

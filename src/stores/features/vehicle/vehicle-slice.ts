@@ -18,6 +18,7 @@ export const vehicleSlice = createSlice({
     vehicles: null as IPagination<IVehicle> | null,
     histories: [] as IWorkOrder[],
     vehicleMaster: null as IPagination<IVehicleItem> | null,
+    isLoadingMaster: false,
     vehicleQuery: {
       page: 1,
       pageSize: 10,
@@ -38,8 +39,15 @@ export const vehicleSlice = createSlice({
   },
   extraReducers: (builder) =>
     builder
+      .addCase(getVehicleListMaster.pending, (state) => {
+        state.isLoadingMaster = true;
+      })
       .addCase(getVehicleListMaster.fulfilled, (state, action) => {
         state.vehicleMaster = action.payload;
+        state.isLoadingMaster = false;
+      })
+      .addCase(getVehicleListMaster.rejected, (state) => {
+        state.isLoadingMaster = false;
       })
       .addCase(getVehicle.fulfilled, (state, action) => {
         state.vehicles = action.payload;
