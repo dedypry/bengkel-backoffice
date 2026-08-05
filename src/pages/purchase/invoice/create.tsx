@@ -393,7 +393,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                 <div className="flex gap-1">
                   <AutocompleteControl
                     control={control}
-                    items={suppliersAll}
+                    items={Array.isArray(suppliersAll) ? suppliersAll : []}
                     label="Supplier"
                     name="supplier_id"
                     placeholder="Pilih Supplier"

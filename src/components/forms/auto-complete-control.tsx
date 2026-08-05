@@ -18,13 +18,19 @@ export default function AutocompleteControl({
   keyValue?: string;
   keyLabel?: string;
 }) {
+  const safeItems = Array.isArray(items)
+    ? items
+    : Array.isArray((items as any)?.data)
+      ? (items as any).data
+      : [];
+
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
         <Autocomplete
-          defaultItems={items}
+          defaultItems={safeItems}
           errorMessage={fieldState.error?.message}
           inputProps={{
             classNames: {
@@ -36,9 +42,15 @@ export default function AutocompleteControl({
           label={label}
           labelPlacement="outside-left"
           placeholder={placeholder}
-          selectedKey={field.value?.toString()}
+          selectedKey={
+            field.value != null && field.value !== ""
+              ? String(field.value)
+              : null
+          }
           size="sm"
-          onSelectionChange={(val) => field.onChange(Number(val))}
+          onSelectionChange={(val) =>
+            field.onChange(val == null ? undefined : Number(val))
+          }
         >
           {(item) => (
             <AutocompleteItem key={item[keyValue]} textValue={item[keyLabel]}>

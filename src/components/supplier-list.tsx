@@ -42,11 +42,11 @@ export default function SupplierList({
       classNames={{
         clearButton: "text-gray-700",
       }}
-      defaultItems={suppliersAll}
+      defaultItems={Array.isArray(suppliersAll) ? suppliersAll : []}
       errorMessage={errorMessage}
       isDisabled={isDisabled}
       isInvalid={isInvalid}
-      selectedKey={String(value)}
+      selectedKey={value != null ? String(value) : null}
       size={size}
       onSelectionChange={(val) => onChange(Number(val))}
     >

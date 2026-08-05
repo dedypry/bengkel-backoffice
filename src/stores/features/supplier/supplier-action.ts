@@ -39,7 +39,10 @@ export const getSupplierAll = createAsyncThunk("get-supplier-all", async () => {
   try {
     const { data } = await http.get("/suppliers/all");
 
-    return data;
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
+
+    return [];
   } catch (error) {
     console.error(error);
 
