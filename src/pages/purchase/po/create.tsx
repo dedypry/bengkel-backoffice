@@ -1,6 +1,6 @@
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Control, Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -32,6 +32,7 @@ import { useNavigate } from "react-router-dom";
 import ModalPart from "./modal-part";
 
 import HeaderAction from "@/components/header-action";
+import AutocompleteControl from "@/components/forms/auto-complete-control";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getSupplierAll } from "@/stores/features/supplier/supplier-action";
 import DatePicker from "@/components/forms/date-picker";
@@ -161,7 +162,7 @@ export default function PoCreatePage({ po }: Props) {
         closed_notes: po.closed_notes,
         status: po.status,
         signature_id: po.signature_id,
-        items: po.items.map((item) => ({
+        items: (po.items || []).map((item) => ({
           id: item.product_id,
           code: item.product?.code,
           name: item.product?.name,
@@ -706,47 +707,3 @@ export default function PoCreatePage({ po }: Props) {
   );
 }
 
-function AutocompleteControl({
-  control,
-  items,
-  name,
-  label,
-  placeholder,
-}: {
-  control: Control<PoFormValues>;
-  items: any[];
-  name: keyof PoFormValues;
-  label: string;
-  placeholder: string;
-}) {
-  return (
-    <Controller
-      control={control}
-      name={name}
-      render={({ field, fieldState }) => (
-        <Autocomplete
-          defaultItems={items}
-          errorMessage={fieldState.error?.message}
-          inputProps={{
-            classNames: {
-              label: "w-28 text-sm",
-            },
-          }}
-          isInvalid={!!fieldState.error}
-          label={label}
-          labelPlacement="outside-left"
-          placeholder={placeholder}
-          selectedKey={field.value?.toString()}
-          size="sm"
-          onSelectionChange={(val) => field.onChange(Number(val))}
-        >
-          {(item) => (
-            <AutocompleteItem key={item.id} textValue={item.name}>
-              {item.name}
-            </AutocompleteItem>
-          )}
-        </Autocomplete>
-      )}
-    />
-  );
-}

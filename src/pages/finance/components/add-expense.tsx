@@ -115,7 +115,7 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
                 name="category_id"
                 render={({ field, fieldState }) => (
                   <Autocomplete
-                    defaultItems={categories}
+                    defaultItems={Array.isArray(categories) ? categories : []}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label="Kategori"

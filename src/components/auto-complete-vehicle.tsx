@@ -11,7 +11,7 @@ export default function AutoCompleteVehilce({
   value,
   ...props
 }: Props & InputProps) {
-  const defaultItem = (items || []).map((item) => ({
+  const defaultItem = (Array.isArray(items) ? items : []).map((item) => ({
     label: item,
     value: item,
   }));

@@ -72,7 +72,7 @@ export default function AddRole({ open, setOpen, data }: Props) {
   useEffect(() => {
     if (data && open) {
       reset({ id: data.id, name: data.name, description: data.description });
-      setSelectedIds(data.permissions.map((e) => e.id));
+      setSelectedIds((data.permissions || []).map((e) => e.id));
       setError("");
     } else if (open) {
       reset({ name: "", description: "" });

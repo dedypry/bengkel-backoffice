@@ -159,7 +159,7 @@ export default function PanelCustomer() {
       woId: workOrder.id,
       ...data,
       products: [
-        ...workOrder.services.map((item) => ({
+        ...(workOrder.services || []).map((item) => ({
           id: item.id,
           product_id: item.data.id,
           price: Number(item.price),
@@ -286,7 +286,7 @@ export default function PanelCustomer() {
                 <TableColumn> </TableColumn>
               </TableHeader>
               <TableBody>
-                {workOrder.services.map((item, i) => (
+                {(workOrder.services || []).map((item, i) => (
                   <TableRow key={i}>
                     <TableCell className="max-w-[150px]  truncate whitespace-nowrap">
                       <Tooltip color="primary" content={item.data.name}>

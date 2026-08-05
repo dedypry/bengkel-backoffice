@@ -106,7 +106,7 @@ export default function ModalBulkCategory({
         setOpen={setModalAddCat}
         onClose={(val) => {
           if (val) {
-            setCategoryChildren(val?.children);
+            setCategoryChildren(val?.children || []);
             setValue("categoryId", val?.children[0]?.id);
             setValue("mainCategoryId", val?.id);
           }
@@ -140,7 +140,7 @@ export default function ModalBulkCategory({
                   name="mainCategoryId"
                   render={({ field, fieldState }) => (
                     <Autocomplete
-                      defaultItems={categories}
+                      defaultItems={Array.isArray(categories) ? categories : []}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label="Kategori"
@@ -154,7 +154,7 @@ export default function ModalBulkCategory({
                           );
 
                           if (category) {
-                            setCategoryChildren(category.children);
+                            setCategoryChildren(category.children || []);
                           }
                         }
                       }}
@@ -172,7 +172,9 @@ export default function ModalBulkCategory({
                   name="categoryId"
                   render={({ field, fieldState }) => (
                     <Autocomplete
-                      defaultItems={categoryChildren}
+                      defaultItems={
+                        Array.isArray(categoryChildren) ? categoryChildren : []
+                      }
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label="Sub Kategori"

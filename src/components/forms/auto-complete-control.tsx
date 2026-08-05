@@ -1,6 +1,8 @@
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { Controller } from "react-hook-form";
 
+import { asArray } from "@/utils/helpers/as-array";
+
 export default function AutocompleteControl({
   control,
   items,
@@ -11,18 +13,14 @@ export default function AutocompleteControl({
   keyLabel = "name",
 }: {
   control: any;
-  items: any[];
+  items: any;
   name: string;
   label: string;
   placeholder?: string;
   keyValue?: string;
   keyLabel?: string;
 }) {
-  const safeItems = Array.isArray(items)
-    ? items
-    : Array.isArray((items as any)?.data)
-      ? (items as any).data
-      : [];
+  const safeItems = asArray(items);
 
   return (
     <Controller
@@ -53,7 +51,10 @@ export default function AutocompleteControl({
           }
         >
           {(item) => (
-            <AutocompleteItem key={item[keyValue]} textValue={item[keyLabel]}>
+            <AutocompleteItem
+              key={item[keyValue]}
+              textValue={String(item[keyLabel] ?? "")}
+            >
               {item[keyLabel]}
             </AutocompleteItem>
           )}

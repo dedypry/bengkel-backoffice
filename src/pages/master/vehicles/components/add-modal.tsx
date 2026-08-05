@@ -110,7 +110,7 @@ export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
               name="merk"
               render={({ field, fieldState }) => (
                 <Autocomplete
-                  defaultItems={vehicles}
+                  defaultItems={Array.isArray(vehicles) ? vehicles : []}
                   errorMessage={fieldState.error?.message}
                   inputValue={field.value}
                   isInvalid={!!fieldState.error}

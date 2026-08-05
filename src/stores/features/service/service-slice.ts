@@ -38,7 +38,9 @@ const serviceSlice = createSlice({
         state.services = action.payload;
       })
       .addCase(getCategories.fulfilled, (state, action) => {
-        state.categories = action.payload;
+        state.categories = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.data || [];
       }),
 });
 

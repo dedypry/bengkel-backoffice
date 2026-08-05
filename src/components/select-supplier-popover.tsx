@@ -7,11 +7,12 @@ import {
 } from "@heroui/react";
 import { ReactNode, useState } from "react";
 
+import { asArray } from "@/utils/helpers/as-array";
 import { ISupplier } from "@/utils/interfaces/ISupplier";
 
 interface Props {
   value: number;
-  suppliers: ISupplier[];
+  suppliers: ISupplier[] | any;
   children: ReactNode;
   onSelectionChange: (val: ISupplier) => void;
 }
@@ -22,6 +23,7 @@ export default function SelectSupplierPopover({
   onSelectionChange,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  const safeSuppliers = asArray<ISupplier>(suppliers);
 
   return (
     <Popover
@@ -32,13 +34,13 @@ export default function SelectSupplierPopover({
       <PopoverTrigger>{children}</PopoverTrigger>
       <PopoverContent className="p-0">
         <Autocomplete
-          defaultItems={suppliers}
+          defaultItems={safeSuppliers}
           placeholder="Pilih Supplier"
           selectedKey={value?.toString()}
           onSelectionChange={(val) => {
-            const find = suppliers.find((e) => e.id == val);
+            const find = safeSuppliers.find((e) => e.id == val);
 
-            onSelectionChange(find!);
+            if (find) onSelectionChange(find);
             setIsOpen(false);
           }}
         >

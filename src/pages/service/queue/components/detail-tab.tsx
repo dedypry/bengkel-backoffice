@@ -419,7 +419,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
             <TableBody>
-              {[...data.services.map((e) => ({ ...e, type: "srv" }))].map(
+              {[...(data.services || []).map((e) => ({ ...e, type: "srv" }))].map(
                 (item: any, idx: number) => {
                   const find = services.find((e) => e.id === item.data?.id);
 

@@ -159,7 +159,7 @@ export default function MasterCustomerPage() {
               classNames={{
                 clearButton: "text-gray-500",
               }}
-              defaultItems={vehicles}
+              defaultItems={Array.isArray(vehicles) ? vehicles : []}
               placeholder="Pilih Type Kendaraan"
               selectedKey={query.brand}
               onInputChange={(val) => {
@@ -175,7 +175,9 @@ export default function MasterCustomerPage() {
               }}
               onSelectionChange={(val) => {
                 if (val) {
-                  const find = vehicles.find((e) => e.type === val);
+                  const find = (Array.isArray(vehicles) ? vehicles : []).find(
+                    (e) => e.type === val,
+                  );
 
                   setVehicle(find);
                   dispatch(

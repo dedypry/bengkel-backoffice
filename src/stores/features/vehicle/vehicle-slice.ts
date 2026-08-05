@@ -56,7 +56,9 @@ export const vehicleSlice = createSlice({
         state.histories = action.payload;
       })
       .addCase(getMasterVehicle.fulfilled, (state, action) => {
-        state.master = action.payload;
+        state.master = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.data || [];
       }),
 });
 

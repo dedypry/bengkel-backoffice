@@ -27,11 +27,13 @@ import debounce from "@/utils/helpers/debounce";
 import InputQty from "@/components/input-qty";
 import { ISupplier } from "@/utils/interfaces/ISupplier";
 import InputNumber from "@/components/input-number";
+import { asArray } from "@/utils/helpers/as-array";
 
 export default function TabService() {
   const { services } = useAppSelector((state) => state.service);
   const { services: selectedServices } = useAppSelector((state) => state.wo);
   const { suppliers } = useAppSelector((state) => state.supplier);
+  const supplierOptions = asArray<ISupplier>(suppliers);
 
   const [search, setSearch] = useState("");
 
@@ -158,7 +160,7 @@ export default function TabService() {
                     classNames={{
                       clearButton: "text-gray-500",
                     }}
-                    defaultItems={(suppliers || []) as ISupplier[]}
+                    defaultItems={supplierOptions}
                     placeholder="Cari Supplier"
                     selectedKey={find?.supplier_id?.toString()}
                     size="sm"

@@ -51,7 +51,7 @@ export default function VehicleOption({ value, onChange }: Props) {
       allowsCustomValue
       aria-label="Pilih Kendaraan"
       className="max-w-full"
-      defaultItems={vehicles}
+      defaultItems={Array.isArray(vehicles) ? vehicles : []}
       inputValue={value || ""}
       label="No. Polisi (Nopol)"
       labelPlacement="outside"

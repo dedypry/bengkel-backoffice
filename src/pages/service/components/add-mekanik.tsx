@@ -54,14 +54,20 @@ export default function AddMechanich({
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredMechanics = useMemo(() => {
-    if (!mechanics) return [];
+    const list = (
+      Array.isArray(mechanics)
+        ? mechanics
+        : Array.isArray((mechanics as any)?.data)
+          ? (mechanics as any).data
+          : []
+    ) as typeof mechanics;
 
     const term = searchQuery.toLowerCase();
 
-    return mechanics.filter(
+    return list.filter(
       (m) =>
-        m.name.toLowerCase().includes(term) ||
-        m.nik.toLowerCase().includes(term),
+        m.name?.toLowerCase().includes(term) ||
+        m.nik?.toLowerCase().includes(term),
     );
   }, [searchQuery, mechanics]);
 

@@ -41,7 +41,9 @@ export default function AddWoItems({ supplierId, onSave, selectedIds }: Props) {
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
 
-  const servicePayments = data.filter((e) => !selectedIds.includes(e.id));
+  const servicePayments = (data || []).filter(
+    (e) => !selectedIds.includes(e.id),
+  );
 
   useEffect(() => {
     if (supplierId) {

@@ -24,10 +24,10 @@ export const getCategories = createAsyncThunk("get-categories", async () => {
   try {
     const { data } = await http.get(`/services/categories`);
 
-    return data;
+    return Array.isArray(data) ? data : data?.data || [];
   } catch (error) {
     console.error(error);
 
-    return null;
+    return [];
   }
 });

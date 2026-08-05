@@ -153,7 +153,7 @@ export default function VehiclePage() {
             />
             <Autocomplete
               className="w-56"
-              defaultItems={master}
+              defaultItems={Array.isArray(master) ? master : []}
               label="Merk"
               onSelectionChange={(val) => {
                 handleSearch("merk", val ? String(val) : "");

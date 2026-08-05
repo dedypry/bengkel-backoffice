@@ -26,7 +26,9 @@ const mechanicSlice = createSlice({
   },
   extraReducers: (builder) =>
     builder.addCase(getMechanic.fulfilled, (state, action) => {
-      state.mechanics = action.payload;
+      state.mechanics = Array.isArray(action.payload)
+        ? action.payload
+        : action.payload?.data || [];
     }),
 });
 

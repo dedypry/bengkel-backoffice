@@ -38,7 +38,9 @@ const supplierSlice = createSlice({
         state.data = action.payload;
       })
       .addCase(getSupplierAll.fulfilled, (state, action) => {
-        state.suppliersAll = action.payload;
+        state.suppliersAll = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.data || [];
       }),
 });
 

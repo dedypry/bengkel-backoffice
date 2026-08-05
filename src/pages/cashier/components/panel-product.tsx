@@ -382,7 +382,7 @@ export default function PanelProduct() {
                         mainWrapper: "w-1/2",
                       },
                     }}
-                    items={data}
+                    items={data || []}
                     placeholder="Pilih Pelanggan"
                     selectedKey={field.value}
                     size="sm"

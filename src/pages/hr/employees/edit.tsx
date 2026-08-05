@@ -57,7 +57,7 @@ export default function EmployeesEditPage() {
         name: detail.name,
         email: detail.email,
         phone: detail.profile?.phone_number!,
-        role_ids: detail.roles.map((e) => e.id),
+        role_ids: (detail.roles || []).map((e) => e.id),
         department: detail.department,
         join_date: detail.profile?.join_date!,
         status: detail.status,

@@ -287,7 +287,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                     render={({ field, fieldState }) => (
                       <Autocomplete
                         className="flex-1"
-                        defaultItems={categories}
+                        defaultItems={categories || []}
                         errorMessage={fieldState.error?.message}
                         isInvalid={!!fieldState.error}
                         label="Kategori"

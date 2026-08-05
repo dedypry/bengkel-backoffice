@@ -118,7 +118,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
         const find = categories.find((e) => e.id === mainCatId);
 
         if (find) {
-          setSubCategories(find.children);
+          setSubCategories(find.children || []);
         } else {
           if (initialData.category) {
             formatCategories();
@@ -201,7 +201,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
         setOpen={setModalAddCat}
         onClose={(val) => {
           if (val?.children && val?.children.length > 0) {
-            setSubCategories(val?.children);
+            setSubCategories(val?.children || []);
             setValue("category_id", val?.children[0]?.id);
           }
           if (val?.id) {
@@ -293,7 +293,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                   name="main_category_id"
                   render={({ field, fieldState }) => (
                     <Autocomplete
-                      defaultItems={categories}
+                      defaultItems={Array.isArray(categories) ? categories : []}
                       endContent={
                         <Button
                           isIconOnly
@@ -319,7 +319,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                           const find = categories.find((e) => e.id == val);
 
                           if (find) {
-                            setSubCategories(find.children);
+                            setSubCategories(find.children || []);
                           }
                         }
                       }}
@@ -346,7 +346,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                   name="category_id"
                   render={({ field, fieldState }) => (
                     <Autocomplete
-                      defaultItems={subCategories}
+                      defaultItems={
+                        Array.isArray(subCategories) ? subCategories : []
+                      }
                       endContent={
                         <Button
                           isIconOnly
@@ -383,7 +385,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                           const find = categories.find((e) => e.id == val);
 
                           if (find) {
-                            setSubCategories(find.children);
+                            setSubCategories(find.children || []);
                           }
                         }
                       }}
@@ -402,7 +404,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                   name="uom_id"
                   render={({ field, fieldState }) => (
                     <Autocomplete
-                      defaultItems={uoms}
+                      defaultItems={Array.isArray(uoms) ? uoms : []}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label="Satuan"
