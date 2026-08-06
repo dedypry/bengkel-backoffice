@@ -397,10 +397,11 @@ export default function ServiceAddPage() {
                     );
 
                     dispatch(setCustomer(cus));
-                    if (cus?.vehicles && cus?.vehicles?.length > 0) {
+
+                    if (!watch("vehicle.plate_number") && cus?.vehicles?.length) {
                       setFormVehicle(cus.vehicles[0]);
-                    } else {
-                      handleVehicleReset();
+                      setNew(false);
+                      setEdit(false);
                     }
                   }}
                 />
@@ -529,10 +530,16 @@ export default function ServiceAddPage() {
                       value={watch("vehicle.plate_number")}
                       onChange={(val) => {
                         setFormVehicle(val);
+                        setNew(!!val?.isNew);
+                        setEdit(!!val?.isNew);
 
                         const customers = val?.customers || [];
 
-                        if (!watch("customer.id") && customers.length) {
+                        if (
+                          !val?.isNew &&
+                          !watch("customer.id") &&
+                          customers.length
+                        ) {
                           const cus = customers[0] as ICustomer;
 
                           setValue("customer.id", cus.id);
@@ -545,7 +552,10 @@ export default function ServiceAddPage() {
                             cus?.profile?.birth_date || "",
                           );
                           dispatch(setCustomer(cus));
-                          dispatch(getVehicleHistory(val?.plate_number));
+                        }
+
+                        if (val?.plate_number && !val?.isNew) {
+                          dispatch(getVehicleHistory(val.plate_number));
                         } else {
                           dispatch(resetHistory());
                         }
