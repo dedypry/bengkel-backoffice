@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import z from "zod";
 import {
   ArrowBigLeftDash,
@@ -27,7 +27,7 @@ import {
   TableRow,
   Tooltip,
 } from "@heroui/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ModalPart from "../po/modal-part";
@@ -46,6 +46,7 @@ import { IProduct } from "@/utils/interfaces/IProduct";
 import SumaryTable from "@/components/sumary";
 import InputNumber from "@/components/input-number";
 import { formatIDR } from "@/utils/helpers/format";
+import { asArray } from "@/utils/helpers/as-array";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { IPo } from "@/utils/interfaces/po";
@@ -90,6 +91,24 @@ const schema = z.object({
 
 type InvoiceFormValues = z.infer<typeof schema>;
 
+type InvoiceLineTotalProps = {
+  control: ReturnType<typeof useForm<InvoiceFormValues>>["control"];
+  index: number;
+};
+
+function InvoiceLineTotal({ control, index }: InvoiceLineTotalProps) {
+  const item = useWatch({ control, name: `items.${index}` });
+
+  return formatIDR(
+    Number(item?.qty ?? 0) * Number(item?.price ?? 0) -
+      Number(item?.disc_value || 0) +
+      (Number(item?.qty ?? 0) *
+        Number(item?.price ?? 0) *
+        Number(item?.ppn_percentage || 0)) /
+        100,
+  );
+}
+
 export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
   const { warehouses } = useAppSelector((state) => state.warehouse);
   const { suppliersAll } = useAppSelector((state) => state.supplier);
@@ -118,41 +137,40 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
     }
   }, []);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<InvoiceFormValues>({
-    resolver: zodResolver(schema),
-    mode: "onChange",
-    defaultValues: {
-      id: undefined,
-      po_no: "",
-      date: new Date().toISOString(),
-      received_at: new Date().toISOString(),
-      invoice_no: "",
-      payment_type: "cash",
-      payment_method: "Cash",
-      due_days: 1,
-      due_date: dayjs().add(1, "day").toISOString(),
-      items: [],
-      other_fee: 0,
-      notes: "",
-      disc_percentage: 0,
-      disc_value: 0,
-      tax: 0,
-      sub_total: 0,
-      total: 0,
-    },
-  });
+  const { control, handleSubmit, setValue, watch, getValues, reset } =
+    useForm<InvoiceFormValues>({
+      resolver: zodResolver(schema),
+      mode: "onChange",
+      defaultValues: {
+        id: undefined,
+        po_no: "",
+        date: new Date().toISOString(),
+        received_at: new Date().toISOString(),
+        invoice_no: "",
+        payment_type: "cash",
+        payment_method: "Cash",
+        due_days: 1,
+        due_date: dayjs().add(1, "day").toISOString(),
+        items: [],
+        other_fee: 0,
+        notes: "",
+        disc_percentage: 0,
+        disc_value: 0,
+        tax: 0,
+        sub_total: 0,
+        total: 0,
+      },
+    });
 
   const { fields, remove } = useFieldArray({
     control,
     name: "items",
   });
+
+  const tableItems = fields.map((field, index) => ({
+    ...field,
+    rowIndex: index,
+  }));
 
   useEffect(() => {
     if (po) {
@@ -192,27 +210,11 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
         disc_value: Number(po.disc_value || 0),
       });
     }
-  }, [po]);
+  }, [po, reset]);
 
-  console.error(errors);
-
-  const onSubmit = (data: InvoiceFormValues) => {
-    setLoading(true);
-
-    http
-      .post("/po", { ...data, status: "invoice" })
-      .then(({ data }) => {
-        notify(data.message);
-        navigate("/purchase/invoice");
-      })
-      .catch(notifyError)
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  function calculate() {
-    const rawSubTotal = watch("items").reduce((acc, item) => {
+  const calculate = useCallback(() => {
+    const items = getValues("items") || [];
+    const rawSubTotal = items.reduce((acc, item) => {
       const price = Number(item.price ?? 0);
       const qty = Number(item.qty ?? 0);
       const disc = Number(item.disc_value ?? 0);
@@ -220,14 +222,14 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
       return acc + price * qty - disc;
     }, 0);
 
-    const discFinalNominal = Number(watch("disc_value") ?? 0);
-    const otherFee = Number(watch("other_fee") ?? 0);
+    const discFinalNominal = Number(getValues("disc_value") ?? 0);
+    const otherFee = Number(getValues("other_fee") ?? 0);
 
     const discRatio = rawSubTotal > 0 ? discFinalNominal / rawSubTotal : 0;
 
     let totalTax = 0;
 
-    watch("items").forEach((item) => {
+    items.forEach((item) => {
       const qty = Number(item.qty ?? 0);
       const price = Number(item.price ?? 0);
       const disc = Number(item.disc_value ?? 0);
@@ -245,10 +247,35 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
 
     const grandTotal = rawSubTotal - discFinalNominal + totalTax + otherFee;
 
-    setValue("sub_total", rawSubTotal);
-    setValue("total", Math.round(grandTotal));
-    setValue("tax", totalTax);
-  }
+    setValue("sub_total", rawSubTotal, { shouldValidate: false });
+    setValue("total", Math.round(grandTotal), { shouldValidate: false });
+    setValue("tax", totalTax, { shouldValidate: false });
+  }, [getValues, setValue]);
+
+  const handleRemoveItem = useCallback(
+    (index: number) => {
+      remove(index);
+      calculate();
+    },
+    [remove, calculate],
+  );
+
+  const signatureItems = asArray(list?.data);
+
+  const onSubmit = (data: InvoiceFormValues) => {
+    setLoading(true);
+
+    http
+      .post("/po", { ...data, status: "invoice" })
+      .then(({ data }) => {
+        notify(data.message);
+        navigate("/purchase/invoice");
+      })
+      .catch(notifyError)
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   function setItems(items: IProduct[]) {
     const payload = [...watch("items")];
@@ -523,173 +550,178 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                 <TableColumn className="text-center">Jumlah</TableColumn>
                 <TableColumn className="text-center">Aksi</TableColumn>
               </TableHeader>
-              <TableBody emptyContent={<div>Tidak Ada Barang</div>}>
-                {fields.map((field, index) => (
-                  <TableRow key={field.id}>
-                    <TableCell>{field.code}</TableCell>
-                    <TableCell className="max-w-[20rem]">
-                      <Tooltip color="primary" content={field.name}>
-                        <p className="truncate">{field.name}</p>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell>{field.unit}</TableCell>
-                    <TableCell>
-                      <Controller
-                        control={control}
-                        name={`items.${index}.qty`}
-                        render={({ field, fieldState }) => (
-                          <InputNumber
-                            classNames={{
-                              input: "text-center w-10",
-                            }}
-                            errorMessage={fieldState.error?.message}
-                            isInvalid={!!fieldState.error}
-                            size="sm"
-                            value={field.value as any}
-                            onInput={(val) => {
-                              field.onChange(val);
-                              calculate();
-                            }}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Controller
-                        control={control}
-                        name={`items.${index}.price`}
-                        render={({ field, fieldState }) => (
-                          <InputNumber
-                            classNames={{
-                              input: "text-right w-20",
-                            }}
-                            errorMessage={fieldState.error?.message}
-                            isInvalid={!!fieldState.error}
-                            size="sm"
-                            startContent={<span className="text-sm">Rp</span>}
-                            value={Number(field.value) as any}
-                            onInput={(val) => {
-                              field.onChange(val);
-                              calculate();
-                            }}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Controller
-                        control={control}
-                        name={`items.${index}.disc_percentage`}
-                        render={({ field, fieldState }) => (
-                          <InputNumber
-                            classNames={{
-                              input: "text-center w-8",
-                            }}
-                            endContent={<span className="text-sm">%</span>}
-                            errorMessage={fieldState.error?.message}
-                            isInvalid={!!fieldState.error}
-                            size="sm"
-                            value={Number(field.value) as any}
-                            onInput={(val) => {
-                              field.onChange(val);
-                              const discValue =
-                                (Number(val) / 100) *
-                                Number(watch("items")[index].price) *
-                                Number(watch("items")[index].qty);
+              <TableBody
+                emptyContent={<div>Tidak Ada Barang</div>}
+                items={tableItems}
+              >
+                {(field) => {
+                  const index = field.rowIndex;
 
-                              setValue(`items.${index}.disc_value`, discValue);
-                              calculate();
-                            }}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Controller
-                        control={control}
-                        name={`items.${index}.disc_value`}
-                        render={({ field, fieldState }) => (
-                          <InputNumber
-                            classNames={{
-                              input: "text-right w-24",
-                            }}
-                            errorMessage={fieldState.error?.message}
-                            isInvalid={!!fieldState.error}
+                  return (
+                    <TableRow key={field.id}>
+                      <TableCell>{field.code}</TableCell>
+                      <TableCell className="max-w-[20rem]">
+                        <Tooltip color="primary" content={field.name}>
+                          <p className="truncate">{field.name}</p>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>{field.unit}</TableCell>
+                      <TableCell>
+                        <Controller
+                          control={control}
+                          name={`items.${index}.qty`}
+                          render={({ field: qtyField, fieldState }) => (
+                            <InputNumber
+                              classNames={{
+                                input: "text-center w-10",
+                              }}
+                              errorMessage={fieldState.error?.message}
+                              isInvalid={!!fieldState.error}
+                              size="sm"
+                              value={qtyField.value as any}
+                              onInput={(val) => {
+                                qtyField.onChange(val);
+                                calculate();
+                              }}
+                            />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Controller
+                          control={control}
+                          name={`items.${index}.price`}
+                          render={({ field: priceField, fieldState }) => (
+                            <InputNumber
+                              classNames={{
+                                input: "text-right w-20",
+                              }}
+                              errorMessage={fieldState.error?.message}
+                              isInvalid={!!fieldState.error}
+                              size="sm"
+                              startContent={<span className="text-sm">Rp</span>}
+                              value={Number(priceField.value) as any}
+                              onInput={(val) => {
+                                priceField.onChange(val);
+                                calculate();
+                              }}
+                            />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Controller
+                          control={control}
+                          name={`items.${index}.disc_percentage`}
+                          render={({ field: discField, fieldState }) => (
+                            <InputNumber
+                              classNames={{
+                                input: "text-center w-8",
+                              }}
+                              endContent={<span className="text-sm">%</span>}
+                              errorMessage={fieldState.error?.message}
+                              isInvalid={!!fieldState.error}
+                              size="sm"
+                              value={Number(discField.value) as any}
+                              onInput={(val) => {
+                                discField.onChange(val);
+
+                                const row = getValues(`items.${index}`);
+                                const discValue =
+                                  (Number(val) / 100) *
+                                  Number(row?.price ?? 0) *
+                                  Number(row?.qty ?? 0);
+
+                                setValue(
+                                  `items.${index}.disc_value`,
+                                  discValue,
+                                  {
+                                    shouldValidate: false,
+                                  },
+                                );
+                                calculate();
+                              }}
+                            />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Controller
+                          control={control}
+                          name={`items.${index}.disc_value`}
+                          render={({ field: discField, fieldState }) => (
+                            <InputNumber
+                              classNames={{
+                                input: "text-right w-24",
+                              }}
+                              errorMessage={fieldState.error?.message}
+                              isInvalid={!!fieldState.error}
+                              size="sm"
+                              startContent={<span className="text-sm">Rp</span>}
+                              value={Number(discField.value) as any}
+                              onInput={(val) => {
+                                discField.onChange(val);
+
+                                const row = getValues(`items.${index}`);
+                                const base =
+                                  Number(row?.qty ?? 0) *
+                                  Number(row?.price ?? 0);
+                                const percentage =
+                                  base > 0 ? (Number(val) / base) * 100 : 0;
+
+                                setValue(
+                                  `items.${index}.disc_percentage`,
+                                  percentage,
+                                  { shouldValidate: false },
+                                );
+                                calculate();
+                              }}
+                            />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Controller
+                          control={control}
+                          name={`items.${index}.ppn_percentage`}
+                          render={({ field: ppnField, fieldState }) => (
+                            <InputNumber
+                              classNames={{
+                                input: "text-center w-8",
+                              }}
+                              endContent={<span className="text-sm">%</span>}
+                              errorMessage={fieldState.error?.message}
+                              isInvalid={!!fieldState.error}
+                              size="sm"
+                              value={Number(ppnField.value) as any}
+                              onInput={(val) => {
+                                ppnField.onChange(val);
+                                calculate();
+                              }}
+                            />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <InvoiceLineTotal control={control} index={index} />
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip color="danger" content={`Hapus ${field.name}`}>
+                          <Button
+                            isIconOnly
+                            color="danger"
+                            radius="full"
                             size="sm"
-                            startContent={<span className="text-sm">Rp</span>}
-                            value={Number(field.value) as any}
-                            onInput={(val) => {
-                              field.onChange(val);
-
-                              const percentage =
-                                (Number(val) /
-                                  (Number(watch("items")[index].qty) *
-                                    Number(watch("items")[index].price))) *
-                                100;
-
-                              setValue(
-                                `items.${index}.disc_percentage`,
-                                percentage,
-                              );
-
-                              calculate();
-                            }}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Controller
-                        control={control}
-                        name={`items.${index}.ppn_percentage`}
-                        render={({ field, fieldState }) => (
-                          <InputNumber
-                            classNames={{
-                              input: "text-center w-8",
-                            }}
-                            endContent={<span className="text-sm">%</span>}
-                            errorMessage={fieldState.error?.message}
-                            isInvalid={!!fieldState.error}
-                            size="sm"
-                            value={Number(field.value) as any}
-                            onInput={(val) => {
-                              field.onChange(val);
-                              calculate();
-                            }}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatIDR(
-                        Number(watch("items")[index].qty) *
-                          Number(watch("items")[index].price) -
-                          Number(watch("items")[index].disc_value || 0) +
-                          (Number(watch("items")[index].qty) *
-                            Number(watch("items")[index].price) *
-                            Number(watch("items")[index].ppn_percentage || 0)) /
-                            100,
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Tooltip color="danger" content={`Hapus ${field.name}`}>
-                        <Button
-                          isIconOnly
-                          color="danger"
-                          radius="full"
-                          size="sm"
-                          variant="light"
-                          onPress={() => {
-                            remove(index);
-                            calculate();
-                          }}
-                        >
-                          <Trash2 size={18} />
-                        </Button>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                            variant="light"
+                            onPress={() => handleRemoveItem(index)}
+                          >
+                            <Trash2 size={18} />
+                          </Button>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                }}
               </TableBody>
             </Table>
             <div className="flex gap-10 justify-between">
@@ -725,15 +757,20 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                           mainWrapper: "w-full",
                         },
                       }}
-                      items={list?.data || []}
-                      selectedKey={field.value?.toString()}
+                      items={signatureItems}
+                      selectedKey={
+                        field.value != null ? String(field.value) : null
+                      }
                       size="sm"
                       onSelectionChange={(val) => {
-                        field.onChange(Number(val));
+                        field.onChange(val == null ? undefined : Number(val));
                       }}
                     >
                       {(item) => (
-                        <AutocompleteItem key={item.id}>
+                        <AutocompleteItem
+                          key={String(item.id)}
+                          textValue={String(item.name ?? "")}
+                        >
                           {item.name}
                         </AutocompleteItem>
                       )}

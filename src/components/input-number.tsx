@@ -1,4 +1,4 @@
-import { useEffect, useState, forwardRef } from "react"; // 1. Tambahkan forwardRef
+import { useEffect, useRef, useState, forwardRef } from "react"; // 1. Tambahkan forwardRef
 import { Input, type InputProps } from "@heroui/react";
 
 import { switchCommasToDots, switchDotsToCommas } from "@/utils/helpers/format";
@@ -28,24 +28,31 @@ const InputNumber = forwardRef<
     ref, // 3. Terima parameter ref di sini
   ) => {
     const [value, setValue] = useState("");
+    const isFocusedRef = useRef(false);
 
-    useEffect(() => {
-      if (props.value !== undefined && props.value !== null) {
+    function syncFromPropValue(nextValue: string | number | undefined | null) {
+      if (nextValue === undefined || nextValue === null) return;
+
+      setValue(
+        formatIndonesianNumber(switchDotsToCommas(nextValue.toString())),
+      );
+
+      if (maxInput && Number(nextValue) > maxInput) {
         setValue(
-          formatIndonesianNumber(switchDotsToCommas(props.value.toString())),
+          formatIndonesianNumber(switchDotsToCommas(maxInput.toString())),
         );
+        onInput?.(maxInput);
 
-        if (maxInput && Number(props.value) > maxInput) {
-          setValue(
-            formatIndonesianNumber(switchDotsToCommas(maxInput.toString())),
-          );
-          onInput?.(maxInput);
-
-          if (props.onValueChange) {
-            props.onValueChange(String(maxInput));
-          }
+        if (props.onValueChange) {
+          props.onValueChange(String(maxInput));
         }
       }
+    }
+
+    useEffect(() => {
+      if (isFocusedRef.current) return;
+
+      syncFromPropValue(props.value);
     }, [props.value]);
 
     useEffect(() => {
@@ -112,7 +119,16 @@ const InputNumber = forwardRef<
         ref={ref} // 4. Teruskan ref ke HeroUI Input
         {...props}
         value={value}
+        onBlur={(e) => {
+          isFocusedRef.current = false;
+          syncFromPropValue(props.value);
+          props.onBlur?.(e);
+        }}
         onChange={(e) => handleInput(e.target.value)}
+        onFocus={(e) => {
+          isFocusedRef.current = true;
+          props.onFocus?.(e);
+        }}
       />
     );
   },
