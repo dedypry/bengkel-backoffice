@@ -59,26 +59,27 @@ export default function VehicleOption({ value, onChange }: Props) {
     }
   };
 
+  const normalizePlate = (plate: string) =>
+    plate.replace(/\s/g, "").toLowerCase();
+
   const handleInputChange = (val: string) => {
-    const trimmed = val.trim();
+    searchDebounce(val.trim());
 
-    searchDebounce(trimmed);
-
-    if (!trimmed) {
+    if (!val.trim()) {
       onChange({ plate_number: "", isNew: true });
 
       return;
     }
 
     const existing = vehicles.find(
-      (v) => v.plate_number.toLowerCase() === trimmed.toLowerCase(),
+      (v) => normalizePlate(v.plate_number) === normalizePlate(val),
     );
 
     if (existing) {
       onChange(existing);
     } else {
       onChange({
-        plate_number: trimmed.toUpperCase(),
+        plate_number: val.toUpperCase(),
         isNew: true,
       });
     }
