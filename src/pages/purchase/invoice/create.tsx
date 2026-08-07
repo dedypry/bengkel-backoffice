@@ -748,16 +748,17 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                   name="signature_id"
                   render={({ field }) => (
                     <Autocomplete
+                      aria-label="Signature"
                       inputProps={{
                         size: "sm",
-                        label: "Signature",
-                        labelPlacement: "outside-left",
                         classNames: {
                           label: "w-34",
                           mainWrapper: "w-full",
                         },
                       }}
                       items={signatureItems}
+                      label="Signature"
+                      labelPlacement="outside-left"
                       selectedKey={
                         field.value != null ? String(field.value) : null
                       }

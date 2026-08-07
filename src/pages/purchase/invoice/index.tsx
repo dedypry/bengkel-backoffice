@@ -104,6 +104,7 @@ export default function PoInvoicePage() {
               }}
             /> */}
             <Autocomplete
+              aria-label="Filter berdasarkan supplier"
               className="w-xs"
               classNames={{
                 clearButton: "text-gray-500",
@@ -126,6 +127,7 @@ export default function PoInvoicePage() {
             </Autocomplete>
             <div className="flex gap-2">
               <DateRangePicker
+                aria-label="Cari tanggal invoice"
                 placeholder="Cari tanggal invoice"
                 value={
                   {
@@ -143,6 +145,7 @@ export default function PoInvoicePage() {
                 }
               />
               <Input
+                aria-label="Cari faktur pembelian"
                 endContent={
                   search && (
                     <X

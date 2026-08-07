@@ -610,15 +610,16 @@ export default function PoCreatePage({ po }: Props) {
                       name="signature_id"
                       render={({ field }) => (
                         <Autocomplete
+                          aria-label="Signature"
                           inputProps={{
                             size: "sm",
-                            label: "Signature",
-                            labelPlacement: "outside-left",
                             classNames: {
                               label: "w-34",
                             },
                           }}
                           items={list?.data || []}
+                          label="Signature"
+                          labelPlacement="outside-left"
                           selectedKey={field.value?.toString()}
                           size="sm"
                           onSelectionChange={(val) => {

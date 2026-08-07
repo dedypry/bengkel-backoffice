@@ -28,6 +28,7 @@ export default function AutocompleteControl({
       name={name}
       render={({ field, fieldState }) => (
         <Autocomplete
+          aria-label={label}
           defaultItems={safeItems}
           errorMessage={fieldState.error?.message}
           inputProps={{
