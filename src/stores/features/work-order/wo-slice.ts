@@ -21,33 +21,63 @@ export interface ISparepart extends IProduct {
   tax?: number;
 }
 
+export interface WoQueryState {
+  page: number;
+  pageSize: number;
+  q: string;
+  status: string;
+  date_from: string;
+  date_to: string;
+  date: string;
+  mechanic_ids: number[];
+}
+
+export interface WoState {
+  orders: IPagination<IWorkOrder> | null;
+  woQuery: WoQueryState;
+  services: IWo[];
+  sparepart: ISparepart[];
+  workOrder: IWorkOrder | null;
+  products: ISparepart[];
+  customer: ICustomer | null;
+  detail: IWorkOrder | null;
+  isLoadingDetail: boolean;
+  isLoadingOrder: boolean;
+  isLoadingProduct: boolean;
+  tabCashier: string;
+  settings: IServiceSettings;
+  servicePayments: IWOItems<IService>[];
+}
+
+const initialState: WoState = {
+  orders: null,
+  woQuery: {
+    page: 1,
+    pageSize: 10,
+    q: "",
+    status: "active",
+    date_from: "",
+    date_to: "",
+    date: "",
+    mechanic_ids: [],
+  },
+  services: [],
+  sparepart: [],
+  workOrder: null,
+  products: [],
+  customer: null,
+  detail: null,
+  isLoadingDetail: false,
+  isLoadingOrder: false,
+  isLoadingProduct: false,
+  tabCashier: "customer",
+  settings: {} as IServiceSettings,
+  servicePayments: [],
+};
+
 const woSlice = createSlice({
   name: "wo",
-  initialState: {
-    orders: null as IPagination<IWorkOrder> | null,
-    woQuery: {
-      page: 1,
-      pageSize: 10,
-      q: "",
-      status: "active",
-      date_from: new Date().toLocaleDateString("en-CA"),
-      date_to: new Date().toLocaleDateString("en-CA"),
-      date: "",
-      mechanic_ids: [] as number[],
-    },
-    services: [] as IWo[],
-    sparepart: [] as ISparepart[],
-    workOrder: null as IWorkOrder | null,
-    products: [] as ISparepart[],
-    customer: null as ICustomer | null,
-    detail: null as IWorkOrder | null,
-    isLoadingDetail: false,
-    isLoadingOrder: false,
-    isLoadingProduct: false,
-    tabCashier: "customer",
-    settings: {} as IServiceSettings,
-    servicePayments: [] as IWOItems<IService>[],
-  },
+  initialState,
   reducers: {
     setWoSetting: (state, action) => {
       state.settings = action.payload;
