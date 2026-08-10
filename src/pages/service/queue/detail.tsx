@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Chip, Card, CardBody, Tabs, Tab, Input } from "@heroui/react";
 
 import AddMechanich from "../components/add-mekanik";
@@ -28,6 +28,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
 import { formatIDR } from "@/utils/helpers/format";
 import { calculateTotalEstimation } from "@/utils/helpers/global";
+import HeaderAction from "@/components/header-action";
 
 export default function WorkOrderDetail() {
   const { t } = useTranslation();
@@ -36,6 +37,7 @@ export default function WorkOrderDetail() {
   const { detail: data } = useAppSelector((state) => state.wo);
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { id } = useParams();
   const hasFetched = useRef(false);
 
@@ -60,18 +62,19 @@ export default function WorkOrderDetail() {
         onRefresh={() => dispatch(getWoDetail(id as any))}
       />
 
+      <HeaderAction
+        actionContent={<StatusQueue wo={data} />}
+        subtitle={t("service.queue.subtitle")}
+        title={data.trx_no}
+        onBack={() => navigate("/service/queue")}
+      />
+
       {/* 1. HEADER & GRAND TOTAL */}
       <Card>
         <CardBody className="p-0">
           <div className="flex flex-col md:flex-row">
-            <div className="flex-1 p-8 space-y-4">
-              <div className="flex flex-wrap items-center gap-4">
-                <h1 className="text-lg font-black tracking-tighter text-gray-500 uppercase">
-                  {data.trx_no}
-                </h1>
-                <StatusQueue wo={data} />
-              </div>
-              <div className="flex items-center gap-4 text-gray-500 font-bold text-[11px] uppercase tracking-widest">
+            <div className="flex flex-1 items-center p-8">
+              <div className="flex items-center gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
                 <EditOrderDate />
               </div>
             </div>

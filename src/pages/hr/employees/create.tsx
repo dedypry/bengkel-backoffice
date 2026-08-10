@@ -1,7 +1,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, UserPlus, Heart, MapPin, Briefcase } from "lucide-react";
+import { UserPlus, Heart, MapPin, Briefcase } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
@@ -33,6 +33,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { uploadFile } from "@/utils/helpers/upload-file";
 import CustomDatePicker from "@/components/forms/date-picker";
 import PhoneInput from "@/components/forms/phone-input";
+import HeaderAction from "@/components/header-action";
 
 interface Props {
   id?: string;
@@ -129,28 +130,19 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
     <div className="space-y-8 pb-20">
       <AddRole open={openAddRole} setOpen={setOpenAddRole} />
 
-      <div className="flex items-center gap-6">
-        <Button
-          isIconOnly
-          className="rounded-full bg-white shadow-sm"
-          variant="flat"
-          onPress={() => navigate("/hr/employees")}
-        >
-          <ArrowLeft size={20} />
-        </Button>
-        <div>
-          <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-500">
-            {id
-              ? t("hr.employees.create_title_edit")
-              : t("hr.employees.create_title_new")}
-          </h3>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-            {id
-              ? t("hr.employees.create_subtitle_edit", { id })
-              : t("hr.employees.create_subtitle_new")}
-          </p>
-        </div>
-      </div>
+      <HeaderAction
+        subtitle={
+          id
+            ? t("hr.employees.create_subtitle_edit", { id })
+            : t("hr.employees.create_subtitle_new")
+        }
+        title={
+          id
+            ? t("hr.employees.create_title_edit")
+            : t("hr.employees.create_title_new")
+        }
+        onBack={() => navigate("/hr/employees")}
+      />
 
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <Card className="border border-gray-200 shadow-sm overflow-hidden bg-white">

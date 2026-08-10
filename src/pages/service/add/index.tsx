@@ -17,7 +17,6 @@ import {
   Mail,
   Trash2,
   FilePlus2,
-  ChevronLeft,
   Users,
   CircleXIcon,
 } from "lucide-react";
@@ -339,21 +338,11 @@ export default function ServiceAddPage() {
       <div className="pb-20 space-y-8">
         {/* Header */}
         <HeaderAction
-          actionContent={
-            <div className="flex gap-2">
-              <DefaultSettingService />
-              <Button
-                color="primary"
-                startContent={<ChevronLeft />}
-                onPress={() => navigate("/service/queue")}
-              >
-                {t("service.add.back_to_queue")}
-              </Button>
-            </div>
-          }
+          actionContent={<DefaultSettingService />}
           leadIcon={FilePlus2}
           subtitle={t("service.add.subtitle")}
           title={t("service.add.title")}
+          onBack={() => navigate("/service/queue")}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

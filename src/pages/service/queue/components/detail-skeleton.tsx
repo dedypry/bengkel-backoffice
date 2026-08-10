@@ -1,17 +1,27 @@
 import { Card, CardBody, Skeleton } from "@heroui/react";
 
+function HeaderSkeleton() {
+  return (
+    <div className="flex items-center gap-5 p-5">
+      <Skeleton className="size-10 shrink-0 rounded-full" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-48 rounded-sm" />
+        <Skeleton className="h-3 w-64 rounded-sm" />
+      </div>
+      <Skeleton className="h-6 w-24 rounded-full" />
+    </div>
+  );
+}
+
 export default function WODetailSkeleton() {
   return (
-    <div className="container mx-auto py-8 space-y-6 px-4 max-w-7xl animate-pulse">
+    <div className="container mx-auto max-w-7xl space-y-6 px-4 py-8 animate-pulse">
+      <HeaderSkeleton />
       {/* 1. HEADER & GRAND TOTAL SKELETON */}
       <Card className="border border-gray-200 shadow-sm bg-white" radius="sm">
         <CardBody className="p-0">
           <div className="flex flex-col md:flex-row">
             <div className="flex-1 p-8 space-y-4">
-              <div className="flex items-center gap-4">
-                <Skeleton className="h-8 w-48 rounded-sm" />
-                <Skeleton className="h-6 w-24 rounded-full" />
-              </div>
               <Skeleton className="h-4 w-64 rounded-sm" />
             </div>
             <div className="bg-gray-100 p-8 flex flex-col justify-center items-end min-w-[300px] space-y-2">
