@@ -1,4 +1,4 @@
-import { CalendarDays, Car, Plus, Sparkles } from "lucide-react";
+import { CalendarDays, Plus, Sparkles } from "lucide-react";
 import { useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -10,7 +10,7 @@ import { ServiceQueue } from "@/components/dashboard/service-queue";
 import { StatsGrid } from "@/components/dashboard/stats-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { InventoryAlert } from "@/components/dashboard/inventory-alert";
-import { QuickActions } from "@/components/dashboard/quick-action";
+import { BestEmployees } from "@/components/dashboard/best-employees";
 import { useAppDispatch } from "@/stores/hooks";
 import { getDashboard } from "@/stores/features/dashboard/dashboard-action";
 
@@ -97,30 +97,7 @@ export default function HomePage() {
         </div>
 
         <div className="space-y-8 lg:col-span-4">
-          <div className="relative overflow-hidden rounded-3xl border border-violet-100 bg-gradient-to-br from-violet-50/90 via-white to-sky-50/80 p-6 shadow-sm">
-            <div className="pointer-events-none absolute -right-8 -top-10 rotate-12 text-violet-100">
-              <Car size={160} />
-            </div>
-            <div className="relative z-10">
-              <h4 className="text-xl font-bold leading-tight text-slate-700">
-                {t("dashboard.promo_title")}
-              </h4>
-              <p className="mt-2 max-w-[220px] text-sm text-slate-500">
-                {t("dashboard.promo_desc")}
-              </p>
-              <Button
-                className="mt-4 font-semibold"
-                color="secondary"
-                size="sm"
-                variant="flat"
-                onPress={() => navigate("/reports/revenue")}
-              >
-                {t("dashboard.view_report")}
-              </Button>
-            </div>
-          </div>
-
-          <QuickActions />
+          <BestEmployees />
           <InventoryAlert />
         </div>
       </div>

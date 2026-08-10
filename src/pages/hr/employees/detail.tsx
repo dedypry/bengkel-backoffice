@@ -15,6 +15,8 @@ import {
   Heart,
   UserCircle,
   UserCheck2,
+  Star,
+  MessageSquare,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { Card, CardBody, Chip, Avatar } from "@heroui/react";
@@ -27,6 +29,8 @@ import { getEmployeDetail } from "@/stores/features/employe/employe-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getInitials } from "@/utils/helpers/global";
 import HeaderAction from "@/components/header-action";
+import { Rating } from "@/components/rating";
+import { formatNumber } from "@/utils/helpers/format";
 
 export default function EmployeesDetailPage() {
   const { t } = useTranslation();
@@ -276,6 +280,85 @@ export default function EmployeesDetailPage() {
               </div>
             </CardBody>
           </Card>
+
+          {detail.reviews && detail.reviews.length > 0 ? (
+            <Card className="border border-amber-100 bg-amber-50/30 p-4 shadow-sm">
+              <CardBody className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-sm bg-amber-100 p-2">
+                      <Star className="text-amber-500" size={20} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black uppercase text-gray-500">
+                        {t("hr.employees.section_reviews")}
+                      </h4>
+                      <p className="text-[11px] text-gray-400">
+                        {t("hr.employees.reviews_count", {
+                          count:
+                            detail.rating_summary?.total ||
+                            detail.reviews.length,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <Chip color="warning" size="sm" variant="flat">
+                    {t("hr.employees.average_rating")}:{" "}
+                    {formatNumber(detail.rating_summary?.average || 0)}
+                  </Chip>
+                </div>
+
+                <div className="space-y-4">
+                  {detail.reviews.map((review) => (
+                    <div
+                      key={review.id}
+                      className="rounded-2xl border border-amber-100/80 bg-white p-4"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="space-y-2">
+                          <p className="text-xs font-black uppercase text-primary">
+                            {t("hr.employees.work_order")}:{" "}
+                            {review.work_order?.trx_no ||
+                              `#${review.work_order_id}`}
+                          </p>
+                          {review.work_order?.vehicle ? (
+                            <p className="text-sm font-semibold text-gray-700">
+                              {review.work_order.vehicle.brand}{" "}
+                              {review.work_order.vehicle.plate_number}
+                            </p>
+                          ) : null}
+                          {review.work_order?.customer ? (
+                            <p className="text-xs text-gray-500">
+                              {review.work_order.customer.name}
+                            </p>
+                          ) : null}
+                          <p className="text-[10px] font-bold uppercase text-gray-400">
+                            {dayjs(review.created_at).format(
+                              "DD MMMM YYYY, HH:mm",
+                            )}
+                          </p>
+                        </div>
+
+                        <Rating readOnly initialValue={review.rating} />
+                      </div>
+
+                      {review.notes ? (
+                        <div className="mt-4 flex gap-3 rounded-xl bg-gray-50 p-3">
+                          <MessageSquare
+                            className="mt-0.5 shrink-0 text-gray-400"
+                            size={16}
+                          />
+                          <p className="text-sm leading-relaxed text-gray-600">
+                            {review.notes}
+                          </p>
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          ) : null}
         </div>
       </div>
     </div>

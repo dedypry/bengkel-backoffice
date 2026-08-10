@@ -1,13 +1,19 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 
 interface InteractiveRatingProps {
-  initialValue?: number;
+  initialValue?: number | string;
   onChange?: (value: number) => void;
   readOnly?: boolean;
 }
+
+const normalizeRating = (value: number | string | undefined) => {
+  const parsed = Number(value);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+};
 
 export const Rating = ({
   initialValue = 0,
@@ -15,13 +21,19 @@ export const Rating = ({
   readOnly = false,
 }: InteractiveRatingProps) => {
   const [hover, setHover] = useState<number | null>(null);
-  const [rating, setRating] = useState(initialValue);
+  const [rating, setRating] = useState(() => normalizeRating(initialValue));
+
+  useEffect(() => {
+    setRating(normalizeRating(initialValue));
+  }, [initialValue]);
 
   const handleAction = (val: number) => {
     if (readOnly) return;
     setRating(val);
     if (onChange) onChange(val);
   };
+
+  const displayRating = hover !== null ? hover : rating;
 
   return (
     <div className="flex flex-col gap-1">
@@ -71,7 +83,7 @@ export const Rating = ({
 
         {/* HeroUI-style Label */}
         <span className="ml-2 min-w-[1.5rem] text-medium font-black text-gray-700 tracking-tight">
-          {hover !== null ? hover : rating.toFixed(1)}
+          {displayRating.toFixed(1)}
         </span>
       </div>
 

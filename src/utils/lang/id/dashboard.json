@@ -43,6 +43,14 @@
                 "1y": "vs tahun sebelumnya"
             }
         },
+        "best_employees": {
+            "title": "Karyawan Terbaik",
+            "subtitle": "Berdasarkan rating pelanggan",
+            "top_count": "Top {{count}}",
+            "empty": "Belum ada data rating karyawan.",
+            "reviews": "{{count}} ulasan",
+            "view_all": "Lihat Semua Mekanik"
+        },
         "inventory_alert": {
             "title": "Peringatan Stok",
             "subtitle": "Produk di bawah minimum stok",

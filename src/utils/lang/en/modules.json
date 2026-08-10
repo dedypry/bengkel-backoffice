@@ -217,6 +217,10 @@
             "district": "District",
             "contact_name": "Contact Name",
             "contact_phone": "Phone Number",
+            "section_reviews": "Customer Reviews",
+            "reviews_count": "{{count}} reviews",
+            "average_rating": "Average rating",
+            "work_order": "Work Order",
             "not_found_title": "Data Lost from Radar",
             "not_found_search": "Search Failed for ID: ",
             "not_found_body": "The system cannot identify personnel with that code. Data may have been archived, permanently deleted, or there was an error in the link input.",
@@ -466,7 +470,19 @@
             "tenure": "Tenure",
             "specialization": "Specialization",
             "power_index": "Power Index",
-            "view_profile": "View Profile"
+            "view_profile": "View Profile",
+            "view_grid": "Grid view",
+            "view_table": "Table view",
+            "table_aria": "Mechanic report table",
+            "table": {
+                "mechanic": "MECHANIC",
+                "status": "STATUS"
+            },
+            "reviews_modal_title": "Mechanic Reviews",
+            "reviews_empty": "No reviews for this mechanic yet.",
+            "reviews_count": "{{count}} reviews",
+            "average_rating": "Average rating",
+            "work_order": "Work Order"
         }
     },
     "settings": {

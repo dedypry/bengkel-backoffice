@@ -1,5 +1,5 @@
 import type { IProduct } from "./IProduct";
-import type { IWorkOrder } from "./IUser";
+import type { IProfile, IWorkOrder } from "./IUser";
 
 export interface IDashboard {
   countToday: number;
@@ -10,6 +10,16 @@ export interface IDashboard {
   revenueComparison: IRevenueComparison;
   product: IProduct[];
   wo: IWorkOrder[];
+  bestEmployees: IBestEmployee[];
+}
+
+export interface IBestEmployee {
+  id: number;
+  name: string;
+  work_status: string;
+  rating: number;
+  review_count: number;
+  profile?: IProfile;
 }
 
 export interface ITrend {

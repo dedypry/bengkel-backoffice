@@ -217,6 +217,10 @@
             "district": "Kecamatan",
             "contact_name": "Nama Kontak",
             "contact_phone": "Nomor Telepon",
+            "section_reviews": "Ulasan Pelanggan",
+            "reviews_count": "{{count}} ulasan",
+            "average_rating": "Rating rata-rata",
+            "work_order": "Work Order",
             "not_found_title": "Data Hilang dari Radar",
             "not_found_search": "Pencarian Gagal untuk ID: ",
             "not_found_body": "Sistem tidak dapat mengidentifikasi personil dengan kode tersebut. Data mungkin telah diarsipkan, dihapus secara permanen, atau terjadi kesalahan pada input tautan.",
@@ -466,7 +470,19 @@
             "tenure": "Masa Kerja",
             "specialization": "Spesialisasi",
             "power_index": "Power Index",
-            "view_profile": "Detail Profil"
+            "view_profile": "Detail Profil",
+            "view_grid": "Tampilan grid",
+            "view_table": "Tampilan tabel",
+            "table_aria": "Tabel laporan mekanik",
+            "table": {
+                "mechanic": "MEKANIK",
+                "status": "STATUS"
+            },
+            "reviews_modal_title": "Ulasan Mekanik",
+            "reviews_empty": "Belum ada ulasan untuk mekanik ini.",
+            "reviews_count": "{{count}} ulasan",
+            "average_rating": "Rating rata-rata",
+            "work_order": "Work Order"
         }
     },
     "settings": {

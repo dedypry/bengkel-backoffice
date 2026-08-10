@@ -246,7 +246,14 @@
             "tenure": "Tenure",
             "specialty": "Specialty",
             "power_index": "Power Index",
-            "profile_detail": "Profile Detail"
+            "profile_detail": "Profile Detail",
+            "view_grid": "Grid view",
+            "view_table": "Table view",
+            "table_aria": "Mechanic list table",
+            "table": {
+                "mechanic": "MECHANIC",
+                "status": "STATUS"
+            }
         }
     },
     "inventory": {
@@ -484,6 +491,7 @@
             "subtitle": "Workshop Spare Part Purchase Order List",
             "add": "Create New PO",
             "search_placeholder": "Search PO",
+            "bulk_download_invoice": "Download {{count}} Invoices (ZIP)",
             "create_title": "Create PO",
             "edit_title": "Edit PO",
             "create_subtitle": "Create a new purchase order to supplier for stock.",

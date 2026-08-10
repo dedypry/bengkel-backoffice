@@ -43,6 +43,14 @@
                 "1y": "vs previous year"
             }
         },
+        "best_employees": {
+            "title": "Top Employees",
+            "subtitle": "Based on customer ratings",
+            "top_count": "Top {{count}}",
+            "empty": "No employee rating data yet.",
+            "reviews": "{{count}} reviews",
+            "view_all": "View All Mechanics"
+        },
         "inventory_alert": {
             "title": "Stock Alert",
             "subtitle": "Products below minimum stock",

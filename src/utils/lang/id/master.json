@@ -246,7 +246,14 @@
             "tenure": "Masa Kerja",
             "specialty": "Spesialisasi",
             "power_index": "Power Index",
-            "profile_detail": "Detail Profil"
+            "profile_detail": "Detail Profil",
+            "view_grid": "Tampilan grid",
+            "view_table": "Tampilan tabel",
+            "table_aria": "Tabel daftar mekanik",
+            "table": {
+                "mechanic": "MEKANIK",
+                "status": "STATUS"
+            }
         }
     },
     "inventory": {
@@ -484,6 +491,7 @@
             "subtitle": "Daftar Order Pembelian Sparepart Bengkel",
             "add": "Buat PO Baru",
             "search_placeholder": "Cari PO",
+            "bulk_download_invoice": "Download {{count}} Invoice (ZIP)",
             "create_title": "Buat PO",
             "edit_title": "Edit PO",
             "create_subtitle": "Buat pesanan pembelian baru ke supplier untuk stok barang.",

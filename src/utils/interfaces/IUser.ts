@@ -89,7 +89,25 @@ export interface IUser {
   specialty: string;
   theme: string;
   total_work?: string;
+  review_count?: number;
   permissions?: string[];
+  reviews?: IMechanicReview[];
+  rating_summary?: IRatingSummary;
+}
+
+export interface IRatingSummary {
+  average: number;
+  total: number;
+}
+
+export interface IMechanicReview {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  rating: number;
+  notes?: string | null;
+  work_order_id?: number;
+  work_order?: Pick<IWorkOrder, "id" | "trx_no" | "queue_no" | "vehicle" | "customer">;
 }
 
 export interface IUserForm {
