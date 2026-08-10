@@ -66,6 +66,8 @@ export default function ListOrder() {
         q,
         page: 1,
         status: woStatus,
+        date_from: "",
+        date_to: "",
       }),
     );
   }, 500);
@@ -83,6 +85,8 @@ export default function ListOrder() {
         q: "",
         page: 1,
         status: getCashierWoStatus(tab),
+        date_from: "",
+        date_to: "",
       }),
     );
   };
@@ -123,6 +127,8 @@ export default function ListOrder() {
                     date: date || "",
                     page: 1,
                     status: woStatus,
+                    date_from: "",
+                    date_to: "",
                   }),
                 )
               }
@@ -169,7 +175,12 @@ export default function ListOrder() {
               dispatch(
                 isProduct
                   ? setProductQuery({ page })
-                  : setWoQuery({ page, status: woStatus }),
+                  : setWoQuery({
+                      page,
+                      status: woStatus,
+                      date_from: "",
+                      date_to: "",
+                    }),
               )
             }
           />

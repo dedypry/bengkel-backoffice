@@ -24,10 +24,12 @@ export function buildCashierWoQuery(tab: CashierTab, woQuery: CashierWoQuery) {
 
   if (!status) return null;
 
+  const { date_from: _from, date_to: _to, date, ...rest } = woQuery;
+
   return {
-    ...woQuery,
+    ...rest,
     status,
     pageSize: 100,
-    date: woQuery.date ? dayjs(woQuery.date).format("YYYY-MM-DD") : "",
+    ...(date ? { date: dayjs(date).format("YYYY-MM-DD") } : {}),
   };
 }

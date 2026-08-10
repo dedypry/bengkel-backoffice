@@ -25,7 +25,7 @@ export function Sidebar() {
         width: collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH,
       }}
       className={cn(
-        "hidden h-full shrink-0 flex-col overflow-hidden md:flex",
+        "hidden h-full shrink-0 flex-col overflow-hidden lg:flex",
         SIDEBAR_SURFACE_CLASS,
       )}
       initial={false}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 import ListOrder from "./components/list-order";
@@ -18,7 +18,6 @@ export default function CashierPage() {
   const { woQuery, tabCashier } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
   const { setCollapsed } = useSidebar();
-  const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
   const activeTab = tabCashier as CashierTab;
 
@@ -66,13 +65,7 @@ export default function CashierPage() {
   useEffect(() => {
     if (!company || activeTab === "product") return;
 
-    if (!hasFetched.current) {
-      hasFetched.current = true;
-      fetchCashierOrders();
-      setTimeout(() => {
-        hasFetched.current = false;
-      }, 1000);
-    }
+    fetchCashierOrders();
   }, [company, woQuery, activeTab, fetchCashierOrders]);
 
   return (
