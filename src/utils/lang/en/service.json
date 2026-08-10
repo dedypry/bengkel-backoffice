@@ -350,7 +350,10 @@
             "mechanic_col": "MECHANIC",
             "contact_col": "CONTACT",
             "status_col": "STATUS",
-            "save": "Save Mechanic"
+            "save": "Save Mechanic",
+            "filter_all": "All",
+            "filter_ready": "Available",
+            "filter_busy": "Busy"
         },
         "result_mechanic": {
             "title": "Mechanic Work Rating",

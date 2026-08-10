@@ -350,7 +350,10 @@
             "mechanic_col": "MEKANIK",
             "contact_col": "KONTAK",
             "status_col": "STATUS",
-            "save": "Simpan Mekanik"
+            "save": "Simpan Mekanik",
+            "filter_all": "Semua",
+            "filter_ready": "Tersedia",
+            "filter_busy": "Sibuk"
         },
         "result_mechanic": {
             "title": "Penilaian Hasil Kerja Mekanik",

@@ -44,6 +44,10 @@ interface Props {
   onStartWorkModeReset?: () => void;
 }
 
+type MechanicStatusFilter = "all" | "ready" | "busy";
+
+const STATUS_FILTERS: MechanicStatusFilter[] = ["all", "ready", "busy"];
+
 export default function AddMechanich({
   open,
   setOpen,
@@ -62,24 +66,31 @@ export default function AddMechanich({
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<MechanicStatusFilter>("all");
 
-  const filteredMechanics = useMemo(() => {
-    const list = (
+  const mechanicList = useMemo(() => {
+    return (
       Array.isArray(mechanics)
         ? mechanics
         : Array.isArray((mechanics as any)?.data)
           ? (mechanics as any).data
           : []
     ) as typeof mechanics;
+  }, [mechanics]);
 
+  const filteredMechanics = useMemo(() => {
     const term = searchQuery.toLowerCase();
 
-    return list.filter(
-      (m) =>
+    return mechanicList.filter((m) => {
+      const matchesSearch =
         m.name?.toLowerCase().includes(term) ||
-        m.nik?.toLowerCase().includes(term),
-    );
-  }, [searchQuery, mechanics]);
+        m.nik?.toLowerCase().includes(term);
+      const matchesStatus =
+        statusFilter === "all" || m.work_status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [searchQuery, mechanicList, statusFilter]);
 
   useEffect(() => {
     if (company && open) {
@@ -89,6 +100,8 @@ export default function AddMechanich({
 
   const handleClose = () => {
     dispatch(setMechanic([]));
+    setSearchQuery("");
+    setStatusFilter("all");
     onStartWorkModeReset?.();
     setOpen(false);
   };
@@ -192,6 +205,19 @@ export default function AddMechanich({
                 value={searchQuery}
                 onValueChange={setSearchQuery}
               />
+              <div className="flex flex-wrap gap-2">
+                {STATUS_FILTERS.map((filter) => (
+                  <Chip
+                    key={filter}
+                    className="cursor-pointer"
+                    color={statusFilter === filter ? "primary" : "default"}
+                    variant={statusFilter === filter ? "solid" : "flat"}
+                    onClick={() => setStatusFilter(filter)}
+                  >
+                    {t(`service.mechanic_modal.filter_${filter}`)}
+                  </Chip>
+                ))}
+              </div>
             </ModalHeader>
             <ModalBody className="pb-6">
               <Table
@@ -207,7 +233,7 @@ export default function AddMechanich({
                 onSelectionChange={(keys) => {
                   // Jika "all", kita ambil semua ID mekanik
                   if (keys === "all") {
-                    dispatch(setMechanic(mechanics.map((m) => m.id)));
+                    dispatch(setMechanic(filteredMechanics.map((m) => m.id)));
                   } else {
                     // Jika parsial, konversi Set ke array of numbers
                     const selectedArray = Array.from(keys).map(Number);
