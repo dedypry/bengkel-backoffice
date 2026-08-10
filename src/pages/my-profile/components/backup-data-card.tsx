@@ -144,7 +144,9 @@ export default function BackupDataCard({
         )}
 
         {backup?.status === "failed" && backup.error_message && (
-          <p className="text-[10px] font-medium text-danger">{backup.error_message}</p>
+          <p className="text-[10px] font-medium text-danger">
+            {backup.error_message}
+          </p>
         )}
 
         <div className="flex flex-col gap-2">

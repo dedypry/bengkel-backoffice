@@ -32,6 +32,7 @@ import {
   createChangePasswordSchema,
   type ChangePasswordType,
 } from "./schemas/create-schema";
+import BackupDataCard from "./components/backup-data-card";
 
 import { useAppSelector } from "@/stores/hooks";
 import { getAvatarByName, getInitials } from "@/utils/helpers/global";
@@ -39,7 +40,6 @@ import Password from "@/components/password";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { formatNPWP } from "@/components/forms/npwp-input";
-import BackupDataCard from "./components/backup-data-card";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
