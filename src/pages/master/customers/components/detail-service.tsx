@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { Eye, FileText, Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { getWo } from "@/stores/features/work-order/wo-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -28,6 +29,7 @@ interface Props {
   id: number | string;
 }
 export default function DetailServiceTab({ id }: Props) {
+  const { t } = useTranslation();
   const { woQuery, orders } = useAppSelector((state) => state.wo);
   const [loading, setLoading] = useState<number[]>([]);
 
@@ -71,7 +73,7 @@ export default function DetailServiceTab({ id }: Props) {
         <Input
           isClearable
           defaultValue={woQuery.q}
-          placeholder="Cari No. Invoice, Plat kendaraan..."
+          placeholder={t("master.customers.service_search")}
           startContent={<Search className="size-4 text-default-400" />}
           variant="bordered"
           onValueChange={searcDebounce}
@@ -98,12 +100,18 @@ export default function DetailServiceTab({ id }: Props) {
       </div>
       <Table aria-label="History Table" shadow="none">
         <TableHeader>
-          <TableColumn>TANGGAL & ID</TableColumn>
-          <TableColumn>KENDARAAN</TableColumn>
-          <TableColumn>DETAIL LAYANAN</TableColumn>
-          <TableColumn align="end">TOTAL BIAYA</TableColumn>
-          <TableColumn align="center">STATUS</TableColumn>
-          <TableColumn align="center">AKSI</TableColumn>
+          <TableColumn>{t("master.customers.service_table.date_id")}</TableColumn>
+          <TableColumn>{t("master.customers.service_table.vehicle")}</TableColumn>
+          <TableColumn>{t("master.customers.service_table.service")}</TableColumn>
+          <TableColumn align="end">
+            {t("master.customers.service_table.total")}
+          </TableColumn>
+          <TableColumn align="center">
+            {t("master.customers.service_table.status")}
+          </TableColumn>
+          <TableColumn align="center">
+            {t("master.customers.service_table.actions")}
+          </TableColumn>
         </TableHeader>
         <TableBody>
           {(orders?.data || []).map((item) => (
@@ -140,7 +148,9 @@ export default function DetailServiceTab({ id }: Props) {
                     size="sm"
                     variant="flat"
                   >
-                    Mekanik: {item.mechanics?.map((e) => e.name).join(", ")}
+                    {t("master.customers.mechanic_label", {
+                      names: item.mechanics?.map((e) => e.name).join(", "),
+                    })}
                   </Chip>
                 </div>
               </TableCell>
@@ -155,12 +165,14 @@ export default function DetailServiceTab({ id }: Props) {
                   color={item.status === "closed" ? "success" : "danger"}
                   variant="dot"
                 >
-                  {item.status === "closed" ? "Sukses" : "Batal"}
+                  {item.status === "closed"
+                    ? t("master.customers.status_success")
+                    : t("master.customers.status_cancelled")}
                 </Chip>
               </TableCell>
               <TableCell>
                 <div className="flex justify-center gap-1">
-                  <Tooltip content="Lihat Detail">
+                  <Tooltip content={t("master.customers.view_detail")}>
                     <Button
                       isIconOnly
                       as={Link}
@@ -172,7 +184,7 @@ export default function DetailServiceTab({ id }: Props) {
                       <Eye className="size-4" />
                     </Button>
                   </Tooltip>
-                  <Tooltip content="File Invoice">
+                  <Tooltip content={t("master.customers.invoice_file")}>
                     <Button
                       isIconOnly
                       color="default"

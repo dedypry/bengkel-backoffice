@@ -29,6 +29,7 @@ import {
   Receipt,
   User,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { http } from "@/utils/libs/axios";
 import { notifyError } from "@/utils/helpers/notify";
@@ -37,6 +38,7 @@ import { handleDownload } from "@/utils/helpers/global";
 import HeaderAction from "@/components/header-action";
 
 export default function PaymentDetailPage() {
+  const { t } = useTranslation();
   const [data, setData] = useState<IPayment>();
   const { id } = useParams();
   const hasFetched = useRef(false);
@@ -66,21 +68,20 @@ export default function PaymentDetailPage() {
           separator={<ChevronRight size={14} />}
         >
           <BreadcrumbItem href="/" startContent={<Home size={16} />}>
-            Home
+            {t("finance.detail.home")}
           </BreadcrumbItem>
           <BreadcrumbItem
             href="/finance/list"
             startContent={<Receipt size={16} />}
           >
-            Keuangan
+            {t("finance.detail.finance")}
           </BreadcrumbItem>
           <BreadcrumbItem>{data.payment_no}</BreadcrumbItem>
         </Breadcrumbs>
         <Button as={Link} color="primary" size="sm" to="/cashier">
-          Kembali Ke Kasir
+          {t("finance.detail.back_cashier")}
         </Button>
       </div>
-      {/* 1. HEADER SECTION */}
       <HeaderAction
         actionContent={
           <div className="flex items-center gap-3">
@@ -94,7 +95,7 @@ export default function PaymentDetailPage() {
               startContent={<CheckCircle size={14} />}
               variant="shadow"
             >
-              Lunas / Paid
+              {t("finance.detail.paid")}
             </Chip>
             <Button
               isIconOnly
@@ -113,32 +114,37 @@ export default function PaymentDetailPage() {
             </Button>
           </div>
         }
-        subtitle={` ID: #${data?.id} Processed on ${dayjs(data?.payment_date).format("DD/MM/YYYY HH:mm")}`}
-        title="Detail Pembayaran"
+        subtitle={t("finance.detail.processed_on", {
+          id: data?.id,
+          date: dayjs(data?.payment_date).format("DD/MM/YYYY HH:mm"),
+        })}
+        title={t("finance.detail.title")}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
-        {/* 2. LEFT: TRANSACTION INFO */}
         <div className="lg:col-span-4 space-y-2">
           <Card>
             <CardBody className="p-8 space-y-6">
               <div className="flex items-center gap-3 text-gray-500">
                 <CreditCard size={18} />
                 <span className="text-xs font-black uppercase ">
-                  Transaction Info
+                  {t("finance.detail.transaction_info")}
                 </span>
               </div>
 
               <div className="space-y-4">
-                <DataField label="Nomor Pembayaran" value={data?.payment_no} />
                 <DataField
-                  label="Pelanggan"
+                  label={t("finance.detail.payment_no")}
+                  value={data?.payment_no}
+                />
+                <DataField
+                  label={t("finance.detail.customer")}
                   value={data?.order?.customer?.name}
                 />
-                <DataField label="No PO" value={data?.order?.po_no} />
+                <DataField label={t("finance.detail.po_no")} value={data?.order?.po_no} />
                 <DataField
                   isBadge
-                  label="Metode Pembayaran"
+                  label={t("finance.detail.payment_method")}
                   value={data?.method}
                 />
               </div>
@@ -150,7 +156,7 @@ export default function PaymentDetailPage() {
               <div className="flex items-center gap-3 text-gray-500 mb-2">
                 <User size={18} />
                 <span className="text-xs font-black uppercase ">
-                  Cashier In Charge
+                  {t("finance.detail.cashier_in_charge")}
                 </span>
               </div>
               <p className="text-sm font-black text-gray-500 uppercase">
@@ -165,7 +171,9 @@ export default function PaymentDetailPage() {
             <CardBody className="p-6">
               <div className="flex items-center gap-3 text-gray-500 mb-2">
                 <NotebookPen size={18} />
-                <span className="text-xs font-black uppercase ">Catatan</span>
+                <span className="text-xs font-black uppercase ">
+                  {t("finance.detail.notes")}
+                </span>
               </div>
               <p className="text-xs italic  text-gray-500">
                 {data?.order?.notes || "-"}
@@ -174,15 +182,14 @@ export default function PaymentDetailPage() {
           </Card>
         </div>
 
-        {/* 3. RIGHT: ORDER DETAILS */}
         <div className="lg:col-span-8 space-y-2">
-          <Table aria-label="Order Items">
+          <Table aria-label={t("finance.detail.table_aria")}>
             <TableHeader>
-              <TableColumn>ITEM DESCRIPTION</TableColumn>
-              <TableColumn align="end">HARGA</TableColumn>
-              <TableColumn align="end">DISC</TableColumn>
-              <TableColumn align="end">PAJAK</TableColumn>
-              <TableColumn align="end">TOTAL</TableColumn>
+              <TableColumn>{t("finance.detail.col_item")}</TableColumn>
+              <TableColumn align="end">{t("finance.detail.col_price")}</TableColumn>
+              <TableColumn align="end">{t("finance.detail.col_disc")}</TableColumn>
+              <TableColumn align="end">{t("finance.detail.col_tax")}</TableColumn>
+              <TableColumn align="end">{t("finance.detail.col_total")}</TableColumn>
             </TableHeader>
             <TableBody>
               {(data?.order?.items || []).map((item) => (
@@ -227,27 +234,27 @@ export default function PaymentDetailPage() {
             <CardBody>
               <div className="space-y-3  border-gray-100">
                 <SummaryRow
-                  label="Subtotal"
+                  label={t("finance.detail.subtotal")}
                   value={formatIDR(data?.order?.subtotal)}
                 />
                 <SummaryRow
                   isNegative
-                  label="Diskon Final"
+                  label={t("finance.detail.final_discount")}
                   value={formatIDR(data?.order?.discount)}
                 />
                 <SummaryRow
-                  label="Total Pajak"
+                  label={t("finance.detail.total_tax")}
                   value={formatIDR(data?.order?.tax)}
                 />
                 <SummaryRow
-                  label="Biaya Lain-lain"
+                  label={t("finance.detail.other_fees")}
                   value={formatIDR(data?.order?.other_fee)}
                 />
               </div>
 
               <div className="mt-8 p-6 bg-gray-50 rounded-sm border border-gray-100 flex justify-between items-center">
                 <span className="text-sm font-black text-gray-500 uppercase ">
-                  Grand Total
+                  {t("finance.detail.grand_total")}
                 </span>
                 <span className="text-lg font-black text-gray-600">
                   {formatIDR(Number(data?.order?.grand_total))}
@@ -282,7 +289,6 @@ function SummaryRow({
   );
 }
 
-// INTERNAL HELPERS
 function DataField({ label, value, isMono, isBadge }: any) {
   return (
     <div className="space-y-1">

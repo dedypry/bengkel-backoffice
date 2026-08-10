@@ -1,9 +1,8 @@
 import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus, Heart, MapPin, Briefcase } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Input,
@@ -14,10 +13,14 @@ import {
   Textarea,
   Divider,
 } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 import AddRole from "../../settings/roles/components/add-role";
 
-import { formSchema } from "./schemas/create-schema";
+import {
+  createFormSchema,
+  type EmployeeFormValues,
+} from "./schemas/create-schema";
 
 import Province from "@/components/regions/province";
 import City from "@/components/regions/city";
@@ -33,16 +36,37 @@ import PhoneInput from "@/components/forms/phone-input";
 
 interface Props {
   id?: string;
-  userForm?: z.infer<typeof formSchema>;
+  userForm?: EmployeeFormValues;
 }
 
 export default function CreateEmployeePage({ id, userForm }: Props) {
+  const { t } = useTranslation();
   const { roles } = useAppSelector((state) => state.role);
   const [isLoading, setLoading] = useState(false);
   const [openAddRole, setOpenAddRole] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
+
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
+
+  const departments = useMemo(
+    () => [
+      { key: "Workshop", label: t("hr.employees.dept_workshop") },
+      { key: "Front Office", label: t("hr.employees.dept_front_office") },
+      { key: "Finance", label: t("hr.employees.dept_finance") },
+      { key: "HR", label: t("hr.employees.dept_hr") },
+    ],
+    [t],
+  );
+
+  const workStatuses = useMemo(
+    () => [
+      { key: "permanent", label: t("hr.common.status_permanent") },
+      { key: "contract", label: t("hr.common.status_contract") },
+    ],
+    [t],
+  );
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -59,7 +83,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm<z.infer<typeof formSchema>>({
+  } = useForm<EmployeeFormValues>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
@@ -72,7 +96,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: EmployeeFormValues) => {
     setLoading(true);
     try {
       if (values.photo instanceof File) {
@@ -116,10 +140,14 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
         </Button>
         <div>
           <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-500">
-            {id ? "Update Personil" : "Registrasi Karyawan"}
+            {id
+              ? t("hr.employees.create_title_edit")
+              : t("hr.employees.create_title_new")}
           </h3>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-            {id ? "ID KARYAWAN: #" + id : "PENDAFTARAN TIM BARU"}
+            {id
+              ? t("hr.employees.create_subtitle_edit", { id })
+              : t("hr.employees.create_subtitle_new")}
           </p>
         </div>
       </div>
@@ -134,7 +162,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   <Briefcase size={18} />
                 </div>
                 <h4 className="text-sm font-black uppercase text-gray-500">
-                  Informasi Pekerjaan
+                  {t("hr.employees.section_job")}
                 </h4>
               </div>
 
@@ -145,7 +173,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     name="photo"
                     render={({ field }) => (
                       <UploadAvatar
-                        buttonTitle="Upload Foto"
+                        buttonTitle={t("hr.employees.upload_photo")}
                         field={field}
                         value={field.value}
                         onChange={field.onChange}
@@ -153,7 +181,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     )}
                   />
                   <p className="text-[10px] text-gray-400 font-bold uppercase mt-4 italic">
-                    Format: JPG, PNG (Maks 2MB)
+                    {t("hr.employees.upload_hint")}
                   </p>
                 </div>
 
@@ -166,8 +194,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         {...field}
                         errorMessage={errors.name?.message}
                         isInvalid={!!errors.name}
-                        label="Nama Lengkap"
-                        placeholder="Sesuai KTP"
+                        label={t("hr.employees.form_name")}
+                        placeholder={t("hr.employees.form_name_placeholder")}
                       />
                     )}
                   />
@@ -177,11 +205,13 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     render={({ field }) => (
                       <Input
                         {...(field as any)}
-                        description="Samakan dengan ID karyawan di mesin absensi agar absensi otomatis terhubung."
+                        description={t("hr.employees.form_attendance_id_desc")}
                         errorMessage={errors.mesin_id?.message}
                         isInvalid={!!errors.mesin_id}
-                        label="ID Mesin Absensi"
-                        placeholder="Contoh: 1, 25, 1024"
+                        label={t("hr.employees.form_attendance_id")}
+                        placeholder={t(
+                          "hr.employees.form_attendance_id_placeholder",
+                        )}
                         value={field.value ?? ""}
                       />
                     )}
@@ -194,8 +224,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         {...field}
                         errorMessage={errors.email?.message}
                         isInvalid={!!errors.email}
-                        label="Email Kantor"
-                        placeholder="name@company.com"
+                        label={t("hr.employees.form_email")}
+                        placeholder={t("hr.employees.form_email_placeholder")}
                         type="email"
                       />
                     )}
@@ -208,8 +238,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         {...(field as any)}
                         errorMessage={errors.phone?.message}
                         isInvalid={!!errors.phone}
-                        label="Nomor Telepon"
-                        placeholder="08xx-xxxx-xxxx"
+                        label={t("hr.employees.form_phone")}
+                        placeholder={t("hr.employees.form_phone_placeholder")}
                       />
                     )}
                   />
@@ -221,8 +251,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       <Select
                         errorMessage={fieldState.error?.message}
                         isInvalid={!!fieldState.error}
-                        label="Departemen"
-                        placeholder="Pilih Divisi"
+                        label={t("hr.employees.form_department")}
+                        placeholder={t("hr.employees.form_department_placeholder")}
                         selectedKeys={[field.value]}
                         onSelectionChange={(key) => {
                           const val = Array.from(key)[0];
@@ -230,11 +260,9 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                           field.onChange(val);
                         }}
                       >
-                        {["Workshop", "Front Office", "Finance", "HR"].map(
-                          (dept) => (
-                            <SelectItem key={dept}>{dept}</SelectItem>
-                          ),
-                        )}
+                        {departments.map((dept) => (
+                          <SelectItem key={dept.key}>{dept.label}</SelectItem>
+                        ))}
                       </Select>
                     )}
                   />
@@ -245,8 +273,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       <Select
                         errorMessage={fieldState.error?.message}
                         isInvalid={!!fieldState.error}
-                        label="Status Kerja"
-                        placeholder="Status Pekerjaan"
+                        label={t("hr.employees.form_work_status")}
+                        placeholder={t("hr.employees.form_work_status_placeholder")}
                         selectedKeys={[field.value]}
                         onSelectionChange={(key) => {
                           const val = Array.from(key)[0];
@@ -254,8 +282,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                           field.onChange(val);
                         }}
                       >
-                        {["Permanent", "Contract"].map((st) => (
-                          <SelectItem key={st.toLowerCase()}>{st}</SelectItem>
+                        {workStatuses.map((st) => (
+                          <SelectItem key={st.key}>{st.label}</SelectItem>
                         ))}
                       </Select>
                     )}
@@ -267,7 +295,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       <CustomDatePicker
                         errorMessage={fieldState.error?.message}
                         isInvalid={!!fieldState.error}
-                        label="Tanggal Bergabung"
+                        label={t("hr.employees.form_join_date")}
                         value={field.value as any}
                         onChange={field.onChange}
                       />
@@ -279,11 +307,11 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       name="role_ids"
                       render={({ field, fieldState }) => (
                         <Select
-                          aria-label="Pilih Jabatan"
+                          aria-label={t("hr.employees.form_role_aria")}
                           errorMessage={fieldState.error?.message}
                           isInvalid={!!fieldState.error}
-                          label="Jabatan/Role"
-                          placeholder="Pilih Role"
+                          label={t("hr.employees.form_role")}
+                          placeholder={t("hr.employees.form_role_placeholder")}
                           selectedKeys={(field.value || []).map(String) || []}
                           selectionMode="multiple"
                           onSelectionChange={(keys) =>
@@ -320,7 +348,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   <MapPin size={18} />
                 </div>
                 <h4 className="text-sm font-black uppercase  text-gray-500">
-                  Biodata & Alamat Tinggal
+                  {t("hr.employees.section_bio")}
                 </h4>
               </div>
 
@@ -333,8 +361,8 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       {...(field as any)}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Tempat Lahir"
-                      placeholder="Serang..."
+                      label={t("hr.employees.form_birth_place")}
+                      placeholder={t("hr.employees.form_birth_place_placeholder")}
                     />
                   )}
                 />
@@ -345,7 +373,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     <CustomDatePicker
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Tanggal Lahir"
+                      label={t("hr.employees.form_birth_date")}
                       value={field.value as any}
                       onChange={field.onChange}
                     />
@@ -359,11 +387,15 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       {...(field as any)}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Jenis Kelamin"
-                      placeholder="Masukan Jenis Kelamin"
+                      label={t("hr.employees.form_gender")}
+                      placeholder={t("hr.employees.form_gender_placeholder")}
                     >
-                      <SelectItem key="male">Laki-laki</SelectItem>
-                      <SelectItem key="female">Perempuan</SelectItem>
+                      <SelectItem key="male">
+                        {t("hr.common.gender_male")}
+                      </SelectItem>
+                      <SelectItem key="female">
+                        {t("hr.common.gender_female")}
+                      </SelectItem>
                     </Select>
                   )}
                 />
@@ -415,7 +447,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                     {...(field as any)}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Alamat Lengkap (KTP)"
+                    label={t("hr.employees.form_address")}
                     minRows={3}
                   />
                 )}
@@ -431,7 +463,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   <Heart size={18} />
                 </div>
                 <h4 className="text-sm font-black uppercase text-rose-600">
-                  Kontak Darurat (Emergency)
+                  {t("hr.employees.section_emergency")}
                 </h4>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -441,8 +473,10 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   render={({ field }) => (
                     <Input
                       {...(field as any)}
-                      label="Nama Kerabat"
-                      placeholder="Nama Lengkap"
+                      label={t("hr.employees.form_emergency_name")}
+                      placeholder={t(
+                        "hr.employees.form_emergency_name_placeholder",
+                      )}
                     />
                   )}
                 />
@@ -451,8 +485,10 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                   name="emergency_contact"
                   render={({ field }) => (
                     <PhoneInput
-                      label="No. Telepon Kerabat"
-                      placeholder="08xx-xxxx-xxxx"
+                      label={t("hr.employees.form_emergency_phone")}
+                      placeholder={t(
+                        "hr.employees.form_emergency_phone_placeholder",
+                      )}
                       value={field.value as any}
                       onValueChange={field.onChange}
                     />
@@ -466,10 +502,12 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
         {/* Action Footer */}
         <div className="flex gap-4 justify-end">
           <Button variant="flat" onPress={() => navigate("/hr/employees")}>
-            Batalkan
+            {t("hr.employees.cancel")}
           </Button>
           <Button color="primary" isLoading={isLoading} type="submit">
-            {id ? "Update Data Karyawan" : "Simpan Karyawan Baru"}
+            {id
+              ? t("hr.employees.save_update")
+              : t("hr.employees.save_new")}
           </Button>
         </div>
       </form>

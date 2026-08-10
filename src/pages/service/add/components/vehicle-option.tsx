@@ -3,6 +3,7 @@ import type { IVehicle } from "@/utils/interfaces/IUser";
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { Car } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getVehicle } from "@/stores/features/vehicle/vehicle-action";
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function VehicleOption({ value, onChange }: Props) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { vehicles: dataVehicles } = useAppSelector((state) => state.vehicle);
   const { company } = useAppSelector((state) => state.auth);
@@ -88,17 +90,16 @@ export default function VehicleOption({ value, onChange }: Props) {
   return (
     <Autocomplete
       allowsCustomValue
-      aria-label="Pilih Kendaraan"
+      aria-label={t("service.detail.plate_aria")}
       className="max-w-full"
       defaultItems={vehicles}
       inputValue={value || ""}
-      label="No. Polisi (Nopol)"
+      label={t("service.detail.plate_label")}
       labelPlacement="outside"
       listboxProps={{
-        emptyContent:
-          "Kendaraan tidak ditemukan, tekan Enter untuk mendaftarkan plat ini.",
+        emptyContent: t("service.detail.plate_not_found"),
       }}
-      placeholder="Pilih atau ketik No. Polisi..."
+      placeholder={t("service.detail.plate_placeholder")}
       scrollShadowProps={{
         isEnabled: false,
       }}

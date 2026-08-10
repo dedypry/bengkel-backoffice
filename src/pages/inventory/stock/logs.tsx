@@ -6,6 +6,7 @@ import {
   ArrowUpCircle,
   RefreshCw,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 const dummyStockLogs = [
@@ -52,6 +53,7 @@ const dummyStockLogs = [
 ];
 
 export default function StockLogPage() {
+  const { t } = useTranslation();
   const [logs] = useState(dummyStockLogs);
 
   return (
@@ -59,17 +61,19 @@ export default function StockLogPage() {
       {/* Header Section */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Log Mutasi Stok</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {t("inventory.stock.logs.title")}
+          </h1>
           <p className="text-slate-500 text-sm">
-            Pantau semua perubahan stok barang masuk dan keluar
+            {t("inventory.stock.logs.subtitle")}
           </p>
         </div>
         <div className="flex gap-2">
           <button className="flex items-center gap-2 bg-white border px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50">
-            <Filter className="h-4 w-4" /> Filter
+            <Filter className="h-4 w-4" /> {t("inventory.stock.logs.filter")}
           </button>
           <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
-            Export Excel
+            {t("inventory.stock.logs.export")}
           </button>
         </div>
       </div>
@@ -81,7 +85,7 @@ export default function StockLogPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Cari produk atau kode..."
+              placeholder={t("inventory.stock.logs.search_placeholder")}
             />
           </div>
         </div>
@@ -90,12 +94,24 @@ export default function StockLogPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 text-slate-600 uppercase text-[11px] font-bold tracking-wider">
-                <th className="px-6 py-4 border-b">Waktu & Admin</th>
-                <th className="px-6 py-4 border-b">Informasi Produk</th>
-                <th className="px-6 py-4 border-b">Tipe</th>
-                <th className="px-6 py-4 border-b text-right">Perubahan</th>
-                <th className="px-6 py-4 border-b text-right">Stok Akhir</th>
-                <th className="px-6 py-4 border-b">Keterangan</th>
+                <th className="px-6 py-4 border-b">
+                  {t("inventory.stock.logs.table.time_admin")}
+                </th>
+                <th className="px-6 py-4 border-b">
+                  {t("inventory.stock.logs.table.product")}
+                </th>
+                <th className="px-6 py-4 border-b">
+                  {t("inventory.stock.logs.table.type")}
+                </th>
+                <th className="px-6 py-4 border-b text-right">
+                  {t("inventory.stock.logs.table.change")}
+                </th>
+                <th className="px-6 py-4 border-b text-right">
+                  {t("inventory.stock.logs.table.final_stock")}
+                </th>
+                <th className="px-6 py-4 border-b">
+                  {t("inventory.stock.logs.table.notes")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

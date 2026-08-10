@@ -18,13 +18,14 @@ import {
   Input,
   Switch,
 } from "@heroui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   isEmailConfigSaved,
+  createNotificationSchema,
   mapNotificationSettings,
   notificationDefaults,
-  notificationSchema,
   type NotificationFormValues,
 } from "./schemas/notification-schema";
 
@@ -67,12 +68,14 @@ function SectionCard({
 }
 
 export default function NotificationSettingsPage() {
+  const { t } = useTranslation();
   const { settings } = useAppSelector((state) => state.setting);
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testEmail, setTestEmail] = useState("");
+  const notificationSchema = useMemo(() => createNotificationSchema(t), [t]);
 
   const {
     control,
@@ -114,7 +117,7 @@ export default function NotificationSettingsPage() {
       }
 
       await http.post("/settings", payload);
-      notify("Pengaturan notifikasi berhasil disimpan");
+      notify(t("settings.notifications.saved"));
       dispatch(getSettings());
     } catch (error) {
       notifyError(error);
@@ -125,7 +128,7 @@ export default function NotificationSettingsPage() {
 
   const handleTestEmail = async () => {
     if (!testEmail.trim()) {
-      notifyError("Masukkan alamat email tujuan tes");
+      notifyError(t("settings.notifications.test_email_required"));
 
       return;
     }
@@ -137,7 +140,7 @@ export default function NotificationSettingsPage() {
         email: testEmail.trim(),
       });
 
-      notify(data.message || "Email tes berhasil dikirim");
+      notify(data.message || t("settings.notifications.test_email_sent"));
     } catch (error) {
       notifyError(error);
     } finally {
@@ -148,15 +151,15 @@ export default function NotificationSettingsPage() {
   return (
     <div className="space-y-6">
       <HeaderAction
-        subtitle="Atur SMTP dan notifikasi email otomatis ke pelanggan."
-        title="Notifikasi Email"
+        subtitle={t("settings.notifications.subtitle")}
+        title={t("settings.notifications.title")}
       />
 
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <SectionCard
-          description="Aktifkan pengiriman email ke pelanggan yang memiliki alamat email."
+          description={t("settings.notifications.status_desc")}
           icon={Bell}
-          title="Status Notifikasi"
+          title={t("settings.notifications.status_title")}
         >
           <Controller
             control={control}
@@ -165,10 +168,10 @@ export default function NotificationSettingsPage() {
               <div className="flex items-center justify-between rounded-xl border border-default-200 px-4 py-3">
                 <div>
                   <p className="font-semibold text-default-900">
-                    Aktifkan Email Notifikasi
+                    {t("settings.notifications.enable_email")}
                   </p>
                   <p className="text-sm text-default-500">
-                    Email hanya dikirim jika pelanggan memiliki alamat email.
+                    {t("settings.notifications.enable_email_hint")}
                   </p>
                 </div>
                 <Switch
@@ -181,9 +184,9 @@ export default function NotificationSettingsPage() {
         </SectionCard>
 
         <SectionCard
-          description="Konfigurasi server SMTP untuk mengirim email ke pelanggan."
+          description={t("settings.notifications.smtp_desc")}
           icon={Server}
-          title="Konfigurasi SMTP"
+          title={t("settings.notifications.smtp_title")}
         >
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
@@ -193,7 +196,7 @@ export default function NotificationSettingsPage() {
                 <Input
                   {...field}
                   isDisabled={!emailEnabled}
-                  label="SMTP Host"
+                  label={t("settings.notifications.smtp_host")}
                   placeholder="smtp.gmail.com"
                   value={field.value || ""}
                   variant="bordered"
@@ -206,7 +209,7 @@ export default function NotificationSettingsPage() {
               render={({ field }) => (
                 <InputNumber
                   isDisabled={!emailEnabled}
-                  label="SMTP Port"
+                  label={t("settings.notifications.smtp_port")}
                   placeholder="587"
                   value={
                     field.value != null ? String(field.value) : undefined
@@ -222,7 +225,7 @@ export default function NotificationSettingsPage() {
                 <Input
                   {...field}
                   isDisabled={!emailEnabled}
-                  label="SMTP Username"
+                  label={t("settings.notifications.smtp_username")}
                   placeholder="user@domain.com"
                   value={field.value || ""}
                   variant="bordered"
@@ -236,10 +239,10 @@ export default function NotificationSettingsPage() {
                 <Input
                   {...field}
                   isDisabled={!emailEnabled}
-                  label="SMTP Password"
+                  label={t("settings.notifications.smtp_password")}
                   placeholder={
                     field.value === MASKED_PASSWORD
-                      ? "Password tersimpan"
+                      ? t("settings.notifications.password_saved")
                       : "••••••••"
                   }
                   type="password"
@@ -255,7 +258,7 @@ export default function NotificationSettingsPage() {
                 <Input
                   {...field}
                   isDisabled={!emailEnabled}
-                  label="Nama Pengirim"
+                  label={t("settings.notifications.sender_name")}
                   placeholder="Clinic Pradana Workshop"
                   value={field.value || ""}
                   variant="bordered"
@@ -269,7 +272,7 @@ export default function NotificationSettingsPage() {
                 <Input
                   {...field}
                   isDisabled={!emailEnabled}
-                  label="Email Pengirim"
+                  label={t("settings.notifications.sender_email")}
                   placeholder="no-reply@domain.com"
                   type="email"
                   value={field.value || ""}
@@ -285,10 +288,11 @@ export default function NotificationSettingsPage() {
             render={({ field }) => (
               <div className="flex items-center justify-between rounded-xl border border-default-200 px-4 py-3">
                 <div>
-                  <p className="font-semibold text-default-900">SSL / TLS</p>
+                  <p className="font-semibold text-default-900">
+                    {t("settings.notifications.ssl_tls")}
+                  </p>
                   <p className="text-sm text-default-500">
-                    Aktifkan untuk port 465 (secure). Nonaktifkan untuk STARTTLS
-                    (port 587).
+                    {t("settings.notifications.ssl_tls_hint")}
                   </p>
                 </div>
                 <Switch
@@ -308,7 +312,7 @@ export default function NotificationSettingsPage() {
                 <Input
                   className="md:flex-1"
                   isDisabled={!emailEnabled}
-                  label="Email Tujuan Tes"
+                  label={t("settings.notifications.test_email_label")}
                   placeholder="customer@email.com"
                   type="email"
                   value={testEmail}
@@ -322,7 +326,7 @@ export default function NotificationSettingsPage() {
                   startContent={!testing ? <Send size={16} /> : undefined}
                   onPress={handleTestEmail}
                 >
-                  Kirim Email Tes
+                  {t("settings.notifications.send_test")}
                 </Button>
               </div>
             </>
@@ -330,9 +334,9 @@ export default function NotificationSettingsPage() {
         </SectionCard>
 
         <SectionCard
-          description="Pilih kapan email otomatis dikirim ke pelanggan."
+          description={t("settings.notifications.triggers_desc")}
           icon={ShieldCheck}
-          title="Trigger Notifikasi"
+          title={t("settings.notifications.triggers_title")}
         >
           <div className="space-y-3">
             <Controller
@@ -342,11 +346,10 @@ export default function NotificationSettingsPage() {
                 <div className="flex items-center justify-between rounded-xl border border-default-200 px-4 py-3">
                   <div>
                     <p className="font-semibold text-default-900">
-                      Servis Selesai Dikerjakan
+                      {t("settings.notifications.trigger_service_done")}
                     </p>
                     <p className="text-sm text-default-500">
-                      Saat progress work order berubah menjadi siap diambil
-                      (ready).
+                      {t("settings.notifications.trigger_service_done_hint")}
                     </p>
                   </div>
                   <Switch
@@ -364,10 +367,10 @@ export default function NotificationSettingsPage() {
                 <div className="flex items-center justify-between rounded-xl border border-default-200 px-4 py-3">
                   <div>
                     <p className="font-semibold text-default-900">
-                      Pembayaran Selesai
+                      {t("settings.notifications.trigger_payment_done")}
                     </p>
                     <p className="text-sm text-default-500">
-                      Saat kasir menyelesaikan pembayaran work order.
+                      {t("settings.notifications.trigger_payment_done_hint")}
                     </p>
                   </div>
                   <Switch
@@ -385,11 +388,10 @@ export default function NotificationSettingsPage() {
                 <div className="flex items-center justify-between rounded-xl border border-default-200 px-4 py-3">
                   <div>
                     <p className="font-semibold text-default-900">
-                      Invoice Dikirim
+                      {t("settings.notifications.trigger_invoice_sent")}
                     </p>
                     <p className="text-sm text-default-500">
-                      Otomatis setelah pembayaran selesai, atau saat invoice
-                      dikirim manual.
+                      {t("settings.notifications.trigger_invoice_sent_hint")}
                     </p>
                   </div>
                   <Switch
@@ -407,11 +409,10 @@ export default function NotificationSettingsPage() {
                 <div className="flex items-center justify-between rounded-xl border border-default-200 px-4 py-3">
                   <div>
                     <p className="font-semibold text-default-900">
-                      Pengingat Servis Berkala
+                      {t("settings.notifications.trigger_service_reminder")}
                     </p>
                     <p className="text-sm text-default-500">
-                      Dikirim otomatis sebelum jadwal servis berikutnya jika
-                      pelanggan mencentang pengingat saat pendaftaran.
+                      {t("settings.notifications.trigger_service_reminder_hint")}
                     </p>
                   </div>
                   <Switch
@@ -430,7 +431,7 @@ export default function NotificationSettingsPage() {
             startContent={<Wrench size={14} />}
             variant="flat"
           >
-            Pelanggan tanpa email akan dilewati secara otomatis.
+            {t("settings.notifications.skip_no_email")}
           </Chip>
         </SectionCard>
 
@@ -442,7 +443,7 @@ export default function NotificationSettingsPage() {
             startContent={!loading ? <Save size={16} /> : undefined}
             type="submit"
           >
-            Simpan Pengaturan
+            {t("settings.notifications.save_settings")}
           </Button>
         </div>
       </form>

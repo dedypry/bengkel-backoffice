@@ -1,6 +1,7 @@
 import type { IReport } from "@/utils/interfaces/IReport";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -57,6 +58,7 @@ function getProgressColor(progress: number) {
 }
 
 export default function RevenuePage() {
+  const { t } = useTranslation();
   const [report, setReport] = useState<IReport>();
   const [loading, setLoading] = useState(true);
   const [targetModalOpen, setTargetModalOpen] = useState(false);
@@ -85,28 +87,28 @@ export default function RevenuePage() {
   const stats = useMemo(
     () => [
       {
-        label: "Total Pendapatan",
+        label: t("reports.revenue.stat_total"),
         val: formatIDR(report?.revenue || 0),
         icon: DollarSign,
         card: "bg-emerald-50/90 border-emerald-100",
         iconWrap: "bg-emerald-100 text-emerald-600",
       },
       {
-        label: "Unit Servis",
-        val: `${formatNumber(report?.wo || 0)} Unit`,
+        label: t("reports.revenue.stat_units"),
+        val: `${formatNumber(report?.wo || 0)}${t("reports.revenue.unit_suffix")}`,
         icon: Zap,
         card: "bg-sky-50/90 border-sky-100",
         iconWrap: "bg-sky-100 text-sky-600",
       },
       {
-        label: "Rata-rata Transaksi",
+        label: t("reports.revenue.stat_avg"),
         val: formatIDR(report?.avg || 0),
         icon: BarChart3,
         card: "bg-violet-50/90 border-violet-100",
         iconWrap: "bg-violet-100 text-violet-600",
       },
       {
-        label: "Pertumbuhan",
+        label: t("reports.revenue.stat_growth"),
         val: report?.growth || "0%",
         icon: report?.growthType === "decrement" ? ArrowDownLeft : ArrowUpRight,
         card:
@@ -119,14 +121,14 @@ export default function RevenuePage() {
             : "bg-amber-100 text-amber-600",
       },
     ],
-    [report],
+    [report, t],
   );
 
   const saveTarget = async () => {
     const targetAmount = Number(targetInput.replace(/\D/g, ""));
 
     if (!targetAmount || targetAmount <= 0) {
-      notifyError("Target harus lebih dari 0");
+      notifyError(t("reports.revenue.target_min_error"));
 
       return;
     }
@@ -135,7 +137,7 @@ export default function RevenuePage() {
     http
       .post("/reports/revenue-target", { target_amount: targetAmount })
       .then(({ data }) => {
-        notify(data.message || "Target berhasil disimpan");
+        notify(data.message || t("reports.revenue.target_saved"));
         setReport((prev) =>
           prev
             ? {
@@ -154,8 +156,8 @@ export default function RevenuePage() {
     <div className="mx-auto max-w-7xl space-y-8 px-4 pb-20">
       <HeaderAction
         actionIcon={FileSpreadsheet}
-        subtitle="Analisis pemasukan, target bulanan, dan pertumbuhan bengkel secara akurat."
-        title="Laporan Pendapatan"
+        subtitle={t("reports.revenue.subtitle")}
+        title={t("reports.revenue.title")}
         onAction={() => {
           /* Logic Export */
         }}
@@ -200,15 +202,17 @@ export default function RevenuePage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-800">
-                    Trend Pendapatan Bulan Ini
+                    {t("reports.revenue.chart_title")}
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Akumulasi harian pendapatan {monthly?.month_name}
+                    {t("reports.revenue.chart_subtitle", {
+                      month: monthly?.month_name,
+                    })}
                   </p>
                 </div>
               </div>
               <Chip color="primary" size="sm" variant="flat">
-                Live
+                {t("reports.revenue.live")}
               </Chip>
             </CardHeader>
             <CardBody className="px-6 pb-6 pt-4">
@@ -225,10 +229,10 @@ export default function RevenuePage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-slate-800">
-                      Sumber Pendapatan
+                      {t("reports.revenue.source_title")}
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Distribusi layanan, suku cadang, dan penjualan
+                      {t("reports.revenue.source_subtitle")}
                     </p>
                   </div>
                 </div>
@@ -271,7 +275,7 @@ export default function RevenuePage() {
                 </div>
                 <div>
                   <h5 className="text-lg font-bold text-slate-700">
-                    Target Bulanan
+                    {t("reports.revenue.monthly_target")}
                   </h5>
                   <p className="text-xs text-slate-500">
                     {monthly?.month_name}
@@ -283,11 +287,11 @@ export default function RevenuePage() {
                 <div className="rounded-2xl border border-violet-100 bg-white/80 p-4">
                   <div className="mb-1 flex items-center justify-between">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      Target
+                      {t("reports.revenue.target_label")}
                     </p>
                     {!monthly?.is_target_set && (
                       <Chip color="warning" size="sm" variant="flat">
-                        Estimasi
+                        {t("reports.revenue.estimate")}
                       </Chip>
                     )}
                   </div>
@@ -299,7 +303,7 @@ export default function RevenuePage() {
                 <div className="rounded-2xl border border-violet-100 bg-white/80 p-4">
                   <div className="mb-1 flex items-center justify-between">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      Pencapaian
+                      {t("reports.revenue.achievement")}
                     </p>
                     <TrendingUp className="text-emerald-500" size={16} />
                   </div>
@@ -307,7 +311,7 @@ export default function RevenuePage() {
                     {formatIDR(monthly?.current_revenue || 0)}
                   </p>
                   <Progress
-                    aria-label="Monthly Target"
+                    aria-label={t("reports.revenue.monthly_target_aria")}
                     className="mt-4 h-3"
                     classNames={{
                       track: "bg-violet-100",
@@ -317,18 +321,24 @@ export default function RevenuePage() {
                   />
                   <div className="mt-2 flex items-center justify-between text-xs font-medium text-slate-500">
                     <span>
-                      {(monthly?.progress_value || 0).toFixed(1)}% tercapai
+                      {t("reports.revenue.progress_achieved", {
+                        percent: (monthly?.progress_value || 0).toFixed(1),
+                      })}
                     </span>
                     <span>
-                      Sisa {formatIDR(monthly?.remaining_amount || 0)}
+                      {t("reports.revenue.remaining", {
+                        amount: formatIDR(monthly?.remaining_amount || 0),
+                      })}
                     </span>
                   </div>
                 </div>
 
                 <div className="rounded-xl bg-sky-50 px-4 py-3 text-sm text-slate-600">
                   <Sparkles className="mb-1 inline size-4 text-sky-500" />{" "}
-                  {monthly?.growth_formatted} dibanding periode yang sama di
-                  bulan {monthly?.last_month_name}.
+                  {t("reports.revenue.growth_compare", {
+                    growth: monthly?.growth_formatted,
+                    month: monthly?.last_month_name,
+                  })}
                 </div>
 
                 <Button
@@ -342,7 +352,7 @@ export default function RevenuePage() {
                     setTargetModalOpen(true);
                   }}
                 >
-                  Sesuaikan Target
+                  {t("reports.revenue.adjust_target")}
                 </Button>
               </CardBody>
             </Card>
@@ -355,10 +365,10 @@ export default function RevenuePage() {
           <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-primary to-secondary" />
           <div>
             <h2 className="text-lg font-bold text-slate-800">
-              Riwayat Transaksi Terakhir
+              {t("reports.revenue.recent_transactions")}
             </h2>
             <p className="text-xs text-slate-500">
-              Daftar invoice dan pembayaran terbaru
+              {t("reports.revenue.recent_subtitle")}
             </p>
           </div>
         </div>
@@ -375,22 +385,26 @@ export default function RevenuePage() {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <span className="text-primary">Target Pendapatan</span>
+                <span className="text-primary">
+                  {t("reports.revenue.target_modal_title")}
+                </span>
                 <span className="text-sm font-normal text-default-500">
-                  Tetapkan target bulan {monthly?.month_name}
+                  {t("reports.revenue.target_modal_subtitle", {
+                    month: monthly?.month_name,
+                  })}
                 </span>
               </ModalHeader>
               <ModalBody>
                 <Input
-                  label="Nominal Target Bulanan"
-                  placeholder="Contoh: 50000000"
+                  label={t("reports.revenue.target_amount_label")}
+                  placeholder={t("reports.revenue.target_amount_placeholder")}
                   startContent={<Target className="text-primary" size={16} />}
                   type="number"
                   value={targetInput}
                   onValueChange={setTargetInput}
                 />
                 <p className="text-xs text-default-400">
-                  Pencapaian saat ini:{" "}
+                  {t("reports.revenue.current_achievement")}{" "}
                   <span className="font-semibold text-default-600">
                     {formatIDR(monthly?.current_revenue || 0)}
                   </span>
@@ -398,14 +412,14 @@ export default function RevenuePage() {
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose}>
-                  Batal
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   color="primary"
                   isLoading={savingTarget}
                   onPress={saveTarget}
                 >
-                  Simpan Target
+                  {t("reports.revenue.save_target")}
                 </Button>
               </ModalFooter>
             </>

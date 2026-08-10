@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button, Chip } from "@heroui/react";
 
 import { ServiceQueue } from "@/components/dashboard/service-queue";
@@ -16,6 +17,7 @@ import { getDashboard } from "@/stores/features/dashboard/dashboard-action";
 dayjs.locale("id");
 
 export default function HomePage() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
@@ -38,16 +40,16 @@ export default function HomePage() {
           <div>
             <p className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
               <Sparkles className="size-4 text-sky-500" />
-              Dashboard Operasional
+              {t("dashboard.badge")}
             </p>
             <h1 className="text-3xl font-bold tracking-tight text-slate-800 md:text-4xl">
-              Ringkasan Bengkel
+              {t("dashboard.title")}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
               <CalendarDays className="size-4 text-slate-400" />
               <span>{dayjs().format("dddd, DD MMMM YYYY")}</span>
               <Chip color="success" size="sm" variant="flat">
-                Sistem Online
+                {t("dashboard.system_online")}
               </Chip>
             </div>
           </div>
@@ -59,7 +61,7 @@ export default function HomePage() {
             variant="flat"
             onPress={() => navigate("/service/add")}
           >
-            Work Order Baru
+            {t("dashboard.new_work_order")}
           </Button>
         </div>
       </div>
@@ -74,10 +76,10 @@ export default function HomePage() {
             <div className="mb-4 flex items-center justify-between px-1">
               <div>
                 <h2 className="text-xl font-bold text-slate-800">
-                  Antrean Workshop
+                  {t("dashboard.queue_title")}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Unit servis yang sedang berjalan hari ini
+                  {t("dashboard.queue_subtitle")}
                 </p>
               </div>
               <Button
@@ -87,7 +89,7 @@ export default function HomePage() {
                 variant="flat"
                 onPress={() => navigate("/service/queue")}
               >
-                Lihat Semua
+                {t("common.view_all")}
               </Button>
             </div>
             <ServiceQueue />
@@ -101,10 +103,10 @@ export default function HomePage() {
             </div>
             <div className="relative z-10">
               <h4 className="text-xl font-bold leading-tight text-slate-700">
-                Tingkatkan efisiensi servis harian
+                {t("dashboard.promo_title")}
               </h4>
               <p className="mt-2 max-w-[220px] text-sm text-slate-500">
-                Pantau antrean, stok kritis, dan pendapatan dari satu dashboard.
+                {t("dashboard.promo_desc")}
               </p>
               <Button
                 className="mt-4 font-semibold"
@@ -113,7 +115,7 @@ export default function HomePage() {
                 variant="flat"
                 onPress={() => navigate("/reports/revenue")}
               >
-                Lihat Laporan
+                {t("dashboard.view_report")}
               </Button>
             </div>
           </div>

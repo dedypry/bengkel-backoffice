@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Input,
@@ -46,6 +47,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function InventoryStockPage() {
+  const { t } = useTranslation();
   const { company } = useAppSelector((state) => state.auth);
   const { products, productQuery } = useAppSelector((state) => state.product);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
@@ -105,41 +107,41 @@ export default function InventoryStockPage() {
                 )
               }
             >
-              Export Excel
+              {t("inventory.stock.export")}
             </Button>
             <Button
               color="primary"
               startContent={<Plus className="size-4" />}
               onPress={() => navigate("/inventory/stock/add")}
             >
-              Tambah Barang
+              {t("inventory.stock.add")}
             </Button>
           </div>
         }
         leadIcon={Package}
-        subtitle="Kelola stok, harga, dan kategori barang bengkel Anda."
-        title="Inventaris Sparepart"
+        subtitle={t("inventory.stock.subtitle")}
+        title={t("inventory.stock.title")}
       />
 
       {/* Overview Cards - Gray Minimalist */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           {
-            label: "Total Item",
+            label: t("inventory.stock.stats.total_item"),
             value: formatNumber(products?.meta.total || 0),
             unit: "SKU",
             icon: <Package className="text-gray-600" size={22} />,
             color: "border-gray-200",
           },
           {
-            label: "Stok Menipis",
+            label: t("inventory.stock.stats.low_stock"),
             value: formatNumber(products?.stats?.low_stock_count || 0),
-            unit: "Perlu Order",
+            unit: t("inventory.stock.stats.need_order"),
             icon: <AlertCircle className="text-amber-600" size={22} />,
             color: "border-amber-400",
           },
           {
-            label: "Nilai Inventaris",
+            label: t("inventory.stock.stats.inventory_value"),
             value: formatIDR(products?.stats?.total_inventory_value || 0),
             unit: "",
             icon: <ArrowUpDown className="text-gray-600" size={22} />,
@@ -179,7 +181,7 @@ export default function InventoryStockPage() {
               isClearable
               aria-label="Filter status stok"
               className="w-full sm:w-40"
-              placeholder="Semua Status"
+              placeholder={t("inventory.stock.filter_all_status")}
               selectedKeys={productQuery.status ? [productQuery.status] : []}
               variant="bordered"
               onSelectionChange={(keys) => {
@@ -193,14 +195,14 @@ export default function InventoryStockPage() {
                 );
               }}
             >
-              <SelectItem key="empty" textValue="Kosong">
-                Kosong
+              <SelectItem key="empty" textValue={t("inventory.stock.status_empty")}>
+                {t("inventory.stock.status_empty")}
               </SelectItem>
-              <SelectItem key="low" textValue="Menipis">
-                Menipis
+              <SelectItem key="low" textValue={t("inventory.stock.status_low")}>
+                {t("inventory.stock.status_low")}
               </SelectItem>
-              <SelectItem key="ok" textValue="Aman">
-                Aman
+              <SelectItem key="ok" textValue={t("inventory.stock.status_ok")}>
+                {t("inventory.stock.status_ok")}
               </SelectItem>
             </Select>
           </div>
@@ -208,7 +210,7 @@ export default function InventoryStockPage() {
             <Input
               isClearable
               className="w-full md:max-w-sm"
-              placeholder="Cari nama barang atau kode SKU..."
+              placeholder={t("inventory.stock.search_placeholder")}
               startContent={<Search className="text-gray-400" size={18} />}
               variant="bordered"
               onChange={(e) => searchDebounce(e.target.value)}
@@ -222,7 +224,7 @@ export default function InventoryStockPage() {
                   startContent={<Pencil className="size-4" />}
                   onPress={() => setOpenBulkCategory(true)}
                 >
-                  Bulk Update Kategori
+                  {t("inventory.stock.bulk_update")}
                 </Button>
               )}
             </div>
@@ -237,15 +239,15 @@ export default function InventoryStockPage() {
           onSelectionChange={setSelectedKeys}
         >
           <TableHeader>
-            <TableColumn>INFO BARANG</TableColumn>
-            <TableColumn align="center">STOK</TableColumn>
-            <TableColumn align="center">KATEGORI</TableColumn>
-            <TableColumn align="end">HARGA BELI</TableColumn>
-            <TableColumn align="end">HARGA JUAL</TableColumn>
-            <TableColumn align="center">STATUS</TableColumn>
+            <TableColumn>{t("inventory.stock.table.info")}</TableColumn>
+            <TableColumn align="center">{t("inventory.stock.table.stock")}</TableColumn>
+            <TableColumn align="center">{t("inventory.stock.table.category")}</TableColumn>
+            <TableColumn align="end">{t("inventory.stock.table.buy_price")}</TableColumn>
+            <TableColumn align="end">{t("inventory.stock.table.sell_price")}</TableColumn>
+            <TableColumn align="center">{t("inventory.stock.table.status")}</TableColumn>
             <TableColumn align="end"> </TableColumn>
           </TableHeader>
-          <TableBody emptyContent="Barang tidak ditemukan">
+          <TableBody emptyContent={t("inventory.stock.table.empty")}>
             {(products?.data || []).map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
@@ -269,7 +271,7 @@ export default function InventoryStockPage() {
                         </span>
                       </div>
                       <span className="text-[9px] text-gray-400 italic">
-                        Min. {Number(item.min_stock ?? 0)}
+                        {t("inventory.stock.min_stock")} {Number(item.min_stock ?? 0)}
                       </span>
                     </div>
                     <UpdateStock
@@ -315,7 +317,7 @@ export default function InventoryStockPage() {
                       color="danger"
                       variant="dot"
                     >
-                      Kosong
+                      {t("inventory.stock.status_empty")}
                     </Chip>
                   ) : Number(item.stock) <= Number(item.min_stock) ? (
                     <Chip
@@ -323,7 +325,7 @@ export default function InventoryStockPage() {
                       color="warning"
                       variant="dot"
                     >
-                      Menipis
+                      {t("inventory.stock.status_low")}
                     </Chip>
                   ) : (
                     <Chip
@@ -331,7 +333,7 @@ export default function InventoryStockPage() {
                       color="success"
                       variant="dot"
                     >
-                      Aman
+                      {t("inventory.stock.status_ok")}
                     </Chip>
                   )}
                 </TableCell>

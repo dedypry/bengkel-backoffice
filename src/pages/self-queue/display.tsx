@@ -3,6 +3,7 @@ import type { IQueueDisplay } from "@/utils/interfaces/IQueue";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, CardBody, Chip } from "@heroui/react";
 import { Clock, Sparkles, Users, Volume2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useCompanyQueueRealtime } from "@/hooks/use-company-queue-realtime";
 import dayjs from "@/utils/helpers/dayjs";
@@ -38,6 +39,7 @@ function getCompanyId() {
 }
 
 export default function QueueDisplayPage() {
+  const { t } = useTranslation();
   const companyId = useMemo(() => getCompanyId(), []);
   const [display, setDisplay] = useState<IQueueDisplay | null>(null);
   const [now, setNow] = useState(new Date());
@@ -153,7 +155,7 @@ export default function QueueDisplayPage() {
             onClick={enableAudio}
             onPress={enableAudio}
           >
-            Klik untuk Aktifkan Suara Panggilan
+            {t("self_queue.display.enable_audio")}
           </Button>
         </div>
       )}
@@ -166,7 +168,7 @@ export default function QueueDisplayPage() {
             startContent={<Volume2 className="size-3.5" />}
             variant="flat"
           >
-            Suara aktif
+            {t("self_queue.display.audio_active")}
           </Chip>
         </div>
       )}
@@ -174,10 +176,10 @@ export default function QueueDisplayPage() {
         <div className="min-w-0">
           <p className="flex items-center gap-1.5 truncate text-xs font-bold uppercase tracking-wide text-white/90 sm:text-sm">
             <Sparkles className="size-3.5 shrink-0 text-amber-200 sm:size-4" />
-            {display?.company_name || "Bengkel"}
+            {display?.company_name || t("self_queue.display.workshop_fallback")}
           </p>
           <h1 className="truncate text-xl font-black sm:text-2xl lg:text-3xl">
-            Display Antrean Servis
+            {t("self_queue.display.service_display")}
           </h1>
         </div>
         <div className="shrink-0 rounded-xl bg-white/15 px-3 py-2 text-right backdrop-blur-sm sm:px-4">
@@ -187,7 +189,7 @@ export default function QueueDisplayPage() {
           <p className="font-mono text-sm font-bold tabular-nums sm:text-lg lg:text-2xl">
             {dayjs(now).format("HH:mm:ss")}{" "}
             <span className="text-xs font-bold text-amber-200 sm:text-sm">
-              WIB
+              {t("self_queue.display.timezone")}
             </span>
           </p>
         </div>
@@ -200,20 +202,21 @@ export default function QueueDisplayPage() {
             <div className="pointer-events-none absolute -bottom-20 -left-16 size-64 rounded-full bg-amber-200/30 blur-2xl" />
 
             <p className="relative mb-2 rounded-full bg-primary/10 px-4 py-1 text-sm font-black uppercase tracking-wider text-primary sm:mb-4 sm:text-lg">
-              Nomor Dipanggil
+              {t("self_queue.display.called_number")}
             </p>
             <div className="relative bg-gradient-to-b from-primary-600 to-sky-500 bg-clip-text font-black leading-none text-transparent [font-size:clamp(4rem,18vh,12rem)]">
-              {current?.queue_number || "---"}
+              {current?.queue_number || t("self_queue.display.empty_number")}
             </div>
             <p className="relative mt-3 line-clamp-2 max-w-full text-base font-bold text-primary-800 sm:mt-4 sm:text-xl lg:text-2xl">
-              {current?.category?.name || "Belum ada antrean dipanggil"}
+              {current?.category?.name || t("self_queue.display.no_queue_called")}
             </p>
             {current?.counter_number && (
               <Chip
                 className="relative mt-3 border border-amber-300 bg-gradient-to-r from-amber-400 to-orange-400 px-4 py-2 text-base font-bold text-white sm:mt-4 sm:px-6 sm:py-3 sm:text-xl"
                 size="lg"
               >
-                Loket / Bay {current.counter_number}
+                {t("self_queue.display.counter_prefix")}
+                {current.counter_number}
               </Chip>
             )}
           </CardBody>
@@ -230,7 +233,7 @@ export default function QueueDisplayPage() {
                   {display?.total_waiting || 0}
                 </p>
                 <p className="text-[10px] font-bold uppercase text-white/80 sm:text-xs">
-                  Total Menunggu
+                  {t("self_queue.display.total_waiting")}
                 </p>
               </div>
             </CardBody>
@@ -241,7 +244,7 @@ export default function QueueDisplayPage() {
               <div className="mb-2 flex shrink-0 items-center gap-2 rounded-lg bg-sky-100 px-2.5 py-1.5 text-sky-800">
                 <Clock className="size-4" />
                 <h2 className="text-xs font-black uppercase sm:text-sm">
-                  Antrean Berikutnya
+                  {t("self_queue.display.next_queue")}
                 </h2>
               </div>
               <div className="flex min-h-0 flex-1 flex-col justify-center gap-1.5 overflow-hidden sm:gap-2">
@@ -260,7 +263,7 @@ export default function QueueDisplayPage() {
                 ))}
                 {(display?.waiting || []).length === 0 && (
                   <p className="text-xs text-slate-400 sm:text-sm">
-                    Belum ada antrean menunggu.
+                    {t("self_queue.display.empty_waiting")}
                   </p>
                 )}
               </div>
@@ -270,7 +273,7 @@ export default function QueueDisplayPage() {
           <Card className="min-h-0 overflow-hidden border-0 bg-white/90 shadow-lg shadow-amber-200/60 backdrop-blur-sm">
             <CardBody className="flex h-full min-h-0 flex-col p-3 sm:p-4">
               <h2 className="mb-2 shrink-0 rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-black uppercase text-amber-800 sm:text-sm">
-                Terakhir Dipanggil
+                {t("self_queue.display.last_called")}
               </h2>
               <div className="grid min-h-0 flex-1 grid-cols-2 content-center gap-2">
                 {history.slice(0, 4).map((item, index) => (
@@ -282,7 +285,8 @@ export default function QueueDisplayPage() {
                       {item.queue_number}
                     </p>
                     <p className="text-[9px] opacity-70 sm:text-[10px]">
-                      Loket {item.counter_number || "-"}
+                      {t("self_queue.display.counter_short")}
+                      {item.counter_number || "-"}
                     </p>
                   </div>
                 ))}

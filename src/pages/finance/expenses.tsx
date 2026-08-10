@@ -29,6 +29,7 @@ import {
 } from "@heroui/react";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 import ExpenseModal from "./components/add-expense";
 
@@ -38,6 +39,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getExpense } from "@/stores/features/expense/expense-action";
 
 export default function FinanceExpensePage() {
+  const { t } = useTranslation();
   const { expense } = useAppSelector((state) => state.expense);
   const [modalAdd, setModalAdd] = useState(false);
 
@@ -49,18 +51,16 @@ export default function FinanceExpensePage() {
 
   return (
     <div className="space-y-8 pb-20">
-      {/* Header Finance - Hero Style */}
       <ExpenseModal isOpen={modalAdd} onClose={() => setModalAdd(false)} />
       <HeaderAction
         actionIcon={Plus}
-        actionTitle="Catat Baru"
+        actionTitle={t("finance.expenses.record_new")}
         leadIcon={TrendingDown}
-        subtitle=" Pantau setiap rupiah yang keluar untuk operasional bengkel Anda."
-        title="Cash Flow Management"
+        subtitle={t("finance.expenses.subtitle")}
+        title={t("finance.expenses.title")}
         onAction={() => setModalAdd(true)}
       />
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardBody className="flex flex-row items-center gap-5">
@@ -69,7 +69,7 @@ export default function FinanceExpensePage() {
             </div>
             <div>
               <p className="text-[10px] font-black text-gray-500 uppercase">
-                Total Keluar (Bulan Ini)
+                {t("finance.expenses.total_out_month")}
               </p>
               <p className="text-lg font-black text-gray-500">
                 {formatIDR(18950000)}
@@ -82,20 +82,22 @@ export default function FinanceExpensePage() {
           <CardBody className="space-y-3">
             <div className="flex justify-between items-center">
               <p className="text-[10px] font-black text-gray-400 uppercase flex items-center gap-2">
-                <PieChart className="text-primary" size={32} /> Budget
-                Operasional
+                <PieChart className="text-primary" size={32} />{" "}
+                {t("finance.expenses.budget_ops")}
               </p>
               <span className="text-xs font-black text-primary">75%</span>
             </div>
             <Progress
-              aria-label="Budget"
+              aria-label={t("finance.expenses.budget_ops")}
               className="h-3"
               classNames={{ indicator: "bg-primary", track: "bg-gray-100" }}
               color="primary"
               value={75}
             />
             <p className="text-[10px] font-bold text-gray-400 italic text-right">
-              Sisa: {formatIDR(5000000)}
+              {t("finance.expenses.remaining", {
+                amount: formatIDR(5000000),
+              })}
             </p>
           </CardBody>
         </Card>
@@ -104,10 +106,10 @@ export default function FinanceExpensePage() {
           <CardBody className="flex flex-row items-center justify-between relative z-10">
             <div>
               <p className="text-[10px] font-black text-gray-200 uppercase tracking-widest">
-                Invoice Pending
+                {t("finance.expenses.pending_invoices")}
               </p>
               <p className="text-lg font-black text-white uppercase">
-                12 Dokumen
+                {t("finance.expenses.pending_docs", { count: 12 })}
               </p>
             </div>
             <div className="bg-white/10 p-3 rounded-xl group-hover:bg-danger transition-colors">
@@ -117,29 +119,28 @@ export default function FinanceExpensePage() {
         </Card>
       </div>
 
-      {/* Search Bar - Custom Industrial Style */}
       <Card>
         <CardBody>
           <div className="flex gap-4">
             <Input
-              placeholder="Cari transaksi, supplier, atau kategori..."
+              placeholder={t("finance.expenses.search_placeholder")}
               startContent={<Search className="text-gray-400" size={20} />}
             />
-            {/* <CustomDateRangePicker className="w-80" /> */}
             <Button color="primary" startContent={<Search size={20} />}>
-              Cari
+              {t("common.search")}
             </Button>
           </div>
         </CardBody>
       </Card>
 
-      {/* Expense List */}
-      <Table aria-label="Tabel Pengeluaran">
+      <Table aria-label={t("finance.expenses.table_aria")}>
         <TableHeader>
-          <TableColumn width={300}>DESKRIPSI / KATEGORI</TableColumn>
-          <TableColumn>TANGGAL</TableColumn>
-          <TableColumn>STATUS</TableColumn>
-          <TableColumn align="end">NOMINAL</TableColumn>
+          <TableColumn width={300}>
+            {t("finance.expenses.col_desc_category")}
+          </TableColumn>
+          <TableColumn>{t("finance.expenses.col_date")}</TableColumn>
+          <TableColumn>{t("finance.expenses.col_status")}</TableColumn>
+          <TableColumn align="end">{t("finance.expenses.col_amount")}</TableColumn>
           <TableColumn align="center" width={50}>
             {" "}
           </TableColumn>
@@ -213,20 +214,22 @@ export default function FinanceExpensePage() {
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
-                    aria-label="Aksi"
+                    aria-label={t("finance.expenses.dropdown_aria")}
                     className="rounded-sm"
                     itemClasses={{
                       base: "text-[11px] font-black uppercase tracking-widest",
                     }}
                   >
-                    <DropdownItem key="detail">Lihat Detail</DropdownItem>
-                    <DropdownItem key="edit">Edit</DropdownItem>
+                    <DropdownItem key="detail">
+                      {t("common.view_detail")}
+                    </DropdownItem>
+                    <DropdownItem key="edit">{t("common.edit")}</DropdownItem>
                     <DropdownItem
                       key="delete"
                       className="text-danger"
                       color="danger"
                     >
-                      Hapus
+                      {t("common.delete")}
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>

@@ -9,31 +9,41 @@ import {
   User,
 } from "@heroui/react";
 import { Wrench } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import StatusQueue from "@/components/status-queue";
 import { useAppSelector } from "@/stores/hooks";
 import { getAvatarByName } from "@/utils/helpers/global";
 
 export function ServiceQueue() {
+  const { t } = useTranslation();
   const { dashboard } = useAppSelector((state) => state.dashboard);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <Table
         removeWrapper
-        aria-label="Tabel Antrean Service"
+        aria-label={t("dashboard.service_queue.table_aria")}
         classNames={{
           th: "bg-slate-50 text-slate-600 font-bold text-xs uppercase",
           td: "py-4",
         }}
       >
         <TableHeader>
-          <TableColumn>KENDARAAN</TableColumn>
-          <TableColumn>CUSTOMER</TableColumn>
-          <TableColumn>MEKANIK</TableColumn>
-          <TableColumn align="center">STATUS</TableColumn>
+          <TableColumn>
+            {t("dashboard.service_queue.columns.vehicle")}
+          </TableColumn>
+          <TableColumn>
+            {t("dashboard.service_queue.columns.customer")}
+          </TableColumn>
+          <TableColumn>
+            {t("dashboard.service_queue.columns.mechanic")}
+          </TableColumn>
+          <TableColumn align="center">
+            {t("dashboard.service_queue.columns.status")}
+          </TableColumn>
         </TableHeader>
-        <TableBody emptyContent="Tidak ada antrean saat ini.">
+        <TableBody emptyContent={t("dashboard.service_queue.empty")}>
           {(dashboard?.wo || []).map((item) => (
             <TableRow key={item.id} className="border-b border-slate-100">
               <TableCell>
@@ -81,7 +91,7 @@ export function ServiceQueue() {
                   ) : (
                     <span className="flex items-center gap-1 text-xs italic text-slate-400">
                       <Wrench className="size-3.5" />
-                      Belum ditentukan
+                      {t("dashboard.service_queue.mechanic_unassigned")}
                     </span>
                   )}
                 </div>

@@ -1,5 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -15,6 +15,7 @@ import {
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { CalendarRange, Save, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
@@ -53,10 +54,19 @@ function defaultRange(type: string) {
 }
 
 export default function GeneratePayrollModal({ open, setOpen }: Props) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { payrollQuery } = useAppSelector((state) => state.payroll);
   const [loading, setLoading] = useState(false);
+
+  const periodTypes = useMemo(
+    () => [
+      { key: "monthly", label: t("hr.common.monthly") },
+      { key: "weekly", label: t("hr.common.weekly") },
+    ],
+    [t],
+  );
 
   const { handleSubmit, control, reset, watch, setValue } = useForm<FormValues>(
     {
@@ -124,9 +134,11 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
               <CalendarRange size={20} />
             </div>
             <div className="flex flex-col">
-              <h2 className="text-lg font-black uppercase">Buat Penggajian</h2>
+              <h2 className="text-lg font-black uppercase">
+                {t("hr.payroll.generate_modal_title")}
+              </h2>
               <p className="text-tiny font-medium text-gray-400">
-                Sistem menghitung gaji seluruh karyawan aktif pada periode ini.
+                {t("hr.payroll.generate_modal_subtitle")}
               </p>
             </div>
           </ModalHeader>
@@ -137,7 +149,7 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
               name="period_type"
               render={({ field }) => (
                 <Select
-                  label="Tipe Periode"
+                  label={t("hr.payroll.form_period_type")}
                   labelPlacement="inside"
                   selectedKeys={field.value ? [field.value] : []}
                   variant="faded"
@@ -145,8 +157,9 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
                     field.onChange(Array.from(keys)[0]?.toString() || "")
                   }
                 >
-                  <SelectItem key="monthly">Bulanan</SelectItem>
-                  <SelectItem key="weekly">Mingguan</SelectItem>
+                  {periodTypes.map((opt) => (
+                    <SelectItem key={opt.key}>{opt.label}</SelectItem>
+                  ))}
                 </Select>
               )}
             />
@@ -157,7 +170,7 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
                 name="period_start"
                 render={({ field }) => (
                   <Input
-                    label="Periode Mulai"
+                    label={t("hr.payroll.form_period_start")}
                     labelPlacement="inside"
                     type="date"
                     value={field.value}
@@ -171,7 +184,7 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
                 name="period_end"
                 render={({ field }) => (
                   <Input
-                    label="Periode Akhir"
+                    label={t("hr.payroll.form_period_end")}
                     labelPlacement="inside"
                     type="date"
                     value={field.value}
@@ -187,9 +200,9 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
               name="note"
               render={({ field }) => (
                 <Textarea
-                  label="Catatan"
+                  label={t("common.notes")}
                   labelPlacement="inside"
-                  placeholder="Mis. Gaji bulan Juni 2026"
+                  placeholder={t("hr.payroll.form_notes_placeholder")}
                   value={field.value || ""}
                   variant="faded"
                   onValueChange={field.onChange}
@@ -205,7 +218,7 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
               variant="flat"
               onPress={handleClose}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -213,7 +226,7 @@ export default function GeneratePayrollModal({ open, setOpen }: Props) {
               startContent={!loading && <Save size={18} />}
               type="submit"
             >
-              Proses Penggajian
+              {t("hr.payroll.process_payroll")}
             </Button>
           </ModalFooter>
         </ModalContent>

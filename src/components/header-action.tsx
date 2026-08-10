@@ -1,6 +1,7 @@
 import type { ElementType, ReactElement } from "react";
 
 import { UploadIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button, Card, CardBody } from "@heroui/react";
 
 interface Props {
@@ -26,6 +27,8 @@ export default function HeaderAction({
   onUpload,
   actionContent,
 }: Props) {
+  const { t } = useTranslation();
+
   return (
     <Card className="border-none shadow-none">
       <CardBody className="flex flex-col md:flex-row items-center justify-between gap-5 p-5">
@@ -58,7 +61,7 @@ export default function HeaderAction({
                   variant="flat"
                   onPress={onUpload}
                 >
-                  Upload Excel
+                  {t("common.upload_excel")}
                 </Button>
               )}
               {actionTitle && (

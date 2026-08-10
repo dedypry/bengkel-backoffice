@@ -17,11 +17,13 @@ import {
   Textarea,
 } from "@heroui/react";
 import { CalendarDays, Clock, Toolbox, Users } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
 
 import CustomerFormPage from "../master/customers/create";
 
-import { BookingFormValues, bookingSchema } from "./schema";
+import { BookingFormValues } from "./schema";
 
 import { http } from "@/utils/libs/axios";
 import CustomDatePicker from "@/components/forms/date-picker";
@@ -39,7 +41,18 @@ interface BookingModalProps {
   isOpen: boolean;
   setOpen: (val: boolean) => void;
 }
+
+const SERVICE_TYPE_KEYS = [
+  { key: "Ganti Oli", labelKey: "booking.modal.service_types.oil_change" },
+  { key: "Service Berkala", labelKey: "booking.modal.service_types.periodic" },
+  { key: "General Repair", labelKey: "booking.modal.service_types.general" },
+  { key: "Body Repair", labelKey: "booking.modal.service_types.body" },
+] as const;
+
+const TIME_SLOTS = ["08:00", "10:00", "13:00", "15:00"] as const;
+
 export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
+  const { t } = useTranslation();
   const { bookingQuery } = useAppSelector((state) => state.booking);
   const { vehicles: dataVehicles } = useAppSelector((state) => state.vehicle);
   const { company } = useAppSelector((state) => state.auth);
@@ -49,6 +62,33 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
   const customers = (cust || []) as ICustomer[];
+
+  const bookingSchema = useMemo(
+    () =>
+      z.object({
+        id: z.number().optional(),
+        customer_id: z
+          .string({ message: t("booking.validation.customer_required") })
+          .min(1, { message: t("booking.validation.customer_required") }),
+        vehicle_id: z
+          .string({ message: t("booking.validation.vehicle_required") })
+          .min(1, { message: t("booking.validation.vehicle_required") }),
+        branch_id: z
+          .string({ message: t("booking.validation.branch_required") })
+          .min(1, { message: t("booking.validation.branch_required") }),
+        booking_date: z
+          .string({ message: t("booking.validation.date_required") })
+          .min(1, { message: t("booking.validation.date_required") }),
+        booking_time: z
+          .string({ message: t("booking.validation.time_required") })
+          .min(1, { message: t("booking.validation.time_required") }),
+        service_type: z
+          .string({ message: t("booking.validation.service_required") })
+          .min(1, { message: t("booking.validation.service_required") }),
+        complaint: z.string().optional(),
+      }),
+    [t],
+  );
 
   const {
     control,
@@ -163,7 +203,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                   <div className="p-2 bg-danger/10 text-danger rounded-lg">
                     <CalendarDays size={20} />
                   </div>
-                  <span>Buat Janji Temu Servis</span>
+                  <span>{t("booking.modal.create_title")}</span>
                 </div>
               </ModalHeader>
 
@@ -176,7 +216,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                       variant="flat"
                       onPress={() => setIsAddCustomer(true)}
                     >
-                      Tambah Pelanggan Baru
+                      {t("booking.modal.add_customer")}
                     </Button>
                   </div>
 
@@ -190,9 +230,9 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                           defaultItems={customers || []}
                           errorMessage={fieldState.error?.message}
                           isInvalid={!!fieldState.error}
-                          label="Nama Pelanggan"
+                          label={t("booking.modal.customer_label")}
                           labelPlacement="outside"
-                          placeholder="Cari nama pelanggan..."
+                          placeholder={t("booking.modal.customer_placeholder")}
                           selectedKey={String(field.value)}
                           startContent={<Users />}
                           variant="bordered"
@@ -245,7 +285,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                                     {item.name}
                                   </span>
                                   <span className="text-tiny text-gray-500">
-                                    {item.phone || "Tidak ada nomor"}
+                                    {item.phone || t("booking.modal.no_phone")}
                                   </span>
                                 </div>
                               </div>
@@ -263,9 +303,9 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                           defaultItems={dataVehicles?.data || []}
                           errorMessage={fieldState.error?.message}
                           isInvalid={!!fieldState.error}
-                          label="No. Polisi (Nopol)"
+                          label={t("booking.modal.plate_label")}
                           labelPlacement="outside"
-                          placeholder="Cari Kendaraan..."
+                          placeholder={t("booking.modal.vehicle_placeholder")}
                           selectedKey={field.value}
                           startContent={<Users />}
                           variant="bordered"
@@ -313,11 +353,8 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                         <CustomDatePicker
                           errorMessage={fieldState.error?.message}
                           isInvalid={!!fieldState.error}
-                          label="Tanggal Kedatangan"
+                          label={t("booking.modal.arrival_date")}
                           labelPlacement="outside"
-                          // minDate={
-                          //   today(getLocalTimeZone()).add({ days: 1 }) as any
-                          // }
                           minDate={dayjs().add(1, "day").toDate()}
                           value={field?.value as any}
                           variant="bordered"
@@ -333,19 +370,20 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                           {...field}
                           errorMessage={errors.booking_time?.message}
                           isInvalid={!!errors.booking_time}
-                          label="Jam"
+                          label={t("booking.modal.time_label")}
                           labelPlacement="outside"
-                          placeholder="Pilih Slot"
+                          placeholder={t("booking.modal.time_placeholder")}
                           selectedKeys={[field.value]}
                           startContent={
                             <Clock className="text-default-400" size={18} />
                           }
                           variant="bordered"
                         >
-                          <SelectItem key="08:00">08:00 WIB</SelectItem>
-                          <SelectItem key="10:00">10:00 WIB</SelectItem>
-                          <SelectItem key="13:00">13:00 WIB</SelectItem>
-                          <SelectItem key="15:00">15:00 WIB</SelectItem>
+                          {TIME_SLOTS.map((slot) => (
+                            <SelectItem key={slot}>
+                              {slot} {t("booking.timezone")}
+                            </SelectItem>
+                          ))}
                         </Select>
                       )}
                     />
@@ -361,23 +399,18 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                         {...field}
                         errorMessage={errors.service_type?.message}
                         isInvalid={!!errors.service_type}
-                        label="Kategori Servis"
+                        label={t("booking.modal.service_category")}
                         labelPlacement="outside"
-                        placeholder="Pilih tipe servis"
+                        placeholder={t("booking.modal.service_placeholder")}
                         selectedKeys={[field.value]}
                         startContent={
                           <Toolbox className="text-default-400" size={18} />
                         }
                         variant="bordered"
                       >
-                        <SelectItem key="Ganti Oli">Ganti Oli</SelectItem>
-                        <SelectItem key="Service Berkala">
-                          Service Berkala
-                        </SelectItem>
-                        <SelectItem key="General Repair">
-                          Perbaikan Umum
-                        </SelectItem>
-                        <SelectItem key="Body Repair">Body Repair</SelectItem>
+                        {SERVICE_TYPE_KEYS.map(({ key, labelKey }) => (
+                          <SelectItem key={key}>{t(labelKey)}</SelectItem>
+                        ))}
                       </Select>
                     )}
                   />
@@ -389,9 +422,9 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                         {...field}
                         errorMessage={errors.complaint?.message}
                         isInvalid={!!errors.complaint}
-                        label="Keluhan / Catatan"
+                        label={t("booking.modal.complaint_label")}
                         labelPlacement="outside"
-                        placeholder="Ceritakan keluhan kendaraan Anda..."
+                        placeholder={t("booking.modal.complaint_placeholder")}
                         variant="bordered"
                       />
                     )}
@@ -401,7 +434,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
 
               <ModalFooter>
                 <Button isLoading={loading} variant="flat" onPress={onClose}>
-                  Batal
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   className="font-bold px-6"
@@ -409,7 +442,7 @@ export default function ModalAdd({ isOpen, setOpen, data }: BookingModalProps) {
                   isLoading={loading}
                   type="submit"
                 >
-                  Konfirmasi Booking
+                  {t("booking.modal.confirm_button")}
                 </Button>
               </ModalFooter>
             </form>

@@ -81,16 +81,16 @@ export default function MasterMechanicPage() {
 
             <div className="text-center md:text-left">
               <p className="text-warning font-black uppercase italic tracking-widest text-xs mb-2">
-                🏆 Mekanik Terbaik Bulan Ini
+                🏆 {t("master.mechanics.best_mechanic")}
               </p>
               <h1 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-2">
-                {bestMechanic?.name || "No Data"}
+                {bestMechanic?.name || t("master.mechanics.no_data")}
               </h1>
               <div className="flex items-center justify-center md:justify-start gap-4">
                 <div className="flex items-center gap-2">
                   <Award className="text-gray-400" size={16} />
                   <span className="text-gray-300 text-tiny font-bold uppercase">
-                    Skor:{" "}
+                    {t("master.mechanics.score")}:{" "}
                     {calculatePerformance(
                       bestMechanic?.rating,
                       bestMechanic?.total_work,
@@ -109,7 +109,7 @@ export default function MasterMechanicPage() {
                 {formatNumber(bestMechanic?.total_work || 0)}
               </p>
               <p className="text-[10px] text-gray-400 font-bold uppercase">
-                Unit
+                {t("master.mechanics.unit")}
               </p>
             </div>
             <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 w-28 text-center">
@@ -118,7 +118,7 @@ export default function MasterMechanicPage() {
                 {formatNumber(bestMechanic?.rating || 0)}
               </p>
               <p className="text-[10px] text-gray-400 font-bold uppercase">
-                Rating
+                {t("master.mechanics.rating")}
               </p>
             </div>
           </div>
@@ -133,28 +133,31 @@ export default function MasterMechanicPage() {
           className="bg-gray-100 font-bold uppercase text-tiny"
           variant="flat"
         >
-          TOTAL: {mechanics.length}
+          {t("master.mechanics.total")}: {mechanics.length}
         </Chip>
         <Chip
           className="font-bold uppercase text-tiny"
           color="success"
           variant="flat"
         >
-          READY: {mechanics.filter((e) => e.work_status === "ready").length}
+          {t("master.mechanics.ready")}:{" "}
+          {mechanics.filter((e) => e.work_status === "ready").length}
         </Chip>
         <Chip
           className="font-bold uppercase text-tiny"
           color="danger"
           variant="flat"
         >
-          BUSY: {mechanics.filter((e) => e.work_status === "busy").length}
+          {t(`mechanic.status.busy`)}:{" "}
+          {mechanics.filter((e) => e.work_status === "busy").length}
         </Chip>
         <Chip
           className="font-bold uppercase text-tiny"
           color="warning"
           variant="flat"
         >
-          BREAK: {mechanics.filter((e) => e.work_status === "break").length}
+          {t("master.mechanics.break")}:{" "}
+          {mechanics.filter((e) => e.work_status === "break").length}
         </Chip>
       </div>
 
@@ -209,7 +212,7 @@ export default function MasterMechanicPage() {
                 <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col items-center">
                   <Award className="text-gray-400 mb-1" size={16} />
                   <p className="text-[9px] font-black text-gray-400 uppercase">
-                    Skill Level
+                    {t("master.mechanics.skill_level")}
                   </p>
                   <p className="text-xs font-black text-gray-700">
                     {mec.level || "PRO"}
@@ -218,7 +221,7 @@ export default function MasterMechanicPage() {
                 <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col items-center">
                   <Clock className="text-gray-400 mb-1" size={16} />
                   <p className="text-[9px] font-black text-gray-400 uppercase">
-                    Masa Kerja
+                    {t("master.mechanics.tenure")}
                   </p>
                   <p className="text-xs font-black text-gray-700">
                     {getJoinDuration(
@@ -236,7 +239,7 @@ export default function MasterMechanicPage() {
                   </div>
                   <div>
                     <p className="text-[10px] font-black text-gray-400 uppercase leading-none mb-1">
-                      Spesialisasi
+                      {t("master.mechanics.specialty")}
                     </p>
                     <p className="text-xs font-bold text-gray-700 leading-none">
                       {mec.specialty}
@@ -251,7 +254,7 @@ export default function MasterMechanicPage() {
                     <div className="flex items-center gap-2">
                       <Zap className="text-warning fill-warning" size={14} />
                       <span className="text-[10px] font-black text-gray-500 uppercase italic">
-                        Power Index
+                        {t("master.mechanics.power_index")}
                       </span>
                     </div>
                     <span className="text-xs font-black text-gray-800">
@@ -277,7 +280,7 @@ export default function MasterMechanicPage() {
                 endContent={<ChevronRight size={18} />}
                 onPress={() => navigate(`/hr/employees/${mec.id}`)}
               >
-                Detail Profil
+                {t("master.mechanics.profile_detail")}
               </Button>
             </CardBody>
           </Card>

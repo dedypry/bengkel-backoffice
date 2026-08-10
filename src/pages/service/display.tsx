@@ -1,6 +1,7 @@
 import type { IServiceDisplay, IServiceDisplayOrder } from "@/utils/interfaces/IServiceDisplay";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Card, CardBody, Chip } from "@heroui/react";
 import {
   Car,
@@ -23,9 +24,9 @@ import {
 import { http } from "@/utils/libs/axios";
 
 const PROGRESS_STEPS = [
-  { key: "queue", label: "Antre", icon: Clock },
-  { key: "on_progress", label: "Dikerjakan", icon: Play },
-  { key: "ready", label: "Siap Diambil", icon: CheckCircle2 },
+  { key: "queue", icon: Clock },
+  { key: "on_progress", icon: Play },
+  { key: "ready", icon: CheckCircle2 },
 ] as const;
 
 const PROGRESS_RANK: Record<string, number> = {
@@ -43,22 +44,22 @@ const CARD_STYLES = [
   "border-indigo-200 bg-gradient-to-br from-indigo-50 to-white text-indigo-900",
 ];
 
-const FEATURED_STATUS = {
+const FEATURED_STATUS_KEYS = {
   queue: {
-    label: "Menunggu Antrean",
-    chip: "Menunggu Giliran",
+    label: "service.display.waiting_queue",
+    chip: "service.display.waiting_turn",
     gradient: "from-amber-500 to-orange-500",
     glow: "shadow-amber-300/50",
   },
   on_progress: {
-    label: "Sedang Dikerjakan",
-    chip: "Dalam Pengerjaan",
+    label: "service.display.in_progress",
+    chip: "service.display.in_work",
     gradient: "from-indigo-600 to-violet-600",
     glow: "shadow-indigo-300/50",
   },
   ready: {
-    label: "Siap Diambil",
-    chip: "Silakan ke Kasir",
+    label: "service.display.ready_pickup",
+    chip: "service.display.ready_chip",
     gradient: "from-emerald-500 to-teal-500",
     glow: "shadow-emerald-300/50",
   },
@@ -76,16 +77,20 @@ function getProgressRank(progress: string) {
   return PROGRESS_RANK[progress] ?? 0;
 }
 
-function getProgressLabel(progress: string) {
-  return PROGRESS_STEPS.find((step) => step.key === progress)?.label || progress;
+function getProgressLabel(progress: string, t: (key: string) => string) {
+  const step = PROGRESS_STEPS.find((s) => s.key === progress);
+
+  return step ? t(step.key) : progress;
 }
 
 function ServiceProgressSteps({
   progress,
   compact = false,
+  t,
 }: {
   progress: string;
   compact?: boolean;
+  t: (key: string) => string;
 }) {
   const activeRank = getProgressRank(progress);
 
@@ -124,7 +129,7 @@ function ServiceProgressSteps({
                         : "text-slate-400"
                   }`}
                 >
-                  {step.label}
+                  {t(step.key)}
                 </span>
               </div>
 
@@ -147,12 +152,15 @@ function OrderCard({
   order,
   index,
   highlighted = false,
+  t,
 }: {
   order: IServiceDisplayOrder;
   index: number;
   highlighted?: boolean;
+  t: (key: string, options?: Record<string, unknown>) => string;
 }) {
-  const status = FEATURED_STATUS[order.progress as keyof typeof FEATURED_STATUS];
+  const status =
+    FEATURED_STATUS_KEYS[order.progress as keyof typeof FEATURED_STATUS_KEYS];
 
   return (
     <Card
@@ -169,7 +177,7 @@ function OrderCard({
               {order.plate_number || "---"}
             </p>
             <p className="truncate text-[10px] opacity-70 sm:text-xs">
-              {order.vehicle_name || "Kendaraan"}
+              {order.vehicle_name || t("service.display.vehicle_default")}
             </p>
           </div>
           <Chip
@@ -182,15 +190,18 @@ function OrderCard({
             }`}
             size="sm"
           >
-            {getProgressLabel(order.progress)}
+            {getProgressLabel(order.progress, t)}
           </Chip>
         </div>
 
-        <ServiceProgressSteps compact progress={order.progress} />
+        <ServiceProgressSteps compact progress={order.progress} t={t} />
 
         <div className="mt-2 flex items-center justify-between text-[10px] opacity-70">
-          <span>No. {order.queue_no || order.trx_no || "-"}</span>
-          {status && <span>{status.chip}</span>}
+          <span>
+            {t("service.display.order_no_short")}{" "}
+            {order.queue_no || order.trx_no || "-"}
+          </span>
+          {status && <span>{t(status.chip)}</span>}
         </div>
       </CardBody>
     </Card>
@@ -198,6 +209,7 @@ function OrderCard({
 }
 
 export default function ServiceDisplayPage() {
+  const { t } = useTranslation();
   const companyId = useMemo(() => getCompanyId(), []);
   const [display, setDisplay] = useState<IServiceDisplay | null>(null);
   const [now, setNow] = useState(new Date());
@@ -208,7 +220,7 @@ export default function ServiceDisplayPage() {
 
   const featured = display?.featured;
   const featuredStatus = featured
-    ? FEATURED_STATUS[featured.progress as keyof typeof FEATURED_STATUS]
+    ? FEATURED_STATUS_KEYS[featured.progress as keyof typeof FEATURED_STATUS_KEYS]
     : null;
 
   const load = useCallback(() => {
@@ -306,7 +318,7 @@ export default function ServiceDisplayPage() {
             onClick={enableAudio}
             onPress={enableAudio}
           >
-            Klik untuk Aktifkan Suara Panggilan
+            {t("service.display.enable_audio")}
           </Button>
         </div>
       )}
@@ -319,7 +331,7 @@ export default function ServiceDisplayPage() {
             startContent={<Volume2 className="size-3.5" />}
             variant="flat"
           >
-            Suara aktif
+            {t("service.display.audio_active")}
           </Chip>
         </div>
       )}
@@ -331,7 +343,7 @@ export default function ServiceDisplayPage() {
             {display?.company_name || "Bengkel"}
           </p>
           <h1 className="truncate text-xl font-black sm:text-2xl lg:text-3xl">
-            Status Pengerjaan Service
+            {t("service.display.title")}
           </h1>
         </div>
         <div className="shrink-0 rounded-xl bg-white/15 px-3 py-2 text-right backdrop-blur-sm sm:px-4">
@@ -341,7 +353,7 @@ export default function ServiceDisplayPage() {
           <p className="font-mono text-sm font-bold tabular-nums sm:text-lg lg:text-2xl">
             {dayjs(now).format("HH:mm:ss")}{" "}
             <span className="text-xs font-bold text-amber-200 sm:text-sm">
-              WIB
+              {t("service.queue.timezone")}
             </span>
           </p>
         </div>
@@ -350,19 +362,19 @@ export default function ServiceDisplayPage() {
       <div className="mt-3 grid shrink-0 grid-cols-3 gap-2 sm:mt-4 sm:gap-3">
         {[
           {
-            label: "Menunggu",
+            label: t("service.display.waiting"),
             value: display?.stats.waiting || 0,
             icon: Clock,
             gradient: "from-amber-500 to-orange-500",
           },
           {
-            label: "Dikerjakan",
+            label: t("service.display.processing"),
             value: display?.stats.processing || 0,
             icon: Wrench,
             gradient: "from-indigo-500 to-violet-500",
           },
           {
-            label: "Siap Diambil",
+            label: t("service.display.ready_pickup"),
             value: display?.stats.ready || 0,
             icon: CheckCircle2,
             gradient: "from-emerald-500 to-teal-500",
@@ -398,7 +410,7 @@ export default function ServiceDisplayPage() {
             <div className="pointer-events-none absolute -bottom-20 -left-16 size-64 rounded-full bg-emerald-200/30 blur-2xl" />
 
             <p className="relative mb-2 rounded-full bg-primary/10 px-4 py-1 text-sm font-black uppercase tracking-wider text-primary sm:mb-3 sm:text-base">
-              {featuredStatus?.label || "Belum Ada Unit"}
+              {featuredStatus ? t(featuredStatus.label) : t("service.display.no_unit")}
             </p>
 
             <div className="relative bg-gradient-to-b from-slate-800 to-sky-600 bg-clip-text font-black leading-none tracking-tight text-transparent [font-size:clamp(2.5rem,10vh,5.5rem)]">
@@ -406,7 +418,7 @@ export default function ServiceDisplayPage() {
             </div>
 
             <p className="relative mt-2 line-clamp-2 max-w-full text-sm font-bold text-slate-700 sm:text-lg">
-              {featured?.vehicle_name || "Belum ada kendaraan dalam antrean"}
+              {featured?.vehicle_name || t("service.display.no_vehicle_queue")}
             </p>
 
             {featured && (
@@ -421,15 +433,16 @@ export default function ServiceDisplayPage() {
                   }`}
                   size="lg"
                 >
-                  {featuredStatus?.chip}
+                  {featuredStatus ? t(featuredStatus.chip) : ""}
                 </Chip>
 
                 <div className="relative mt-4 w-full max-w-md px-2">
-                  <ServiceProgressSteps progress={featured.progress} />
+                  <ServiceProgressSteps progress={featured.progress} t={t} />
                 </div>
 
                 <p className="relative mt-3 text-xs text-slate-500 sm:text-sm">
-                  No. Order {featured.queue_no || featured.trx_no || "-"}
+                  {t("service.display.order_no")}{" "}
+                  {featured.queue_no || featured.trx_no || "-"}
                 </p>
               </>
             )}
@@ -441,10 +454,10 @@ export default function ServiceDisplayPage() {
             <div className="mb-3 flex shrink-0 items-center gap-2 rounded-lg bg-sky-100 px-3 py-2 text-sky-800">
               <Car className="size-4" />
               <h2 className="text-xs font-black uppercase sm:text-sm">
-                Daftar Kendaraan Hari Ini
+                {t("service.display.today_list")}
               </h2>
               <Chip className="ml-auto" size="sm" variant="flat">
-                {display?.stats.total || 0} unit
+                {display?.stats.total || 0} {t("service.display.unit_suffix")}
               </Chip>
             </div>
 
@@ -457,6 +470,7 @@ export default function ServiceDisplayPage() {
                       highlighted={highlightId === order.id}
                       index={index}
                       order={order}
+                      t={t}
                     />
                   ))}
                 </div>
@@ -464,7 +478,7 @@ export default function ServiceDisplayPage() {
                 <div className="flex h-full flex-col items-center justify-center text-center text-slate-400">
                   <Car className="mb-3 size-12 opacity-30" />
                   <p className="text-sm font-medium sm:text-base">
-                    Belum ada kendaraan dalam antrean service hari ini.
+                    {t("service.display.empty_queue")}
                   </p>
                 </div>
               )}

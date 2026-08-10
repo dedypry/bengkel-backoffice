@@ -14,6 +14,7 @@ import {
   Divider,
 } from "@heroui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Star, ClipboardCheck } from "lucide-react";
 
 import { getAvatarByName } from "@/utils/helpers/global";
@@ -42,6 +43,7 @@ export default function ResultMechanic({
   mechanics,
   onFinish,
 }: Props) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [forms, setForms] = useState<IForm[]>([]);
 
@@ -105,11 +107,10 @@ export default function ResultMechanic({
             <ModalHeader className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <Star className="text-warning fill-warning" size={20} />
-                <span>Penilaian Hasil Kerja Mekanik</span>
+                <span>{t("service.result_mechanic.title")}</span>
               </div>
               <p className="text-tiny font-normal text-gray-400">
-                Berikan evaluasi performa mekanik sebelum menyelesaikan Work
-                Order #{id}
+                {t("service.result_mechanic.subtitle", { id })}
               </p>
             </ModalHeader>
             <ModalBody className="py-4">
@@ -146,7 +147,7 @@ export default function ResultMechanic({
 
                           <div className="space-y-1">
                             <p className="text-tiny font-bold text-gray-500 uppercase tracking-wider">
-                              Rating Kerja
+                              {t("service.result_mechanic.rating_label")}
                             </p>
                             <Rating
                               initialValue={findUserForm(user.id)?.rating}
@@ -171,10 +172,12 @@ export default function ResultMechanic({
                                 "text-tiny font-bold text-default-500 uppercase tracking-wider",
                               input: "text-small",
                             }}
-                            label="Evaluasi & Catatan"
+                            label={t("service.result_mechanic.evaluation_label")}
                             labelPlacement="outside"
                             minRows={2}
-                            placeholder="Berikan penilaian objektif berdasarkan hasil kerja dan SOP..."
+                            placeholder={t(
+                              "service.result_mechanic.evaluation_placeholder",
+                            )}
                             value={findUserForm(user.id)?.notes}
                             variant="bordered"
                             onChange={(e) =>
@@ -190,7 +193,7 @@ export default function ResultMechanic({
             </ModalBody>
             <ModalFooter className="border-t border-default-100">
               <Button color="danger" variant="light" onPress={onClose}>
-                Batal
+                {t("common.cancel")}
               </Button>
               <Button
                 className="font-bold text-white"
@@ -199,7 +202,7 @@ export default function ResultMechanic({
                 startContent={!loading && <ClipboardCheck size={18} />}
                 onPress={handleRating}
               >
-                Konfirmasi & Selesaikan
+                {t("service.result_mechanic.confirm_finish")}
               </Button>
             </ModalFooter>
           </>

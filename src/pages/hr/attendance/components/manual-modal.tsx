@@ -1,8 +1,9 @@
 import type { IAttendance } from "@/utils/interfaces/IAttendance";
+import type { TFunction } from "i18next";
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -20,6 +21,7 @@ import {
 import { z } from "zod";
 import dayjs from "dayjs";
 import { CalendarClock, Save, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
@@ -30,25 +32,17 @@ import {
   getAttendanceSummary,
 } from "@/stores/features/attendance/attendance-action";
 
-export const STATUS_OPTIONS = [
-  { key: "present", label: "Hadir" },
-  { key: "late", label: "Terlambat" },
-  { key: "permit", label: "Izin" },
-  { key: "sick", label: "Sakit" },
-  { key: "leave", label: "Cuti" },
-  { key: "absent", label: "Alfa" },
-];
+const createManualAttendanceSchema = (t: TFunction) =>
+  z.object({
+    user_id: z.number({ message: t("hr.attendance.validation.employee_required") }),
+    date: z.string().min(1, t("hr.attendance.validation.date_required")),
+    check_in: z.string().optional().or(z.literal("")),
+    check_out: z.string().optional().or(z.literal("")),
+    status: z.string().optional().or(z.literal("")),
+    note: z.string().optional(),
+  });
 
-const schema = z.object({
-  user_id: z.number({ message: "Karyawan wajib dipilih" }),
-  date: z.string().min(1, "Tanggal wajib diisi"),
-  check_in: z.string().optional().or(z.literal("")),
-  check_out: z.string().optional().or(z.literal("")),
-  status: z.string().optional().or(z.literal("")),
-  note: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof createManualAttendanceSchema>>;
 
 interface Props {
   open: boolean;
@@ -63,12 +57,27 @@ export default function ManualAttendanceModal({
   attendance,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { list } = useAppSelector((state) => state.employe);
   const { attendanceQuery } = useAppSelector((state) => state.attendance);
   const [loading, setLoading] = useState(false);
 
   const employees = list?.data || [];
+
+  const schema = useMemo(() => createManualAttendanceSchema(t), [t]);
+
+  const statusOptions = useMemo(
+    () => [
+      { key: "present", label: t("hr.common.status_present") },
+      { key: "late", label: t("hr.common.status_late") },
+      { key: "permit", label: t("hr.common.status_permit") },
+      { key: "sick", label: t("hr.common.status_sick") },
+      { key: "leave", label: t("hr.common.status_leave") },
+      { key: "absent", label: t("hr.common.status_absent") },
+    ],
+    [t],
+  );
 
   const { handleSubmit, control, reset } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -153,10 +162,12 @@ export default function ManualAttendanceModal({
             </div>
             <div className="flex flex-col">
               <h2 className="text-lg font-black uppercase">
-                {attendance?.id ? "Koreksi Absensi" : "Input Absensi Manual"}
+                {attendance?.id
+                  ? t("hr.attendance.manual_modal_edit")
+                  : t("hr.attendance.manual_modal_add")}
               </h2>
               <p className="text-tiny font-medium text-gray-400">
-                Catat kehadiran karyawan secara manual.
+                {t("hr.attendance.manual_modal_subtitle")}
               </p>
             </div>
           </ModalHeader>
@@ -171,9 +182,9 @@ export default function ManualAttendanceModal({
                   errorMessage={fieldState.error?.message}
                   isDisabled={!!attendance?.id}
                   isInvalid={!!fieldState.error}
-                  label="Karyawan"
+                  label={t("hr.attendance.form_employee")}
                   labelPlacement="inside"
-                  placeholder="Pilih karyawan"
+                  placeholder={t("hr.attendance.form_employee_placeholder")}
                   selectedKey={field.value ? field.value.toString() : null}
                   variant="faded"
                   onSelectionChange={(key) =>
@@ -185,7 +196,8 @@ export default function ManualAttendanceModal({
                       <div className="flex flex-col">
                         <span className="font-semibold">{item.name}</span>
                         <span className="text-tiny text-gray-400">
-                          {item.nik || "-"} · {item.department || "Karyawan"}
+                          {item.nik || "-"} ·{" "}
+                          {item.department || t("hr.common.employee_fallback")}
                         </span>
                       </div>
                     </AutocompleteItem>
@@ -202,7 +214,7 @@ export default function ManualAttendanceModal({
                   <Input
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Tanggal"
+                    label={t("common.date")}
                     labelPlacement="inside"
                     type="date"
                     value={field.value}
@@ -216,7 +228,7 @@ export default function ManualAttendanceModal({
                 name="status"
                 render={({ field }) => (
                   <Select
-                    label="Status"
+                    label={t("hr.attendance.form_status")}
                     labelPlacement="inside"
                     selectedKeys={field.value ? [field.value] : []}
                     variant="faded"
@@ -224,7 +236,7 @@ export default function ManualAttendanceModal({
                       field.onChange(Array.from(keys)[0]?.toString() || "")
                     }
                   >
-                    {STATUS_OPTIONS.map((opt) => (
+                    {statusOptions.map((opt) => (
                       <SelectItem key={opt.key}>{opt.label}</SelectItem>
                     ))}
                   </Select>
@@ -238,7 +250,7 @@ export default function ManualAttendanceModal({
                 name="check_in"
                 render={({ field }) => (
                   <Input
-                    label="Jam Masuk"
+                    label={t("hr.attendance.form_check_in")}
                     labelPlacement="inside"
                     type="time"
                     value={field.value || ""}
@@ -252,7 +264,7 @@ export default function ManualAttendanceModal({
                 name="check_out"
                 render={({ field }) => (
                   <Input
-                    label="Jam Pulang"
+                    label={t("hr.attendance.form_check_out")}
                     labelPlacement="inside"
                     type="time"
                     value={field.value || ""}
@@ -268,9 +280,9 @@ export default function ManualAttendanceModal({
               name="note"
               render={({ field }) => (
                 <Textarea
-                  label="Catatan"
+                  label={t("hr.attendance.form_notes")}
                   labelPlacement="inside"
-                  placeholder="Misal: Lupa absen, sakit, dst."
+                  placeholder={t("hr.attendance.form_notes_placeholder")}
                   value={field.value || ""}
                   variant="faded"
                   onValueChange={field.onChange}
@@ -286,7 +298,7 @@ export default function ManualAttendanceModal({
               variant="flat"
               onPress={handleClose}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -294,7 +306,7 @@ export default function ManualAttendanceModal({
               startContent={!loading && <Save size={18} />}
               type="submit"
             >
-              Simpan
+              {t("common.save")}
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Modal,
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export default function ModalAddService({ isSave, onSave, onClose }: Props) {
+  const { t } = useTranslation();
   const { company } = useAppSelector((state) => state.auth);
   const {
     workOrder,
@@ -98,7 +100,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
         variant="flat"
         onPress={onOpen}
       >
-        Tambah Barang/Jasa
+        {t("service.add.add_item")}
       </Button>
 
       <Modal
@@ -116,17 +118,16 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
           {(onCloseModal) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <h3 className="text-xl font-bold">Tambah Barang dan Jasa</h3>
+                <h3 className="text-xl font-bold">{t("service.add.modal_title")}</h3>
                 <p className="text-tiny text-gray-500 font-normal">
-                  Pilih layanan servis atau suku cadang untuk ditambahkan ke
-                  Work Order.
+                  {t("service.add.modal_subtitle")}
                 </p>
               </ModalHeader>
 
               <ModalBody className="py-6">
                 <Tabs
                   fullWidth
-                  aria-label="Opsi Layanan"
+                  aria-label={t("service.add.modal_tab_aria")}
                   classNames={{
                     tabList:
                       "gap-6 w-full relative rounded-none p-0 border-b border-divider",
@@ -145,7 +146,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                     title={
                       <div className="flex items-center gap-2 cursor-pointer">
                         <Wrench size={18} />
-                        <span>Jasa / Servis</span>
+                        <span>{t("service.add.tab_service")}</span>
                       </div>
                     }
                   >
@@ -158,7 +159,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                     title={
                       <div className="flex items-center gap-2 cursor-pointer">
                         <Package size={18} />
-                        <span>Suku Cadang (Sparepart)</span>
+                        <span>{t("service.add.tab_sparepart")}</span>
                       </div>
                     }
                   >
@@ -197,7 +198,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                         onCloseModal();
                       }}
                     >
-                      Tutup
+                      {t("service.add.close")}
                     </Button>
                     {isSave && (
                       <Button
@@ -212,7 +213,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                           }
                         }}
                       >
-                        Simpan Perubahan
+                        {t("service.add.save_changes")}
                       </Button>
                     )}
                   </div>

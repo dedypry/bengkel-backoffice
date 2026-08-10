@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { GridLoader } from "react-spinners";
 
 import { ModalPoDetail } from "../po/modal-detail";
@@ -34,6 +35,7 @@ import { handleDownload } from "@/utils/helpers/global";
 import DateRangePicker from "@/components/forms/date-range-picker";
 
 export default function PoInvoicePage() {
+  const { t } = useTranslation();
   const { list, loading, poQuery } = useAppSelector((state) => state.po);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -79,9 +81,9 @@ export default function PoInvoicePage() {
       <ModalPoDetail open={open} onOpen={setOpen} />
       <HeaderAction
         actionIcon={Plus}
-        actionTitle="Tambah Faktur"
-        subtitle="Daftar faktur pembelian"
-        title="Faktur Pembelian"
+        actionTitle={t("purchase.invoice.add")}
+        subtitle={t("purchase.invoice.subtitle")}
+        title={t("purchase.invoice.title")}
         onAction={() => navigate("/purchase/invoice/create")}
       />
       <Table
@@ -104,13 +106,13 @@ export default function PoInvoicePage() {
               }}
             /> */}
             <Autocomplete
-              aria-label="Filter berdasarkan supplier"
+              aria-label={t("purchase.invoice.filter_supplier")}
               className="w-xs"
               classNames={{
                 clearButton: "text-gray-500",
               }}
               defaultItems={list?.stats?.suppliers ?? []}
-              placeholder="Filter berdasarkan supplier"
+              placeholder={t("purchase.invoice.filter_supplier")}
               selectedKey={(poQuery.supplier_id || "").toString()}
               onClear={() => dispatch(setPoQuery({ supplier_id: undefined }))}
               onSelectionChange={(val) => {
@@ -127,8 +129,8 @@ export default function PoInvoicePage() {
             </Autocomplete>
             <div className="flex gap-2">
               <DateRangePicker
-                aria-label="Cari tanggal invoice"
-                placeholder="Cari tanggal invoice"
+                aria-label={t("purchase.invoice.search_date")}
+                placeholder={t("purchase.invoice.search_date")}
                 value={
                   {
                     start: poQuery.date_from,
@@ -145,7 +147,7 @@ export default function PoInvoicePage() {
                 }
               />
               <Input
-                aria-label="Cari faktur pembelian"
+                aria-label={t("purchase.invoice.title")}
                 endContent={
                   search && (
                     <X
@@ -158,7 +160,7 @@ export default function PoInvoicePage() {
                     />
                   )
                 }
-                placeholder="Cari PO"
+                placeholder={t("purchase.invoice.search_po")}
                 startContent={<Search size={18} />}
                 value={search}
                 onValueChange={(val) => {
@@ -171,15 +173,15 @@ export default function PoInvoicePage() {
         }
       >
         <TableHeader>
-          <TableColumn>No. Invoice</TableColumn>
-          <TableColumn>Tanggal</TableColumn>
-          <TableColumn>Supplier</TableColumn>
-          <TableColumn>Status</TableColumn>
-          <TableColumn>Total</TableColumn>
-          <TableColumn>Aksi</TableColumn>
+          <TableColumn>{t("purchase.invoice.table.invoice_no")}</TableColumn>
+          <TableColumn>{t("purchase.invoice.table.date")}</TableColumn>
+          <TableColumn>{t("purchase.invoice.table.supplier")}</TableColumn>
+          <TableColumn>{t("purchase.invoice.table.status")}</TableColumn>
+          <TableColumn>{t("purchase.invoice.table.total")}</TableColumn>
+          <TableColumn>{t("purchase.invoice.table.actions")}</TableColumn>
         </TableHeader>
         <TableBody
-          emptyContent="Data Kosong"
+          emptyContent={t("purchase.shared.empty_data")}
           isLoading={loading}
           loadingContent={<GridLoader color="#0096FF" />}
         >
@@ -206,7 +208,7 @@ export default function PoInvoicePage() {
                 <TableAction
                   items={[
                     {
-                      title: "Download Invoice",
+                      title: t("purchase.shared.download_invoice"),
                       onPress: () =>
                         handleDownload(
                           `/po/invoice/download/${item.id}`,

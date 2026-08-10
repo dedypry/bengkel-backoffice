@@ -26,11 +26,12 @@ import {
   Tabs,
   Chip,
 } from "@heroui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import ProfileOperationsFields from "./components/profile-operations-fields";
 import {
-  companySchema,
+  createCompanySchema,
   type CompanyFormValues,
 } from "./schemas/profile-schema";
 import {
@@ -119,12 +120,14 @@ function mapSettingsToForm(
 }
 
 export default function ProfileSettingsPage() {
+  const { t } = useTranslation();
   const { company } = useAppSelector((state) => state.auth);
   const { settings } = useAppSelector((state) => state.setting);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
+  const companySchema = useMemo(() => createCompanySchema(t), [t]);
 
   const companyForm = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
@@ -226,7 +229,7 @@ export default function ProfileSettingsPage() {
     ]);
 
     if (!companyValid || !operationsValid) {
-      notifyError("Lengkapi data yang wajib diisi sebelum menyimpan.");
+      notifyError(t("settings.profile.validation_required"));
 
       return;
     }
@@ -249,7 +252,7 @@ export default function ProfileSettingsPage() {
         }),
       ]);
 
-      notify("Pengaturan bengkel berhasil disimpan");
+      notify(t("settings.profile.saved"));
       dispatch(getProfile());
       dispatch(getSettings());
     } catch (err) {
@@ -269,12 +272,12 @@ export default function ProfileSettingsPage() {
             startContent={<Save size={18} />}
             onPress={() => void handleSaveAll()}
           >
-            Simpan Semua Pengaturan
+            {t("settings.profile.save_all")}
           </Button>
         }
         leadIcon={Settings}
-        subtitle="Kelola identitas bengkel, kebijakan keuangan, dan konfigurasi operasional."
-        title="Pengaturan Bengkel"
+        subtitle={t("settings.profile.subtitle")}
+        title={t("settings.profile.title")}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -286,7 +289,7 @@ export default function ProfileSettingsPage() {
             <Building2 className="text-sky-600" size={20} />
             <div>
               <p className="text-[10px] font-bold uppercase text-gray-500">
-                Bengkel
+                {t("settings.profile.summary_workshop")}
               </p>
               <p className="text-sm font-black text-gray-700 truncate">
                 {company?.name || "-"}
@@ -302,10 +305,12 @@ export default function ProfileSettingsPage() {
             <Percent className="text-emerald-600" size={20} />
             <div>
               <p className="text-[10px] font-bold uppercase text-gray-500">
-                PPN
+                {t("settings.profile.summary_ppn")}
               </p>
               <p className="text-sm font-black text-gray-700">
-                {watch("is_ppn") ? `${watch("ppn") || 0}%` : "Nonaktif"}
+                {watch("is_ppn")
+                  ? `${watch("ppn") || 0}%`
+                  : t("settings.profile.ppn_inactive")}
               </p>
             </div>
           </CardBody>
@@ -318,10 +323,11 @@ export default function ProfileSettingsPage() {
             <Wrench className="text-violet-600" size={20} />
             <div>
               <p className="text-[10px] font-bold uppercase text-gray-500">
-                Pit Servis
+                {t("settings.profile.summary_pit")}
               </p>
               <p className="text-sm font-black text-gray-700">
-                {operationsForm.watch("pit_count") || 0} unit
+                {operationsForm.watch("pit_count") || 0}
+                {t("settings.profile.pit_suffix")}
               </p>
             </div>
           </CardBody>
@@ -331,7 +337,7 @@ export default function ProfileSettingsPage() {
       <Card className="border border-gray-100 shadow-sm" shadow="none">
         <CardBody className="p-4 md:p-6">
           <Tabs
-            aria-label="Pengaturan bengkel"
+            aria-label={t("settings.profile.tabs_aria")}
             classNames={{
               tabList: "gap-6 w-full border-b border-gray-100",
               tab: "h-11 font-bold uppercase text-xs",
@@ -346,7 +352,7 @@ export default function ProfileSettingsPage() {
               title={
                 <div className="flex items-center gap-2">
                   <Store size={16} />
-                  <span>Profil & Kontak</span>
+                  <span>{t("settings.profile.tab_profile")}</span>
                 </div>
               }
             >
@@ -358,10 +364,10 @@ export default function ProfileSettingsPage() {
                     </div>
                     <div>
                       <h3 className="font-black uppercase text-gray-600 text-sm">
-                        Identitas Bengkel
+                        {t("settings.profile.section_identity")}
                       </h3>
                       <p className="text-xs text-gray-500">
-                        Informasi ini tercetak pada invoice dan dokumen resmi.
+                        {t("settings.profile.section_identity_desc")}
                       </p>
                     </div>
                   </div>
@@ -371,7 +377,7 @@ export default function ProfileSettingsPage() {
                     name="logo_url"
                     render={({ field }) => (
                       <UploadAvatar
-                        buttonTitle="Ganti Logo Bengkel"
+                        buttonTitle={t("settings.profile.change_logo")}
                         field={field}
                         value={field.value}
                         onChange={field.onChange}
@@ -388,8 +394,10 @@ export default function ProfileSettingsPage() {
                           {...field}
                           errorMessage={errors.name?.message}
                           isInvalid={!!errors.name}
-                          label="Nama Cabang / Bengkel"
-                          placeholder="Masukkan nama cabang / bengkel"
+                          label={t("settings.profile.branch_name")}
+                          placeholder={t(
+                            "settings.profile.branch_name_placeholder",
+                          )}
                           variant="bordered"
                         />
                       )}
@@ -401,7 +409,7 @@ export default function ProfileSettingsPage() {
                         <PhoneInput
                           errorMessage={errors.phone_number?.message}
                           isInvalid={!!errors.phone_number}
-                          label="Nomor Telepon"
+                          label={t("settings.profile.phone")}
                           value={field.value}
                           onValueChange={field.onChange}
                         />
@@ -414,8 +422,8 @@ export default function ProfileSettingsPage() {
                         <PhoneInput
                           errorMessage={errors.fax?.message}
                           isInvalid={!!errors.fax}
-                          label="Nomor Fax"
-                          placeholder="021xxxxxxx"
+                          label={t("settings.profile.fax")}
+                          placeholder={t("settings.profile.fax_placeholder")}
                           value={field.value}
                           onValueChange={field.onChange}
                         />
@@ -427,8 +435,10 @@ export default function ProfileSettingsPage() {
                       render={({ field }) => (
                         <Input
                           {...field}
-                          label="Email Operasional"
-                          placeholder="admin@bengkel.com"
+                          label={t("settings.profile.ops_email")}
+                          placeholder={t(
+                            "settings.profile.ops_email_placeholder",
+                          )}
                           startContent={
                             <Mail className="text-gray-400" size={16} />
                           }
@@ -441,7 +451,7 @@ export default function ProfileSettingsPage() {
                       control={control}
                       name="npwp"
                       render={({ field }) => (
-                        <NpwpInput {...field} label="NPWP Perusahaan" />
+                        <NpwpInput {...field} label={t("settings.profile.company_npwp")} />
                       )}
                     />
                   </div>
@@ -451,7 +461,7 @@ export default function ProfileSettingsPage() {
                   <div className="flex items-center gap-2">
                     <MapPin className="text-gray-500" size={18} />
                     <span className="text-sm font-black uppercase text-gray-600">
-                      Lokasi & Alamat
+                      {t("settings.profile.section_location")}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -489,9 +499,9 @@ export default function ProfileSettingsPage() {
                     render={({ field }) => (
                       <Textarea
                         {...field}
-                        label="Alamat Lengkap"
+                        label={t("settings.profile.full_address")}
                         minRows={3}
-                        placeholder="Jl. Raya Otomotif No. 10..."
+                        placeholder={t("settings.profile.address_placeholder")}
                         variant="bordered"
                       />
                     )}
@@ -505,7 +515,7 @@ export default function ProfileSettingsPage() {
               title={
                 <div className="flex items-center gap-2">
                   <Percent size={16} />
-                  <span>Keuangan & Promo</span>
+                  <span>{t("settings.profile.tab_finance")}</span>
                 </div>
               }
             >
@@ -518,10 +528,10 @@ export default function ProfileSettingsPage() {
                       </div>
                       <div>
                         <p className="text-sm font-black uppercase text-gray-600">
-                          Pajak PPN
+                          {t("settings.profile.section_tax")}
                         </p>
                         <p className="text-xs text-gray-500">
-                          Otomatis dihitung pada transaksi
+                          {t("settings.profile.section_tax_desc")}
                         </p>
                       </div>
                     </div>
@@ -547,7 +557,7 @@ export default function ProfileSettingsPage() {
                         endContent={
                           <span className="text-gray-400 text-xs">%</span>
                         }
-                        label="Besaran PPN"
+                        label={t("settings.profile.ppn_amount")}
                         placeholder="11"
                       />
                     )}
@@ -562,10 +572,10 @@ export default function ProfileSettingsPage() {
                       </div>
                       <div>
                         <p className="text-sm font-black uppercase text-gray-600">
-                          Promo Ultah
+                          {t("settings.profile.section_birthday")}
                         </p>
                         <p className="text-xs text-gray-500">
-                          Diskon otomatis di kasir
+                          {t("settings.profile.section_birthday_desc")}
                         </p>
                       </div>
                     </div>
@@ -590,7 +600,7 @@ export default function ProfileSettingsPage() {
                         <InputNumber
                           className="flex-1"
                           isDisabled={!watch("is_discount_birth_day")}
-                          label="Nilai Promo"
+                          label={t("settings.profile.discount_value")}
                           placeholder="0"
                           value={
                             field.value != null
@@ -606,7 +616,7 @@ export default function ProfileSettingsPage() {
                       name="type_discount_birth_day"
                       render={({ field }) => (
                         <Select
-                          aria-label="Tipe Diskon"
+                          aria-label={t("settings.profile.discount_type_aria")}
                           className="w-24"
                           isDisabled={!watch("is_discount_birth_day")}
                           selectedKeys={field.value ? [field.value] : []}
@@ -630,7 +640,7 @@ export default function ProfileSettingsPage() {
                       render={({ field }) => (
                         <InputNumber
                           isDisabled={!watch("is_discount_birth_day")}
-                          label="Maksimal Potongan"
+                          label={t("settings.profile.max_discount")}
                           placeholder="50000"
                           startContent={
                             <span className="text-gray-400 text-xs">Rp</span>
@@ -647,7 +657,7 @@ export default function ProfileSettingsPage() {
                   )}
 
                   <Chip className="text-[10px]" color="warning" variant="flat">
-                    Otomatis muncul di kasir saat pelanggan berulang tahun
+                    {t("settings.profile.birthday_chip")}
                   </Chip>
                 </div>
               </div>
@@ -658,7 +668,7 @@ export default function ProfileSettingsPage() {
               title={
                 <div className="flex items-center gap-2">
                   <Wrench size={16} />
-                  <span>Operasional</span>
+                  <span>{t("settings.profile.tab_operations")}</span>
                 </div>
               }
             >
@@ -671,7 +681,7 @@ export default function ProfileSettingsPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-gray-500 flex items-center gap-2">
               <Phone size={14} />
-              Perubahan profil dan operasional disimpan sekaligus
+              {t("settings.profile.footer_note")}
             </p>
             <Button
               color="primary"
@@ -679,7 +689,7 @@ export default function ProfileSettingsPage() {
               startContent={<Save size={18} />}
               onPress={() => void handleSaveAll()}
             >
-              Simpan Semua Pengaturan
+              {t("settings.profile.save_all")}
             </Button>
           </div>
         </CardBody>

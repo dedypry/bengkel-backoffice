@@ -1,42 +1,48 @@
 import { Car, Clock, DollarSign, Wrench } from "lucide-react";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardBody } from "@heroui/react";
 
 import { useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
 
 export function StatsGrid() {
+  const { t } = useTranslation();
   const { dashboard } = useAppSelector((state) => state.dashboard);
 
-  const stats = [
-    {
-      label: "Servis Hari Ini",
-      value: dashboard?.countToday || 0,
-      icon: Car,
-      card: "bg-sky-50/90 border-sky-100",
-      iconWrap: "bg-sky-100 text-sky-600",
-    },
-    {
-      label: "Sedang Dikerjakan",
-      value: dashboard?.countWork || 0,
-      icon: Wrench,
-      card: "bg-amber-50/90 border-amber-100",
-      iconWrap: "bg-amber-100 text-amber-600",
-    },
-    {
-      label: "Selesai",
-      value: dashboard?.countFinish || 0,
-      icon: Clock,
-      card: "bg-emerald-50/90 border-emerald-100",
-      iconWrap: "bg-emerald-100 text-emerald-600",
-    },
-    {
-      label: "Pendapatan Hari Ini",
-      value: formatIDR(Number(dashboard?.revenueToday || 0)),
-      icon: DollarSign,
-      card: "bg-violet-50/90 border-violet-100",
-      iconWrap: "bg-violet-100 text-violet-600",
-    },
-  ];
+  const stats = useMemo(
+    () => [
+      {
+        label: t("dashboard.stats.service_today"),
+        value: dashboard?.countToday || 0,
+        icon: Car,
+        card: "bg-sky-50/90 border-sky-100",
+        iconWrap: "bg-sky-100 text-sky-600",
+      },
+      {
+        label: t("dashboard.stats.in_progress"),
+        value: dashboard?.countWork || 0,
+        icon: Wrench,
+        card: "bg-amber-50/90 border-amber-100",
+        iconWrap: "bg-amber-100 text-amber-600",
+      },
+      {
+        label: t("dashboard.stats.completed"),
+        value: dashboard?.countFinish || 0,
+        icon: Clock,
+        card: "bg-emerald-50/90 border-emerald-100",
+        iconWrap: "bg-emerald-100 text-emerald-600",
+      },
+      {
+        label: t("dashboard.stats.today_revenue"),
+        value: formatIDR(Number(dashboard?.revenueToday || 0)),
+        icon: DollarSign,
+        card: "bg-violet-50/90 border-violet-100",
+        iconWrap: "bg-violet-100 text-violet-600",
+      },
+    ],
+    [dashboard, t],
+  );
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

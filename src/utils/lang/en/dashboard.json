@@ -1,0 +1,62 @@
+{
+    "dashboard": {
+        "badge": "Operations Dashboard",
+        "title": "Workshop Overview",
+        "system_online": "System Online",
+        "new_work_order": "New Work Order",
+        "queue_title": "Workshop Queue",
+        "queue_subtitle": "Service units in progress today",
+        "promo_title": "Improve daily service efficiency",
+        "promo_desc": "Monitor queue, critical stock, and revenue from one dashboard.",
+        "view_report": "View Report",
+        "stats": {
+            "service_today": "Services Today",
+            "in_progress": "In Progress",
+            "completed": "Completed",
+            "today_revenue": "Today's Revenue",
+            "active_queue": "Active Queue",
+            "completed_today": "Completed Today",
+            "low_stock": "Critical Stock"
+        },
+        "revenue_chart": {
+            "title": "Revenue Trend",
+            "subtitle": "Revenue comparison for the last 7 days",
+            "last_7_days": "Last 7 days",
+            "vs_last_week": "vs last week",
+            "revenue_label": "Revenue"
+        },
+        "inventory_alert": {
+            "title": "Stock Alert",
+            "subtitle": "Products below minimum stock",
+            "critical_restock": "Critical items need restocking",
+            "item_count": "{{count}} Items",
+            "empty": "All stock levels are safe",
+            "out_of_stock": "Out of stock",
+            "low_stock": "Low stock",
+            "remaining": "Remaining:",
+            "view_warehouse": "View Warehouse"
+        },
+        "quick_actions": {
+            "title": "Quick Actions",
+            "new_work_order": "New Work Order",
+            "add_customer": "Add Customer",
+            "cashier": "Cashier",
+            "daily_report": "Daily Report",
+            "register_service": "Register Service",
+            "workshop_queue": "Workshop Queue",
+            "stock": "Stock"
+        },
+        "service_queue": {
+            "title": "Service Queue",
+            "table_aria": "Service Queue Table",
+            "empty": "No queue at the moment.",
+            "mechanic_unassigned": "Not assigned yet",
+            "columns": {
+                "vehicle": "VEHICLE",
+                "customer": "CUSTOMER",
+                "mechanic": "MECHANIC",
+                "status": "STATUS"
+            }
+        }
+    }
+}

@@ -1,15 +1,16 @@
 import { Button, Card, CardBody } from "@heroui/react";
 import { PackageOpen, Plus, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function TopPartEmptyState() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] px-4">
       <Card className="max-w-md w-full border-2 border-dashed border-gray-100 shadow-none bg-transparent">
         <CardBody className="flex flex-col items-center text-center p-12 space-y-6">
-          {/* Icon Area */}
           <div className="relative">
             <div className="size-24 rounded-full bg-gray-50 flex items-center justify-center">
               <PackageOpen
@@ -23,18 +24,15 @@ export default function TopPartEmptyState() {
             </div>
           </div>
 
-          {/* Text Content */}
           <div className="space-y-2">
             <h3 className="text-xl font-black text-gray-500 uppercase">
-              Belum Ada Data Penjualan
+              {t("reports.top_parts.empty_title")}
             </h3>
             <p className="text-xs font-bold text-gray-400">
-              Analisis barang terlaris akan muncul di sini setelah Anda
-              melakukan transaksi penjualan suku cadang di sistem kasir.
+              {t("reports.top_parts.empty_desc")}
             </p>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col w-full gap-3 pt-4">
             <Button
               color="primary"
@@ -42,14 +40,14 @@ export default function TopPartEmptyState() {
               startContent={<Plus size={18} />}
               onPress={() => navigate("/service/add")}
             >
-              Mulai Penjualan Baru
+              {t("reports.top_parts.start_sale")}
             </Button>
             <Button
               radius="sm"
               variant="light"
               onPress={() => navigate("/inventory/stock")}
             >
-              Cek Stok Inventaris
+              {t("reports.top_parts.check_stock")}
             </Button>
           </div>
         </CardBody>

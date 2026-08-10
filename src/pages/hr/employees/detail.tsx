@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { Card, CardBody, Chip, Avatar } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 import DetailSkeleton from "./components/detail-skeleton";
 import Detail404 from "./components/detail-404";
@@ -28,6 +29,7 @@ import { getInitials } from "@/utils/helpers/global";
 import HeaderAction from "@/components/header-action";
 
 export default function EmployeesDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -53,10 +55,12 @@ export default function EmployeesDetailPage() {
     <div className="space-y-8">
       <HeaderAction
         actionIcon={Edit}
-        actionTitle="Edit Profile"
+        actionTitle={t("hr.employees.edit_profile")}
         leadIcon={User}
-        subtitle={`ID: ${detail.nik || "EMP-" + id}`}
-        title="Profil Personil"
+        subtitle={t("hr.employees.detail_subtitle", {
+          id: detail.nik || "EMP-" + id,
+        })}
+        title={t("hr.employees.detail_title")}
         onAction={() => navigate(`/hr/employees/${id}/edit`)}
       />
 
@@ -103,31 +107,33 @@ export default function EmployeesDetailPage() {
                     size="sm"
                     variant="dot"
                   >
-                    {detail.is_active ? "Active Duty" : "Off Duty"}
+                    {detail.is_active
+                      ? t("hr.employees.active_duty")
+                      : t("hr.employees.off_duty")}
                   </Chip>
                 </div>
 
                 <div className="w-full space-y-5 px-2 mt-5">
                   <SidebarInfoItem
                     icon={<Briefcase size={18} />}
-                    label="Departemen"
+                    label={t("hr.employees.department")}
                     value={detail.department}
                   />
                   <SidebarInfoItem
                     icon={<Phone size={18} />}
-                    label="Kontak Utama"
+                    label={t("hr.employees.main_contact")}
                     value={detail.profile?.phone_number}
                   />
                   <SidebarInfoItem
                     isBalance
                     icon={<MapPin size={18} />}
-                    label="Domisili"
+                    label={t("hr.employees.domicile")}
                     value={detail.profile?.address}
                   />
                   <SidebarInfoItem
                     isBalance
                     icon={<UserCheck2 size={18} />}
-                    label="Status"
+                    label={t("common.status")}
                     value={detail.status}
                   />
                 </div>
@@ -143,12 +149,12 @@ export default function EmployeesDetailPage() {
                   <ShieldCheck className="text-primary" size={18} />
                 </div>
                 <h4 className="text-xs font-black uppercase text-gray-500">
-                  System Privileges
+                  {t("hr.employees.system_privileges")}
                 </h4>
               </div>
               <div className="bg-gray-200 rounded-md p-4 border border-gray-200">
                 <p className="text-[9px] font-black uppercase text-gray-500 mb-1">
-                  Account Type
+                  {t("hr.employees.account_type")}
                 </p>
                 <p className="text-sm font-bold text-primary">{detail.type}</p>
               </div>
@@ -171,35 +177,39 @@ export default function EmployeesDetailPage() {
                   <BadgeInfo className="text-gray-500" size={20} />
                 </div>
                 <h4 className="text-sm font-black uppercase text-gray-500">
-                  Informasi Personil
+                  {t("hr.employees.section_personnel")}
                 </h4>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 px-4">
                 <DataField
                   icon={<Calendar />}
-                  label="Tempat, Tanggal Lahir"
+                  label={t("hr.employees.birth_info")}
+                  notSetLabel={t("hr.common.not_set")}
                   value={`${detail.profile?.place_birth}, ${dayjs(detail.profile?.birth_date).format("DD MMMM YYYY")}`}
                 />
                 <DataField
                   icon={<UserCircle />}
-                  label="Jenis Kelamin"
+                  label={t("hr.employees.gender")}
+                  notSetLabel={t("hr.common.not_set")}
                   value={
                     detail.profile?.gender === "male"
-                      ? "Laki-laki"
-                      : "Perempuan"
+                      ? t("hr.common.gender_male")
+                      : t("hr.common.gender_female")
                   }
                 />
                 <DataField
                   icon={<Clock />}
-                  label="Tanggal Bergabung"
+                  label={t("hr.employees.form_join_date")}
+                  notSetLabel={t("hr.common.not_set")}
                   value={dayjs(detail.profile?.join_date).format(
                     "DD MMMM YYYY",
                   )}
                 />
                 <DataField
                   icon={<User />}
-                  label="Status Pernikahan"
+                  label={t("hr.employees.marital_status")}
+                  notSetLabel={t("hr.common.not_set")}
                   value="-"
                 />
               </div>
@@ -214,21 +224,24 @@ export default function EmployeesDetailPage() {
                   <MapIcon className="text-gray-500" size={20} />
                 </div>
                 <h4 className="text-sm font-black uppercase text-gray-500">
-                  Geo-Lokasi & Wilayah
+                  {t("hr.employees.section_geo")}
                 </h4>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 px-4">
                 <DataField
-                  label="Provinsi"
+                  label={t("hr.employees.province")}
+                  notSetLabel={t("hr.common.not_set")}
                   value={detail.profile?.province?.name}
                 />
                 <DataField
-                  label="Kota/Kabupaten"
+                  label={t("hr.employees.city")}
+                  notSetLabel={t("hr.common.not_set")}
                   value={detail.profile?.city?.name}
                 />
                 <DataField
-                  label="Kecamatan"
+                  label={t("hr.employees.district")}
+                  notSetLabel={t("hr.common.not_set")}
                   value={detail.profile?.district?.name}
                 />
               </div>
@@ -243,19 +256,21 @@ export default function EmployeesDetailPage() {
                   <Heart className="text-white" size={20} />
                 </div>
                 <h4 className="text-sm font-black uppercase text-danger">
-                  Kontak Darurat (S.O.S)
+                  {t("hr.employees.section_sos")}
                 </h4>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 px-4">
                 <DataField
                   highlight
-                  label="Nama Kontak"
+                  label={t("hr.employees.contact_name")}
+                  notSetLabel={t("hr.common.not_set")}
                   value={detail.profile?.emergency_name}
                 />
                 <DataField
                   highlight
-                  label="Nomor Telepon"
+                  label={t("hr.employees.contact_phone")}
+                  notSetLabel={t("hr.common.not_set")}
                   value={`+62 ${detail.profile?.emergency_contact}`}
                 />
               </div>
@@ -304,11 +319,13 @@ function DataField({
   value,
   icon,
   highlight = false,
+  notSetLabel,
 }: {
   label: string;
   value?: string | null;
   icon?: any;
   highlight?: boolean;
+  notSetLabel: string;
 }) {
   return (
     <div className="space-y-2 group">
@@ -322,7 +339,7 @@ function DataField({
         <p
           className={`text-xs font-semibold uppercase  ${highlight ? "text-rose-600" : "text-gray-500"}`}
         >
-          {value || "Not Set"}
+          {value || notSetLabel}
         </p>
       </div>
     </div>

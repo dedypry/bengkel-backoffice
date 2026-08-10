@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { BanknoteArrowUp } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { apps } from "@/config/app";
 
@@ -21,6 +22,7 @@ interface Props {
   onSave: (form: any) => void;
 }
 export default function PaymentMethod({ onSave }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<any>({
     payment_method: "Cash",
@@ -37,11 +39,11 @@ export default function PaymentMethod({ onSave }: Props) {
     <>
       <Modal isOpen={open} scrollBehavior="outside" onOpenChange={setOpen}>
         <ModalContent>
-          <ModalHeader>Detail Pembayaran</ModalHeader>
+          <ModalHeader>{t("service.vendor.payment_detail")}</ModalHeader>
           <ModalBody>
             <Select
-              label="Cara Pembayaran"
-              placeholder="Pilih Metode pembayaran"
+              label={t("service.vendor.payment_method")}
+              placeholder={t("service.vendor.select_payment_method")}
               selectedKeys={[form.payment_method]}
               size="sm"
               onChange={(e) => handleForm("payment_method", e.target.value)}
@@ -57,10 +59,10 @@ export default function PaymentMethod({ onSave }: Props) {
                   items={apps.banks}
                   label={
                     form.payment_method == "Transfer"
-                      ? "Bank Tujuan"
-                      : "Bank Penerbit"
+                      ? t("service.vendor.target_bank")
+                      : t("service.vendor.issuer_bank")
                   }
-                  placeholder="Pilih Bank"
+                  placeholder={t("service.vendor.select_bank")}
                   selectedKey={form.bank}
                   size="sm"
                   onSelectionChange={(val) => handleForm("bank", String(val))}
@@ -73,21 +75,23 @@ export default function PaymentMethod({ onSave }: Props) {
                 </Autocomplete>
                 <Input
                   label={
-                    form.payment_method == "Transfer" ? "No. Rek" : "No. Cek"
+                    form.payment_method == "Transfer"
+                      ? t("service.vendor.account_no")
+                      : t("service.vendor.check_no")
                   }
-                  placeholder="Masukan No. Tujuan"
+                  placeholder={t("service.vendor.enter_target_no")}
                 />
               </>
             )}
 
             <Textarea
-              label="Catatan"
+              label={t("service.vendor.notes")}
               value={form.note}
               onValueChange={(val) => handleForm("note", val)}
             />
           </ModalBody>
           <ModalFooter>
-            <Button size="sm">Batal</Button>
+            <Button size="sm">{t("common.cancel")}</Button>
             <Button
               color="primary"
               size="sm"
@@ -96,7 +100,7 @@ export default function PaymentMethod({ onSave }: Props) {
                 setOpen(false);
               }}
             >
-              Simpan
+              {t("common.save")}
             </Button>
           </ModalFooter>
         </ModalContent>

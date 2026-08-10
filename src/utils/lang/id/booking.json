@@ -1,0 +1,71 @@
+{
+    "booking": {
+        "title": "Data Booking",
+        "subtitle": "Kelola antrean dan jadwal servis bengkel Anda.",
+        "add": "Tambah Booking",
+        "search_label": "Cari Customer / Kendaraan",
+        "search_placeholder": "Ketik nama atau plat nomor...",
+        "status_label": "Status",
+        "status_all": "Semua Status",
+        "date_label": "Tanggal",
+        "timezone": "WIB",
+        "table_aria": "Tabel Data Booking",
+        "actions_aria": "Aksi Booking",
+        "column_actions": "AKSI",
+        "empty": "Tidak ada data booking ditemukan",
+        "edit_booking": "Edit Booking",
+        "confirm_wo": "Konfirmasi (WO)",
+        "cancel_booking": "Batalkan Booking",
+        "delete_confirm": {
+            "title": "Apakah anda yakin ingin membatalkan booking ini?",
+            "text": "Data yang dihapus tidak dapat dikembalikan!",
+            "confirm": "Ya, batalkan!"
+        },
+        "status": {
+            "confirmed": "Dikonfirmasi",
+            "pending": "Menunggu",
+            "completed": "Selesai",
+            "cancelled": "Dibatalkan"
+        },
+        "columns": {
+            "customer": "CUSTOMER",
+            "vehicle": "KENDARAAN",
+            "schedule": "JADWAL",
+            "service": "LAYANAN",
+            "status": "STATUS"
+        },
+        "modal": {
+            "add_title": "Tambah Booking",
+            "edit_title": "Edit Booking",
+            "create_title": "Buat Janji Temu Servis",
+            "add_customer": "Tambah Pelanggan Baru",
+            "customer_label": "Nama Pelanggan",
+            "customer_placeholder": "Cari nama pelanggan...",
+            "no_phone": "Tidak ada nomor",
+            "plate_label": "No. Polisi (Nopol)",
+            "vehicle_placeholder": "Cari Kendaraan...",
+            "arrival_date": "Tanggal Kedatangan",
+            "time_label": "Jam",
+            "time_placeholder": "Pilih Slot",
+            "service_category": "Kategori Servis",
+            "service_placeholder": "Pilih tipe servis",
+            "complaint_label": "Keluhan / Catatan",
+            "complaint_placeholder": "Ceritakan keluhan kendaraan Anda...",
+            "confirm_button": "Konfirmasi Booking",
+            "service_types": {
+                "oil_change": "Ganti Oli",
+                "periodic": "Service Berkala",
+                "general": "Perbaikan Umum",
+                "body": "Body Repair"
+            }
+        },
+        "validation": {
+            "customer_required": "Silahkan pilih pelanggan",
+            "vehicle_required": "Silahkan pilih kendaraan",
+            "branch_required": "Silahkan pilih Cabang",
+            "date_required": "Tanggal booking wajib diisi",
+            "time_required": "Jam booking wajib diisi",
+            "service_required": "Pilih jenis servis"
+        }
+    }
+}

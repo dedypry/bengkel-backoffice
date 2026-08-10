@@ -19,6 +19,7 @@ import {
   AutocompleteItem,
 } from "@heroui/react";
 import { Save, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import CategoryAdd from "./category-add";
 
@@ -52,6 +53,7 @@ interface Props {
 }
 
 export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
+  const { t } = useTranslation();
   const { categories, query } = useAppSelector((state) => state.service);
   const { suppliers } = useAppSelector((state) => state.supplier);
   const [isLoading, setLoading] = useState(false);
@@ -126,10 +128,12 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <h2 className="text-xl font-black uppercase">
-            {detail?.id ? "Ubah Data Jasa" : "Tambah Jasa Baru"}
+            {detail?.id
+              ? t("master.services.modal.edit_title")
+              : t("master.services.modal.add_title")}
           </h2>
           <p className="text-tiny font-medium text-gray-400">
-            Masukkan detail layanan jasa untuk katalog bengkel.
+            {t("master.services.modal.subtitle")}
           </p>
         </ModalHeader>
 
@@ -145,7 +149,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                 name="name"
                 render={({ field, fieldState }) => (
                   <Input
-                    label="Nama Jasa"
+                    label={t("master.services.modal.name")}
                     placeholder="Contoh: Ganti Oli Mesin"
                     {...field}
                     errorMessage={fieldState.error?.message}
@@ -158,7 +162,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                 name="code"
                 render={({ field, fieldState }) => (
                   <Input
-                    label="Kode Jasa"
+                    label={t("master.services.modal.code")}
                     placeholder="SRV-001"
                     {...field}
                     errorMessage={fieldState.error?.message}
@@ -176,7 +180,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                   <InputNumber
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Harga"
+                    label={t("master.services.modal.price")}
                     labelPlacement="inside"
                     placeholder="0"
                     startContent={
@@ -193,11 +197,13 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                 render={({ field, fieldState }) => (
                   <InputNumber
                     endContent={
-                      <span className="text-gray-400 text-tiny">Menit</span>
+                      <span className="text-gray-400 text-tiny">
+                        {t("minute")}
+                      </span>
                     }
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Estimasi Durasi"
+                    label={t("master.services.modal.duration")}
                     labelPlacement="inside"
                     placeholder="0"
                     value={field.value as any}
@@ -213,8 +219,8 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                     defaultItems={suppliers?.data || []}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Supplier (Opsional)"
-                    placeholder="Cari Supplier"
+                    label={t("master.services.modal.supplier")}
+                    placeholder={t("common.search")}
                     selectedKey={field.value}
                     onSelectionChange={field.onChange}
                   >
@@ -236,8 +242,8 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                   <Select
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Tingkat Kesulitan"
-                    placeholder="pilih tingkat kesulitan"
+                    label={t("master.services.modal.difficulty")}
+                    placeholder={t("common.select")}
                     selectedKeys={[field.value || ""]}
                     onSelectionChange={(key) =>
                       field.onChange(Array.from(key)[0])
@@ -249,7 +255,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                         <div className="w-2 h-2 rounded-full bg-success" />
                       }
                     >
-                      Easy (Mudah)
+                      {t("master.services.difficulty.easy")}
                     </SelectItem>
                     <SelectItem
                       key="medium"
@@ -257,7 +263,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                         <div className="w-2 h-2 rounded-full bg-warning" />
                       }
                     >
-                      Medium (Sedang)
+                      {t("master.services.difficulty.medium")}
                     </SelectItem>
                     <SelectItem
                       key="hard"
@@ -265,7 +271,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                         <div className="w-2 h-2 rounded-full bg-danger" />
                       }
                     >
-                      Hard (Sulit)
+                      {t("master.services.difficulty.hard")}
                     </SelectItem>
                     <SelectItem
                       key="extreme"
@@ -273,7 +279,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                         <div className="w-2 h-2 rounded-full bg-gray-900" />
                       }
                     >
-                      Extreme (Sangat Sulit)
+                      {t("master.services.difficulty.extreme")}
                     </SelectItem>
                   </Select>
                 )}
@@ -290,8 +296,8 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                         defaultItems={categories || []}
                         errorMessage={fieldState.error?.message}
                         isInvalid={!!fieldState.error}
-                        label="Kategori"
-                        placeholder="Pilih kategori"
+                        label={t("master.services.modal.category")}
+                        placeholder={t("common.select")}
                         selectedKey={field.value}
                         onSelectionChange={field.onChange}
                       >
@@ -320,7 +326,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
                   disableAnimation
                   disableAutosize
                   classNames={{ input: "h-24" }}
-                  label="Deskripsi Layanan"
+                  label={t("master.services.modal.description")}
                   placeholder="Jelaskan detail apa saja yang dikerjakan..."
                   {...field}
                 />
@@ -336,7 +342,7 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
             variant="flat"
             onPress={handleClose}
           >
-            Batal
+            {t("common.cancel")}
           </Button>
           <Button
             color="primary"
@@ -345,7 +351,9 @@ export default function ModalAdd({ open, setOpen, detail, setDetail }: Props) {
             startContent={!isLoading && <Save size={18} />}
             type="submit"
           >
-            {detail?.id ? "Simpan Perubahan" : "Simpan Jasa"}
+            {detail?.id
+              ? t("master.services.modal.save_changes")
+              : t("master.services.modal.save_service")}
           </Button>
         </ModalFooter>
       </ModalContent>

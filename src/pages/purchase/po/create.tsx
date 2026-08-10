@@ -19,7 +19,8 @@ import {
   TableRow,
   Tooltip,
 } from "@heroui/react";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowBigLeftDash,
   Plus,
@@ -90,6 +91,7 @@ interface Props {
 }
 
 export default function PoCreatePage({ po }: Props) {
+  const { t } = useTranslation();
   const { warehouses } = useAppSelector((state) => state.warehouse);
   const { suppliersAll } = useAppSelector((state) => state.supplier);
   const { list } = useAppSelector((state) => state.employe);
@@ -274,8 +276,10 @@ export default function PoCreatePage({ po }: Props) {
       />
       <ModalPart open={open} setOpen={setOpen} onProducts={setItems} />
       <HeaderAction
-        subtitle={`${po ? "Edit" : "Buat"} pesanan pembelian baru ke supplier untuk stok barang.`}
-        title={`${po ? "Edit" : "Buat"} PO`}
+        subtitle={
+          po ? t("purchase.po.edit_subtitle") : t("purchase.po.create_subtitle")
+        }
+        title={po ? t("purchase.po.edit_title") : t("purchase.po.create_title")}
       />
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -291,7 +295,7 @@ export default function PoCreatePage({ po }: Props) {
                   }}
                   errorMessage={fieldState.error?.message}
                   isInvalid={!!fieldState.error}
-                  label="Tanggal PO"
+                  label={t("purchase.po.date")}
                   labelPlacement="outside-left"
                   size="sm"
                   value={field.value}
@@ -303,9 +307,9 @@ export default function PoCreatePage({ po }: Props) {
               <AutocompleteControl
                 control={control}
                 items={suppliersAll}
-                label="Supplier"
+                label={t("purchase.shared.supplier")}
                 name="supplier_id"
-                placeholder="Pilih Supplier"
+                placeholder={t("purchase.po.select_supplier")}
               />
               <Button
                 isIconOnly
@@ -322,9 +326,9 @@ export default function PoCreatePage({ po }: Props) {
               <AutocompleteControl
                 control={control}
                 items={warehouses?.data ?? []}
-                label="Gudang"
+                label={t("purchase.shared.warehouse")}
                 name="warehouse_id"
-                placeholder="Pilih Gudang"
+                placeholder={t("purchase.po.select_warehouse")}
               />
               <Button
                 isIconOnly
@@ -346,25 +350,25 @@ export default function PoCreatePage({ po }: Props) {
                 startContent={<Plus size={18} />}
                 onPress={() => setOpen(true)}
               >
-                Tambah Barang
+                {t("purchase.shared.add_item")}
               </Button>
             </div>
           </CardHeader>
           <CardBody>
             <Table removeWrapper>
               <TableHeader>
-                <TableColumn>Kode Barang</TableColumn>
-                <TableColumn>Nama Barang</TableColumn>
-                <TableColumn>Unit</TableColumn>
-                <TableColumn>Quantity</TableColumn>
-                <TableColumn>Harga</TableColumn>
-                <TableColumn>Disc (%)</TableColumn>
-                <TableColumn>Disc (Rp)</TableColumn>
-                <TableColumn>PPN (%)</TableColumn>
-                <TableColumn>Total</TableColumn>
-                <TableColumn>Aksi</TableColumn>
+                <TableColumn>{t("purchase.shared.table.code")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.name")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.unit")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.quantity")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.price")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.disc_pct")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.disc_value")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.ppn_pct")}</TableColumn>
+                <TableColumn>{t("purchase.shared.total")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.actions")}</TableColumn>
               </TableHeader>
-              <TableBody emptyContent={<div>Tidak Ada Sparepart</div>}>
+              <TableBody emptyContent={<div>{t("purchase.shared.no_parts")}</div>}>
                 {fields.map((field, index) => {
                   return (
                     <TableRow key={field.id}>
@@ -519,7 +523,12 @@ export default function PoCreatePage({ po }: Props) {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Tooltip color="danger" content={`Hapus ${field.name}`}>
+                        <Tooltip
+                          color="danger"
+                          content={t("purchase.shared.delete_item", {
+                            name: field.name,
+                          })}
+                        >
                           <Button
                             isIconOnly
                             color="danger"
@@ -550,10 +559,12 @@ export default function PoCreatePage({ po }: Props) {
                         label: "w-34",
                         input: "text-end",
                       }}
-                      endContent={<span className="text-sm">Hari</span>}
+                      endContent={
+                        <span className="text-sm">{t("purchase.shared.days")}</span>
+                      }
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Term Credit"
+                      label={t("purchase.po.term_credit")}
                       labelPlacement="outside-left"
                       size="sm"
                       value={field.value as any}
@@ -573,7 +584,7 @@ export default function PoCreatePage({ po }: Props) {
                           }}
                           errorMessage={fieldState.error?.message}
                           isInvalid={!!fieldState.error}
-                          label="Tgl Diminta"
+                          label={t("purchase.po.requested_date")}
                           labelPlacement="outside-left"
                           size="sm"
                           value={field.value as any}
@@ -597,8 +608,8 @@ export default function PoCreatePage({ po }: Props) {
                         }}
                       >
                         {field.value === "closed"
-                          ? "Closed (Catatan Close Order)"
-                          : "In Progress"}
+                          ? t("purchase.po.closed")
+                          : t("purchase.po.in_progress")}
                       </Checkbox>
                     )}
                   />
@@ -610,7 +621,7 @@ export default function PoCreatePage({ po }: Props) {
                       name="signature_id"
                       render={({ field }) => (
                         <Autocomplete
-                          aria-label="Signature"
+                          aria-label={t("purchase.shared.signature")}
                           inputProps={{
                             size: "sm",
                             classNames: {
@@ -618,7 +629,7 @@ export default function PoCreatePage({ po }: Props) {
                             },
                           }}
                           items={list?.data || []}
-                          label="Signature"
+                          label={t("purchase.shared.signature")}
                           labelPlacement="outside-left"
                           selectedKey={field.value?.toString()}
                           size="sm"
@@ -644,7 +655,7 @@ export default function PoCreatePage({ po }: Props) {
                           {...field}
                           fullWidth
                           className="w-1/3"
-                          placeholder="Catatan Penutup"
+                          placeholder={t("purchase.po.closing_notes")}
                           size="sm"
                           value={field.value}
                           onChange={field.onChange}
@@ -663,7 +674,7 @@ export default function PoCreatePage({ po }: Props) {
                         label: "w-34",
                         mainWrapper: "w-1/2",
                       }}
-                      label="Catatan"
+                      label={t("purchase.shared.notes")}
                       labelPlacement="outside-left"
                       size="sm"
                     />
@@ -690,7 +701,7 @@ export default function PoCreatePage({ po }: Props) {
               variant="bordered"
               onPress={() => navigate("/inventory/po")}
             >
-              Kembali
+              {t("common.back")}
             </Button>
             <Button
               color="primary"
@@ -699,7 +710,7 @@ export default function PoCreatePage({ po }: Props) {
               startContent={!loading && <SaveAllIcon />}
               type="submit"
             >
-              {loading ? "Loading..." : "Simpan"}
+              {loading ? t("common.loading") : t("common.save")}
             </Button>
           </CardFooter>
         </Card>

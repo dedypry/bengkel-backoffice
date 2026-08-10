@@ -13,9 +13,10 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save, X, Receipt } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
-import { ExpenseFormValues, ExpenseSchema } from "./schemas";
+import { ExpenseFormValues, createExpenseSchema } from "./schemas";
 
 import InputNumber from "@/components/input-number";
 import CustomDatePicker from "@/components/forms/date-picker";
@@ -32,7 +33,9 @@ interface Props {
 }
 
 export default function ExpenseModal({ isOpen, onClose }: Props) {
+  const { t } = useTranslation();
   const { categories } = useAppSelector((state) => state.expense);
+  const expenseSchema = useMemo(() => createExpenseSchema(t), [t]);
 
   const hasFetched = useRef(false);
   const isLoading = useRef(false);
@@ -47,7 +50,7 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
   }, []);
 
   const { control, handleSubmit, reset } = useForm<ExpenseFormValues>({
-    resolver: zodResolver(ExpenseSchema),
+    resolver: zodResolver(expenseSchema),
     defaultValues: {
       amount: 0,
       date: new Date().toISOString().split("T")[0],
@@ -89,12 +92,11 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader className="flex gap-2 items-center">
             <Receipt className="text-rose-500" size={24} />
-            Catat Pengeluaran Baru
+            {t("finance.expenses.modal_title")}
           </ModalHeader>
 
           <ModalBody className="py-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Deskripsi Transaksi */}
               <Controller
                 control={control}
                 name="title"
@@ -103,13 +105,12 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
                     {...field}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Nama Transaksi / Deskripsi"
-                    placeholder="Contoh: Listrik Bulanan Januari"
+                    label={t("finance.expenses.form_title")}
+                    placeholder={t("finance.expenses.form_title_placeholder")}
                   />
                 )}
               />
 
-              {/* Kategori */}
               <Controller
                 control={control}
                 name="category_id"
@@ -118,8 +119,8 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
                     defaultItems={Array.isArray(categories) ? categories : []}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Kategori"
-                    placeholder="Pilih Kategori"
+                    label={t("finance.expenses.form_category")}
+                    placeholder={t("finance.expenses.form_category_placeholder")}
                     selectedKey={field.value}
                     onSelectionChange={field.onChange}
                   >
@@ -134,7 +135,6 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Nominal */}
               <Controller
                 control={control}
                 name="amount"
@@ -142,7 +142,7 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
                   <InputNumber
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Nominal (IDR)"
+                    label={t("finance.expenses.form_amount")}
                     placeholder="0"
                     startContent="Rp"
                     value={field.value as any}
@@ -151,13 +151,12 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
                 )}
               />
 
-              {/* Tanggal */}
               <Controller
                 control={control}
                 name="date"
                 render={({ field, fieldState }) => (
                   <CustomDatePicker
-                    label="Tanggal Transaksi"
+                    label={t("finance.expenses.form_date")}
                     {...(field as any)}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
@@ -166,15 +165,14 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
               />
             </div>
 
-            {/* Catatan Tambahan */}
             <Controller
               control={control}
               name="notes"
               render={({ field }) => (
                 <Textarea
                   {...field}
-                  label="Catatan Tambahan (Opsional)"
-                  placeholder="Keterangan lebih lanjut mengenai transaksi..."
+                  label={t("finance.expenses.form_notes")}
+                  placeholder={t("finance.expenses.form_notes_placeholder")}
                 />
               )}
             />
@@ -197,7 +195,7 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
               variant="flat"
               onPress={onClose}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -206,7 +204,7 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
               startContent={!isLoading.current && <Save size={18} />}
               type="submit"
             >
-              Simpan Transaksi
+              {t("finance.expenses.save_transaction")}
             </Button>
           </ModalFooter>
         </form>

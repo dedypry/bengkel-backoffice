@@ -82,27 +82,27 @@ export default function ReportMechanic() {
                 size="sm"
                 variant="shadow"
               >
-                MVP
+                {t("reports.mechanics.mvp")}
               </Chip>
             </div>
 
             <div className="text-center md:text-left">
               <p className="text-white font-black uppercase text-lg mb-2">
-                🏆 Mekanik Terbaik Bulan Ini
+                {t("reports.mechanics.best_month")}
               </p>
               <h1 className="text-2xl font-black text-white uppercase mb-2">
-                {bestMechanic?.name || "No Data"}
+                {bestMechanic?.name || t("reports.mechanics.no_data")}
               </h1>
               <div className="flex items-center justify-center md:justify-start gap-4">
                 <div className="flex items-center gap-2">
                   <Award className="text-gray-200" size={18} />
                   <span className="text-gray-200 font-bold uppercase">
-                    Skor:{" "}
+                    {t("reports.mechanics.score")}{" "}
                     {calculatePerformance(
                       bestMechanic?.rating,
                       bestMechanic?.total_work,
                     )}
-                    /100
+                    {t("reports.mechanics.score_suffix")}
                   </span>
                 </div>
               </div>
@@ -116,7 +116,7 @@ export default function ReportMechanic() {
                 {formatNumber(bestMechanic?.total_work || 0)}
               </p>
               <p className="text-[10px] text-gray-200 font-bold uppercase">
-                Unit
+                {t("reports.mechanics.unit")}
               </p>
             </div>
             <div className="bg-white/5 backdrop-blur-md p-4 rounded-sm border border-white/20 w-28 text-center">
@@ -125,7 +125,7 @@ export default function ReportMechanic() {
                 {formatNumber(bestMechanic?.rating || 0)}
               </p>
               <p className="text-[10px] text-gray-200 font-bold uppercase">
-                Rating
+                {t("reports.mechanics.rating")}
               </p>
             </div>
           </div>
@@ -140,28 +140,31 @@ export default function ReportMechanic() {
           className="bg-gray-100 font-bold uppercase text-tiny"
           variant="flat"
         >
-          TOTAL: {mechanics.length}
+          {t("reports.mechanics.total_prefix")} {mechanics.length}
         </Chip>
         <Chip
           className="font-bold uppercase text-tiny"
           color="success"
           variant="flat"
         >
-          READY: {mechanics.filter((e) => e.work_status === "ready").length}
+          {t("reports.mechanics.ready_prefix")}{" "}
+          {mechanics.filter((e) => e.work_status === "ready").length}
         </Chip>
         <Chip
           className="font-bold uppercase text-tiny"
           color="danger"
           variant="flat"
         >
-          BUSY: {mechanics.filter((e) => e.work_status === "busy").length}
+          {t("reports.mechanics.busy_prefix")}{" "}
+          {mechanics.filter((e) => e.work_status === "busy").length}
         </Chip>
         <Chip
           className="font-bold uppercase text-tiny"
           color="warning"
           variant="flat"
         >
-          BREAK: {mechanics.filter((e) => e.work_status === "break").length}
+          {t("reports.mechanics.break_prefix")}{" "}
+          {mechanics.filter((e) => e.work_status === "break").length}
         </Chip>
       </div>
 
@@ -205,7 +208,8 @@ export default function ReportMechanic() {
                   {mec.name}
                 </h3>
                 <span className="text-[10px] font-bold text-gray-400 uppercase">
-                  ID: MEC-{mec.id.toString().padStart(3, "0")}
+                  {t("reports.mechanics.id_prefix")}
+                  {mec.id.toString().padStart(3, "0")}
                 </span>
               </div>
 
@@ -214,16 +218,16 @@ export default function ReportMechanic() {
                 <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col items-center">
                   <Award className="text-gray-400 mb-1" size={16} />
                   <p className="text-[9px] font-black text-gray-400 uppercase">
-                    Skill Level
+                    {t("reports.mechanics.skill_level")}
                   </p>
                   <p className="text-xs font-black text-gray-700">
-                    {mec.level || "PRO"}
+                    {mec.level || t("reports.mechanics.pro")}
                   </p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col items-center">
                   <Clock className="text-gray-400 mb-1" size={16} />
                   <p className="text-[9px] font-black text-gray-400 uppercase">
-                    Masa Kerja
+                    {t("reports.mechanics.tenure")}
                   </p>
                   <p className="text-xs font-black text-gray-700">
                     {getJoinDuration(
@@ -241,7 +245,7 @@ export default function ReportMechanic() {
                   </div>
                   <div>
                     <p className="text-[10px] font-black text-gray-400 uppercase leading-none mb-1">
-                      Spesialisasi
+                      {t("reports.mechanics.specialization")}
                     </p>
                     <p className="text-xs font-bold text-gray-700 leading-none">
                       {mec.specialty}
@@ -256,7 +260,7 @@ export default function ReportMechanic() {
                     <div className="flex items-center gap-2">
                       <Zap className="text-warning fill-warning" size={14} />
                       <span className="text-[10px] font-black text-gray-500 uppercase italic">
-                        Power Index
+                        {t("reports.mechanics.power_index")}
                       </span>
                     </div>
                     <span className="text-xs font-black text-gray-800">
@@ -283,7 +287,7 @@ export default function ReportMechanic() {
                 endContent={<ChevronRight size={18} />}
                 onPress={() => navigate(`/hr/employees/${mec.id}`)}
               >
-                Detail Profil
+                {t("reports.mechanics.view_profile")}
               </Button>
             </CardBody>
           </Card>

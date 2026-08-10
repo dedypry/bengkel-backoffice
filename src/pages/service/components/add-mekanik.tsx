@@ -125,9 +125,9 @@ export default function AddMechanich({
               <div className="flex gap-2 items-center">
                 <UserPlus2 className="text-primary" />
                 <div className="flex flex-col">
-                  <span>Tambah Mekanik</span>
+                  <span>{t("service.mechanic_modal.title")}</span>
                   <span className="text-tiny font-normal text-gray-400">
-                    Pilih personil mekanik untuk menangani Work Order ini
+                    {t("service.mechanic_modal.subtitle")}
                   </span>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export default function AddMechanich({
                     onClick={() => setSearchQuery("")}
                   />
                 }
-                placeholder="Cari Mekanik"
+                placeholder={t("service.mechanic_modal.search_placeholder")}
                 startContent={<Search className=" text-gray-600" />}
                 value={searchQuery}
                 onValueChange={setSearchQuery}
@@ -149,7 +149,7 @@ export default function AddMechanich({
               <Table
                 isHeaderSticky
                 removeWrapper
-                aria-label="Daftar Mekanik"
+                aria-label={t("service.mechanic_modal.table_aria")}
                 classNames={{
                   th: "bg-default-50 text-gray-600 font-bold",
                   td: "py-3 border-b border-default-100 last:border-none",
@@ -169,9 +169,11 @@ export default function AddMechanich({
                 }}
               >
                 <TableHeader>
-                  <TableColumn>MEKANIK</TableColumn>
-                  <TableColumn>KONTAK</TableColumn>
-                  <TableColumn align="center">STATUS</TableColumn>
+                  <TableColumn>{t("service.mechanic_modal.mechanic_col")}</TableColumn>
+                  <TableColumn>{t("service.mechanic_modal.contact_col")}</TableColumn>
+                  <TableColumn align="center">
+                    {t("service.mechanic_modal.status_col")}
+                  </TableColumn>
                 </TableHeader>
                 <TableBody
                   emptyContent={t("common.no_data")}
@@ -240,7 +242,7 @@ export default function AddMechanich({
             </ModalBody>
             <ModalFooter className="border-t border-default-100">
               <Button color="danger" variant="light" onPress={onClose}>
-                Batal
+                {t("common.cancel")}
               </Button>
               <Button
                 className="font-bold"
@@ -248,7 +250,7 @@ export default function AddMechanich({
                 isLoading={loading}
                 onPress={handleSubmit}
               >
-                Simpan Mekanik
+                {t("service.mechanic_modal.save")}
               </Button>
             </ModalFooter>
           </>

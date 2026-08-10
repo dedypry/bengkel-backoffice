@@ -10,6 +10,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Edit, Save } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
@@ -26,6 +27,7 @@ const schema = z.object({
 type TWoComplaint = z.output<typeof schema>;
 
 export default function WoComplaint() {
+  const { t } = useTranslation();
   const { detail: data } = useAppSelector((state) => state.wo);
   const dispatch = useAppDispatch();
   const { hasPermission } = usePermission();
@@ -87,7 +89,7 @@ export default function WoComplaint() {
             <ModalHeader>
               <div className="flex items-center gap-2 text-primary font-bold">
                 <AlertCircle className="size-5" />
-                <h5 className="font-bold">Edit Keluhan Work Order</h5>
+                <h5 className="font-bold">{t("service.edit_complaint.title")}</h5>
               </div>
             </ModalHeader>
             <ModalBody>
@@ -99,17 +101,17 @@ export default function WoComplaint() {
                     {...field}
                     errorMessage={errors.complaints?.message}
                     isInvalid={!!errors.complaints}
-                    label="Keluhan"
+                    label={t("service.edit_complaint.label")}
                     labelPlacement="outside"
                     minRows={6}
-                    placeholder="Masukkan keluhan unit/customer"
+                    placeholder={t("service.edit_complaint.placeholder")}
                   />
                 )}
               />
             </ModalBody>
             <ModalFooter>
               <Button variant="flat" onPress={() => setOpen(false)}>
-                Batal
+                {t("common.cancel")}
               </Button>
               <Button
                 color="primary"
@@ -117,7 +119,7 @@ export default function WoComplaint() {
                 startContent={!isLoading ? <Save size={16} /> : undefined}
                 type="submit"
               >
-                Simpan
+                {t("common.save")}
               </Button>
             </ModalFooter>
           </form>

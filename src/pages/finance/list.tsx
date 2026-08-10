@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -37,6 +38,7 @@ interface Props {
 }
 
 export default function InvoiceListPage({ noHeader = false }: Props) {
+  const { t } = useTranslation();
   const { payments, paymentQuery } = useAppSelector((state) => state.payment);
   const { company } = useAppSelector((state) => state.auth);
   const [search, setSearch] = useState("");
@@ -63,23 +65,21 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
       {!noHeader && (
         <HeaderAction
           actionIcon={Download}
-          actionTitle="Export Laporan"
+          actionTitle={t("finance.invoices.export")}
           leadIcon={Receipt}
-          subtitle="Pantau dan kelola seluruh riwayat tagihan pengerjaan unit."
-          title="Daftar Invoice"
+          subtitle={t("finance.invoices.subtitle")}
+          title={t("finance.invoices.title")}
           onAction={() => handleExport()}
         />
       )}
 
-      {/* Action Bar (Industrial Search Style) */}
       <Card className="flex flex-col md:flex-row gap-4 items-center  p-4 ">
         <div className="relative flex-1 group">
           <Input
-            placeholder="Cari nomor invoice atau nama pelanggan..."
+            placeholder={t("finance.invoices.search_placeholder")}
             startContent={
               <Search className="text-gray-500" size={20} values={search} />
             }
@@ -91,19 +91,17 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
           startContent={<Search size={18} />}
           onPress={onSearch}
         >
-          Cari Invoice
+          {t("finance.invoices.search_button")}
         </Button>
       </Card>
 
-      {/* List Table */}
-
-      <Table aria-label="Tabel Invoice">
+      <Table aria-label={t("finance.invoices.table_aria")}>
         <TableHeader>
-          <TableColumn>INVOICE & REF</TableColumn>
-          <TableColumn>PELANGGAN</TableColumn>
-          <TableColumn>TOTAL PEMBAYARAN</TableColumn>
-          <TableColumn>KASIR / PETUGAS</TableColumn>
-          <TableColumn align="center">AKSI</TableColumn>
+          <TableColumn>{t("finance.invoices.col_invoice_ref")}</TableColumn>
+          <TableColumn>{t("finance.invoices.col_customer")}</TableColumn>
+          <TableColumn>{t("finance.invoices.col_total")}</TableColumn>
+          <TableColumn>{t("finance.invoices.col_cashier")}</TableColumn>
+          <TableColumn align="center">{t("finance.invoices.col_actions")}</TableColumn>
         </TableHeader>
         <TableBody
           emptyContent={
@@ -112,7 +110,7 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
                 <Hash size={40} />
               </div>
               <p className="font-black uppercase italic text-gray-400">
-                Data Invoice Tidak Ditemukan
+                {t("finance.invoices.empty")}
               </p>
             </div>
           }
@@ -128,7 +126,7 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
                     {item.payment_no}
                   </span>
                   <span className="text-[10px] font-bold text-gray-400">
-                    REF: {item.reference_no}
+                    {t("finance.invoices.ref_prefix")} {item.reference_no}
                   </span>
                 </div>
               </TableCell>
@@ -187,7 +185,7 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
                       getAvatarByName(item.cashier?.name!),
                   }}
                   classNames={{ description: "text-[10px]" }}
-                  description={`NIK: ${item.cashier?.nik || "-"}`}
+                  description={`${t("finance.invoices.nik_prefix")} ${item.cashier?.nik || "-"}`}
                   name={
                     <span className="font-bold text-gray-500 uppercase text-xs">
                       {item.cashier?.name}

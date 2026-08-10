@@ -8,6 +8,7 @@ import {
   NotebookPen,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Chip, Card, CardBody, Tabs, Tab, Input } from "@heroui/react";
 
@@ -29,6 +30,7 @@ import { formatIDR } from "@/utils/helpers/format";
 import { calculateTotalEstimation } from "@/utils/helpers/global";
 
 export default function WorkOrderDetail() {
+  const { t } = useTranslation();
   const [openModal, setOpenModal] = useState(false);
 
   const { detail: data } = useAppSelector((state) => state.wo);
@@ -75,14 +77,14 @@ export default function WorkOrderDetail() {
             </div>
             <div className="bg-primary px-8 flex flex-col justify-center items-end min-w-[300px]">
               <span className="text-gray-100 font-black text-[12px] uppercase mb-1">
-                Total Biaya Estimasi
+                {t("service.detail.estimation_total")}
               </span>
               <span className="text-2xl font-black text-white tracking-[0.1em]">
                 {formatIDR(Number(data.grand_total || 0))}
               </span>
 
               <span className="text-sm font-black text-white tracking-[0.1em]">
-                Estimasi Waktu{" "}
+                {t("service.detail.estimation_time")}{" "}
                 {calculateTotalEstimation(
                   data.services.map((item) => ({
                     estimated: item.data.estimated_duration,
@@ -104,7 +106,7 @@ export default function WorkOrderDetail() {
               <SectionHeader
                 icon={<User size={18} />}
                 subtitle={data.company?.name}
-                title="Customer"
+                title={t("service.detail.customer")}
               />
               <div className="p-4 bg-gray-50 border-l-4 border-primary-500 rounded-sm">
                 <p className="font-black uppercase text-sm text-gray-500">
@@ -128,13 +130,16 @@ export default function WorkOrderDetail() {
           <Card>
             <CardBody className="p-6  space-y-6">
               <div className="flex justify-between items-center">
-                <SectionHeader icon={<Car size={18} />} title="Unit Info" />
+                <SectionHeader
+                  icon={<Car size={18} />}
+                  title={t("service.detail.unit_info")}
+                />
                 <EditUnitInfo />
               </div>
               <div className="space-y-4">
                 <div className="text-center py-4 bg-gray-400 text-white rounded-sm">
                   <p className="text-[10px] font-bold  uppercase mb-1">
-                    Nomor Polisi
+                    {t("service.detail.plate_number")}
                   </p>
                   <p className="text-2xl font-black tracking-widest">
                     {data.vehicle.plate_number}
@@ -142,16 +147,19 @@ export default function WorkOrderDetail() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <InfoBlock
-                    label="Brand/Model"
+                    label={t("service.detail.brand_model")}
                     value={`${data.vehicle.brand} ${data.vehicle.model}`}
                   />
-                  <InfoBlock label="Tahun" value={data.vehicle.year} />
                   <InfoBlock
-                    label="KM Masuk"
+                    label={t("service.detail.year")}
+                    value={data.vehicle.year}
+                  />
+                  <InfoBlock
+                    label={t("service.detail.km_in")}
                     value={`${data.current_km?.toLocaleString()} KM`}
                   />
                   <InfoBlock
-                    label="KM Kembali"
+                    label={t("service.detail.km_out")}
                     value={`${data.next_km?.toLocaleString()} KM`}
                   />
                 </div>
@@ -165,31 +173,34 @@ export default function WorkOrderDetail() {
               <div className="flex justify-between items-center">
                 <SectionHeader
                   icon={<AlertCircle size={18} />}
-                  title="Keluhan"
+                  title={t("service.detail.complaints")}
                 />
                 <WoComplaint />
               </div>
               <p className="text-xs font-bold text-gray-700 leading-relaxed uppercase">
-                {data.complaints || "TIDAK ADA KELUHAN TERKATEGORI"}
+                {data.complaints || t("service.detail.no_complaints")}
               </p>
             </CardBody>
           </Card>
           <Card>
             <CardBody className="p-6 space-y-4">
               <div className="flex justify-between items-center">
-                <SectionHeader icon={<Users size={18} />} title="Supervisor" />
+                <SectionHeader
+                  icon={<Users size={18} />}
+                  title={t("service.detail.supervisor")}
+                />
                 <EditSupervisorInfo />
               </div>
               <Input
                 isDisabled
                 classNames={{ label: "!text-gray-800" }}
-                label="PIC Service"
+                label={t("service.detail.pic_service")}
                 value={data?.pic?.name}
               />
               <Input
                 isDisabled
                 classNames={{ label: "!text-gray-800" }}
-                label="Service Advisor"
+                label={t("service.detail.service_advisor")}
                 value={data?.sa?.name}
               />
             </CardBody>
@@ -199,7 +210,7 @@ export default function WorkOrderDetail() {
               <CardBody className="p-6 space-y-4">
                 <SectionHeader
                   icon={<NotebookPen size={18} />}
-                  title="Catatan dibatalkan"
+                  title={t("service.detail.cancel_note")}
                 />
                 <p className="text-xs font-bold text-gray-700 leading-relaxed uppercase">
                   {data.cancel_note}
@@ -212,7 +223,7 @@ export default function WorkOrderDetail() {
         {/* RIGHT COLUMN: WORK ITEMS & MECHANICS */}
         <div className="lg:col-span-8 space-y-6">
           <Tabs
-            aria-label="Customer Tabs"
+            aria-label={t("service.detail.customer_tabs_aria")}
             classNames={{
               base: "w-full",
               tabList:
@@ -229,7 +240,7 @@ export default function WorkOrderDetail() {
               title={
                 <div className="flex items-center gap-2">
                   <Info size={16} />
-                  <span>Detail Informasi</span>
+                  <span>{t("service.detail.tab_info")}</span>
                 </div>
               }
             >
@@ -241,7 +252,7 @@ export default function WorkOrderDetail() {
               title={
                 <div className="flex items-center gap-2">
                   <History size={16} />
-                  <span>Riwayat Servis</span>
+                  <span>{t("service.detail.tab_history")}</span>
                 </div>
               }
             >

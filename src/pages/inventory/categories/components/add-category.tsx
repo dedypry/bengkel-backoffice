@@ -13,6 +13,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { Plus, Tags, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
@@ -49,6 +50,7 @@ export default function ModalAddCategory({
   initialData,
   isCreateSubCategory = false,
 }: Props) {
+  const { t } = useTranslation();
   const { categoryQuery } = useAppSelector((state) => state.product);
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -134,10 +136,12 @@ export default function ModalAddCategory({
               </div>
               <div className="flex flex-col">
                 <span className="text-small text-gray-500 font-black uppercase italic tracking-tight">
-                  {initialData ? "Ubah Kategori" : "Tambah Kategori Baru"}
+                  {initialData
+                    ? t("inventory.categories.modal.edit_title")
+                    : t("inventory.categories.modal.add_title")}
                 </span>
                 <span className="text-[10px] font-medium text-gray-400 normal-case tracking-normal">
-                  Atur pengelompokan item inventaris Anda
+                  {t("inventory.categories.modal.subtitle")}
                 </span>
               </div>
             </ModalHeader>
@@ -162,7 +166,7 @@ export default function ModalAddCategory({
                       }}
                       errorMessage={errors.name?.message}
                       isInvalid={!!errors.name}
-                      label="Nama Kategori"
+                      label={t("inventory.categories.modal.name")}
                       labelPlacement="outside"
                       placeholder="Contoh: Mesin, Interior, atau Body"
                       variant="bordered"
@@ -180,7 +184,7 @@ export default function ModalAddCategory({
                         inputWrapper:
                           "border-gray-200 group-data-[focus=true]:border-gray-800",
                       }}
-                      label="Deskripsi (Opsional)"
+                      label={t("inventory.categories.modal.description")}
                       labelPlacement="outside"
                       minRows={3}
                       placeholder="Jelaskan jenis produk dalam kategori ini..."
@@ -195,7 +199,7 @@ export default function ModalAddCategory({
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                     <span className="text-sm font-black uppercase  text-gray-400">
-                      Sub-Kategori (Nested)
+                      {t("inventory.categories.modal.sub_categories")}
                     </span>
                     <Button
                       color="primary"
@@ -204,14 +208,14 @@ export default function ModalAddCategory({
                       variant="flat"
                       onPress={() => append({ name: "" })}
                     >
-                      TAMBAH SUB
+                      {t("inventory.categories.modal.add_sub")}
                     </Button>
                   </div>
 
                   {fields.length === 0 && (
                     <div className="py-4 text-center border border-dashed border-gray-200 rounded-sm">
                       <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-                        Tidak ada sub-kategori
+                        {t("inventory.categories.modal.no_sub")}
                       </p>
                     </div>
                   )}
@@ -236,7 +240,9 @@ export default function ModalAddCategory({
                                 isInvalid={
                                   !!errors.subCategories?.[index]?.name
                                 }
-                                placeholder={`Sub-Kategori ${index + 1}`}
+                                placeholder={t("inventory.categories.modal.sub_placeholder", {
+                                  n: index + 1,
+                                })}
                                 radius="sm"
                                 size="sm"
                                 variant="bordered"
@@ -304,7 +310,7 @@ export default function ModalAddCategory({
                 variant="light"
                 onPress={onClose}
               >
-                Batal
+                {t("common.cancel")}
               </Button>
               <Button
                 color="primary"
@@ -312,7 +318,9 @@ export default function ModalAddCategory({
                 isLoading={isLoading}
                 onPress={() => handleSubmit(onSubmit)()}
               >
-                {initialData ? "PERBARUI" : "SIMPAN KATEGORI"}
+                {initialData
+                  ? t("inventory.categories.modal.update")
+                  : t("inventory.categories.modal.save")}
               </Button>
             </ModalFooter>
           </>

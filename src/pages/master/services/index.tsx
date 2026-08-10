@@ -13,6 +13,7 @@ import {
   Download,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Chip,
@@ -45,14 +46,10 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
-const DIFFICULTY_OPTIONS = [
-  { key: "easy", label: "Easy (Mudah)" },
-  { key: "medium", label: "Medium (Sedang)" },
-  { key: "hard", label: "Hard (Sulit)" },
-  { key: "extreme", label: "Extreme (Sangat Sulit)" },
-];
+const DIFFICULTY_KEYS = ["easy", "medium", "hard", "extreme"] as const;
 
 export default function MasterServicePage() {
+  const { t } = useTranslation();
   const { services, query, categories } = useAppSelector(
     (state) => state.service,
   );
@@ -135,7 +132,7 @@ export default function MasterServicePage() {
                 )
               }
             >
-              Export Excel
+              {t("master.services.export")}
             </Button>
             <UploadExcelService />
             <Button
@@ -143,13 +140,13 @@ export default function MasterServicePage() {
               startContent={<Plus size={16} />}
               onPress={() => setOpenModal(true)}
             >
-              Tambah Jasa
+              {t("master.services.add")}
             </Button>
           </div>
         }
         leadIcon={Zap}
-        subtitle="Standarisasi biaya & estimasi waktu kerja tim."
-        title="Katalog Jasa"
+        subtitle={t("master.services.subtitle")}
+        title={t("master.services.title")}
       />
 
       {/* Grid Kartu Jasa */}
@@ -162,7 +159,7 @@ export default function MasterServicePage() {
                 isClearable
                 aria-label="Filter kategori"
                 className="w-full sm:w-52"
-                placeholder="Semua Kategori"
+                placeholder={t("master.services.filter_category")}
                 selectedKeys={
                   query.category_id ? [String(query.category_id)] : []
                 }
@@ -189,7 +186,7 @@ export default function MasterServicePage() {
                 isClearable
                 aria-label="Filter kesulitan"
                 className="w-full sm:w-48"
-                placeholder="Semua Kesulitan"
+                placeholder={t("master.services.filter_difficulty")}
                 selectedKeys={query.difficulty ? [query.difficulty] : []}
                 size="sm"
                 variant="bordered"
@@ -204,9 +201,12 @@ export default function MasterServicePage() {
                   );
                 }}
               >
-                {DIFFICULTY_OPTIONS.map((item) => (
-                  <SelectItem key={item.key} textValue={item.label}>
-                    {item.label}
+                {DIFFICULTY_KEYS.map((key) => (
+                  <SelectItem
+                    key={key}
+                    textValue={t(`master.services.difficulty.${key}`)}
+                  >
+                    {t(`master.services.difficulty.${key}`)}
                   </SelectItem>
                 ))}
               </Select>
@@ -230,7 +230,7 @@ export default function MasterServicePage() {
                   </Button>
                 )
               }
-              placeholder="Cari jasa servis (contoh: Ganti Oli, Tune Up)"
+              placeholder={t("master.services.search_placeholder")}
               startContent={<Search className="text-gray-400" size={18} />}
               value={search}
               variant="bordered"
@@ -247,26 +247,28 @@ export default function MasterServicePage() {
         }
       >
         <TableHeader>
-          <TableColumn>JASA</TableColumn>
-          <TableColumn>KATEGORI</TableColumn>
-          <TableColumn>DURASI</TableColumn>
-          <TableColumn>KESULITAN</TableColumn>
-          <TableColumn>HARGA</TableColumn>
-          <TableColumn align="center">AKSI</TableColumn>
+          <TableColumn>{t("master.services.table.service")}</TableColumn>
+          <TableColumn>{t("master.services.table.category")}</TableColumn>
+          <TableColumn>{t("master.services.table.duration")}</TableColumn>
+          <TableColumn>{t("master.services.table.difficulty")}</TableColumn>
+          <TableColumn>{t("master.services.table.price")}</TableColumn>
+          <TableColumn align="center">
+            {t("master.services.table.actions")}
+          </TableColumn>
         </TableHeader>
         <TableBody
           emptyContent={
             <div className="flex flex-col items-center justify-center py-14">
               <PackageOpen className="text-gray-300 mb-3" size={36} />
               <p className="text-sm font-semibold text-gray-500 mb-4">
-                Belum ada jasa terdaftar.
+                {t("master.services.table.empty")}
               </p>
               <Button
                 color="primary"
                 size="sm"
                 onPress={() => setOpenModal(true)}
               >
-                Tambah Jasa
+                {t("master.services.add")}
               </Button>
             </div>
           }
@@ -294,10 +296,10 @@ export default function MasterServicePage() {
                   <Clock size={14} />
                   {srv.estimated_duration}{" "}
                   {srv.estimated_type === "minutes"
-                    ? "Menit"
+                    ? t("minute")
                     : srv.estimated_type === "days"
-                      ? "Hari"
-                      : "Jam"}
+                      ? t("day")
+                      : t("hours")}
                 </div>
               </TableCell>
               <TableCell>
@@ -307,7 +309,7 @@ export default function MasterServicePage() {
                   size="sm"
                   variant="dot"
                 >
-                  {srv.difficulty}
+                  {t(`master.services.difficulty.${srv.difficulty}`)}
                 </Chip>
               </TableCell>
               <TableCell>
@@ -317,7 +319,7 @@ export default function MasterServicePage() {
               </TableCell>
               <TableCell>
                 <div className="flex items-center justify-center gap-1">
-                  <Tooltip content="Edit">
+                  <Tooltip content={t("common.edit")}>
                     <Button
                       isIconOnly
                       color="default"
@@ -331,7 +333,7 @@ export default function MasterServicePage() {
                       <Edit size={16} />
                     </Button>
                   </Tooltip>
-                  <Tooltip color="danger" content="Hapus">
+                  <Tooltip color="danger" content={t("common.delete")}>
                     <Button
                       isIconOnly
                       color="danger"
@@ -369,7 +371,7 @@ export default function MasterServicePage() {
           variant="shadow"
         >
           <span className="text-small font-bold text-gray-600 italic">
-            Semua harga jasa terstandarisasi untuk menjamin kepuasan pelanggan.
+            {t("master.services.guarantee")}
           </span>
         </Chip>
       </div>

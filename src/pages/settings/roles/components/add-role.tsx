@@ -1,6 +1,7 @@
 import type { IGroupedPermissions, IRole } from "@/utils/interfaces/IRole";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Input,
   Textarea,
@@ -13,6 +14,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { TFunction } from "i18next";
 import { ShieldAlert, Info } from "lucide-react";
 
 import PermissionTable from "./permission-table";
@@ -29,21 +31,24 @@ interface Props {
   data?: IRole;
 }
 
-const schema = z.object({
-  id: z.number().optional(),
-  name: z.string().min(3, "Nama role minimal 3 karakter"),
-  description: z.string().optional(),
-});
+const createRoleSchema = (t: TFunction) =>
+  z.object({
+    id: z.number().optional(),
+    name: z.string().min(3, t("settings.roles.validation_name_min")),
+    description: z.string().optional(),
+  });
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof createRoleSchema>>;
 
 export default function AddRole({ open, setOpen, data }: Props) {
+  const { t } = useTranslation();
   const [permissions, setPermission] = useState<IGroupedPermissions>();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
+  const roleSchema = useMemo(() => createRoleSchema(t), [t]);
 
   const {
     control,
@@ -51,7 +56,7 @@ export default function AddRole({ open, setOpen, data }: Props) {
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(roleSchema),
     defaultValues: { name: "", description: "" },
   });
 
@@ -83,7 +88,7 @@ export default function AddRole({ open, setOpen, data }: Props) {
 
   const onSubmit = async (formData: FormData) => {
     if (selectedIds.length === 0) {
-      setError("Anda harus memilih minimal satu permission untuk role ini.");
+      setError(t("settings.roles.validation_permission_min"));
 
       return;
     }
@@ -104,17 +109,20 @@ export default function AddRole({ open, setOpen, data }: Props) {
 
   return (
     <Modal
-      description="Konfigurasikan tingkat akses keamanan untuk setiap modul bengkel."
+      description={t("settings.roles.add_modal_desc")}
       isLoading={loading}
       open={open}
       size="full"
-      title={data ? "Update Role Security" : "Daftarkan Role Baru"}
+      title={
+        data
+          ? t("settings.roles.add_modal_edit")
+          : t("settings.roles.add_modal_create")
+      }
       onClose={() => setOpen(false)}
       onOpenChange={setOpen}
       onSave={handleSubmit(onSubmit)}
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Kolom Kiri: Metadata (Sticky) */}
         <div className="lg:col-span-1">
           <div className="sticky top-0">
             <Card className="border border-gray-200">
@@ -124,7 +132,7 @@ export default function AddRole({ open, setOpen, data }: Props) {
                     <Info size={18} />
                   </div>
                   <h4 className="text-sm font-black uppercase text-gray-500">
-                    Identitas Role
+                    {t("settings.roles.role_identity")}
                   </h4>
                 </div>
 
@@ -136,8 +144,8 @@ export default function AddRole({ open, setOpen, data }: Props) {
                       {...field}
                       errorMessage={errors.name?.message}
                       isInvalid={!!errors.name}
-                      label="Nama Role"
-                      placeholder="Contoh: Kepala Mekanik"
+                      label={t("settings.roles.role_name")}
+                      placeholder={t("settings.roles.role_name_placeholder")}
                     />
                   )}
                 />
@@ -148,9 +156,11 @@ export default function AddRole({ open, setOpen, data }: Props) {
                   render={({ field }) => (
                     <Textarea
                       {...field}
-                      label="Deskripsi Tanggung Jawab"
+                      label={t("settings.roles.role_description")}
                       minRows={4}
-                      placeholder="Jelaskan cakupan wewenang role ini..."
+                      placeholder={t(
+                        "settings.roles.role_description_placeholder",
+                      )}
                     />
                   )}
                 />
@@ -164,23 +174,15 @@ export default function AddRole({ open, setOpen, data }: Props) {
                       description: "font-bold text-gray-700",
                     }}
                     color="warning"
-                    description={`${selectedIds.length} Hak Akses Diberikan`}
-                    title=" Status Konfigurasi"
+                    description={`${selectedIds.length}${t("settings.roles.permissions_granted")}`}
+                    title={t("settings.roles.config_status")}
                   />
-                  {/* <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase text-gray-400">
-                      Total Hak Akses
-                    </span>
-                    <Chip color="primary" size="sm" variant="flat">
-                      {selectedIds.length} Terpilih
-                    </Chip>
-                  </div> */}
                   {error && (
                     <Alert
                       classNames={{ base: "rounded-sm" }}
                       color="danger"
                       icon={<ShieldAlert size={18} />}
-                      title="Akses Ditolak"
+                      title={t("settings.roles.access_denied")}
                       variant="flat"
                     >
                       {error}
@@ -198,24 +200,21 @@ export default function AddRole({ open, setOpen, data }: Props) {
                 mainWrapper: "flex flex-row items-center gap-2",
               }}
               color="danger"
-              title={`Perubahan pada permission akan berdampak langsung pada semua
-                pengguna yang memiliki role ini. Mohon lakukan verifikasi
-                sebelum menyimpan.`}
+              title={t("settings.roles.permission_warning")}
               variant="flat"
             />
           </div>
         </div>
 
-        {/* Kolom Kanan: Matriks Permission */}
         <div className="lg:col-span-2">
           <Card className="border border-gray-200 overflow-hidden shadow-sm">
             <CardBody className="p-4">
               <div className="border-b pb-2 border-gray-200 flex items-center justify-between">
                 <h4 className="text-sm font-black uppercase  text-gray-500">
-                  Matriks Hak Akses
+                  {t("settings.roles.permission_matrix")}
                 </h4>
                 <Chip color="success" size="sm" variant="dot">
-                  System Live
+                  {t("settings.roles.system_live")}
                 </Chip>
               </div>
               <div className="p-4">

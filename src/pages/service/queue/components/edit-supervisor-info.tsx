@@ -11,6 +11,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit, Save, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
@@ -29,6 +30,7 @@ const schema = z.object({
 type TSupervisorForm = z.output<typeof schema>;
 
 export default function EditSupervisorInfo() {
+  const { t } = useTranslation();
   const { detail: data } = useAppSelector((state) => state.wo);
   const { list: employes } = useAppSelector((state) => state.employe);
   const dispatch = useAppDispatch();
@@ -98,7 +100,7 @@ export default function EditSupervisorInfo() {
             <ModalHeader>
               <div className="flex items-center gap-2 text-primary font-bold">
                 <Users className="size-5" />
-                <h5 className="font-bold">Edit Supervisor</h5>
+                <h5 className="font-bold">{t("service.edit_supervisor.title")}</h5>
               </div>
             </ModalHeader>
             <ModalBody className="space-y-4">
@@ -108,9 +110,9 @@ export default function EditSupervisorInfo() {
                 render={({ field }) => (
                   <Autocomplete
                     defaultItems={employes?.data || []}
-                    label="PIC Service"
+                    label={t("service.detail.pic_service")}
                     labelPlacement="outside"
-                    placeholder="Pilih PIC Service"
+                    placeholder={t("service.add.select_pic")}
                     selectedKey={field.value ? String(field.value) : null}
                     onSelectionChange={(key) =>
                       field.onChange(key ? Number(key) : null)
@@ -130,9 +132,9 @@ export default function EditSupervisorInfo() {
                 render={({ field }) => (
                   <Autocomplete
                     defaultItems={employes?.data || []}
-                    label="Service Advisor"
+                    label={t("service.detail.service_advisor")}
                     labelPlacement="outside"
-                    placeholder="Pilih Service Advisor"
+                    placeholder={t("service.add.select_sa")}
                     selectedKey={field.value ? String(field.value) : null}
                     onSelectionChange={(key) =>
                       field.onChange(key ? Number(key) : null)
@@ -149,7 +151,7 @@ export default function EditSupervisorInfo() {
             </ModalBody>
             <ModalFooter>
               <Button variant="flat" onPress={() => setOpen(false)}>
-                Batal
+                {t("common.cancel")}
               </Button>
               <Button
                 color="primary"
@@ -157,7 +159,7 @@ export default function EditSupervisorInfo() {
                 startContent={!isLoading ? <Save size={16} /> : undefined}
                 type="submit"
               >
-                Simpan
+                {t("common.save")}
               </Button>
             </ModalFooter>
           </form>

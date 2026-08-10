@@ -11,6 +11,7 @@ import {
 } from "@heroui/react";
 import dayjs from "dayjs";
 import { UserIcon, Car } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import DetailField from "./detail-field";
 
@@ -20,6 +21,8 @@ interface Props {
   data: ICustomer;
 }
 export default function DetailCustomerTab({ data }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-2">
       {/* Kolom Kiri */}
@@ -31,23 +34,29 @@ export default function DetailCustomerTab({ data }: Props) {
                 <UserIcon size={18} />
               </div>
               <h4 className="text-sm font-black uppercase  text-gray-500">
-                Identitas & Wilayah
+                {t("master.customers.identity_section")}
               </h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
-              <DetailField label="NIK KTP" value={data?.nik_ktp} />
               <DetailField
-                label="Tanggal Lahir"
+                label={t("master.customers.nik_ktp")}
+                value={data?.nik_ktp}
+              />
+              <DetailField
+                label={t("master.customers.birth_date")}
                 value={
                   data?.profile?.birth_date
                     ? dayjs(data?.profile?.birth_date).format("DD MMMM YYYY")
                     : "-"
                 }
               />
-              <DetailField label="Tipe Pelanggan" value={data?.customer_type} />
+              <DetailField
+                label={t("master.customers.customer_type")}
+                value={data?.customer_type}
+              />
               <DetailField
                 isFullWidth
-                label="Alamat Lengkap"
+                label={t("master.customers.full_address")}
                 value={`${data.profile?.address ? data.profile?.address + ", " : ""}${data.profile?.district?.name ? data.profile?.district?.name + ", " : ""}${data.profile?.city?.name ? data.profile?.city?.name + ", " : ""}${data.profile?.province?.name ? data.profile?.province?.name + ", " : ""}`}
               />
             </div>
@@ -64,18 +73,34 @@ export default function DetailCustomerTab({ data }: Props) {
                 <Car size={18} />
               </div>
               <h4 className="text-sm font-black uppercase text-gray-500">
-                Gudang Kendaraan ({data.vehicles?.length})
+                {t("master.customers.vehicle_garage", {
+                  count: data.vehicles?.length,
+                })}
               </h4>
             </div>
             <Table aria-label="Daftar Kendaraan">
               <TableHeader>
-                <TableColumn>PLAT NOMOR</TableColumn>
-                <TableColumn>BRAND & MODEL</TableColumn>
-                <TableColumn>TAHUN</TableColumn>
-                <TableColumn>TRANSMISI</TableColumn>
-                <TableColumn>BAHAN BAKAR</TableColumn>
-                <TableColumn>UKURAN BAN</TableColumn>
-                <TableColumn>WARNA</TableColumn>
+                <TableColumn>
+                  {t("master.customers.vehicle_table.plate")}
+                </TableColumn>
+                <TableColumn>
+                  {t("master.customers.vehicle_table.brand_model")}
+                </TableColumn>
+                <TableColumn>
+                  {t("master.customers.vehicle_table.year")}
+                </TableColumn>
+                <TableColumn>
+                  {t("master.customers.vehicle_table.transmission")}
+                </TableColumn>
+                <TableColumn>
+                  {t("master.customers.vehicle_table.fuel")}
+                </TableColumn>
+                <TableColumn>
+                  {t("master.customers.vehicle_table.tire_size")}
+                </TableColumn>
+                <TableColumn>
+                  {t("master.customers.vehicle_table.color")}
+                </TableColumn>
               </TableHeader>
               <TableBody>
                 {(data?.vehicles || []).map((car) => (

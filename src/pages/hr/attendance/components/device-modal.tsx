@@ -1,8 +1,9 @@
 import type { IAttendanceDevice } from "@/utils/interfaces/IAttendance";
+import type { TFunction } from "i18next";
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -15,6 +16,7 @@ import {
 } from "@heroui/react";
 import { z } from "zod";
 import { Cpu, Info, Save, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import config from "@/config/api";
 import { http } from "@/utils/libs/axios";
@@ -22,14 +24,17 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { useAppDispatch } from "@/stores/hooks";
 import { getAttendanceDevices } from "@/stores/features/attendance/attendance-action";
 
-const schema = z.object({
-  serial_number: z.string().min(1, "Serial number wajib diisi"),
-  name: z.string().optional().or(z.literal("")),
-  location: z.string().optional().or(z.literal("")),
-  is_active: z.boolean(),
-});
+const createDeviceSchema = (t: TFunction) =>
+  z.object({
+    serial_number: z
+      .string()
+      .min(1, t("hr.attendance.validation.serial_required")),
+    name: z.string().optional().or(z.literal("")),
+    location: z.string().optional().or(z.literal("")),
+    is_active: z.boolean(),
+  });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof createDeviceSchema>>;
 
 interface Props {
   open: boolean;
@@ -39,10 +44,13 @@ interface Props {
 }
 
 export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
 
   const serverUrl = `${config.api}/iclock/cdata`;
+
+  const schema = useMemo(() => createDeviceSchema(t), [t]);
 
   const { handleSubmit, control, reset } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -107,10 +115,12 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
             </div>
             <div className="flex flex-col">
               <h2 className="text-lg font-black uppercase">
-                {device?.id ? "Ubah Mesin Absensi" : "Daftarkan Mesin Absensi"}
+                {device?.id
+                  ? t("hr.attendance.device_modal_edit")
+                  : t("hr.attendance.device_modal_add")}
               </h2>
               <p className="text-tiny font-medium text-gray-400">
-                Mesin fingerprint/face yang mendukung protokol ADMS.
+                {t("hr.attendance.device_modal_subtitle")}
               </p>
             </div>
           </ModalHeader>
@@ -119,19 +129,14 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
             <div className="p-4 bg-blue-50 border border-blue-100 rounded-sm flex gap-3">
               <Info className="text-blue-500 shrink-0" size={18} />
               <div className="text-xs text-blue-700 space-y-1">
-                <p className="font-bold uppercase">Cara menghubungkan mesin</p>
-                <p>
-                  Pada menu <b>Comm / Cloud Server (ADMS)</b> di mesin, isi
-                  alamat server berikut lalu aktifkan domain name:
+                <p className="font-bold uppercase">
+                  {t("hr.attendance.device_how_title")}
                 </p>
+                <p>{t("hr.attendance.device_how_body")}</p>
                 <code className="block bg-white px-2 py-1 rounded border border-blue-100 break-all">
                   {serverUrl}
                 </code>
-                <p>
-                  Serial Number harus sama persis dengan SN yang tertera pada
-                  mesin. Punch yang masuk otomatis terhubung ke karyawan via PIN
-                  / NIK.
-                </p>
+                <p>{t("hr.attendance.device_sn_hint")}</p>
               </div>
             </div>
 
@@ -142,9 +147,9 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
                 <Input
                   errorMessage={fieldState.error?.message}
                   isInvalid={!!fieldState.error}
-                  label="Serial Number (SN)"
+                  label={t("hr.attendance.form_serial")}
                   labelPlacement="inside"
-                  placeholder="Mis. CGXX204860333"
+                  placeholder={t("hr.attendance.form_serial_placeholder")}
                   value={field.value}
                   variant="faded"
                   onValueChange={field.onChange}
@@ -158,9 +163,9 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
                 name="name"
                 render={({ field }) => (
                   <Input
-                    label="Nama Mesin"
+                    label={t("hr.attendance.form_device_name")}
                     labelPlacement="inside"
-                    placeholder="Mesin Lobby"
+                    placeholder={t("hr.attendance.form_device_name_placeholder")}
                     value={field.value || ""}
                     variant="faded"
                     onValueChange={field.onChange}
@@ -172,9 +177,9 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
                 name="location"
                 render={({ field }) => (
                   <Input
-                    label="Lokasi"
+                    label={t("hr.attendance.form_location")}
                     labelPlacement="inside"
-                    placeholder="Pintu Masuk"
+                    placeholder={t("hr.attendance.form_location_placeholder")}
                     value={field.value || ""}
                     variant="faded"
                     onValueChange={field.onChange}
@@ -189,7 +194,7 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
               render={({ field }) => (
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-sm border border-gray-100">
                   <span className="text-sm font-bold text-gray-600 uppercase">
-                    Mesin Aktif
+                    {t("hr.attendance.form_device_active")}
                   </span>
                   <Switch
                     color="success"
@@ -208,7 +213,7 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
               variant="flat"
               onPress={handleClose}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -216,7 +221,7 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
               startContent={!loading && <Save size={18} />}
               type="submit"
             >
-              Simpan
+              {t("common.save")}
             </Button>
           </ModalFooter>
         </ModalContent>

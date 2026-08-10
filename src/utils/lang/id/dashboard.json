@@ -1,0 +1,62 @@
+{
+    "dashboard": {
+        "badge": "Dashboard Operasional",
+        "title": "Ringkasan Bengkel",
+        "system_online": "Sistem Online",
+        "new_work_order": "Work Order Baru",
+        "queue_title": "Antrean Workshop",
+        "queue_subtitle": "Unit servis yang sedang berjalan hari ini",
+        "promo_title": "Tingkatkan efisiensi servis harian",
+        "promo_desc": "Pantau antrean, stok kritis, dan pendapatan dari satu dashboard.",
+        "view_report": "Lihat Laporan",
+        "stats": {
+            "service_today": "Servis Hari Ini",
+            "in_progress": "Sedang Dikerjakan",
+            "completed": "Selesai",
+            "today_revenue": "Pendapatan Hari Ini",
+            "active_queue": "Antrean Aktif",
+            "completed_today": "Selesai Hari Ini",
+            "low_stock": "Stok Kritis"
+        },
+        "revenue_chart": {
+            "title": "Tren Pendapatan",
+            "subtitle": "Perbandingan pendapatan 7 hari terakhir",
+            "last_7_days": "7 hari terakhir",
+            "vs_last_week": "vs minggu lalu",
+            "revenue_label": "Pendapatan"
+        },
+        "inventory_alert": {
+            "title": "Peringatan Stok",
+            "subtitle": "Produk di bawah minimum stok",
+            "critical_restock": "Item kritis perlu restock",
+            "item_count": "{{count}} Item",
+            "empty": "Semua stok aman",
+            "out_of_stock": "Stok habis",
+            "low_stock": "Stok menipis",
+            "remaining": "Sisa:",
+            "view_warehouse": "Lihat Gudang"
+        },
+        "quick_actions": {
+            "title": "Aksi Cepat",
+            "new_work_order": "Work Order Baru",
+            "add_customer": "Tambah Pelanggan",
+            "cashier": "Kasir",
+            "daily_report": "Laporan Harian",
+            "register_service": "Daftar Servis",
+            "workshop_queue": "Antrean Bengkel",
+            "stock": "Stok Barang"
+        },
+        "service_queue": {
+            "title": "Antrean Servis",
+            "table_aria": "Tabel Antrean Service",
+            "empty": "Tidak ada antrean saat ini.",
+            "mechanic_unassigned": "Belum ditentukan",
+            "columns": {
+                "vehicle": "KENDARAAN",
+                "customer": "CUSTOMER",
+                "mechanic": "MEKANIK",
+                "status": "STATUS"
+            }
+        }
+    }
+}

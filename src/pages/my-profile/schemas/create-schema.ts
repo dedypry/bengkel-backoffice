@@ -1,37 +1,69 @@
+import { TFunction } from "i18next";
 import z from "zod";
 
-export const formSchema = z.object({
-  name: z
-    .string({ message: "Nomor telepon wajib diisi." })
-    .min(1, { message: "Nama wajib diisi." }),
-  email: z
-    .email({ message: "Format email tidak valid." })
-    .min(1, { message: "Email wajib diisi." }),
-  phone: z
-    .string({ message: "Nomor telepon wajib diisi." })
-    .min(1, { message: "Nomor telepon wajib diisi." }),
-  photo: z.any().optional(),
-  province_id: z
-    .number({ message: "Provinsi wajib diisi" })
-    .min(1, { message: "Provinsi wajib diisi" }),
-  city_id: z
-    .number({ message: "Kota wajib diisi" })
-    .min(1, { message: "Kota wajib diisi" }),
-  district_id: z
-    .number({ message: "Kecamatan wajib diisi" })
-    .min(1, { message: "Kecamatan wajib diisi" }),
-  address: z
-    .string({ message: "Alamat wajib diisi" })
-    .min(1, { message: "Alamat wajib diisi" }),
-  gender: z
-    .string({ message: "Jenis Kelamin wajib diisi" })
-    .min(1, { message: "Jenis Kelamin wajib diisi" }),
-  place_birth: z
-    .string({ message: "Tempat Lahir wajib diisi" })
-    .min(1, { message: "Tempat Lahir wajib diisi" }),
-  birth_date: z
-    .string({ message: "Tanggal Lahir wajib diisi" })
-    .min(1, { message: "Tanggal Lahir wajib diisi" }),
-  emergency_name: z.string().nullable().optional(),
-  emergency_contact: z.string().nullable().optional(),
-});
+export const createFormSchema = (t: TFunction) =>
+  z.object({
+    name: z
+      .string({ message: t("profile.validation.phone_required") })
+      .min(1, { message: t("profile.validation.name_required") }),
+    email: z
+      .email({ message: t("profile.validation.email_invalid") })
+      .min(1, { message: t("profile.validation.email_required") }),
+    phone: z
+      .string({ message: t("profile.validation.phone_required") })
+      .min(1, { message: t("profile.validation.phone_required") }),
+    photo: z.any().optional(),
+    province_id: z
+      .number({ message: t("profile.validation.province_required") })
+      .min(1, { message: t("profile.validation.province_required") }),
+    city_id: z
+      .number({ message: t("profile.validation.city_required") })
+      .min(1, { message: t("profile.validation.city_required") }),
+    district_id: z
+      .number({ message: t("profile.validation.district_required") })
+      .min(1, { message: t("profile.validation.district_required") }),
+    address: z
+      .string({ message: t("profile.validation.address_required") })
+      .min(1, { message: t("profile.validation.address_required") }),
+    gender: z
+      .string({ message: t("profile.validation.gender_required") })
+      .min(1, { message: t("profile.validation.gender_required") }),
+    place_birth: z
+      .string({ message: t("profile.validation.birth_place_required") })
+      .min(1, { message: t("profile.validation.birth_place_required") }),
+    birth_date: z
+      .string({ message: t("profile.validation.birth_date_required") })
+      .min(1, { message: t("profile.validation.birth_date_required") }),
+    emergency_name: z.string().nullable().optional(),
+    emergency_contact: z.string().nullable().optional(),
+  });
+
+export type FormSchemaValues = z.infer<ReturnType<typeof createFormSchema>>;
+
+export const createChangePasswordSchema = (t: TFunction) =>
+  z
+    .object({
+      old_password: z
+        .string()
+        .min(1, { message: t("profile.validation.old_password_required") }),
+      new_password: z
+        .string()
+        .min(8, { message: t("profile.validation.new_password_min") })
+        .regex(/[A-Z]/, {
+          message: t("profile.validation.new_password_uppercase"),
+        })
+        .regex(/[0-9]/, {
+          message: t("profile.validation.new_password_number"),
+        }),
+      confirm_password: z
+        .string()
+        .min(1, { message: t("profile.validation.confirm_required") }),
+    })
+    .refine((data) => data.new_password === data.confirm_password, {
+      message: t("profile.validation.confirm_mismatch"),
+      path: ["confirm_password"],
+    });
+
+export type ChangePasswordType = z.infer<
+  ReturnType<typeof createChangePasswordSchema>
+>;

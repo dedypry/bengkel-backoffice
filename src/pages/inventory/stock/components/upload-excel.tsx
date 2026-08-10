@@ -8,6 +8,7 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import { Download, Info, UploadCloud } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import FileUploader from "@/components/drop-zone";
 import { notify, notifyError } from "@/utils/helpers/notify";
@@ -17,6 +18,7 @@ import { getProduct } from "@/stores/features/product/product-action";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function UploadExcel() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +29,7 @@ export default function UploadExcel() {
 
   function onSubmit() {
     if (!files[0]) {
-      notify("Pilih file Excel terlebih dahulu", "warning");
+      notify(t("inventory.stock.select_file_first"), "warning");
 
       return;
     }
@@ -63,25 +65,26 @@ export default function UploadExcel() {
         <ModalContent>
           <ModalHeader className="flex flex-col">
             <h3 className="text-lg font-black uppercase text-gray-500">
-              Upload Excel
+              {t("inventory.stock.upload_title")}
             </h3>
             <p className="text-xs font-semibold text-gray-400">
-              Upload file Excel untuk mengimport data produk.
+              {t("inventory.stock.upload_subtitle")}
             </p>
           </ModalHeader>
           <ModalBody>
             <div className="flex items-start gap-2 rounded-md bg-warning-50 border border-warning-200 p-3 text-warning-700">
               <Info className="mt-0.5 shrink-0" size={16} />
               <div className="flex-1 text-xs space-y-1">
-                <p className="font-semibold">Belum punya template?</p>
+                <p className="font-semibold">
+                  {t("inventory.stock.upload_no_template")}
+                </p>
                 <p>
-                  Download template Excel terlebih dahulu. Format kolom:{" "}
+                  {t("common.download")}. {t("inventory.stock.upload_column_format")}.{" "}
+                  {t("inventory.stock.upload_sheet_name")}{" "}
                   <span className="font-medium">
-                    KODE, NAMA, GROUP, SUB GROUP, SATUAN, HARGA JUAL, RAK, STOK,
-                    MIN STOK
+                    {t("inventory.stock.upload_sheet_value")}
                   </span>
-                  . Sheet harus bernama{" "}
-                  <span className="font-medium">Laporan</span>.
+                  .
                 </p>
                 <Button
                   className="mt-2"
@@ -92,7 +95,7 @@ export default function UploadExcel() {
                   variant="flat"
                   onPress={onDownloadTemplate}
                 >
-                  Download Template
+                  {t("common.download")} Template
                 </Button>
               </div>
             </div>
@@ -114,7 +117,7 @@ export default function UploadExcel() {
               variant="light"
               onPress={() => setOpen(false)}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -122,7 +125,7 @@ export default function UploadExcel() {
               isLoading={isLoading}
               onPress={onSubmit}
             >
-              Kirim Produk
+              {t("inventory.stock.send_product")}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -133,7 +136,7 @@ export default function UploadExcel() {
         startContent={<UploadCloud className="size-4" />}
         onPress={() => setOpen(true)}
       >
-        Upload Excel
+        {t("common.upload_excel")}
       </Button>
     </>
   );

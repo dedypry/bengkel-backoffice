@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 
 import { formatIDR } from "@/utils/helpers/format";
 
@@ -17,6 +18,8 @@ type RevenueChartProps = {
 };
 
 export default function RevenueChart({ data }: RevenueChartProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="h-56 w-full rounded-2xl border border-primary-100 bg-gradient-to-br from-white to-primary-50/40 p-4 shadow-sm">
       <ResponsiveContainer height="100%" width="100%">
@@ -36,7 +39,10 @@ export default function RevenueChart({ data }: RevenueChartProps) {
               border: "1px solid #dbeafe",
               boxShadow: "0 10px 25px -12px rgb(0 111 238 / 0.35)",
             }}
-            formatter={(value) => [formatIDR(Number(value ?? 0)), "Pendapatan"]}
+            formatter={(value) => [
+              formatIDR(Number(value ?? 0)),
+              t("reports.revenue.chart_series"),
+            ]}
           />
           <CartesianGrid
             stroke="#e2e8f0"
@@ -56,8 +62,8 @@ export default function RevenueChart({ data }: RevenueChartProps) {
             tick={{ fill: "#64748b", fontSize: 11 }}
             tickFormatter={(value) =>
               value >= 1_000_000
-                ? `${Math.round(value / 1_000_000)}jt`
-                : `${Math.round(value / 1000)}rb`
+                ? `${Math.round(value / 1_000_000)}${t("reports.revenue.chart_suffix_jt")}`
+                : `${Math.round(value / 1000)}${t("reports.revenue.chart_suffix_rb")}`
             }
             tickLine={false}
           />

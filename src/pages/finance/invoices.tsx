@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   Info,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const invoiceData = {
   invoiceNumber: "INV-2025-1225",
@@ -49,6 +50,7 @@ const invoiceData = {
 };
 
 export default function InvoicePage() {
+  const { t } = useTranslation();
   const subtotal = (invoiceData.items || []).reduce(
     (acc, item) => acc + item.price * item.qty,
     0,
@@ -69,20 +71,20 @@ export default function InvoicePage() {
       {/* Tombol Aksi - Tidak ikut terprint */}
       <div className="flex justify-between items-center mb-8 no-print">
         <Button className="text-slate-500 font-bold gap-2" variant="ghost">
-          <ChevronLeft size={18} /> Kembali
+          <ChevronLeft size={18} /> {t("finance.invoice_print.back")}
         </Button>
         <div className="flex gap-3">
           <Button
             className="rounded-xl font-bold gap-2 border-slate-200"
             variant="bordered"
           >
-            <Download size={18} /> Simpan PDF
+            <Download size={18} /> {t("finance.invoice_print.save_pdf")}
           </Button>
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold gap-2 shadow-lg shadow-blue-200"
             onClick={() => window.print()}
           >
-            <Printer size={18} /> Cetak Invoice
+            <Printer size={18} /> {t("finance.invoice_print.print")}
           </Button>
         </div>
       </div>
@@ -124,7 +126,7 @@ export default function InvoicePage() {
               <div className="flex items-center gap-2 text-blue-600 mb-2">
                 <User size={18} strokeWidth={3} />
                 <span className="text-xs font-black uppercase tracking-widest">
-                  Tagihan Untuk:
+                  {t("finance.invoice_print.bill_to")}
                 </span>
               </div>
               <div>
@@ -144,13 +146,13 @@ export default function InvoicePage() {
               <div className="flex items-center gap-2 text-blue-600 mb-4">
                 <Car size={18} strokeWidth={3} />
                 <span className="text-xs font-black uppercase tracking-widest">
-                  Detail Kendaraan:
+                  {t("finance.invoice_print.vehicle_detail")}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase">
-                    Unit
+                    {t("finance.invoice_print.unit")}
                   </p>
                   <p className="text-sm font-bold text-slate-800">
                     {invoiceData.vehicle.model}
@@ -158,7 +160,7 @@ export default function InvoicePage() {
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase">
-                    Plat Nomor
+                    {t("finance.invoice_print.plate")}
                   </p>
                   <p className="text-sm font-bold text-slate-800">
                     {invoiceData.vehicle.plate}
@@ -166,7 +168,7 @@ export default function InvoicePage() {
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase">
-                    Kilometer
+                    {t("finance.invoice_print.odometer")}
                   </p>
                   <p className="text-sm font-bold text-slate-800">
                     {invoiceData.vehicle.km}
@@ -174,7 +176,7 @@ export default function InvoicePage() {
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase">
-                    Mekanik
+                    {t("finance.invoice_print.mechanic")}
                   </p>
                   <p className="text-sm font-bold text-slate-800">
                     {invoiceData.vehicle.mechanic}
@@ -190,16 +192,16 @@ export default function InvoicePage() {
               <thead>
                 <tr className="border-b-2 border-slate-100">
                   <th className="py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
-                    Deskripsi Layanan / Part
+                    {t("finance.invoice_print.col_desc")}
                   </th>
                   <th className="py-4 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
-                    Qty
+                    {t("finance.invoice_print.col_qty")}
                   </th>
                   <th className="py-4 text-xs font-black text-slate-400 uppercase tracking-widest text-right">
-                    Harga
+                    {t("finance.invoice_print.col_price")}
                   </th>
                   <th className="py-4 text-xs font-black text-slate-400 uppercase tracking-widest text-right">
-                    Total
+                    {t("finance.invoice_print.col_total")}
                   </th>
                 </tr>
               </thead>
@@ -235,31 +237,33 @@ export default function InvoicePage() {
             <div className="max-w-xs space-y-4">
               <div className="flex gap-3 bg-blue-50 p-4 rounded-2xl border border-blue-100">
                 <Info className="text-blue-500 shrink-0" size={20} />
-                <p className="text-xs text-blue-700 font-medium">
-                  Pembayaran dapat dilakukan melalui transfer Bank BCA{" "}
-                  <strong>123-456-789</strong> a/n Gemini Auto.
-                </p>
+                <p
+                  className="text-xs text-blue-700 font-medium"
+                  dangerouslySetInnerHTML={{
+                    __html: t("finance.invoice_print.payment_info"),
+                  }}
+                />
               </div>
               <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 w-fit">
                 <ShieldCheck size={16} />
                 <span className="text-[10px] font-black uppercase">
-                  Garansi Servis 7 Hari
+                  {t("finance.invoice_print.warranty")}
                 </span>
               </div>
             </div>
 
             <div className="w-full md:w-80 space-y-3">
               <div className="flex justify-between text-slate-500 font-bold">
-                <span>Subtotal</span>
+                <span>{t("finance.detail.subtotal")}</span>
                 <span>{formatIDR(subtotal)}</span>
               </div>
               <div className="flex justify-between text-slate-500 font-bold">
-                <span>PPN (11%)</span>
+                <span>{t("finance.invoice_print.ppn")}</span>
                 <span>{formatIDR(tax)}</span>
               </div>
               <div className="flex justify-between items-center pt-4 border-t border-slate-200">
                 <span className="text-xl font-black text-slate-800 uppercase">
-                  Total Akhir
+                  {t("finance.invoice_print.final_total")}
                 </span>
                 <span className="text-3xl font-black text-blue-600 tracking-tighter">
                   {formatIDR(total)}
@@ -272,7 +276,7 @@ export default function InvoicePage() {
           <div className="mt-20 flex justify-between items-end">
             <div className="text-center">
               <p className="text-xs font-black text-slate-400 uppercase mb-16 italic">
-                Hormat Kami,
+                {t("finance.invoice_print.regards")}
               </p>
               <div className="w-40 border-b-2 border-slate-200" />
               <p className="text-xs font-bold text-slate-800 mt-2">
@@ -281,7 +285,7 @@ export default function InvoicePage() {
             </div>
             <div className="text-center">
               <p className="text-xs font-black text-slate-400 uppercase mb-16 italic">
-                Pelanggan,
+                {t("finance.invoice_print.customer_sign")}
               </p>
               <div className="w-40 border-b-2 border-slate-200" />
               <p className="text-xs font-bold text-slate-800 mt-2">

@@ -34,6 +34,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useState, type Key } from "react";
+import { useTranslation } from "react-i18next";
 
 import StatusQueue from "./status-queue";
 import ButtonStatus from "./button-status";
@@ -65,6 +66,8 @@ interface Props {
 }
 
 function MechanicCell({ item }: { item: IWorkOrder }) {
+  const { t } = useTranslation();
+
   if (item.mechanics && item.mechanics.length > 0) {
     return (
       <div className="flex flex-wrap gap-2">
@@ -95,12 +98,13 @@ function MechanicCell({ item }: { item: IWorkOrder }) {
       color="danger"
       variant="dot"
     >
-      Belum ada mekanik
+      {t("service.queue.no_mechanic")}
     </Chip>
   );
 }
 
 export default function ListTable({ setOpenModal, setWoId }: Props) {
+  const { t } = useTranslation();
   const { orders, woQuery } = useAppSelector((state) => state.wo);
   const { collapsed } = useSidebar();
   const [openCancel, setOpenCancel] = useState(false);
@@ -136,21 +140,36 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
 
   const columns = mergePriorityMechanic
     ? [
-        { key: "estimasi", label: "ESTIMASI/ANTREAN" },
-        { key: "pelanggan", label: "PELANGGAN & UNIT" },
-        { key: "priority_mech", label: "PRIORITAS & MEKANIK" },
-        { key: "tanggal", label: "TANGGAL MASUK" },
-        { key: "status", label: "STATUS" },
-        { key: "aksi", label: "AKSI" },
+        {
+          key: "estimasi",
+          label: t("service.queue.columns.estimation_queue"),
+        },
+        {
+          key: "pelanggan",
+          label: t("service.queue.columns.customer_unit"),
+        },
+        {
+          key: "priority_mech",
+          label: t("service.queue.columns.priority_mechanic"),
+        },
+        { key: "tanggal", label: t("service.queue.columns.date_in") },
+        { key: "status", label: t("service.queue.columns.status") },
+        { key: "aksi", label: t("service.queue.columns.action") },
       ]
     : [
-        { key: "estimasi", label: "ESTIMASI/ANTREAN" },
-        { key: "pelanggan", label: "PELANGGAN & UNIT" },
-        { key: "priority", label: "PRIORITAS" },
-        { key: "tanggal", label: "TANGGAL MASUK" },
-        { key: "mechanic", label: "DIKERJAKAN OLEH" },
-        { key: "status", label: "STATUS" },
-        { key: "aksi", label: "AKSI" },
+        {
+          key: "estimasi",
+          label: t("service.queue.columns.estimation_queue"),
+        },
+        {
+          key: "pelanggan",
+          label: t("service.queue.columns.customer_unit"),
+        },
+        { key: "priority", label: t("service.queue.columns.priority") },
+        { key: "tanggal", label: t("service.queue.columns.date_in") },
+        { key: "mechanic", label: t("service.queue.columns.worked_by") },
+        { key: "status", label: t("service.queue.columns.status") },
+        { key: "aksi", label: t("service.queue.columns.action") },
       ];
 
   const renderCell = (item: IWorkOrder, columnKey: Key) => {
@@ -212,7 +231,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
         return (
           <div className="flex items-center gap-2 justify-end">
             {resUpdate && item.progress === "ready" && (
-              <Tooltip content="Panggil kasir untuk pembayaran">
+              <Tooltip content={t("service.queue.call_cashier_tooltip")}>
                 <Button
                   isIconOnly
                   color="warning"
@@ -247,13 +266,13 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                   <MoreVertical size={20} />
                 </Button>
               </DropdownTrigger>
-              <DropdownMenu aria-label="Aksi Antrean">
+              <DropdownMenu aria-label={t("service.queue.dropdown_aria")}>
                 <DropdownItem
                   key="detail"
                   startContent={<EyeIcon size={18} />}
                   onPress={() => navigate(`/service/queue/${item.id}`)}
                 >
-                  Detail Order
+                  {t("service.queue.detail_order")}
                 </DropdownItem>
 
                 {resUpdate ? (
@@ -266,7 +285,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                       setWoId(item.id);
                     }}
                   >
-                    Pilih Mekanik
+                    {t("service.queue.select_mechanic")}
                   </DropdownItem>
                 ) : (
                   <DropdownItem key="spacer" className="hidden" />
@@ -281,7 +300,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                       setOpenManual(true);
                     }}
                   >
-                    Ubah Status Manual
+                    {t("service.manual_status.title")}
                   </DropdownItem>
                 ) : (
                   <DropdownItem
@@ -296,7 +315,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                     startContent={<BellRing size={18} />}
                     onPress={() => handleCallCashier(item)}
                   >
-                    Panggil Kasir
+                    {t("service.queue.call_cashier")}
                   </DropdownItem>
                 ) : (
                   <DropdownItem key="call-cashier-spacer" className="hidden" />
@@ -315,7 +334,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                       setOpenCancel(true);
                     }}
                   >
-                    Batalkan Service
+                    {t("service.queue.cancel_service")}
                   </DropdownItem>
                 ) : (
                   <DropdownItem key="spacer-2" className="hidden" />
@@ -347,7 +366,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
       )}
 
       <Tabs
-        aria-label="Filter antrean"
+        aria-label={t("service.queue.filter_aria")}
         classNames={{
           cursor: "bg-primary",
           tabContent:
@@ -360,15 +379,15 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
           dispatch(setWoQuery({ status: String(key), page: 1 }))
         }
       >
-        <Tab key="active" title="On Progress" />
-        <Tab key="finish" title="Finish" />
-        <Tab key="cancel" title="Batal" />
+        <Tab key="active" title={t("service.queue.tabs.active")} />
+        <Tab key="finish" title={t("service.queue.tabs.finish")} />
+        <Tab key="cancel" title={t("service.queue.tabs.cancel")} />
       </Tabs>
 
       <Card>
         <CardHeader className="flex justify-between gap-2">
           <PageSize
-            label="Page Size"
+            label={t("service.queue.page_size")}
             selectedKeys={[woQuery.pageSize.toString()]}
             onSelectionChange={(key) => {
               const val = Array.from(key)[0];
@@ -380,15 +399,15 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
             <Input
               isClearable
               className="w-[400px]"
-              label="Search"
-              placeholder="Cari No. Polisi atau Nama..."
+              label={t("common.search")}
+              placeholder={t("service.queue.search_placeholder")}
               startContent={<Search size={18} />}
               onChange={(e) => debounceSearch(e.target.value)}
               onClear={() => dispatch(setWoQuery({ q: "", page: 1 }))}
             />
             <CustomDateRangePicker
               className="w-[300px]"
-              label="Tanggal"
+              label={t("common.date")}
               value={
                 {
                   start: woQuery.date_from,
@@ -412,7 +431,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
           <Table
             key={mergePriorityMechanic ? "merged" : "split"}
             removeWrapper
-            aria-label="Tabel Antrean Bengkel"
+            aria-label={t("service.queue.table_aria")}
           >
             <TableHeader columns={columns}>
               {(column) => (
@@ -432,7 +451,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
               )}
             </TableHeader>
             <TableBody
-              emptyContent="Tidak ada antrean saat ini"
+              emptyContent={t("service.queue.empty")}
               items={orders?.data || []}
             >
               {(item) => (

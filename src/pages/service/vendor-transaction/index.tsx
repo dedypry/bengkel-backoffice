@@ -1,6 +1,7 @@
 import { Handshake, Plus } from "lucide-react";
 import { Button, Tab, Tabs } from "@heroui/react";
 import { Key, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import TabPayment from "./tab-payment";
 import TabList from "./tab-list";
@@ -15,6 +16,7 @@ import { notifyError } from "@/utils/helpers/notify";
 import { setTrxDetail } from "@/stores/features/vendor/vendor-slice";
 
 export default function VendorTrxPage() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [openDetail, setOpenDetail] = useState(false);
   const [tab, setTab] = useState<Key>("list");
@@ -65,13 +67,13 @@ export default function VendorTrxPage() {
               startContent={<Plus size={18} />}
               onPress={handleInvNo}
             >
-              Input Manual
+              {t("service.vendor.manual_input")}
             </Button>
           </div>
         }
         leadIcon={Handshake}
-        subtitle="Layanan Pihak Ketiga"
-        title="Daftar jasa yang dikelola oleh vendor."
+        subtitle={t("service.vendor.subtitle")}
+        title={t("service.vendor.title")}
       />
       <Tabs
         fullWidth
@@ -88,10 +90,10 @@ export default function VendorTrxPage() {
         variant="underlined"
         onSelectionChange={setTab}
       >
-        <Tab key="list" title="List Yang belum di bayar">
+        <Tab key="list" title={t("service.vendor.tab_unpaid")}>
           <TabList />
         </Tab>
-        <Tab key="payment" title="List Yang Sudah di bayar">
+        <Tab key="payment" title={t("service.vendor.tab_paid")}>
           <TabPayment />
         </Tab>
       </Tabs>

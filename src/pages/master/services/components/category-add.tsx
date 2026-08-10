@@ -2,6 +2,7 @@ import type { IServiceCategory } from "@/utils/interfaces/IService";
 
 import { PlusIcon, Tag, AlignLeft, Save, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export default function CategoryAdd({ onFinish }: Props) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -67,7 +69,7 @@ export default function CategoryAdd({ onFinish }: Props) {
 
   return (
     <>
-      <Tooltip content="Tambah Kategori Baru" placement="top">
+      <Tooltip content={t("master.services.category_modal.tooltip")} placement="top">
         <Button
           isIconOnly
           color="primary"
@@ -87,9 +89,11 @@ export default function CategoryAdd({ onFinish }: Props) {
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            <h3 className="text-lg font-black uppercase">Tambah Kategori</h3>
+            <h3 className="text-lg font-black uppercase">
+              {t("master.services.category_modal.title")}
+            </h3>
             <p className="text-tiny font-medium text-gray-400">
-              Buat grup baru untuk layanan servis Anda.
+              {t("master.services.category_modal.subtitle")}
             </p>
           </ModalHeader>
 
@@ -104,7 +108,7 @@ export default function CategoryAdd({ onFinish }: Props) {
                 name="name"
                 render={({ field, fieldState }) => (
                   <Input
-                    label="Nama Kategori"
+                    label={t("master.services.category_modal.name")}
                     placeholder="Contoh: Mesin, Kelistrikan..."
                     startContent={<Tag className="text-gray-400" size={16} />}
                     {...field}
@@ -121,7 +125,7 @@ export default function CategoryAdd({ onFinish }: Props) {
                     classNames={{
                       input: "min-h-[100px]",
                     }}
-                    label="Deskripsi"
+                    label={t("master.services.category_modal.description")}
                     placeholder="Penjelasan singkat mengenai kategori ini..."
                     startContent={
                       <AlignLeft className="text-gray-400 mt-1" size={16} />
@@ -142,7 +146,7 @@ export default function CategoryAdd({ onFinish }: Props) {
               variant="flat"
               onPress={handleClose}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -150,7 +154,7 @@ export default function CategoryAdd({ onFinish }: Props) {
               startContent={!isLoading && <Save size={16} />}
               onPress={() => handleSubmit(onSubmit)()}
             >
-              Simpan
+              {t("common.save")}
             </Button>
           </ModalFooter>
         </ModalContent>

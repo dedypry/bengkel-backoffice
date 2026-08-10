@@ -24,6 +24,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import ItemModal from "./components/item-modal";
 
@@ -35,6 +36,7 @@ import { dateFormat } from "@/utils/helpers/formater";
 import { formatIDR } from "@/utils/helpers/format";
 
 export default function PayrollDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -84,7 +86,7 @@ export default function PayrollDetailPage() {
           variant="light"
           onPress={() => navigate("/hr/payroll")}
         >
-          Kembali
+          {t("hr.payroll.detail_back")}
         </Button>
         {!isPaid && (
           <Button
@@ -92,14 +94,14 @@ export default function PayrollDetailPage() {
             startContent={<BadgeCheck size={18} />}
             onPress={() =>
               confirmSweat(handlePay, {
-                title: "Tandai sudah dibayar?",
-                text: "Setelah dibayar, penggajian tidak dapat diubah lagi.",
-                confirmButtonText: "Ya, bayar",
+                title: t("hr.payroll.confirm_paid_title"),
+                text: t("hr.payroll.confirm_paid_text"),
+                confirmButtonText: t("hr.payroll.confirm_paid_yes"),
                 icon: "question",
               })
             }
           >
-            Tandai Sudah Dibayar
+            {t("hr.payroll.mark_paid")}
           </Button>
         )}
       </div>
@@ -122,7 +124,7 @@ export default function PayrollDetailPage() {
                     size="sm"
                     variant="dot"
                   >
-                    {isPaid ? "Dibayar" : "Draft"}
+                    {isPaid ? t("hr.common.paid") : t("hr.common.draft")}
                   </Chip>
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-xs mt-1">
@@ -133,7 +135,9 @@ export default function PayrollDetailPage() {
                   </span>
                   <span>·</span>
                   <span className="capitalize">
-                    {detail?.period_type === "monthly" ? "Bulanan" : "Mingguan"}
+                    {detail?.period_type === "monthly"
+                      ? t("hr.common.monthly")
+                      : t("hr.common.weekly")}
                   </span>
                 </div>
               </div>
@@ -143,7 +147,9 @@ export default function PayrollDetailPage() {
               <div className="text-right">
                 <div className="flex items-center gap-1 justify-end text-gray-400">
                   <Users size={14} />
-                  <span className="text-xs font-bold uppercase">Karyawan</span>
+                  <span className="text-xs font-bold uppercase">
+                    {t("hr.payroll.stat_employees")}
+                  </span>
                 </div>
                 <p className="text-lg font-black text-gray-700">
                   {detail?.items?.length || 0}
@@ -151,7 +157,7 @@ export default function PayrollDetailPage() {
               </div>
               <div className="text-right">
                 <span className="text-xs font-bold uppercase text-gray-400">
-                  Total Gaji
+                  {t("hr.payroll.stat_total_salary")}
                 </span>
                 <p className="text-2xl font-black text-primary">
                   {formatIDR(detail?.total_amount)}
@@ -170,22 +176,22 @@ export default function PayrollDetailPage() {
       {/* Items */}
       <Table
         isStriped
-        aria-label="Detail Gaji Karyawan"
+        aria-label={t("hr.payroll.items_table_aria")}
         classNames={{ td: "py-4 px-6 border-b border-gray-200" }}
       >
         <TableHeader>
-          <TableColumn>KARYAWAN</TableColumn>
-          <TableColumn>KEHADIRAN</TableColumn>
-          <TableColumn>GAJI POKOK</TableColumn>
-          <TableColumn>TUNJANGAN</TableColumn>
-          <TableColumn>LEMBUR/BONUS</TableColumn>
-          <TableColumn>POTONGAN</TableColumn>
-          <TableColumn>GAJI BERSIH</TableColumn>
+          <TableColumn>{t("hr.payroll.col_employee")}</TableColumn>
+          <TableColumn>{t("hr.payroll.col_attendance")}</TableColumn>
+          <TableColumn>{t("hr.payroll.col_base_salary")}</TableColumn>
+          <TableColumn>{t("hr.payroll.col_allowance")}</TableColumn>
+          <TableColumn>{t("hr.payroll.col_overtime_bonus")}</TableColumn>
+          <TableColumn>{t("hr.payroll.col_deduction")}</TableColumn>
+          <TableColumn>{t("hr.payroll.col_net_salary")}</TableColumn>
           <TableColumn align="center" width={70}>
-            AKSI
+            {t("common.actions")}
           </TableColumn>
         </TableHeader>
-        <TableBody emptyContent="Tidak ada data karyawan">
+        <TableBody emptyContent={t("hr.payroll.empty_items")}>
           {(detail?.items || []).map((item) => (
             <TableRow key={item.id} className="hover:bg-gray-50/50">
               <TableCell>
@@ -208,13 +214,16 @@ export default function PayrollDetailPage() {
               <TableCell>
                 <div className="flex flex-col gap-1 text-[10px] font-bold">
                   <span className="text-emerald-600">
-                    Hadir: {item.present_days}
+                    {t("hr.common.attendance_present")}
+                    {item.present_days}
                   </span>
                   <span className="text-amber-600">
-                    Telat: {item.late_count}
+                    {t("hr.common.attendance_late")}
+                    {item.late_count}
                   </span>
                   <span className="text-rose-600">
-                    Alfa: {item.absent_days}
+                    {t("hr.common.attendance_absent")}
+                    {item.absent_days}
                   </span>
                 </div>
               </TableCell>

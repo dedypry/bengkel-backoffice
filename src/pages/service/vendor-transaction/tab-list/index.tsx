@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { EyeIcon, Search } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import DetailTrx from "../detail";
 
@@ -29,6 +30,7 @@ import debounce from "@/utils/helpers/debounce";
 import { formatNumber } from "@/utils/helpers/format";
 
 export default function TabList() {
+  const { t } = useTranslation();
   const { transactions, vendorQuery } = useAppSelector((state) => state.vendor);
   const [search, setSearch] = useState("");
   const [openDetail, setOpenDetail] = useState(false);
@@ -68,7 +70,7 @@ export default function TabList() {
             <div className="flex gap-2 w-sm">
               <Input
                 endContent={<Search className="text-gray-500" />}
-                placeholder="Cari Supplier..."
+                placeholder={t("service.vendor.search_supplier")}
                 value={search}
                 onValueChange={(val) => {
                   setSearch(val);
@@ -82,13 +84,13 @@ export default function TabList() {
         <CardBody>
           <Table removeWrapper>
             <TableHeader>
-              <TableColumn>No</TableColumn>
-              <TableColumn>Supplier</TableColumn>
-              <TableColumn>Kode</TableColumn>
-              <TableColumn>Total Items</TableColumn>
+              <TableColumn>{t("service.vendor.columns.no")}</TableColumn>
+              <TableColumn>{t("service.vendor.columns.supplier")}</TableColumn>
+              <TableColumn>{t("service.vendor.columns.code")}</TableColumn>
+              <TableColumn>{t("service.vendor.columns.total_items")}</TableColumn>
               <TableColumn> </TableColumn>
             </TableHeader>
-            <TableBody emptyContent={<p>Belum ada data</p>}>
+            <TableBody emptyContent={<p>{t("service.vendor.no_data")}</p>}>
               {(transactions?.data || []).map((item, index) => (
                 <TableRow key={item.id}>
                   <TableCell>{index + 1}</TableCell>

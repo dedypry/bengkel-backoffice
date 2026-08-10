@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Edit, Search, Trash2, Download } from "lucide-react";
 
 import ModalAdd from "./components/add-modal";
@@ -31,6 +32,7 @@ import debounce from "@/utils/helpers/debounce";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function VehiclePage() {
+  const { t } = useTranslation();
   const { vehicleMaster, master, isLoadingMaster } = useAppSelector(
     (state) => state.vehicle,
   );
@@ -115,7 +117,7 @@ export default function VehiclePage() {
                 )
               }
             >
-              Export Excel
+              {t("master.vehicles.export")}
             </Button>
             <Button
               color="primary"
@@ -124,12 +126,12 @@ export default function VehiclePage() {
                 setData(undefined);
               }}
             >
-              Tambah Merk dan Type
+              {t("master.vehicles.add")}
             </Button>
           </div>
         }
-        subtitle="Daftar Merk dan Type Kendaraan"
-        title="Daftar Kendaraan"
+        subtitle={t("master.vehicles.subtitle")}
+        title={t("master.vehicles.title")}
       />
 
       <Table
@@ -154,7 +156,7 @@ export default function VehiclePage() {
             <Autocomplete
               className="w-56"
               defaultItems={Array.isArray(master) ? master : []}
-              label="Merk"
+              label={t("master.vehicles.table.brand")}
               onSelectionChange={(val) => {
                 handleSearch("merk", val ? String(val) : "");
               }}
@@ -164,8 +166,8 @@ export default function VehiclePage() {
               )}
             </Autocomplete>
             <Input
-              label="Search"
-              placeholder="Cari Merk/Type"
+              label={t("common.search")}
+              placeholder={t("master.vehicles.search_placeholder")}
               startContent={<Search className="text-gray-500" />}
               value={query.q}
               onValueChange={(val) => {
@@ -180,21 +182,23 @@ export default function VehiclePage() {
         }
       >
         <TableHeader>
-          <TableColumn>No</TableColumn>
-          <TableColumn>Merk</TableColumn>
-          <TableColumn>Type</TableColumn>
-          <TableColumn>CC</TableColumn>
+          <TableColumn>{t("master.vehicles.table.no")}</TableColumn>
+          <TableColumn>{t("master.vehicles.table.brand")}</TableColumn>
+          <TableColumn>{t("master.vehicles.table.type")}</TableColumn>
+          <TableColumn>{t("master.vehicles.table.cc")}</TableColumn>
           <TableColumn className="w-32"> </TableColumn>
         </TableHeader>
         <TableBody
-          emptyContent="Data kendaraan tidak ditemukan"
+          emptyContent={t("master.vehicles.table.empty")}
           isLoading={isLoadingMaster}
-          loadingContent={<Spinner color="primary" label="Memuat data..." />}
+          loadingContent={
+            <Spinner color="primary" label={t("master.vehicles.loading")} />
+          }
         >
           {(vehicleMaster?.data || []).map((row, index) => (
             <TableRow key={row.id || index}>
               <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
-              <TableCell>{row.type || "Tidak Ada Nama"}</TableCell>
+              <TableCell>{row.type || t("master.vehicles.no_name")}</TableCell>
               <TableCell>{row.merk}</TableCell>
               <TableCell>{row.cc}</TableCell>
               <TableCell>

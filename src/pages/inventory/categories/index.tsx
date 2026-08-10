@@ -27,6 +27,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 import ModalAddCategory from "./components/add-category";
 
@@ -54,6 +55,7 @@ function getProductCount(cat: IProductCategory) {
 }
 
 export default function InventoryCategoryPage() {
+  const { t } = useTranslation();
   const { categories, categoryQuery } = useAppSelector(
     (state) => state.product,
   );
@@ -142,10 +144,10 @@ export default function InventoryCategoryPage() {
 
       <HeaderAction
         actionIcon={Plus}
-        actionTitle="Tambah Kategori"
+        actionTitle={t("inventory.categories.add")}
         leadIcon={Tags}
-        subtitle="Kelola pengelompokan produk bengkel Anda."
-        title="Kategori Produk"
+        subtitle={t("inventory.categories.subtitle")}
+        title={t("inventory.categories.title")}
         onAction={() => {
           setDetail(undefined);
           setModalOpen(true);
@@ -155,28 +157,28 @@ export default function InventoryCategoryPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {[
           {
-            label: "Total Kategori",
+            label: t("inventory.categories.stats.total"),
             value: formatNumber(stats.total),
             icon: Layers,
             card: "border-violet-200 bg-violet-50/40",
             iconWrap: "bg-violet-100 text-violet-600",
           },
           {
-            label: "Kategori Aktif",
+            label: t("inventory.categories.stats.active"),
             value: formatNumber(stats.activeCount),
             icon: Tags,
             card: "border-emerald-200 bg-emerald-50/40",
             iconWrap: "bg-emerald-100 text-emerald-600",
           },
           {
-            label: "Sub Kategori",
+            label: t("inventory.categories.stats.sub"),
             value: formatNumber(stats.subCategoryTotal),
             icon: Package,
             card: "border-sky-200 bg-sky-50/40",
             iconWrap: "bg-sky-100 text-sky-600",
           },
           {
-            label: "Memiliki Produk",
+            label: t("inventory.categories.stats.with_products"),
             value: formatNumber(stats.withProducts),
             icon: Package,
             card: "border-amber-200 bg-amber-50/40",
@@ -209,8 +211,8 @@ export default function InventoryCategoryPage() {
             <Input
               isClearable
               defaultValue={query.q}
-              label="Cari Kategori"
-              placeholder="Nama kategori, deskripsi, atau sub kategori..."
+              label={t("inventory.categories.search_label")}
+              placeholder={t("inventory.categories.search_placeholder")}
               startContent={<Search className="size-4 text-gray-400" />}
               variant="bordered"
               onClear={() => updateQuery({ q: "" })}
@@ -218,7 +220,7 @@ export default function InventoryCategoryPage() {
             />
 
             <Select
-              label="Status"
+              label={t("common.status")}
               selectedKeys={[query.is_active || "all"]}
               variant="bordered"
               onSelectionChange={(keys) => {
@@ -227,13 +229,13 @@ export default function InventoryCategoryPage() {
                 updateQuery({ is_active: value || "all" });
               }}
             >
-              <SelectItem key="all">Semua Status</SelectItem>
-              <SelectItem key="true">Aktif</SelectItem>
-              <SelectItem key="false">Nonaktif</SelectItem>
+              <SelectItem key="all">{t("inventory.categories.filter.all_status")}</SelectItem>
+              <SelectItem key="true">{t("inventory.categories.filter.active")}</SelectItem>
+              <SelectItem key="false">{t("inventory.categories.filter.inactive")}</SelectItem>
             </Select>
 
             <Select
-              label="Produk"
+              label={t("inventory.categories.table.products")}
               selectedKeys={[query.productFilter || "all"]}
               variant="bordered"
               onSelectionChange={(keys) => {
@@ -242,13 +244,13 @@ export default function InventoryCategoryPage() {
                 updateQuery({ productFilter: value || "all" });
               }}
             >
-              <SelectItem key="all">Semua Produk</SelectItem>
-              <SelectItem key="has">Ada Produk</SelectItem>
-              <SelectItem key="empty">Tanpa Produk</SelectItem>
+              <SelectItem key="all">{t("inventory.categories.filter.all_products")}</SelectItem>
+              <SelectItem key="has">{t("inventory.categories.filter.has_products")}</SelectItem>
+              <SelectItem key="empty">{t("inventory.categories.filter.no_products")}</SelectItem>
             </Select>
 
             <Select
-              label="Sub Kategori"
+              label={t("inventory.categories.table.sub_category")}
               selectedKeys={[query.subCategoryFilter || "all"]}
               variant="bordered"
               onSelectionChange={(keys) => {
@@ -257,13 +259,13 @@ export default function InventoryCategoryPage() {
                 updateQuery({ subCategoryFilter: value || "all" });
               }}
             >
-              <SelectItem key="all">Semua</SelectItem>
-              <SelectItem key="has">Ada Sub Kategori</SelectItem>
-              <SelectItem key="empty">Tanpa Sub Kategori</SelectItem>
+              <SelectItem key="all">{t("inventory.categories.filter.all")}</SelectItem>
+              <SelectItem key="has">{t("inventory.categories.filter.has_sub")}</SelectItem>
+              <SelectItem key="empty">{t("inventory.categories.filter.no_sub")}</SelectItem>
             </Select>
 
             <Select
-              label="Urutkan"
+              label={t("inventory.categories.filter.sort")}
               selectedKeys={[
                 `${query.sortBy || "created_at"}:${query.sortOrder || "desc"}`,
               ]}
@@ -275,22 +277,18 @@ export default function InventoryCategoryPage() {
                 updateQuery({ sortBy, sortOrder });
               }}
             >
-              <SelectItem key="created_at:desc">Terbaru</SelectItem>
-              <SelectItem key="created_at:asc">Terlama</SelectItem>
-              <SelectItem key="name:asc">Nama A-Z</SelectItem>
-              <SelectItem key="name:desc">Nama Z-A</SelectItem>
-              <SelectItem key="total_product:desc">Produk Terbanyak</SelectItem>
-              <SelectItem key="total_product:asc">Produk Tersedikit</SelectItem>
+              <SelectItem key="created_at:desc">{t("inventory.categories.filter.newest")}</SelectItem>
+              <SelectItem key="created_at:asc">{t("inventory.categories.filter.oldest")}</SelectItem>
+              <SelectItem key="name:asc">{t("inventory.categories.filter.name_az")}</SelectItem>
+              <SelectItem key="name:desc">{t("inventory.categories.filter.name_za")}</SelectItem>
+              <SelectItem key="total_product:desc">{t("inventory.categories.filter.most_products")}</SelectItem>
+              <SelectItem key="total_product:asc">{t("inventory.categories.filter.least_products")}</SelectItem>
             </Select>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-gray-500">
-              Menampilkan{" "}
-              <span className="font-bold text-gray-700">
-                {categories.length}
-              </span>{" "}
-              kategori
+              {t("inventory.categories.filter.showing", { count: categories.length })}
             </p>
             <Button
               size="sm"
@@ -298,7 +296,7 @@ export default function InventoryCategoryPage() {
               variant="flat"
               onPress={handleResetFilters}
             >
-              Reset Filter
+              {t("inventory.categories.filter.reset")}
             </Button>
           </div>
         </CardBody>
@@ -321,17 +319,17 @@ export default function InventoryCategoryPage() {
               }}
             >
               <TableHeader>
-                <TableColumn width={280}>KATEGORI</TableColumn>
-                <TableColumn>SUB KATEGORI</TableColumn>
-                <TableColumn>DESKRIPSI</TableColumn>
-                <TableColumn align="center">PRODUK</TableColumn>
-                <TableColumn align="center">STATUS</TableColumn>
-                <TableColumn align="end">DIBUAT</TableColumn>
+                <TableColumn width={280}>{t("inventory.categories.table.category")}</TableColumn>
+                <TableColumn>{t("inventory.categories.table.sub_category")}</TableColumn>
+                <TableColumn>{t("inventory.categories.table.description")}</TableColumn>
+                <TableColumn align="center">{t("inventory.categories.table.products")}</TableColumn>
+                <TableColumn align="center">{t("inventory.categories.table.status")}</TableColumn>
+                <TableColumn align="end">{t("inventory.categories.table.created")}</TableColumn>
                 <TableColumn align="center" width={80}>
-                  AKSI
+                  {t("inventory.categories.table.actions")}
                 </TableColumn>
               </TableHeader>
-              <TableBody emptyContent="Kategori tidak ditemukan">
+              <TableBody emptyContent={t("inventory.categories.table.empty")}>
                 {categories.map((cat) => (
                   <TableRow key={cat.id}>
                     <TableCell>
@@ -360,13 +358,13 @@ export default function InventoryCategoryPage() {
                         </div>
                       ) : (
                         <span className="text-xs text-gray-400 italic">
-                          Tidak ada
+                          {t("inventory.categories.table.no_sub")}
                         </span>
                       )}
                     </TableCell>
                     <TableCell>
                       <p className="text-xs text-gray-500 line-clamp-2 max-w-xs">
-                        {cat.description || "Tidak ada deskripsi"}
+                        {cat.description || t("inventory.categories.table.no_description")}
                       </p>
                     </TableCell>
                     <TableCell>
@@ -375,7 +373,7 @@ export default function InventoryCategoryPage() {
                           {formatNumber(getProductCount(cat))}
                         </p>
                         <p className="text-[10px] text-gray-400 uppercase">
-                          Items
+                          {t("inventory.categories.table.items")}
                         </p>
                       </div>
                     </TableCell>
@@ -386,7 +384,9 @@ export default function InventoryCategoryPage() {
                           size="sm"
                           variant="flat"
                         >
-                          {cat.is_active ? "Aktif" : "Nonaktif"}
+                          {cat.is_active
+                            ? t("inventory.categories.filter.active")
+                            : t("inventory.categories.filter.inactive")}
                         </Chip>
                       </div>
                     </TableCell>
@@ -418,14 +418,9 @@ export default function InventoryCategoryPage() {
           <AlertCircle className="size-5 text-gray-500 shrink-0" />
           <p className="text-tiny text-gray-600 leading-relaxed font-medium">
             <strong className="text-gray-900 uppercase tracking-tighter mr-1">
-              Catatan Pengelola:
+              {t("inventory.categories.note_title")}
             </strong>
-            Menghapus kategori yang masih memiliki produk aktif akan menyebabkan
-            produk tersebut masuk ke kategori
-            <i className="text-gray-900 font-bold ml-1">
-              &quot;Tanpa Kategori&quot;
-            </i>
-            . Mohon pastikan kategori sudah kosong sebelum dihapus.
+            {t("inventory.categories.note_body")}
           </p>
         </CardBody>
       </Card>

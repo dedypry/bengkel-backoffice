@@ -1,6 +1,7 @@
 import type { IQueue, QueueStatus } from "@/utils/interfaces/IQueue";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Card,
@@ -41,23 +42,22 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import debounce from "@/utils/helpers/debounce";
 import { dateTimeFormat } from "@/utils/helpers/formater";
 
-const STATUS_CONFIG: Record<QueueStatus, { label: string; color: any }> = {
-  WAITING: { label: "Menunggu", color: "default" },
-  CALLING: { label: "Dipanggil", color: "warning" },
-  PROCESSING: { label: "Diproses", color: "primary" },
-  SKIP: { label: "Dilewati", color: "danger" },
-  DONE: { label: "Selesai", color: "success" },
+const STATUS_CONFIG: Record<
+  QueueStatus,
+  { labelKey: string; color: "default" | "warning" | "primary" | "danger" | "success" }
+> = {
+  WAITING: { labelKey: "service.self_queue.status_waiting", color: "default" },
+  CALLING: { labelKey: "service.self_queue.status_calling", color: "warning" },
+  PROCESSING: {
+    labelKey: "service.self_queue.status_processing",
+    color: "primary",
+  },
+  SKIP: { labelKey: "service.self_queue.status_skip", color: "danger" },
+  DONE: { labelKey: "service.self_queue.status_done", color: "success" },
 };
 
-const STATUS_OPTIONS = [
-  { key: "all", label: "Semua" },
-  ...Object.entries(STATUS_CONFIG).map(([key, value]) => ({
-    key,
-    label: value.label,
-  })),
-];
-
 export default function SelfQueuePanelPage() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { company } = useAppSelector((state) => state.auth);
   const { queues, query } = useAppSelector((state) => state.selfQueue);
@@ -90,12 +90,22 @@ export default function SelfQueuePanelPage() {
     dispatch(setQueueQuery({ q, page: 1 }));
   }, 800);
 
+  const statusOptions = [
+    { key: "all", label: t("service.self_queue.all") },
+    ...Object.entries(STATUS_CONFIG).map(([key, value]) => ({
+      key,
+      label: t(value.labelKey),
+    })),
+  ];
+
   const callNext = () => {
     http
       .post("/queue/next", { counter_number: counterNumber })
       .then(({ data }) => {
         notify(
-          `Memanggil antrean ${data.queue_number || data.data?.queue_number}`,
+          t("service.self_queue.call_notify", {
+            number: data.queue_number || data.data?.queue_number,
+          }),
         );
         refresh();
       })
@@ -130,7 +140,7 @@ export default function SelfQueuePanelPage() {
           <div className="flex flex-wrap gap-2">
             <Input
               className="w-28"
-              label="Loket"
+              label={t("service.self_queue.counter")}
               labelPlacement="inside"
               size="sm"
               value={counterNumber}
@@ -141,29 +151,29 @@ export default function SelfQueuePanelPage() {
               startContent={<Ticket size={18} />}
               onPress={callNext}
             >
-              Panggil Berikutnya
+              {t("service.self_queue.call_next")}
             </Button>
           </div>
         }
         leadIcon={Monitor}
-        subtitle="Panel staf untuk memanggil, memproses, melewati, dan menyelesaikan antrean pelanggan mandiri."
-        title="Antrean Pelanggan Mandiri"
+        subtitle={t("service.self_queue.subtitle")}
+        title={t("service.self_queue.title")}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {[
           {
-            label: "Menunggu",
+            label: t("service.self_queue.waiting"),
             value: waiting,
             color: "bg-gray-100 text-gray-700",
           },
           {
-            label: "Dipanggil",
+            label: t("service.self_queue.calling"),
             value: calling,
             color: "bg-amber-100 text-amber-700",
           },
           {
-            label: "Diproses",
+            label: t("service.self_queue.processing"),
             value: processing,
             color: "bg-primary/10 text-primary",
           },
@@ -193,14 +203,14 @@ export default function SelfQueuePanelPage() {
           isClearable
           className="md:max-w-xs"
           defaultValue={query.q}
-          placeholder="Cari nomor antrean..."
+          placeholder={t("service.self_queue.search_placeholder")}
           startContent={<Search className="text-gray-400" size={20} />}
           onValueChange={searchDebounce}
         />
         <div className="flex gap-2 w-full md:w-auto">
           <Input
             className="md:w-44"
-            label="Tanggal"
+            label={t("service.self_queue.date")}
             labelPlacement="outside-left"
             type="date"
             value={query.date}
@@ -208,7 +218,7 @@ export default function SelfQueuePanelPage() {
           />
           <Select
             className="md:w-44"
-            label="Status"
+            label={t("service.self_queue.status")}
             labelPlacement="outside-left"
             selectedKeys={[query.status || "all"]}
             onSelectionChange={(keys) => {
@@ -222,7 +232,7 @@ export default function SelfQueuePanelPage() {
               );
             }}
           >
-            {STATUS_OPTIONS.map((option) => (
+            {statusOptions.map((option) => (
               <SelectItem key={option.key}>{option.label}</SelectItem>
             ))}
           </Select>
@@ -234,18 +244,20 @@ export default function SelfQueuePanelPage() {
 
       <Table
         isStriped
-        aria-label="Tabel Antrean Pelanggan Mandiri"
+        aria-label={t("service.self_queue.table_aria")}
         classNames={{ td: "py-4 px-6 border-b border-gray-200" }}
       >
         <TableHeader>
-          <TableColumn>NOMOR</TableColumn>
-          <TableColumn>KATEGORI</TableColumn>
-          <TableColumn>WAKTU</TableColumn>
-          <TableColumn>LOKET</TableColumn>
-          <TableColumn>STATUS</TableColumn>
-          <TableColumn align="center">AKSI</TableColumn>
+          <TableColumn>{t("service.self_queue.columns.number")}</TableColumn>
+          <TableColumn>{t("service.self_queue.columns.category")}</TableColumn>
+          <TableColumn>{t("service.self_queue.columns.time")}</TableColumn>
+          <TableColumn>{t("service.self_queue.columns.counter")}</TableColumn>
+          <TableColumn>{t("service.self_queue.columns.status")}</TableColumn>
+          <TableColumn align="center">
+            {t("service.self_queue.columns.action")}
+          </TableColumn>
         </TableHeader>
-        <TableBody emptyContent="Belum ada antrean">
+        <TableBody emptyContent={t("service.self_queue.empty")}>
           {todayQueues.map((item) => (
             <TableRow key={item.id}>
               <TableCell>
@@ -259,7 +271,9 @@ export default function SelfQueuePanelPage() {
                     {item.category?.name || "-"}
                   </span>
                   <span className="text-[10px] text-gray-400">
-                    Est. {item.category?.estimated_minutes || 0} menit
+                    {t("service.self_queue.est_minutes", {
+                      minutes: item.category?.estimated_minutes || 0,
+                    })}
                   </span>
                 </div>
               </TableCell>
@@ -275,7 +289,7 @@ export default function SelfQueuePanelPage() {
                   size="sm"
                   variant="dot"
                 >
-                  {STATUS_CONFIG[item.status]?.label || item.status}
+                  {t(STATUS_CONFIG[item.status]?.labelKey || item.status)}
                 </Chip>
               </TableCell>
               <TableCell>
@@ -310,9 +324,9 @@ export default function SelfQueuePanelPage() {
                       variant="flat"
                       onPress={() =>
                         confirmSweat(() => updateStatus(item, "SKIP"), {
-                          title: "Lewati antrean?",
-                          text: "Antrean akan ditandai dilewati.",
-                          confirmButtonText: "Ya, lewati",
+                          title: t("service.self_queue.skip_title"),
+                          text: t("service.self_queue.skip_text"),
+                          confirmButtonText: t("service.self_queue.skip_confirm"),
                         })
                       }
                     >

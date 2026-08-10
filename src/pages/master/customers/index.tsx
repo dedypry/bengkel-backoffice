@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Input,
   Chip,
@@ -52,6 +53,7 @@ import { getMasterVehicle } from "@/stores/features/vehicle/vehicle-action";
 import { IMasterVehicle } from "@/utils/interfaces/IMaster";
 
 export default function MasterCustomerPage() {
+  const { t } = useTranslation();
   const { company } = useAppSelector((state) => state.auth);
   const { customers: cust, query } = useAppSelector((state) => state.customer);
   const { master: vehicles } = useAppSelector((state) => state.vehicle);
@@ -110,7 +112,7 @@ export default function MasterCustomerPage() {
                 )
               }
             >
-              Download Excel
+              {t("master.customers.export")}
             </Button>
             <Button
               as={Link}
@@ -119,13 +121,13 @@ export default function MasterCustomerPage() {
               startContent={<UserPlus size={15} />}
               to="/master/customers/create"
             >
-              Tambah Pelanggan
+              {t("master.customers.add")}
             </Button>
           </div>
         }
         leadIcon={Users}
-        subtitle="Kelola informasi kontak dan profil pemilik kendaraan bengkel."
-        title="Database Pelanggan"
+        subtitle={t("master.customers.subtitle")}
+        title={t("master.customers.title")}
       />
 
       {/* Filters Area */}
@@ -150,7 +152,7 @@ export default function MasterCustomerPage() {
             <Input
               fullWidth
               isClearable
-              placeholder="Cari nama, email, atau nomor telepon..."
+              placeholder={t("master.customers.search_placeholder")}
               startContent={<Search className="text-gray-400" size={18} />}
               onChange={(e) => searchDebounce(e.target.value)}
             />
@@ -160,7 +162,7 @@ export default function MasterCustomerPage() {
                 clearButton: "text-gray-500",
               }}
               defaultItems={Array.isArray(vehicles) ? vehicles : []}
-              placeholder="Pilih Type Kendaraan"
+              placeholder={t("master.customers.vehicle_type_placeholder")}
               selectedKey={query.brand}
               onInputChange={(val) => {
                 if (!val) {
@@ -201,7 +203,7 @@ export default function MasterCustomerPage() {
                 clearButton: "text-gray-500",
               }}
               defaultItems={vehicle?.children || []}
-              placeholder="Pilih Merk Kendaraan"
+              placeholder={t("master.customers.vehicle_brand_placeholder")}
               selectedKey={query.model}
               onSelectionChange={(val) => {
                 dispatch(
@@ -222,14 +224,16 @@ export default function MasterCustomerPage() {
         <CardBody>
           <Table removeWrapper aria-label="Tabel Pelanggan">
             <TableHeader>
-              <TableColumn>PROFIL PELANGGAN</TableColumn>
-              <TableColumn>KONTAK</TableColumn>
-              <TableColumn>ALAMAT</TableColumn>
-              <TableColumn align="center">UNIT KENDARAAN</TableColumn>
+              <TableColumn>{t("master.customers.table.profile")}</TableColumn>
+              <TableColumn>{t("master.customers.table.contact")}</TableColumn>
+              <TableColumn>{t("master.customers.table.address")}</TableColumn>
+              <TableColumn align="center">
+                {t("master.customers.table.vehicles")}
+              </TableColumn>
               {/* <TableColumn align="center">STATUS</TableColumn> */}
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
-            <TableBody emptyContent="Data pelanggan tidak ditemukan">
+            <TableBody emptyContent={t("master.customers.table.empty")}>
               {(customers?.data || []).map((customer) => (
                 <TableRow key={customer.id}>
                   <TableCell>
@@ -270,7 +274,8 @@ export default function MasterCustomerPage() {
                     <div className="flex items-start gap-1 max-w-[180px]">
                       <MapPin className="size-3 text-gray-400 mt-1 shrink-0" />
                       <span className="text-tiny text-gray-500 line-clamp-2 leading-relaxed">
-                        {customer.profile?.address || "Alamat belum diisi"}
+                        {customer.profile?.address ||
+                          t("master.customers.no_address")}
                       </span>
                     </div>
                   </TableCell>

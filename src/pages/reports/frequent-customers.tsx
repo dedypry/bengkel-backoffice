@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import {
   BarChart3,
@@ -70,6 +71,7 @@ const defaultStart = dayjs().startOf("month").format("YYYY-MM-DD");
 const defaultEnd = dayjs().format("YYYY-MM-DD");
 
 export default function ReportFrequentCustomers() {
+  const { t } = useTranslation();
   const [startDate, setStartDate] = useState(defaultStart);
   const [endDate, setEndDate] = useState(defaultEnd);
   const [report, setReport] = useState<FrequentCustomersReport>();
@@ -102,35 +104,35 @@ export default function ReportFrequentCustomers() {
   const stats = useMemo(
     () => [
       {
-        label: "Pelanggan Aktif",
+        label: t("reports.frequent_customers.stat_active"),
         val: formatNumber(report?.summary.customer_count || 0),
         icon: Users,
         card: "bg-violet-50/90 border-violet-100",
         iconWrap: "bg-violet-100 text-violet-600",
       },
       {
-        label: "Total Kunjungan Service",
+        label: t("reports.frequent_customers.stat_visits"),
         val: formatNumber(report?.summary.total_services || 0),
         icon: Wrench,
         card: "bg-sky-50/90 border-sky-100",
         iconWrap: "bg-sky-100 text-sky-600",
       },
       {
-        label: "Rata-rata per Pelanggan",
-        val: `${formatNumber(report?.summary.avg_services || 0)}x`,
+        label: t("reports.frequent_customers.stat_avg"),
+        val: `${formatNumber(report?.summary.avg_services || 0)}${t("reports.frequent_customers.visit_suffix")}`,
         icon: BarChart3,
         card: "bg-amber-50/90 border-amber-100",
         iconWrap: "bg-amber-100 text-amber-600",
       },
       {
-        label: "Total Pengeluaran",
+        label: t("reports.frequent_customers.stat_spending"),
         val: formatIDR(report?.summary.total_spending || 0),
         icon: CalendarRange,
         card: "bg-emerald-50/90 border-emerald-100",
         iconWrap: "bg-emerald-100 text-emerald-600",
       },
     ],
-    [report],
+    [report, t],
   );
 
   return (
@@ -140,7 +142,7 @@ export default function ReportFrequentCustomers() {
           <div className="flex flex-wrap items-center gap-2">
             <Input
               className="w-40"
-              label="Dari"
+              label={t("common.from")}
               size="sm"
               type="date"
               value={startDate}
@@ -148,7 +150,7 @@ export default function ReportFrequentCustomers() {
             />
             <Input
               className="w-40"
-              label="Sampai"
+              label={t("common.to")}
               size="sm"
               type="date"
               value={endDate}
@@ -161,7 +163,7 @@ export default function ReportFrequentCustomers() {
               variant="flat"
               onPress={() => void getReport()}
             >
-              Terapkan
+              {t("reports.frequent_customers.apply")}
             </Button>
             <Button
               className="bg-emerald-50 text-emerald-700 font-bold"
@@ -179,7 +181,7 @@ export default function ReportFrequentCustomers() {
                 )
               }
             >
-              Excel
+              {t("reports.frequent_customers.export_excel")}
             </Button>
             <Button
               className="bg-rose-50 text-rose-700 font-bold"
@@ -195,12 +197,12 @@ export default function ReportFrequentCustomers() {
                 )
               }
             >
-              PDF
+              {t("reports.frequent_customers.export_pdf")}
             </Button>
           </div>
         }
-        subtitle="Identifikasi pelanggan loyal berdasarkan frekuensi kunjungan service dalam periode tertentu."
-        title="Pelanggan Sering Service"
+        subtitle={t("reports.frequent_customers.subtitle")}
+        title={t("reports.frequent_customers.title")}
       />
 
       {loading && !report ? (
@@ -236,10 +238,11 @@ export default function ReportFrequentCustomers() {
           <Card className="border border-gray-100 shadow-sm" shadow="none">
             <CardHeader className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
               <h2 className="text-sm font-black uppercase text-gray-500">
-                Grafik Top 10 Pelanggan
+                {t("reports.frequent_customers.chart_title")}
               </h2>
               <p className="text-xs text-gray-400">
-                Periode: {report?.period.label}
+                {t("reports.frequent_customers.chart_period")}{" "}
+                {report?.period.label}
               </p>
             </CardHeader>
             <CardBody className="px-4 pb-6">
@@ -247,7 +250,7 @@ export default function ReportFrequentCustomers() {
                 <FrequentCustomersChart data={report.chart} />
               ) : (
                 <div className="flex h-56 items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-400">
-                  Belum ada data service pada periode ini
+                  {t("reports.frequent_customers.chart_empty")}
                 </div>
               )}
             </CardBody>
@@ -257,35 +260,50 @@ export default function ReportFrequentCustomers() {
             <CardHeader className="flex flex-row items-center justify-between px-6 pt-6 pb-2">
               <div>
                 <h2 className="text-sm font-black uppercase text-gray-500">
-                  Daftar Pelanggan
+                  {t("reports.frequent_customers.table_title")}
                 </h2>
                 <p className="text-xs text-gray-400">
-                  Diurutkan berdasarkan jumlah kunjungan service
+                  {t("reports.frequent_customers.table_subtitle")}
                 </p>
               </div>
               <Chip color="secondary" size="sm" variant="flat">
-                {formatNumber(report?.items.length || 0)} pelanggan
+                {formatNumber(report?.items.length || 0)}{" "}
+                {t("reports.frequent_customers.customers_suffix")}
               </Chip>
             </CardHeader>
             <CardBody className="px-2 pb-4">
               <Table
-                aria-label="Laporan pelanggan sering service"
+                aria-label={t("reports.frequent_customers.table_aria")}
                 classNames={{
                   th: "bg-gray-50 text-[10px] font-black uppercase text-gray-500",
                   td: "text-sm text-gray-600",
                 }}
               >
                 <TableHeader>
-                  <TableColumn width={60}>#</TableColumn>
-                  <TableColumn>PELANGGAN</TableColumn>
-                  <TableColumn>TELEPON</TableColumn>
-                  <TableColumn align="center">SERVICE</TableColumn>
-                  <TableColumn align="center">KENDARAAN</TableColumn>
-                  <TableColumn align="end">TOTAL PENGELUARAN</TableColumn>
-                  <TableColumn align="end">TERAKHIR SERVICE</TableColumn>
+                  <TableColumn width={60}>
+                    {t("reports.frequent_customers.col_no")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("reports.frequent_customers.col_customer")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("reports.frequent_customers.col_phone")}
+                  </TableColumn>
+                  <TableColumn align="center">
+                    {t("reports.frequent_customers.col_service")}
+                  </TableColumn>
+                  <TableColumn align="center">
+                    {t("reports.frequent_customers.col_vehicles")}
+                  </TableColumn>
+                  <TableColumn align="end">
+                    {t("reports.frequent_customers.col_spending")}
+                  </TableColumn>
+                  <TableColumn align="end">
+                    {t("reports.frequent_customers.col_last_service")}
+                  </TableColumn>
                 </TableHeader>
                 <TableBody
-                  emptyContent="Belum ada data pelanggan pada periode ini"
+                  emptyContent={t("reports.frequent_customers.table_empty")}
                   items={report?.items || []}
                 >
                   {(item) => (
@@ -306,7 +324,8 @@ export default function ReportFrequentCustomers() {
                       <TableCell>{item.phone}</TableCell>
                       <TableCell>
                         <div className="text-center font-black text-violet-600">
-                          {formatNumber(item.service_count)}x
+                          {formatNumber(item.service_count)}
+                          {t("reports.frequent_customers.visit_suffix")}
                         </div>
                       </TableCell>
                       <TableCell>

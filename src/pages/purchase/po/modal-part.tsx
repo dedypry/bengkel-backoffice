@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, X } from "lucide-react";
 
 import { getProduct } from "@/stores/features/product/product-action";
@@ -33,6 +34,7 @@ interface Props {
   onProducts: (val: IProduct[]) => void;
 }
 export default function ModalPart({ open, setOpen, onProducts }: Props) {
+  const { t } = useTranslation();
   const { productQuery, products } = useAppSelector((state) => state.product);
   const [selectionKeys, setSelectionKeys] = useState<Selection>();
   const [loading, setLoading] = useState(false);
@@ -89,7 +91,7 @@ export default function ModalPart({ open, setOpen, onProducts }: Props) {
       onClose={() => setOpen(false)}
     >
       <ModalContent>
-        <ModalHeader>List Sparepart</ModalHeader>
+        <ModalHeader>{t("purchase.shared.part_modal_title")}</ModalHeader>
         <ModalBody>
           <Input
             endContent={
@@ -104,7 +106,7 @@ export default function ModalPart({ open, setOpen, onProducts }: Props) {
                 />
               )
             }
-            placeholder="Cari sparepart"
+            placeholder={t("purchase.shared.search_part")}
             startContent={<Search size={18} />}
             value={search}
             onValueChange={(val) => {
@@ -125,12 +127,12 @@ export default function ModalPart({ open, setOpen, onProducts }: Props) {
             onSelectionChange={setSelectionKeys}
           >
             <TableHeader>
-              <TableColumn>Kode Barang</TableColumn>
-              <TableColumn>Nama Barang</TableColumn>
-              <TableColumn>Stok</TableColumn>
-              <TableColumn>Harga</TableColumn>
-              <TableColumn>Satuan</TableColumn>
-              <TableColumn>Rak</TableColumn>
+              <TableColumn>{t("purchase.shared.table.code")}</TableColumn>
+              <TableColumn>{t("purchase.shared.table.name")}</TableColumn>
+              <TableColumn>{t("purchase.shared.table.stock")}</TableColumn>
+              <TableColumn>{t("purchase.shared.table.price")}</TableColumn>
+              <TableColumn>{t("purchase.shared.table.satuan")}</TableColumn>
+              <TableColumn>{t("purchase.shared.table.rack")}</TableColumn>
             </TableHeader>
             <TableBody>
               {(products?.data || [])?.map((product) => (
@@ -153,7 +155,7 @@ export default function ModalPart({ open, setOpen, onProducts }: Props) {
             variant="bordered"
             onPress={() => setOpen(false)}
           >
-            Batal
+            {t("common.cancel")}
           </Button>
           <Button
             color="primary"
@@ -161,7 +163,7 @@ export default function ModalPart({ open, setOpen, onProducts }: Props) {
             size="sm"
             onPress={onSubmit}
           >
-            Tambah
+            {t("common.add")}
           </Button>
         </ModalFooter>
       </ModalContent>

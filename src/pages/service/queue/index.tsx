@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { ListOrdered, Plus } from "lucide-react";
 import { Card, CardBody } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ import HeaderAction from "@/components/header-action";
 import { useServiceQueueRealtime } from "@/hooks/use-service-queue-realtime";
 
 export default function QueuePage() {
+  const { t } = useTranslation();
   const [openModal, setOpenModal] = useState(false);
   const [woId, setWoId] = useState(0);
   const { orders, woQuery } = useAppSelector((state) => state.wo);
@@ -46,35 +48,35 @@ export default function QueuePage() {
       <AddMechanich id={woId} open={openModal} setOpen={setOpenModal} />
       <HeaderAction
         actionIcon={Plus}
-        actionTitle="Pendaftaran Service"
+        actionTitle={t("service.queue.register")}
         leadIcon={ListOrdered}
-        subtitle="Monitoring pengerjaan unit secara real-time dan manajemen slot teknisi."
-        title="Antrian Unit"
+        subtitle={t("service.queue.subtitle")}
+        title={t("service.queue.title")}
         onAction={() => navigate("/service/add")}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
-            label: "Total Antrean",
+            label: t("service.queue.stats.total"),
             count: orders?.stats?.total || 0,
             color: "text-primary",
             barColor: "bg-primary",
           },
           {
-            label: "Menunggu",
+            label: t("service.queue.stats.waiting"),
             count: orders?.stats?.waiting || 0,
             color: "text-amber-600",
             barColor: "bg-amber-600",
           },
           {
-            label: "Dikerjakan",
+            label: t("service.queue.stats.processing"),
             count: orders?.stats?.processing || 0,
             color: "text-indigo-600",
             barColor: "bg-indigo-600",
           },
           {
-            label: "Selesai",
+            label: t("service.queue.stats.completed"),
             count: orders?.stats?.completed || 0,
             color: "text-emerald-600",
             barColor: "bg-emerald-600",

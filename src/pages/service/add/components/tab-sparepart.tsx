@@ -2,6 +2,7 @@ import type { IProduct } from "@/utils/interfaces/IProduct";
 
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Input,
   Table,
@@ -27,6 +28,7 @@ import InputQty from "@/components/input-qty";
 import InputNumber from "@/components/input-number";
 
 export default function TabSparepart() {
+  const { t } = useTranslation();
   const { products } = useAppSelector((state) => state.product);
   const { sparepart } = useAppSelector((state) => state.wo);
   const [search, setSearch] = useState("");
@@ -83,7 +85,7 @@ export default function TabSparepart() {
       <Input
         isClearable
         className="max-w-full"
-        placeholder="Cari sparepart berdasarkan nama atau kode..."
+        placeholder={t("service.add.search_sparepart")}
         startContent={<Search className="text-default-400" size={18} />}
         value={search}
         variant="bordered"
@@ -97,17 +99,17 @@ export default function TabSparepart() {
         }}
       />
 
-      <Table removeWrapper aria-label="Tabel Pemilihan Sparepart">
+      <Table removeWrapper aria-label={t("service.add.sparepart_table_aria")}>
         <TableHeader>
-          <TableColumn width={40}>PILIH</TableColumn>
-          <TableColumn>PRODUK</TableColumn>
-          <TableColumn align="end">STOK TERSEDIA</TableColumn>
-          <TableColumn align="end">HARGA</TableColumn>
+          <TableColumn width={40}>{t("service.add.select_col")}</TableColumn>
+          <TableColumn>{t("service.add.product_col")}</TableColumn>
+          <TableColumn align="end">{t("service.add.stock_col")}</TableColumn>
+          <TableColumn align="end">{t("service.detail_tab.price")}</TableColumn>
           <TableColumn align="center" width={160}>
-            JUMLAH
+            {t("service.add.amount_col")}
           </TableColumn>
         </TableHeader>
-        <TableBody emptyContent="Sparepart tidak ditemukan">
+        <TableBody emptyContent={t("service.add.sparepart_empty")}>
           {(products?.data || []).map((item) => {
             const find = findQty(item);
             const remainingStock = Number(item.stock - (find?.qty || 0));

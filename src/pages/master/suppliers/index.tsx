@@ -1,6 +1,7 @@
 import type { ISupplier } from "@/utils/interfaces/ISupplier";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableHeader,
@@ -43,6 +44,7 @@ import debounce from "@/utils/helpers/debounce";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function MasterSupplierPage() {
+  const { t } = useTranslation();
   const { suppliers, supplierQuery } = useAppSelector(
     (state) => state.supplier,
   );
@@ -107,20 +109,20 @@ export default function MasterSupplierPage() {
                 )
               }
             >
-              Export Excel
+              {t("master.suppliers.export")}
             </Button>
             <Button
               color="primary"
               startContent={<Plus size={16} />}
               onPress={() => setOpen(true)}
             >
-              Tambah Supplier
+              {t("master.suppliers.add")}
             </Button>
           </div>
         }
         leadIcon={Truck}
-        subtitle="Kelola data vendor dan penyedia jasa bengkel Anda."
-        title="Master Supplier"
+        subtitle={t("master.suppliers.subtitle")}
+        title={t("master.suppliers.title")}
       />
 
       {/* Control Bar: Pencarian & Filter */}
@@ -128,7 +130,7 @@ export default function MasterSupplierPage() {
         <Input
           isClearable
           defaultValue={supplierQuery.q}
-          placeholder="Cari nama, kode, atau email..."
+          placeholder={t("master.suppliers.search_placeholder")}
           startContent={<Search className=" text-gray-400" size={20} />}
           onValueChange={searchDebounce}
         />
@@ -138,7 +140,7 @@ export default function MasterSupplierPage() {
             color="primary"
             onPress={() => dispatch(setSupplierQuery({ q: supplierQuery.q }))}
           >
-            Cari
+            {t("common.search")}
           </Button>
         </div>
       </div>
@@ -152,16 +154,20 @@ export default function MasterSupplierPage() {
         }}
       >
         <TableHeader>
-          <TableColumn width={150}>KODE</TableColumn>
-          <TableColumn>SUPPLIER</TableColumn>
-          <TableColumn>KONTAK</TableColumn>
-          <TableColumn>INFORMASI</TableColumn>
-          <TableColumn width={120}>STATUS</TableColumn>
+          <TableColumn width={150}>
+            {t("master.suppliers.table.code")}
+          </TableColumn>
+          <TableColumn>{t("master.suppliers.table.supplier")}</TableColumn>
+          <TableColumn>{t("master.suppliers.table.contact")}</TableColumn>
+          <TableColumn>{t("master.suppliers.table.info")}</TableColumn>
+          <TableColumn width={120}>
+            {t("master.suppliers.table.status")}
+          </TableColumn>
           <TableColumn align="center" width={80}>
-            AKSI
+            {t("master.suppliers.table.actions")}
           </TableColumn>
         </TableHeader>
-        <TableBody emptyContent="Supplier Tidak Ditemukan">
+        <TableBody emptyContent={t("master.suppliers.table.empty")}>
           {(suppliers?.data || []).map((item) => (
             <TableRow
               key={item.id}
@@ -184,7 +190,7 @@ export default function MasterSupplierPage() {
                   <div className="flex items-center gap-1 text-gray-500">
                     <MapPin size={12} />
                     <span className="text-[10px] truncate max-w-[200px]">
-                      {item.address || "Alamat belum diatur"}
+                      {item.address || t("master.suppliers.no_address")}
                     </span>
                   </div>
                 </div>
@@ -229,7 +235,9 @@ export default function MasterSupplierPage() {
                   size="sm"
                   variant="dot"
                 >
-                  {item.is_active ? "Aktif" : "Non-Aktif"}
+                  {item.is_active
+                    ? t("master.suppliers.active")
+                    : t("master.suppliers.inactive")}
                 </Chip>
               </TableCell>
               <TableCell>
@@ -248,7 +256,7 @@ export default function MasterSupplierPage() {
                         setOpen(true);
                       }}
                     >
-                      Edit Data
+                      {t("master.suppliers.edit_data")}
                     </DropdownItem>
                     <DropdownItem
                       key="delete"
@@ -257,7 +265,7 @@ export default function MasterSupplierPage() {
                       startContent={<Trash2 size={16} />}
                       onPress={() => confirmSweat(() => handleDelete(item.id))}
                     >
-                      Hapus Supplier
+                      {t("master.suppliers.delete_supplier")}
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>

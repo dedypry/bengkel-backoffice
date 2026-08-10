@@ -16,6 +16,7 @@ import {
   CardHeader,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
 
@@ -30,6 +31,7 @@ import { handleDownload } from "@/utils/helpers/global";
 import HeaderAction from "@/components/header-action";
 
 export default function HistoryPage() {
+  const { t } = useTranslation();
   const { orders, woQuery } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState<number[]>([]);
@@ -69,10 +71,10 @@ export default function HistoryPage() {
       {/* Header & Export */}
       <HeaderAction
         actionIcon={Download}
-        actionTitle="Export Excel"
+        actionTitle={t("service.history.export")}
         leadIcon={History}
-        subtitle="Arsip seluruh pengerjaan unit dan transaksi selesai."
-        title="Riwayat Servis"
+        subtitle={t("service.history.subtitle")}
+        title={t("service.history.title")}
       />
       {/* History Table */}
       <Card>
@@ -80,7 +82,7 @@ export default function HistoryPage() {
           <Input
             isClearable
             defaultValue={woQuery.q}
-            placeholder="Cari No. Invoice, Plat, atau Nama Pelanggan..."
+            placeholder={t("service.history.search_placeholder")}
             startContent={<Search className="size-4 text-default-400" />}
             variant="bordered"
             onValueChange={searcDebounce}
@@ -105,14 +107,14 @@ export default function HistoryPage() {
           />
         </CardHeader>
         <CardBody>
-          <Table removeWrapper aria-label="Tabel Riwayat Servis">
+          <Table removeWrapper aria-label={t("service.history.table_aria")}>
             <TableHeader>
-              <TableColumn>TANGGAL & ID</TableColumn>
-              <TableColumn>KENDARAAN</TableColumn>
-              <TableColumn>DETAIL LAYANAN</TableColumn>
-              <TableColumn align="end">TOTAL BIAYA</TableColumn>
-              <TableColumn align="center">STATUS</TableColumn>
-              <TableColumn align="center">AKSI</TableColumn>
+              <TableColumn>{t("service.history.columns.date_id")}</TableColumn>
+              <TableColumn>{t("service.history.columns.vehicle")}</TableColumn>
+              <TableColumn>{t("service.history.columns.service_detail")}</TableColumn>
+              <TableColumn align="end">{t("service.history.columns.total_cost")}</TableColumn>
+              <TableColumn align="center">{t("service.history.columns.status")}</TableColumn>
+              <TableColumn align="center">{t("service.history.columns.action")}</TableColumn>
             </TableHeader>
             <TableBody>
               {(orders?.data || []).map((item) => (
@@ -149,7 +151,7 @@ export default function HistoryPage() {
                         size="sm"
                         variant="flat"
                       >
-                        Mekanik: {item.mechanics?.map((e) => e.name).join(", ")}
+                        {t("service.history.mechanic_prefix")}: {item.mechanics?.map((e) => e.name).join(", ")}
                       </Chip>
                     </div>
                   </TableCell>
@@ -164,12 +166,14 @@ export default function HistoryPage() {
                       color={item.status === "closed" ? "success" : "danger"}
                       variant="dot"
                     >
-                      {item.status === "closed" ? "Sukses" : "Batal"}
+                      {item.status === "closed"
+                        ? t("service.history.success")
+                        : t("service.history.cancelled")}
                     </Chip>
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-center gap-1">
-                      <Tooltip content="Lihat Detail">
+                      <Tooltip content={t("service.history.view_detail")}>
                         <Button
                           isIconOnly
                           as={Link}
@@ -181,7 +185,7 @@ export default function HistoryPage() {
                           <Eye className="size-4" />
                         </Button>
                       </Tooltip>
-                      <Tooltip content="File Invoice">
+                      <Tooltip content={t("service.history.invoice_file")}>
                         <Button
                           isIconOnly
                           color="default"

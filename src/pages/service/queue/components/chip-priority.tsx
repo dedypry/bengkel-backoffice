@@ -1,24 +1,28 @@
 import type { IWorkOrder } from "@/utils/interfaces/IUser";
 
 import { Chip } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   wo: IWorkOrder;
 }
 
 export default function ChipPriority({ wo }: Props) {
-  // Mapping konfigurasi warna dan label berdasarkan prioritas
+  const { t } = useTranslation();
+
   const priorityConfig: Record<
     string,
-    { color: "success" | "primary" | "warning" | "danger"; label: string }
+    { color: "success" | "primary" | "warning" | "danger" }
   > = {
-    low: { color: "success", label: "Low" },
-    normal: { color: "primary", label: "Normal" },
-    high: { color: "warning", label: "High" },
-    urgent: { color: "danger", label: "Urgent" }, // Menambahkan case urgent jika ada
+    low: { color: "success" },
+    normal: { color: "primary" },
+    high: { color: "warning" },
+    hight: { color: "warning" },
+    urgent: { color: "danger" },
   };
 
-  // Fallback ke normal jika priority tidak ditemukan atau typo (seperti 'hight')
+  const priorityKey =
+    (wo.priority as string) === "hight" ? "high" : wo.priority || "normal";
   const configP = priorityConfig[wo.priority] || priorityConfig.normal;
 
   return (
@@ -28,7 +32,7 @@ export default function ChipPriority({ wo }: Props) {
       size="sm"
       variant="flat"
     >
-      {configP.label}
+      {t(priorityKey)}
     </Chip>
   );
 }

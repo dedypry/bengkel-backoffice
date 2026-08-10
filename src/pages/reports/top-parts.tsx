@@ -7,6 +7,7 @@ import {
   PackageSearch,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardBody, CardHeader, Button, Chip } from "@heroui/react";
 
 import TopPartSkeleton from "./components/top-part-skeleton";
@@ -18,6 +19,7 @@ import { notifyError } from "@/utils/helpers/notify";
 import { formatIDR, formatNumber } from "@/utils/helpers/format";
 
 export default function ReportTopPart() {
+  const { t } = useTranslation();
   const [products, setProduct] = useState<IProduct[]>([]);
   const hasFetched = useRef(false);
   const [loading, setLoading] = useState(false);
@@ -50,9 +52,9 @@ export default function ReportTopPart() {
       {/* Header with Custom Icon */}
       <HeaderAction
         actionIcon={Download}
-        actionTitle="LAPORAN STOK"
-        subtitle="Analisis perputaran stok dan produk yang paling diminati pelanggan bengkel."
-        title="Barang Terlaris"
+        actionTitle={t("reports.top_parts.action")}
+        subtitle={t("reports.top_parts.subtitle")}
+        title={t("reports.top_parts.title")}
         onAction={() => {}}
       />
 
@@ -79,7 +81,8 @@ export default function ReportTopPart() {
                       size="sm"
                       variant="shadow"
                     >
-                      Top Item #{index + 1}
+                      {t("reports.top_parts.rank_prefix")}
+                      {index + 1}
                     </Chip>
                   </div>
 
@@ -88,7 +91,7 @@ export default function ReportTopPart() {
                       {item.name}
                     </h3>
                     <p className="text-[10px] font-black text-gray-400 uppercase">
-                      {item.category?.name || "General Part"}
+                      {item.category?.name || t("reports.top_parts.general_part")}
                     </p>
                   </div>
                 </CardHeader>
@@ -99,7 +102,7 @@ export default function ReportTopPart() {
                     <div className="space-y-1">
                       <p className="text-[9px] font-black text-gray-400 uppercase flex items-center gap-1">
                         <TrendingUp className="text-success" size={20} />
-                        Terjual
+                        {t("reports.top_parts.sold")}
                       </p>
                       <p className="text-lg font-black text-gray-500">
                         {formatNumber(Number(item.sold || 0))}
@@ -110,7 +113,7 @@ export default function ReportTopPart() {
                     </div>
                     <div className="space-y-1">
                       <p className="text-[9px] font-black text-gray-400 uppercase">
-                        Total Omzet
+                        {t("reports.top_parts.total_revenue")}
                       </p>
                       <p className="text-lg font-black text-success">
                         {formatIDR(totalRevenue)}
@@ -136,7 +139,7 @@ export default function ReportTopPart() {
                         <p
                           className={`text-[10px] font-black uppercase  ${isLowStock ? "text-rose-400" : "text-gray-400"}`}
                         >
-                          Stok Saat Ini
+                          {t("reports.top_parts.current_stock")}
                         </p>
                         <p
                           className={`text-xl font-black  ${isLowStock ? "text-rose-600" : "text-gray-500"}`}
@@ -159,7 +162,7 @@ export default function ReportTopPart() {
                         }
                         variant="shadow"
                       >
-                        Restok
+                        {t("reports.top_parts.restock")}
                       </Button>
                     )}
                   </div>

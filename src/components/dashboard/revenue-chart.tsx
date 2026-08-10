@@ -8,12 +8,14 @@ import {
   YAxis,
 } from "recharts";
 import { LineChart, TrendingDown, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardBody, Chip } from "@heroui/react";
 
 import { useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
 
 export function RevenueChart() {
+  const { t } = useTranslation();
   const { dashboard } = useAppSelector((state) => state.dashboard);
 
   const isIncrease = dashboard?.revenueComparison.status === "increase";
@@ -28,9 +30,11 @@ export function RevenueChart() {
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-800">
-                Tren Pendapatan
+                {t("dashboard.revenue_chart.title")}
               </h3>
-              <p className="text-xs text-slate-500">7 hari terakhir</p>
+              <p className="text-xs text-slate-500">
+                {t("dashboard.revenue_chart.last_7_days")}
+              </p>
             </div>
           </div>
           <div className="text-right">
@@ -57,7 +61,7 @@ export function RevenueChart() {
                 {Math.abs(dashboard?.revenueComparison.percentageChange || 0)}%
               </Chip>
               <span className="text-[10px] font-medium text-slate-400">
-                vs minggu lalu
+                {t("dashboard.revenue_chart.vs_last_week")}
               </span>
             </div>
           </div>
@@ -114,7 +118,7 @@ export function RevenueChart() {
                 }}
                 formatter={(value) => [
                   formatIDR(Number(value ?? 0)),
-                  "Pendapatan",
+                  t("dashboard.revenue_chart.revenue_label"),
                 ]}
               />
               <Area

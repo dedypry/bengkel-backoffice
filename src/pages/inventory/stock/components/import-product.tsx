@@ -1,6 +1,7 @@
 import { Import } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 import Modal from "@/components/modal";
 import FileUploader from "@/components/drop-zone";
@@ -10,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getProduct } from "@/stores/features/product/product-action";
 
 export default function ImportProduct() {
+  const { t } = useTranslation();
   const { productQuery } = useAppSelector((state) => state.product);
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
@@ -35,11 +37,11 @@ export default function ImportProduct() {
       <Modal
         footer={
           <Button color="success" onPress={onSubmit}>
-            Kirim Produk
+            {t("inventory.stock.send_product")}
           </Button>
         }
         open={open}
-        title="Export Product"
+        title={t("inventory.stock.import_excel")}
         onOpenChange={setOpen}
       >
         <FileUploader
@@ -58,7 +60,7 @@ export default function ImportProduct() {
         variant="bordered"
         onPress={() => setOpen(true)}
       >
-        Import Excel
+        {t("inventory.stock.import_excel")}
       </Button>
     </>
   );

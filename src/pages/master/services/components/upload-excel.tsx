@@ -7,6 +7,7 @@ import {
   ModalHeader,
 } from "@heroui/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Download, Info, UploadCloud } from "lucide-react";
 
 import FileUploader from "@/components/drop-zone";
@@ -17,6 +18,7 @@ import { getService } from "@/stores/features/service/service-action";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
 export default function UploadExcelService() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +28,7 @@ export default function UploadExcelService() {
 
   function onSubmit() {
     if (!files[0]) {
-      notify("Pilih file Excel terlebih dahulu", "warning");
+      notify(t("master.services.select_file_first"), "warning");
       return;
     }
 
@@ -61,25 +63,26 @@ export default function UploadExcelService() {
         <ModalContent>
           <ModalHeader className="flex flex-col">
             <h3 className="text-lg font-black uppercase text-gray-500">
-              Upload Excel Jasa
+              {t("master.services.upload_title")}
             </h3>
             <p className="text-xs font-semibold text-gray-400">
-              Upload file Excel untuk mengimport data jasa servis.
+              {t("master.services.upload_subtitle")}
             </p>
           </ModalHeader>
           <ModalBody>
             <div className="flex items-start gap-2 rounded-md bg-warning-50 border border-warning-200 p-3 text-warning-700">
               <Info className="mt-0.5 shrink-0" size={16} />
               <div className="flex-1 text-xs space-y-1">
-                <p className="font-semibold">Belum punya template?</p>
+                <p className="font-semibold">
+                  {t("master.services.upload_no_template")}
+                </p>
                 <p>
-                  Download template Excel terlebih dahulu. Format kolom:{" "}
+                  {t("master.services.upload_column_format")}.{" "}
+                  {t("master.services.upload_sheet_name")}{" "}
                   <span className="font-medium">
-                    KODE, NAMA, GRUP, SUB GRUP, HARGA JUAL, PAJAK %, WAKTU,
-                    KETERANGAN (Menit/Jam/Hari)
+                    {t("master.services.upload_sheet_value")}
                   </span>
-                  . Sheet harus bernama{" "}
-                  <span className="font-medium">Laporan</span>.
+                  .
                 </p>
                 <Button
                   className="mt-2"
@@ -90,7 +93,7 @@ export default function UploadExcelService() {
                   variant="flat"
                   onPress={onDownloadTemplate}
                 >
-                  Download Template
+                  {t("master.customers.download_template")}
                 </Button>
               </div>
             </div>
@@ -112,7 +115,7 @@ export default function UploadExcelService() {
               variant="light"
               onPress={() => setOpen(false)}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -120,7 +123,7 @@ export default function UploadExcelService() {
               isLoading={isLoading}
               onPress={onSubmit}
             >
-              Upload
+              {t("common.upload")}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -131,7 +134,7 @@ export default function UploadExcelService() {
         startContent={<UploadCloud size={16} />}
         onPress={() => setOpen(true)}
       >
-        Upload Excel
+        {t("common.upload_excel")}
       </Button>
     </>
   );

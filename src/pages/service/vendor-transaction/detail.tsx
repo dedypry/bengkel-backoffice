@@ -20,6 +20,7 @@ import {
   Avatar,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
@@ -63,6 +64,7 @@ export default function DetailTrx({
   isViewOnly,
   setIsViewOnly,
 }: Props) {
+  const { t } = useTranslation();
   const { trxDetail, vendorQuery } = useAppSelector((state) => state.vendor);
   const { list } = useAppSelector((state) => state.employe);
   const [selectAll, setSelectAll] = useState(false);
@@ -276,7 +278,7 @@ export default function DetailTrx({
           <>
             <ModalHeader>
               <div className="flex w-full justify-between">
-                <p>Pembelian Jasa Divendorkan</p>
+                <p>{t("service.vendor.purchase_title")}</p>
                 {isViewOnly && (
                   <div className="flex gap-1 mr-10">
                     <Button
@@ -317,7 +319,7 @@ export default function DetailTrx({
                 <div className="grid grid-cols-12 gap-x-8 gap-y-1 mb-6">
                   <div className="col-span-5 flex flex-col gap-1">
                     <FormRow
-                      label="No. Beli"
+                      label={t("service.vendor.purchase_no")}
                       value={
                         <Controller
                           control={control}
@@ -335,7 +337,7 @@ export default function DetailTrx({
                       }
                     />
                     <FormRow
-                      label="Tanggal"
+                      label={t("service.vendor.date")}
                       value={
                         <Controller
                           control={control}
@@ -353,7 +355,7 @@ export default function DetailTrx({
                       }
                     />
                     <FormRow
-                      label="No. Faktur"
+                      label={t("service.vendor.invoice_no")}
                       value={
                         <Controller
                           control={control}
@@ -361,7 +363,7 @@ export default function DetailTrx({
                           render={({ field, fieldState }) => (
                             <Input
                               isDisabled={isViewOnly}
-                              placeholder="#Faktur Supplier"
+                              placeholder={t("service.vendor.invoice_placeholder")}
                               size="sm"
                               {...(field as any)}
                               errorMessage={fieldState.error?.message}
@@ -372,7 +374,7 @@ export default function DetailTrx({
                       }
                     />
                     <FormRow
-                      label="Supplier"
+                      label={t("service.vendor.supplier")}
                       value={
                         <Controller
                           control={control}
@@ -393,7 +395,7 @@ export default function DetailTrx({
                   <div className="col-span-2" /> {/* Spacer */}
                   <div className="col-span-5 flex flex-col gap-1">
                     <FormRow
-                      label="Pembayaran"
+                      label={t("service.vendor.payment")}
                       value={
                         <Controller
                           control={control}
@@ -408,22 +410,22 @@ export default function DetailTrx({
                               value={[field.value || ""]}
                               onValueChange={(val) => field.onChange(val[1])}
                             >
-                              <Checkbox value="cash">Lunas</Checkbox>
-                              <Checkbox value="credit">Kredit</Checkbox>
+                              <Checkbox value="cash">{t("service.vendor.cash")}</Checkbox>
+                              <Checkbox value="credit">{t("service.vendor.credit")}</Checkbox>
                             </CheckboxGroup>
                           )}
                         />
                       }
                     />
                     <FormRow
-                      label="Tempo"
+                      label={t("service.vendor.due_days")}
                       value={
                         <Controller
                           control={control}
                           name="dueDays"
                           render={({ field, fieldState }) => (
                             <InputNumber
-                              endContent="Hari"
+                              endContent={t("service.vendor.days_suffix")}
                               errorMessage={fieldState.error?.message}
                               isDisabled={
                                 watch("paymentType") === "cash" || isViewOnly
@@ -441,7 +443,7 @@ export default function DetailTrx({
                       }
                     />
                     <FormRow
-                      label="Tgl. Tempo"
+                      label={t("service.vendor.due_date")}
                       value={
                         <Controller
                           control={control}
@@ -466,7 +468,7 @@ export default function DetailTrx({
                       }
                     />
                     <FormRow
-                      label="Metode"
+                      label={t("service.vendor.method")}
                       value={
                         <Controller
                           control={control}
@@ -504,7 +506,7 @@ export default function DetailTrx({
                 )}
 
                 {/* TABLE SECTION */}
-                <Table removeWrapper aria-label="Detail Jasa Table">
+                <Table removeWrapper aria-label={t("service.vendor.table_aria")}>
                   <TableHeader>
                     <TableColumn>
                       {!isViewOnly && (
@@ -515,16 +517,22 @@ export default function DetailTrx({
                         />
                       )}
                     </TableColumn>
-                    <TableColumn>Deskripsi</TableColumn>
+                    <TableColumn>{t("service.vendor.description")}</TableColumn>
                     <TableColumn className="text-center">
-                      Harga Beli
+                      {t("service.vendor.purchase_price")}
                     </TableColumn>
-                    <TableColumn className="text-center">Disc %</TableColumn>
                     <TableColumn className="text-center">
-                      Nilai Disc
+                      {t("service.vendor.disc_percent")}
                     </TableColumn>
-                    <TableColumn className="text-center">PPN %</TableColumn>
-                    <TableColumn className="text-center">Jumlah</TableColumn>
+                    <TableColumn className="text-center">
+                      {t("service.vendor.disc_value")}
+                    </TableColumn>
+                    <TableColumn className="text-center">
+                      {t("service.vendor.tax_percent")}
+                    </TableColumn>
+                    <TableColumn className="text-center">
+                      {t("service.vendor.amount_col")}
+                    </TableColumn>
                   </TableHeader>
                   <TableBody>
                     {fields.map((field, index) => (
@@ -731,7 +739,7 @@ export default function DetailTrx({
                           defaultItems={list?.data || []}
                           errorMessage={fieldState.error?.message}
                           inputProps={{
-                            label: "Signature",
+                            label: t("service.vendor.signature"),
                             labelPlacement: "outside-left",
                             classNames: {
                               label: "w-20",
@@ -740,10 +748,9 @@ export default function DetailTrx({
                           isDisabled={isViewOnly}
                           isInvalid={!!fieldState.error}
                           listboxProps={{
-                            emptyContent:
-                              "User tidak ditemukan, tekan Enter untuk tambah baru.",
+                            emptyContent: t("service.vendor.user_not_found"),
                           }}
-                          placeholder="Pilih User"
+                          placeholder={t("service.vendor.select_user")}
                           selectedKey={field.value?.toString()}
                           onSelectionChange={(val) =>
                             field.onChange(Number(val))
@@ -787,9 +794,9 @@ export default function DetailTrx({
                             label: "w-20",
                           }}
                           isDisabled={isViewOnly}
-                          label="Catatan"
+                          label={t("service.vendor.notes")}
                           labelPlacement="outside-left"
-                          placeholder="Tuliskan catatan disini..."
+                          placeholder={t("service.vendor.notes_placeholder")}
                           value={field.value || ""}
                           onValueChange={field.onChange}
                         />
@@ -805,7 +812,7 @@ export default function DetailTrx({
                         label: "w-20",
                         mainWrapper: "w-full",
                       }}
-                      label="Sub Total"
+                      label={t("service.vendor.sub_total")}
                       labelPlacement="outside-left"
                       size="sm"
                       startContent={<p className="text-xs">Rp</p>}
@@ -823,7 +830,7 @@ export default function DetailTrx({
                               mainWrapper: "w-16",
                             }}
                             endContent={<p className="text-xs">%</p>}
-                            label="Disc. Final"
+                            label={t("service.vendor.disc_final")}
                             labelPlacement="outside-left"
                             maxInput={100}
                             size="sm"
@@ -875,7 +882,7 @@ export default function DetailTrx({
                         label: "w-20",
                         mainWrapper: "w-full",
                       }}
-                      label="Pajak"
+                      label={t("service.vendor.tax_label")}
                       labelPlacement="outside-left"
                       size="sm"
                       startContent={<p className="text-xs">Rp</p>}
@@ -892,7 +899,7 @@ export default function DetailTrx({
                             mainWrapper: "w-full",
                           }}
                           isDisabled={isViewOnly}
-                          label="Biaya Lain"
+                          label={t("service.vendor.other_fees")}
                           labelPlacement="outside-left"
                           size="sm"
                           startContent={<p className="text-xs">Rp</p>}
@@ -912,7 +919,7 @@ export default function DetailTrx({
                         label: "w-20",
                         mainWrapper: "w-full",
                       }}
-                      label="Total"
+                      label={t("service.vendor.total")}
                       labelPlacement="outside-left"
                       startContent={<p className="text-md !font-bold">Rp</p>}
                       value={watch("total") as any}
@@ -930,7 +937,7 @@ export default function DetailTrx({
                         reset();
                       }}
                     >
-                      Keluar
+                      {t("service.vendor.exit")}
                     </Button>
                   ) : (
                     <>
@@ -940,7 +947,7 @@ export default function DetailTrx({
                           reset();
                         }}
                       >
-                        Batal
+                        {t("common.cancel")}
                       </Button>
                       <Button
                         color="primary"
@@ -948,7 +955,7 @@ export default function DetailTrx({
                         isLoading={loading}
                         type="submit"
                       >
-                        Simpan
+                        {t("common.save")}
                       </Button>
                     </>
                   )}

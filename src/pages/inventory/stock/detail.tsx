@@ -1,5 +1,6 @@
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardBody,
@@ -30,6 +31,7 @@ import { getProductDetail } from "@/stores/features/product/product-action";
 import Carousel from "@/components/carousel";
 
 export default function ProductDetail() {
+  const { t } = useTranslation();
   const { product } = useAppSelector((state) => state.product);
   const dispatch = useAppDispatch();
   const { id } = useParams();
@@ -50,18 +52,19 @@ export default function ProductDetail() {
       <div className="flex flex-col items-center justify-center min-h-[400px]">
         <AlertTriangle className="text-gray-300 mb-4" size={48} />
         <p className="font-black uppercase text-gray-400">
-          Produk Tidak Ditemukan
+          {t("inventory.stock.detail.not_found")}
         </p>
       </div>
     );
   }
 
   const getStockStatus = (current: number, min: number) => {
-    if (current === 0) return { label: "STOK HABIS", color: "danger" as const };
+    if (current === 0)
+      return { label: t("inventory.stock.detail.out_of_stock"), color: "danger" as const };
     if (current <= (min || 5))
-      return { label: "STOK MENIPIS", color: "warning" as const };
+      return { label: t("inventory.stock.detail.low_stock"), color: "warning" as const };
 
-    return { label: "STOK TERSEDIA", color: "success" as const };
+    return { label: t("inventory.stock.detail.available"), color: "success" as const };
   };
 
   const status = getStockStatus(product.stock, product.min_stock);
@@ -78,10 +81,10 @@ export default function ProductDetail() {
             href="/inventory/stock"
             startContent={<Package size={14} />}
           >
-            Inventaris
+            {t("inventory.stock.detail.breadcrumb_inventory")}
           </BreadcrumbItem>
           <BreadcrumbItem startContent={<Boxes size={14} />}>
-            Suku Cadang
+            {t("inventory.stock.detail.breadcrumb_parts")}
           </BreadcrumbItem>
           <BreadcrumbItem isCurrent>{product.code}</BreadcrumbItem>
         </Breadcrumbs>
@@ -94,7 +97,7 @@ export default function ProductDetail() {
             to="/inventory/stock"
             variant="flat"
           >
-            Kembali
+            {t("common.back")}
           </Button>
           <Button
             as={RouterLink}
@@ -104,7 +107,7 @@ export default function ProductDetail() {
             startContent={<Edit size={16} />}
             to={`/inventory/stock/${product.id}/edit`}
           >
-            Edit Produk
+            {t("inventory.stock.detail.edit_product")}
           </Button>
         </div>
       </div>
@@ -132,7 +135,7 @@ export default function ProductDetail() {
                   <div className="flex flex-col items-center gap-2 h-[250px]">
                     <Package className="text-gray-200" size={64} />
                     <span className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em]">
-                      Tanpa Pratinjau
+                      {t("inventory.stock.detail.no_preview")}
                     </span>
                   </div>
                 )}
@@ -163,7 +166,7 @@ export default function ProductDetail() {
               </div> */}
               <div className="p-6 bg-white">
                 <span className="text-sm font-black text-gray-400 uppercase">
-                  Kode Sistem
+                  {t("inventory.stock.detail.system_code")}
                 </span>
                 <p className="text-2xl font-black text-gray-500 tracking-tighter mb-4">
                   {product.code}
@@ -186,11 +189,11 @@ export default function ProductDetail() {
               <div className="flex items-center gap-3 text-white mb-4">
                 <MapPin size={18} />
                 <span className="text-sm font-black uppercase">
-                  Lokasi Penyimpanan
+                  {t("inventory.stock.detail.storage_location")}
                 </span>
               </div>
               <p className="text-xl font-black text-white uppercase tracking-wider">
-                {product.location || "BELUM DIATUR"}
+                {product.location || t("inventory.stock.detail.not_set")}
               </p>
             </CardBody>
           </Card>
@@ -207,7 +210,7 @@ export default function ProductDetail() {
                 </h1>
                 <p className="text-xs font-bold text-gray-500 leading-relaxed uppercase max-w-2xl">
                   {product.description ||
-                    "TIDAK ADA DESKRIPSI TEKNIS UNTUK PRODUK INI."}
+                    t("inventory.stock.detail.no_description")}
                 </p>
               </div>
 
@@ -219,7 +222,7 @@ export default function ProductDetail() {
                   <div className="flex items-center gap-2">
                     <Database className="text-gray-400" size={16} />
                     <span className="text-xs font-black text-gray-500 uppercase">
-                      Manajemen Stok
+                      {t("inventory.stock.detail.stock_management")}
                     </span>
                   </div>
                   <div className="flex items-end gap-3">
@@ -232,10 +235,10 @@ export default function ProductDetail() {
                   </div>
                   <div className="p-3 bg-gray-50 rounded-sm inline-flex flex-col">
                     <span className="text-xs font-black text-gray-500 uppercase mb-1">
-                      Stok Pengaman (Min)
+                      {t("inventory.stock.detail.min_stock")}
                     </span>
                     <span className="text-sm font-black text-red-600">
-                      {product.min_stock || 0} ITEM
+                      {product.min_stock || 0} {t("inventory.stock.detail.items")}
                     </span>
                   </div>
                 </div>
@@ -244,12 +247,12 @@ export default function ProductDetail() {
                   <div className="flex items-center gap-2">
                     <Tag className="text-gray-400" size={16} />
                     <span className="text-xs font-black text-gray-500 uppercase">
-                      Klasifikasi Produk
+                      {t("inventory.stock.detail.classification")}
                     </span>
                   </div>
                   <div className="p-4 border-2 border-gray-100 rounded-sm">
                     <p className="text-[10px] font-black text-gray-500 uppercase mb-1">
-                      Kategori Utama
+                      {t("inventory.stock.detail.main_category")}
                     </p>
                     <div className="flex items-center gap-2">
                       {product.category?.parent && (
@@ -261,7 +264,7 @@ export default function ProductDetail() {
                         </>
                       )}
                       <p className="text-lg font-black text-gray-600 uppercase">
-                        {product.category?.name || "TIDAK ADA KATEGORI"}
+                        {product.category?.name || t("inventory.stock.detail.no_category")}
                       </p>
                     </div>
                   </div>
@@ -276,24 +279,24 @@ export default function ProductDetail() {
               <div className="flex items-center gap-2 mb-6">
                 <DollarSign className="text-emerald-600" size={18} />
                 <span className="text-md font-black text-emerald-700 uppercase ">
-                  Rincian Keuangan
+                  {t("inventory.stock.detail.financial")}
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                 <InfoBlock
-                  label="Harga Beli"
-                  subValue="Sebelum Pajak"
+                  label={t("inventory.stock.detail.buy_price")}
+                  subValue={t("inventory.stock.detail.before_tax")}
                   value={formatIDR(Number(product.purchase_price))}
                 />
                 <InfoBlock
                   color="text-emerald-700"
-                  label="Harga Jual"
-                  subValue="Harga Akhir POS"
+                  label={t("inventory.stock.detail.sell_price")}
+                  subValue={t("inventory.stock.detail.pos_price")}
                   value={formatIDR(Number(product.sell_price))}
                 />
                 <InfoBlock
-                  label="Pajak (PPN)"
-                  subValue="Nilai Pemerintah"
+                  label={t("inventory.stock.detail.tax")}
+                  subValue={t("inventory.stock.detail.gov_value")}
                   value={`${product.ppn || 0}%`}
                 />
               </div>
@@ -308,11 +311,10 @@ export default function ProductDetail() {
               </div>
               <div>
                 <p className="text-[11px] font-black text-red-700 uppercase">
-                  Produk Non-Aktif
+                  {t("inventory.stock.detail.inactive_title")}
                 </p>
                 <p className="text-[10px] font-bold text-red-500 uppercase mt-0.5">
-                  Produk ini dalam status non-aktif dan tidak akan muncul di
-                  sistem Kasir (POS).
+                  {t("inventory.stock.detail.inactive_desc")}
                 </p>
               </div>
             </div>

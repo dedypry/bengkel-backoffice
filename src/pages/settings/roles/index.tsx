@@ -1,6 +1,7 @@
 import type { IRole } from "@/utils/interfaces/IRole";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableHeader,
@@ -28,6 +29,7 @@ import { http } from "@/utils/libs/axios";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 
 export default function RolesPage() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const { roles } = useAppSelector((state) => state.role);
   const [open, setOpen] = useState(false);
@@ -79,20 +81,19 @@ export default function RolesPage() {
 
       <HeaderAction
         actionIcon={UserPlus2}
-        actionTitle="Tambah Role"
+        actionTitle={t("settings.roles.add")}
         leadIcon={Users2}
-        subtitle="Kelola hak akses dan peran pengguna dalam sistem bengkel secara hierarkis."
-        title="Pengaturan Role"
+        subtitle={t("settings.roles.subtitle")}
+        title={t("settings.roles.title")}
         onAction={() => setOpen(true)}
       />
 
-      {/* HeroUI Table */}
       <Card>
         <CardHeader className="flex justify-end">
           <div>
             <Input
               isClearable
-              placeholder="Cari nama role atau slug..."
+              placeholder={t("settings.roles.search_placeholder")}
               startContent={<Search className="text-gray-400" size={18} />}
               value={searchTerm}
               variant="bordered"
@@ -104,16 +105,18 @@ export default function RolesPage() {
           <Table
             isHeaderSticky
             removeWrapper
-            aria-label="Tabel Role dan Hak Akses"
+            aria-label={t("settings.roles.table_aria")}
           >
             <TableHeader>
-              <TableColumn>NAMA ROLE</TableColumn>
-              <TableColumn>SLUG / IDENTIFIER</TableColumn>
-              <TableColumn>DESKRIPSI</TableColumn>
-              <TableColumn>STATUS KEAMANAN</TableColumn>
-              <TableColumn align="center">AKSI</TableColumn>
+              <TableColumn>{t("settings.roles.col_name")}</TableColumn>
+              <TableColumn>{t("settings.roles.col_slug")}</TableColumn>
+              <TableColumn>{t("settings.roles.col_description")}</TableColumn>
+              <TableColumn>{t("settings.roles.col_security")}</TableColumn>
+              <TableColumn align="center">
+                {t("settings.roles.col_actions")}
+              </TableColumn>
             </TableHeader>
-            <TableBody emptyContent={"Tidak ada role yang ditemukan"}>
+            <TableBody emptyContent={t("settings.roles.empty")}>
               {filteredRoles.map((row) => (
                 <TableRow
                   key={row.id}
@@ -127,7 +130,7 @@ export default function RolesPage() {
                   </TableCell>
                   <TableCell>
                     <p className="text-xs text-gray-500 max-w-xs line-clamp-2 italic font-medium">
-                      {row.description || "Tidak ada deskripsi tersedia."}
+                      {row.description || t("settings.roles.no_description")}
                     </p>
                   </TableCell>
                   <TableCell>
@@ -137,13 +140,16 @@ export default function RolesPage() {
                       variant="dot"
                     >
                       {row.slug === "super-admin"
-                        ? "System Core"
-                        : "Active Role"}
+                        ? t("settings.roles.system_core")
+                        : t("settings.roles.active_role")}
                     </Chip>
                   </TableCell>
                   <TableCell>
                     <div className="relative flex items-center justify-center gap-2">
-                      <Tooltip content="Edit Role" delay={1000}>
+                      <Tooltip
+                        content={t("settings.roles.edit_role")}
+                        delay={1000}
+                      >
                         <Button
                           isIconOnly
                           className="text-gray-400 hover:text-gray-900"
@@ -154,7 +160,10 @@ export default function RolesPage() {
                           <Edit size={18} />
                         </Button>
                       </Tooltip>
-                      <Tooltip color="danger" content="Hapus Role">
+                      <Tooltip
+                        color="danger"
+                        content={t("settings.roles.delete_role")}
+                      >
                         <Button
                           isIconOnly
                           className="text-gray-300 hover:text-rose-500"
@@ -176,15 +185,13 @@ export default function RolesPage() {
         </CardBody>
       </Card>
 
-      {/* Policy Tip */}
       <Alert
         classNames={{
           description: "text-xs text-gray-500 italic",
           iconWrapper: "text-warning",
         }}
-        description="Pastikan setiap role memiliki hak akses minimum (Principle of Least
-          Privilege) untuk menjaga keamanan data bengkel."
-        title="Tips:"
+        description={t("settings.roles.tips_desc")}
+        title={t("common.tips")}
       />
     </div>
   );

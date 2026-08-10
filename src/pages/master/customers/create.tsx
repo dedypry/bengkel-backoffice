@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Input,
@@ -45,6 +46,7 @@ export default function CustomerFormPage({
   data?: ICustomer;
   onAction?: (val?: any) => void;
 }) {
+  const { t } = useTranslation();
   const [isLoading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -118,10 +120,12 @@ export default function CustomerFormPage({
           </Button>
           <div>
             <h1 className="text-xl font-black uppercase text-gray-500">
-              {data ? "Perbarui Pelanggan" : "Registrasi Pelanggan Baru"}
+              {data
+                ? t("master.customers.edit_title")
+                : t("master.customers.create_title")}
             </h1>
             <p className="text-tiny font-medium text-gray-400">
-              Pastikan data kendaraan dan kontak sudah sesuai.
+              {t("master.customers.create_subtitle")}
             </p>
           </div>
         </div>
@@ -137,7 +141,7 @@ export default function CustomerFormPage({
               }
             }}
           >
-            Batal
+            {t("common.cancel")}
           </Button>
           <Button
             color="primary"
@@ -145,7 +149,9 @@ export default function CustomerFormPage({
             startContent={!isLoading && <Save size={18} />}
             onPress={() => handleSubmit(onSubmit)()}
           >
-            {data ? "UPDATE DATA" : "SIMPAN PELANGGAN"}
+            {data
+              ? t("master.customers.update_data")
+              : t("master.customers.save_customer")}
           </Button>
         </div>
       </div>
@@ -159,7 +165,7 @@ export default function CustomerFormPage({
                 <div className="flex items-center gap-2 text-gray-500">
                   <User className="size-5" />
                   <h2 className="text-sm font-black uppercase italic">
-                    Informasi Dasar & Kontak
+                    {t("master.customers.section_basic")}
                   </h2>
                 </div>
                 <Divider className="opacity-50" />
@@ -173,7 +179,7 @@ export default function CustomerFormPage({
                       className="pt-5"
                       errorMessage={fieldState.error?.message as string}
                       isInvalid={!!fieldState.error}
-                      label="Nama Lengkap"
+                      label={t("master.customers.full_name")}
                       labelPlacement="outside"
                       placeholder="Masukkan nama sesuai KTP"
                       variant="bordered"
@@ -190,7 +196,7 @@ export default function CustomerFormPage({
                         {...field}
                         errorMessage={fieldState.error?.message as string}
                         isInvalid={!!fieldState.error}
-                        label="WhatsApp / Telepon"
+                        label={t("master.customers.whatsapp")}
                         labelPlacement="outside"
                         placeholder="0812..."
                         variant="bordered"
@@ -205,7 +211,7 @@ export default function CustomerFormPage({
                         {...field}
                         errorMessage={fieldState.error?.message as string}
                         isInvalid={!!fieldState.error}
-                        label="Alamat Email"
+                        label={t("master.customers.email")}
                         labelPlacement="outside"
                         placeholder="email@bengkel.com"
                         variant="bordered"
@@ -219,7 +225,7 @@ export default function CustomerFormPage({
                 <div className="flex items-center gap-2 text-gray-500">
                   <MapPin className="size-5" />
                   <h2 className="text-sm font-black uppercase italic">
-                    Domisili Pelanggan
+                    {t("master.customers.section_address")}
                   </h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -268,7 +274,7 @@ export default function CustomerFormPage({
                       {...(field as any)}
                       errorMessage={fieldState.error?.message as string}
                       isInvalid={!!fieldState.error}
-                      label="Alamat Lengkap"
+                      label={t("master.customers.full_address")}
                       labelPlacement="outside"
                       placeholder="Nama jalan, nomor rumah, RT/RW..."
                       variant="bordered"
@@ -285,7 +291,7 @@ export default function CustomerFormPage({
               <div className="flex items-center gap-2 text-gray-500">
                 <CarFront className="size-5" />
                 <h2 className="text-sm font-black uppercase italic text-gray-500">
-                  Inventori Kendaraan
+                  {t("master.customers.section_vehicles")}
                 </h2>
               </div>
               <Button
@@ -297,14 +303,14 @@ export default function CustomerFormPage({
                   append({ plate_number: "", brand: "", model: "", year: "" })
                 }
               >
-                Tambah Unit
+                {t("master.customers.add_unit")}
               </Button>
             </div>
 
             {fields.map((field, index) => (
               <div key={field.id} className="relative">
                 {fields.length > 1 && (
-                  <Tooltip color="danger" content="Hapus Unit">
+                  <Tooltip color="danger" content={t("master.customers.remove_unit")}>
                     <Button
                       isIconOnly
                       className="absolute -top-3 -right-1 rounded-full shadow-md z-50"
@@ -327,7 +333,7 @@ export default function CustomerFormPage({
                             {...field}
                             errorMessage={fieldState.error?.message as string}
                             isInvalid={!!fieldState.error}
-                            label="No. Polisi"
+                            label={t("master.customers.plate_number")}
                             placeholder="B 1234 ABC"
                             variant="bordered"
                           />
@@ -341,7 +347,7 @@ export default function CustomerFormPage({
                             {...field}
                             errorMessage={fieldState.error?.message as string}
                             isInvalid={!!fieldState.error}
-                            label="Merk"
+                            label={t("master.customers.brand")}
                             placeholder="Honda/Toyota"
                             variant="bordered"
                           />
@@ -355,7 +361,7 @@ export default function CustomerFormPage({
                             {...field}
                             errorMessage={fieldState.error?.message as string}
                             isInvalid={!!fieldState.error}
-                            label="Tipe/Model"
+                            label={t("master.customers.model")}
                             placeholder="Civic/Avanza"
                             variant="bordered"
                           />
@@ -369,7 +375,7 @@ export default function CustomerFormPage({
                             {...(field as any)}
                             errorMessage={fieldState.error?.message as string}
                             isInvalid={!!fieldState.error}
-                            label="Tahun"
+                            label={t("master.customers.year")}
                             placeholder="2022"
                             type="number"
                             variant="bordered"
@@ -382,7 +388,7 @@ export default function CustomerFormPage({
                       <div className="flex items-center gap-2 text-gray-500 mb-2">
                         <ClipboardList size={14} />
                         <span className="text-[10px] font-black uppercase tracking-widest">
-                          Spesifikasi Teknis (Opsional)
+                          {t("master.customers.section_specs")}
                         </span>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -394,7 +400,7 @@ export default function CustomerFormPage({
                               {...(field as any)}
                               errorMessage={fieldState.error?.message as string}
                               isInvalid={!!fieldState.error}
-                              label="No. Rangka"
+                              label={t("master.customers.chassis_no")}
                             />
                           )}
                         />
@@ -406,7 +412,7 @@ export default function CustomerFormPage({
                               {...(field as any)}
                               errorMessage={fieldState.error?.message as string}
                               isInvalid={!!fieldState.error}
-                              label="No. Mesin"
+                              label={t("master.customers.engine_no")}
                             />
                           )}
                         />
@@ -416,7 +422,7 @@ export default function CustomerFormPage({
                           name={`vehicles.${index}.transmission_type`}
                           render={({ field }) => (
                             <Select
-                              label="Transmisi"
+                              label={t("master.customers.transmission")}
                               selectedKeys={field.value ? [field.value] : []}
                               onSelectionChange={(keys) =>
                                 field.onChange(Array.from(keys)[0])
@@ -444,7 +450,7 @@ export default function CustomerFormPage({
               <div className="flex items-center gap-2 text-gray-500">
                 <Settings2 className="size-5" />
                 <h2 className="text-sm font-black uppercase italic">
-                  Klasifikasi Akun
+                  {t("master.customers.section_account")}
                 </h2>
               </div>
 
@@ -455,7 +461,7 @@ export default function CustomerFormPage({
                   <Select
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Tipe Pelanggan"
+                    label={t("master.customers.customer_type")}
                     labelPlacement="outside"
                     selectedKeys={[field.value]}
                     variant="bordered"
@@ -477,7 +483,7 @@ export default function CustomerFormPage({
                     {...(field as any)}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="NIK (KTP)"
+                    label={t("master.customers.nik")}
                     labelPlacement="outside"
                     placeholder="16 Digit Nomor KTP"
                     variant="bordered"
@@ -491,7 +497,7 @@ export default function CustomerFormPage({
                   <CustomDatePicker
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Tanggal Lahir"
+                    label={t("master.customers.birth_date")}
                     value={field.value as any}
                     onChange={field.onChange}
                   />
@@ -506,7 +512,7 @@ export default function CustomerFormPage({
                     {...(field as any)}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Catatan Internal"
+                    label={t("master.customers.internal_notes")}
                     labelPlacement="outside"
                     placeholder="Pelanggan loyal, prioritas, dll..."
                     variant="bordered"

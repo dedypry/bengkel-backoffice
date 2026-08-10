@@ -1,5 +1,6 @@
 import { Edit, PackagePlus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Modal,
   ModalContent,
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function UpdateStock({ id, name, currentStock }: Props) {
+  const { t } = useTranslation();
   const { productQuery } = useAppSelector((state) => state.product);
 
   const [open, setOpen] = useState(false);
@@ -47,7 +49,7 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
 
   return (
     <>
-      <Tooltip closeDelay={0} content="Update Stok Cepat">
+      <Tooltip closeDelay={0} content={t("inventory.stock.update_stock.tooltip")}>
         <Button
           isIconOnly
           className="bg-amber-50 text-amber-600 hover:bg-amber-100 min-w-unit-8 w-8 h-8"
@@ -78,7 +80,7 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
                 <PackagePlus className="text-amber-500" size={20} />
                 <div className="flex flex-col">
                   <span className="text-small font-black uppercase italic tracking-tight">
-                    Update Stok
+                    {t("inventory.stock.update_stock.title")}
                   </span>
                   <span className="text-tiny font-normal text-gray-400 normal-case tracking-normal">
                     {name}
@@ -90,7 +92,7 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
                 <div className="flex flex-col gap-4">
                   <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex justify-between items-center">
                     <span className="text-tiny font-bold text-gray-500 uppercase">
-                      Stok Saat Ini
+                      {t("inventory.stock.update_stock.current")}
                     </span>
                     <span className="text-large font-black text-gray-800">
                       {Number(currentStock)}
@@ -104,16 +106,16 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
                       inputWrapper:
                         "border-gray-200 group-data-[focus=true]:border-gray-800",
                     }}
-                    label="Jumlah Stok Baru"
+                    label={t("inventory.stock.update_stock.new")}
                     labelPlacement="outside"
-                    placeholder="Masukkan angka..."
+                    placeholder={t("inventory.stock.update_stock.placeholder")}
                     type="number"
                     value={stock.toString()}
                     variant="bordered"
                     onValueChange={(val) => setStock(Number(val))}
                   />
                   <p className="text-[11px] text-gray-400 italic">
-                    *Nilai ini akan menggantikan total stok yang ada di sistem.
+                    {t("inventory.stock.update_stock.hint")}
                   </p>
                 </div>
               </ModalBody>
@@ -125,10 +127,10 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
                   variant="light"
                   onPress={onClose}
                 >
-                  Batal
+                  {t("common.cancel")}
                 </Button>
                 <Button color="primary" isLoading={loading} onPress={onSubmit}>
-                  Simpan Perubahan
+                  {t("inventory.stock.update_stock.save_changes")}
                 </Button>
               </ModalFooter>
             </>

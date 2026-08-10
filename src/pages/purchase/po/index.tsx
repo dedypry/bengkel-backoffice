@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { GridLoader } from "react-spinners";
 
 import { ModalPoDetail } from "./modal-detail";
@@ -32,6 +33,7 @@ import PageSize from "@/components/page-size";
 import debounce from "@/utils/helpers/debounce";
 
 export function PoPage() {
+  const { t } = useTranslation();
   const { list, loading, poQuery } = useAppSelector((state) => state.po);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -73,10 +75,10 @@ export function PoPage() {
       <ModalPoDetail open={open} onOpen={setOpen} />
       <HeaderAction
         actionIcon={Plus}
-        actionTitle="Buat PO Baru"
+        actionTitle={t("purchase.po.add")}
         leadIcon={Box}
-        subtitle="Daftar Order Pembelian Sparepart Bengkel"
-        title="Order Pembelian"
+        subtitle={t("purchase.po.subtitle")}
+        title={t("purchase.po.title")}
         onAction={() => navigate("create")}
       />
 
@@ -111,7 +113,7 @@ export function PoPage() {
                     />
                   )
                 }
-                placeholder="Cari PO"
+                placeholder={t("purchase.po.search_placeholder")}
                 startContent={<Search size={18} />}
                 value={search}
                 onValueChange={(val) => {
@@ -124,17 +126,17 @@ export function PoPage() {
         }
       >
         <TableHeader>
-          <TableColumn>No PO</TableColumn>
-          <TableColumn>Tanggal</TableColumn>
-          <TableColumn>Supplier</TableColumn>
-          <TableColumn>Status</TableColumn>
-          <TableColumn>Total</TableColumn>
-          <TableColumn>Tanggal diminta</TableColumn>
-          <TableColumn>Catatan</TableColumn>
-          <TableColumn>Aksi</TableColumn>
+          <TableColumn>{t("purchase.po.table.po_no")}</TableColumn>
+          <TableColumn>{t("purchase.po.table.date")}</TableColumn>
+          <TableColumn>{t("purchase.po.table.supplier")}</TableColumn>
+          <TableColumn>{t("purchase.po.table.status")}</TableColumn>
+          <TableColumn>{t("purchase.po.table.total")}</TableColumn>
+          <TableColumn>{t("purchase.po.table.requested_date")}</TableColumn>
+          <TableColumn>{t("purchase.po.table.notes")}</TableColumn>
+          <TableColumn>{t("purchase.po.table.actions")}</TableColumn>
         </TableHeader>
         <TableBody
-          emptyContent="Data Kosong"
+          emptyContent={t("purchase.shared.empty_data")}
           isLoading={loading}
           loadingContent={<GridLoader color="#0096FF" />}
         >

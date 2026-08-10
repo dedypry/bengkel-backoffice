@@ -16,6 +16,7 @@ import {
 } from "@heroui/react";
 import { Download } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useAppSelector } from "@/stores/hooks";
 import { dateFormat } from "@/utils/helpers/formater";
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export function ModalPoDetail({ open, onOpen }: Props) {
+  const { t } = useTranslation();
   const { detail } = useAppSelector((state) => state.po);
   const [downloadLoading, setDownloadLoading] = useState(false);
 
@@ -41,7 +43,7 @@ export function ModalPoDetail({ open, onOpen }: Props) {
       onOpenChange={onOpen}
     >
       <ModalContent>
-        <ModalHeader>Detail Pesanan Pembelian</ModalHeader>
+        <ModalHeader>{t("purchase.po.detail_title")}</ModalHeader>
         <ModalBody>
           <div className="flex justify-end">
             <Button
@@ -59,35 +61,54 @@ export function ModalPoDetail({ open, onOpen }: Props) {
                 )
               }
             >
-              Download Invoice
+              {t("purchase.shared.download_invoice")}
             </Button>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
-              <InputDetail label="No. PO" value={detail.po_no} />
               <InputDetail
-                label="Tanggal"
+                label={t("purchase.po.detail.po_no")}
+                value={detail.po_no}
+              />
+              <InputDetail
+                label={t("purchase.po.detail.date")}
                 value={dateFormat(detail.created_at!)}
               />
             </div>
 
             <div className="space-y-1">
-              <InputDetail label="Supplier" value={detail.supplier?.name!} />
-              <InputDetail label="Gudang" value={detail.warehouse?.name!} />
+              <InputDetail
+                label={t("purchase.po.detail.supplier")}
+                value={detail.supplier?.name!}
+              />
+              <InputDetail
+                label={t("purchase.po.detail.warehouse")}
+                value={detail.warehouse?.name!}
+              />
             </div>
           </div>
 
           <Table removeWrapper className="mt-5">
             <TableHeader>
-              <TableColumn>Kode Barang</TableColumn>
-              <TableColumn>Nama Barang</TableColumn>
-              <TableColumn>Unit</TableColumn>
-              <TableColumn>Quantity</TableColumn>
-              <TableColumn className="text-right">Harga</TableColumn>
-              <TableColumn className="text-center">Disc (%)</TableColumn>
-              <TableColumn className="text-right">Disc (Rp)</TableColumn>
-              <TableColumn className="text-center">PPN (%)</TableColumn>
-              <TableColumn className="text-right">Total</TableColumn>
+              <TableColumn>{t("purchase.shared.table.code")}</TableColumn>
+              <TableColumn>{t("purchase.shared.table.name")}</TableColumn>
+              <TableColumn>{t("purchase.shared.table.unit")}</TableColumn>
+              <TableColumn>{t("purchase.shared.table.quantity")}</TableColumn>
+              <TableColumn className="text-right">
+                {t("purchase.shared.table.price")}
+              </TableColumn>
+              <TableColumn className="text-center">
+                {t("purchase.shared.table.disc_pct")}
+              </TableColumn>
+              <TableColumn className="text-right">
+                {t("purchase.shared.table.disc_value")}
+              </TableColumn>
+              <TableColumn className="text-center">
+                {t("purchase.shared.table.ppn_pct")}
+              </TableColumn>
+              <TableColumn className="text-right">
+                {t("purchase.shared.total")}
+              </TableColumn>
             </TableHeader>
 
             <TableBody>
@@ -117,38 +138,53 @@ export function ModalPoDetail({ open, onOpen }: Props) {
           <div className="grid grid-cols-4 gap-2 mt-5">
             <div className="col-span-3 space-y-1 flex flex-col justify-end">
               <TextValue
-                label="Termin"
-                value={`${formatNumber(detail.term_credit || 0)} Hari`}
+                label={t("purchase.po.detail.term")}
+                value={`${formatNumber(detail.term_credit || 0)} ${t("purchase.shared.days")}`}
               />
               <TextValue
-                label="Tanggal Diminta"
+                label={t("purchase.po.detail.requested_date")}
                 value={formatDate(detail.requested_date!)}
               />
-              <TextValue label="Dibuat Oleh" value={detail.created_by?.name} />
               <TextValue
-                label="Disetujui Oleh"
+                label={t("purchase.po.detail.created_by")}
+                value={detail.created_by?.name}
+              />
+              <TextValue
+                label={t("purchase.po.detail.approved_by")}
                 value={detail.signature?.name}
               />
-              <TextValue label="Catatan" value={detail.notes} />
+              <TextValue
+                label={t("purchase.po.detail.notes")}
+                value={detail.notes}
+              />
             </div>
             <div className="space-y-1">
-              <TextValue label="Subtotal" value={formatIDR(detail.sub_total)} />
               <TextValue
-                label="Total Disc"
+                label={t("purchase.shared.subtotal")}
+                value={formatIDR(detail.sub_total)}
+              />
+              <TextValue
+                label={t("purchase.po.detail.total_disc")}
                 value={formatIDR(detail.disc_value)}
               />
-              <TextValue label="PPN" value={formatIDR(detail.tax!)} />
               <TextValue
-                label="Biaya Lainnya"
+                label={t("purchase.shared.ppn")}
+                value={formatIDR(detail.tax!)}
+              />
+              <TextValue
+                label={t("purchase.po.detail.other_cost")}
                 value={formatIDR(detail.other_fee!)}
               />
-              <TextValue label="Grand Total" value={formatIDR(detail.total!)} />
+              <TextValue
+                label={t("purchase.shared.grand_total")}
+                value={formatIDR(detail.total!)}
+              />
             </div>
           </div>
         </ModalBody>
         <ModalFooter>
           <Button color="danger" variant="flat" onPress={() => onOpen(false)}>
-            Tutup
+            {t("common.close")}
           </Button>
         </ModalFooter>
       </ModalContent>

@@ -12,6 +12,7 @@ import {
   TableCell,
 } from "@heroui/react";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import { Eye } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -29,6 +30,7 @@ interface Props {
 }
 
 export default function HistoryTab({ id, isNoDate }: Props) {
+  const { t } = useTranslation();
   const { woQuery, orders } = useAppSelector((state) => state.wo);
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
@@ -78,13 +80,13 @@ export default function HistoryTab({ id, isNoDate }: Props) {
       </Card>
       <Table>
         <TableHeader>
-          <TableColumn>TANGGAL & ID</TableColumn>
-          <TableColumn>DETAIL LAYANAN</TableColumn>
-          <TableColumn align="end">TOTAL BIAYA</TableColumn>
-          <TableColumn align="center">STATUS</TableColumn>
+          <TableColumn>{t("service.history.columns.date_id")}</TableColumn>
+          <TableColumn>{t("service.history.columns.service_detail")}</TableColumn>
+          <TableColumn align="end">{t("service.history.columns.total_cost")}</TableColumn>
+          <TableColumn align="center">{t("service.history.columns.status")}</TableColumn>
           <TableColumn align="center"> </TableColumn>
         </TableHeader>
-        <TableBody emptyContent={<p>Tidak ada riwayat di tanggal ini</p>}>
+        <TableBody emptyContent={<p>{t("service.history.empty_date")}</p>}>
           {(orders?.data || []).map((item) => (
             <TableRow key={item.id}>
               <TableCell>
@@ -117,7 +119,7 @@ export default function HistoryTab({ id, isNoDate }: Props) {
                     size="sm"
                     variant="flat"
                   >
-                    Mekanik: {item.mechanics?.map((e) => e.name).join(", ")}
+                    {t("service.history.mechanic_prefix")}: {item.mechanics?.map((e) => e.name).join(", ")}
                   </Chip>
                 </div>
               </TableCell>
@@ -133,12 +135,14 @@ export default function HistoryTab({ id, isNoDate }: Props) {
                   size="sm"
                   variant="dot"
                 >
-                  {item.status === "closed" ? "Sukses" : "Batal"}
+                  {item.status === "closed"
+                    ? t("service.history.success")
+                    : t("service.history.cancelled")}
                 </Chip>
               </TableCell>
               <TableCell>
                 <div className="flex justify-center gap-1">
-                  <Tooltip content="Lihat Detail">
+                  <Tooltip content={t("service.history.view_detail")}>
                     <Button
                       isIconOnly
                       as={Link}

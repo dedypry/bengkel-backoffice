@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DownloadCloud, Search } from "lucide-react";
 import dayjs from "dayjs";
 
@@ -33,6 +34,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { handleDownload } from "@/utils/helpers/global";
 
 export default function TabPayment() {
+  const { t } = useTranslation();
   const { payments, paymentQuery } = useAppSelector((state) => state.vendor);
   const [search, setSearch] = useState("");
   const [isViewOnly, setIsViewOnly] = useState(false);
@@ -81,7 +83,7 @@ export default function TabPayment() {
             <Input
               className="w-sm"
               endContent={<Search className="text-gray-500" />}
-              placeholder="Cari Supplier..."
+              placeholder={t("service.vendor.search_supplier")}
               value={search}
               onValueChange={(val) => {
                 setSearch(val);
@@ -93,12 +95,20 @@ export default function TabPayment() {
         <CardBody>
           <Table removeWrapper>
             <TableHeader>
-              <TableColumn>No Beli</TableColumn>
-              <TableColumn>Supplier</TableColumn>
-              <TableColumn className="text-right">Subtotal</TableColumn>
-              <TableColumn className="text-right">Diskon</TableColumn>
-              <TableColumn className="text-right">PPN</TableColumn>
-              <TableColumn className="text-right">Jumlah</TableColumn>
+              <TableColumn>{t("service.vendor.columns.purchase_no")}</TableColumn>
+              <TableColumn>{t("service.vendor.columns.supplier")}</TableColumn>
+              <TableColumn className="text-right">
+                {t("service.vendor.columns.subtotal")}
+              </TableColumn>
+              <TableColumn className="text-right">
+                {t("service.vendor.columns.discount")}
+              </TableColumn>
+              <TableColumn className="text-right">
+                {t("service.vendor.columns.tax")}
+              </TableColumn>
+              <TableColumn className="text-right">
+                {t("service.vendor.columns.amount")}
+              </TableColumn>
               <TableColumn> </TableColumn>
             </TableHeader>
             <TableBody>
@@ -130,13 +140,15 @@ export default function TabPayment() {
                   </TableCell>
                   <TableCell className="text-right">
                     <p>{formatIDR(item.total)}</p>
-                    <p className="text-[10px]">{item.total_item} items</p>
+                    <p className="text-[10px]">
+                      {item.total_item} {t("service.vendor.items_suffix")}
+                    </p>
                   </TableCell>
                   <TableCell>
                     <TableAction
                       items={[
                         {
-                          title: "Download Dokumen",
+                          title: t("service.vendor.download_doc"),
                           icon: DownloadCloud as any,
                           onPress: () =>
                             handleDownload(

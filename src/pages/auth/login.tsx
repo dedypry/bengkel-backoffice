@@ -1,11 +1,12 @@
 /* eslint-disable import/order */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { Lock, Mail } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Import HeroUI Components
 import {
@@ -23,18 +24,23 @@ import GuestGuard from "@/utils/guard/guest-guard";
 import { notifyError } from "@/utils/helpers/notify";
 import Password from "@/components/password";
 
-const formSchema = z.object({
-  username: z
-    .string({ message: "Nik/Email wajib di isi." })
-    .min(1, { message: "Nik/Email wajib di isi" }),
-  password: z
-    .string({ message: "Password wajib diisi." })
-    .min(1, { message: "Password wajib diisi." }),
-});
-
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const formSchema = useMemo(
+    () =>
+      z.object({
+        username: z
+          .string({ message: t("auth.validation.username_required") })
+          .min(1, { message: t("auth.validation.username_required") }),
+        password: z
+          .string({ message: t("auth.validation.password_required") })
+          .min(1, { message: t("auth.validation.password_required") }),
+      }),
+    [t],
+  );
 
   const {
     control,
@@ -71,10 +77,9 @@ export default function LoginPage() {
         <form className="w-full max-w-sm" onSubmit={handleSubmit(onSubmit)}>
           <Card className="p-2">
             <CardHeader className="flex flex-col items-start gap-1">
-              <h1 className="text-xl font-bold">Masuk ke Akun</h1>
+              <h1 className="text-xl font-bold">{t("auth.login_title")}</h1>
               <p className="text-gray-500 text-small">
-                Masukkan email dan kata sandi Anda untuk mengakses panel admin
-                bengkel.
+                {t("auth.login_subtitle")}
               </p>
             </CardHeader>
 
@@ -87,9 +92,9 @@ export default function LoginPage() {
                     {...field}
                     errorMessage={errors.username?.message}
                     isInvalid={!!errors.username}
-                    label="Email / NIK"
+                    label={t("auth.username_label")}
                     labelPlacement="outside"
-                    placeholder="contoh@bengkel.com | KAR0000..."
+                    placeholder={t("auth.username_placeholder")}
                     startContent={<Mail className="text-gray-400" size={18} />}
                     variant="bordered"
                   />
@@ -104,7 +109,7 @@ export default function LoginPage() {
                     {...field}
                     errorMessage={errors.password?.message}
                     isInvalid={!!errors.password}
-                    label="Kata Sandi"
+                    label={t("auth.password_label")}
                     labelPlacement="outside"
                     startContent={<Lock className="text-gray-400" size={18} />}
                     variant="bordered"
@@ -112,7 +117,7 @@ export default function LoginPage() {
                 )}
               />
               <Link className="text-xs flex justify-end cursor-pointer">
-                Lupa Kata sandi ?
+                {t("auth.forgot_password")}
               </Link>
             </CardBody>
 
@@ -123,7 +128,7 @@ export default function LoginPage() {
                 isLoading={loading}
                 type="submit"
               >
-                Masuk
+                {t("auth.login_button")}
               </Button>
             </CardFooter>
           </Card>

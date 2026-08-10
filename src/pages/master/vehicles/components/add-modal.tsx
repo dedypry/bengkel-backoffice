@@ -13,6 +13,7 @@ import z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { IVehicleItem } from "@/utils/interfaces/IMaster";
 import InputNumber from "@/components/input-number";
@@ -38,6 +39,7 @@ const vehileSchema = z.object({
 type VehileFormSchema = z.infer<typeof vehileSchema>;
 
 export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
+  const { t } = useTranslation();
   const { master: vehicles } = useAppSelector((state) => state.vehicle);
   const [loading, setLoading] = useState(false);
   const { control, handleSubmit, reset } = useForm<VehileFormSchema>({
@@ -102,7 +104,8 @@ export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>
-            {data ? "Edit" : "Tambah"} Data Master Kendaraan
+            {data ? t("master.vehicles.modal.edit") : t("master.vehicles.modal.add")}
+            {t("master.vehicles.modal.title_suffix")}
           </ModalHeader>
           <ModalBody>
             <Controller
@@ -114,12 +117,11 @@ export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
                   errorMessage={fieldState.error?.message}
                   inputValue={field.value}
                   isInvalid={!!fieldState.error}
-                  label="Merk Kendaraan"
+                  label={t("master.vehicles.modal.brand_label")}
                   listboxProps={{
-                    emptyContent:
-                      "Kendaraan tidak ditemukan, tekan Enter untuk tambah baru.",
+                    emptyContent: t("master.vehicles.modal.not_found"),
                   }}
-                  placeholder="Masukan merk kendaraan"
+                  placeholder={t("master.vehicles.modal.brand_placeholder")}
                   scrollShadowProps={{
                     isEnabled: false,
                   }}
@@ -148,8 +150,8 @@ export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
                   {...field}
                   errorMessage={fieldState.error?.message}
                   isInvalid={!!fieldState.error}
-                  label="Tipe Kendaraan"
-                  placeholder="Masukan Tipe Kendaraan"
+                  label={t("master.vehicles.modal.type_label")}
+                  placeholder={t("master.vehicles.modal.type_placeholder")}
                 />
               )}
             />
@@ -160,8 +162,8 @@ export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
                 <InputNumber
                   errorMessage={fieldState.error?.message}
                   isInvalid={!!fieldState.error}
-                  label="CC"
-                  placeholder="Masukan CC"
+                  label={t("master.vehicles.modal.cc_label")}
+                  placeholder={t("master.vehicles.modal.cc_placeholder")}
                   value={field.value as any}
                   onInput={field.onChange}
                 />
@@ -175,10 +177,10 @@ export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
               variant="bordered"
               onPress={() => setOpen(false)}
             >
-              Tutup
+              {t("common.close")}
             </Button>
             <Button color="primary" isLoading={loading} type="submit">
-              Simpan
+              {t("common.save")}
             </Button>
           </ModalFooter>
         </form>

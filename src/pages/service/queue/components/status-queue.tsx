@@ -32,7 +32,7 @@ export default function StatusQueue({ wo }: Props) {
     <span className="text-[11px] text-gray-400 italic">
       {wo.start_at && dayjs(wo.start_at).format("HH:mm")}{" "}
       {wo.end_at ? "-" : ""} {wo.end_at && dayjs(wo.end_at).format("HH:mm")}{" "}
-      {wo.start_at ? "WIB" : ""}
+      {wo.start_at ? t("service.queue.timezone") : ""}
     </span>
   );
 
@@ -44,7 +44,7 @@ export default function StatusQueue({ wo }: Props) {
           content={
             <div className="max-w-xs px-1 py-1">
               <p className="text-xs font-semibold text-gray-500 mb-1">
-                Alasan Pembatalan
+                {t("service.queue.cancel_reason")}
               </p>
               <p className="text-sm whitespace-pre-wrap">{wo.cancel_note}</p>
             </div>

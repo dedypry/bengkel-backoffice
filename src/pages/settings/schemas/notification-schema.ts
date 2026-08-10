@@ -1,3 +1,4 @@
+import { TFunction } from "i18next";
 import * as z from "zod";
 
 export const notificationDefaults = {
@@ -15,26 +16,29 @@ export const notificationDefaults = {
   email_notify_next_service: true,
 };
 
-export const notificationSchema = z.object({
-  email_enabled: z.boolean(),
-  smtp_host: z.string().optional(),
-  smtp_port: z.number().min(1).max(65535),
-  smtp_secure: z.boolean(),
-  smtp_user: z.string().optional(),
-  smtp_password: z.string().optional(),
-  smtp_from_name: z.string().optional(),
-  smtp_from_email: z
-    .string()
-    .email("Format email tidak valid")
-    .optional()
-    .or(z.literal("")),
-  email_notify_wo_ready: z.boolean(),
-  email_notify_payment_complete: z.boolean(),
-  email_notify_invoice: z.boolean(),
-  email_notify_next_service: z.boolean(),
-});
+export const createNotificationSchema = (t: TFunction) =>
+  z.object({
+    email_enabled: z.boolean(),
+    smtp_host: z.string().optional(),
+    smtp_port: z.number().min(1).max(65535),
+    smtp_secure: z.boolean(),
+    smtp_user: z.string().optional(),
+    smtp_password: z.string().optional(),
+    smtp_from_name: z.string().optional(),
+    smtp_from_email: z
+      .string()
+      .email(t("settings.notifications.validation_email_invalid"))
+      .optional()
+      .or(z.literal("")),
+    email_notify_wo_ready: z.boolean(),
+    email_notify_payment_complete: z.boolean(),
+    email_notify_invoice: z.boolean(),
+    email_notify_next_service: z.boolean(),
+  });
 
-export type NotificationFormValues = z.infer<typeof notificationSchema>;
+export type NotificationFormValues = z.infer<
+  ReturnType<typeof createNotificationSchema>
+>;
 
 export function isEmailConfigSaved(
   settings?: Record<string, unknown> | null,

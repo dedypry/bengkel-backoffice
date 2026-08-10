@@ -1,7 +1,7 @@
 import type { IPayrollItem } from "@/utils/interfaces/IPayroll";
 
 import { useForm, Controller } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -13,6 +13,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { Pencil, Save, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { http } from "@/utils/libs/axios";
 import { formatIDR } from "@/utils/helpers/format";
@@ -44,8 +45,21 @@ export default function ItemModal({
   payrollId,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
+
+  const moneyFields = useMemo(
+    () =>
+      [
+        { name: "base_salary" as const, label: t("hr.payroll.form_base_salary") },
+        { name: "allowance" as const, label: t("hr.payroll.form_allowance") },
+        { name: "overtime_amount" as const, label: t("hr.payroll.form_overtime") },
+        { name: "bonus" as const, label: t("hr.payroll.form_bonus") },
+        { name: "deduction" as const, label: t("hr.payroll.form_deduction") },
+      ] as const,
+    [t],
+  );
 
   const { handleSubmit, control, reset, watch } = useForm<FormValues>({
     defaultValues: {
@@ -99,24 +113,6 @@ export default function ItemModal({
       .finally(() => setLoading(false));
   };
 
-  const moneyField = (name: keyof FormValues, label: string) => (
-    <Controller
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <Input
-          label={label}
-          labelPlacement="inside"
-          startContent={<span className="text-gray-400">Rp</span>}
-          type="number"
-          value={field.value?.toString() ?? ""}
-          variant="faded"
-          onValueChange={field.onChange}
-        />
-      )}
-    />
-  );
-
   return (
     <Modal
       backdrop="blur"
@@ -133,21 +129,34 @@ export default function ItemModal({
             </div>
             <div className="flex flex-col">
               <h2 className="text-lg font-black uppercase">
-                {item?.user?.name || "Komponen Gaji"}
+                {item?.user?.name || t("hr.payroll.item_modal_title")}
               </h2>
               <p className="text-tiny font-medium text-gray-400">
-                Sesuaikan komponen gaji karyawan ini.
+                {t("hr.payroll.item_modal_subtitle")}
               </p>
             </div>
           </ModalHeader>
 
           <ModalBody className="py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {moneyField("base_salary", "Gaji Pokok")}
-              {moneyField("allowance", "Tunjangan")}
-              {moneyField("overtime_amount", "Lembur")}
-              {moneyField("bonus", "Bonus")}
-              {moneyField("deduction", "Potongan")}
+              {moneyFields.map(({ name, label }) => (
+                <Controller
+                  key={name}
+                  control={control}
+                  name={name}
+                  render={({ field }) => (
+                    <Input
+                      label={label}
+                      labelPlacement="inside"
+                      startContent={<span className="text-gray-400">Rp</span>}
+                      type="number"
+                      value={field.value?.toString() ?? ""}
+                      variant="faded"
+                      onValueChange={field.onChange}
+                    />
+                  )}
+                />
+              ))}
             </div>
 
             <Controller
@@ -155,7 +164,7 @@ export default function ItemModal({
               name="note"
               render={({ field }) => (
                 <Textarea
-                  label="Catatan"
+                  label={t("common.notes")}
                   labelPlacement="inside"
                   value={field.value || ""}
                   variant="faded"
@@ -166,7 +175,7 @@ export default function ItemModal({
 
             <div className="flex items-center justify-between p-4 bg-primary/5 rounded-sm border border-primary/10">
               <span className="text-sm font-bold text-gray-600 uppercase">
-                Gaji Bersih (Take Home Pay)
+                {t("hr.payroll.net_salary")}
               </span>
               <span className="text-xl font-black text-primary">
                 {formatIDR(net)}
@@ -181,7 +190,7 @@ export default function ItemModal({
               variant="flat"
               onPress={handleClose}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -189,7 +198,7 @@ export default function ItemModal({
               startContent={!loading && <Save size={18} />}
               type="submit"
             >
-              Simpan
+              {t("common.save")}
             </Button>
           </ModalFooter>
         </ModalContent>

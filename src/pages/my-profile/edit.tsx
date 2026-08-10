@@ -9,7 +9,8 @@ import {
   ChevronRight,
   Home,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -24,7 +25,7 @@ import {
   Breadcrumbs,
 } from "@heroui/react";
 
-import { formSchema } from "./schemas/create-schema";
+import { createFormSchema } from "./schemas/create-schema";
 
 import UploadAvatar from "@/components/upload-avatar";
 import Province from "@/components/regions/province";
@@ -39,10 +40,12 @@ import CustomDatePicker from "@/components/forms/date-picker";
 import PhoneInput from "@/components/forms/phone-input";
 
 export default function EditProfilePage() {
+  const { t } = useTranslation();
   const { user } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
 
   const {
     control,
@@ -114,13 +117,14 @@ export default function EditProfilePage() {
         separator={<ChevronRight size={14} />}
       >
         <BreadcrumbItem href="/" startContent={<Home size={16} />}>
-          Home
+          {t("profile.home")}
         </BreadcrumbItem>
-        <BreadcrumbItem href="/my-profile">My Profile</BreadcrumbItem>
-        <BreadcrumbItem>Edit Profile</BreadcrumbItem>
+        <BreadcrumbItem href="/my-profile">
+          {t("common.my_profile")}
+        </BreadcrumbItem>
+        <BreadcrumbItem>{t("profile.edit_breadcrumb")}</BreadcrumbItem>
       </Breadcrumbs>
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        {/* SECTION 1: PERSONAL INFO */}
         <Card>
           <CardBody className="p-8">
             <div className="flex items-center gap-3 mb-6">
@@ -128,7 +132,7 @@ export default function EditProfilePage() {
                 <User2 size={18} />
               </div>
               <h2 className="text-sm font-black uppercase  text-gray-500">
-                Informasi Personal
+                {t("profile.section_personal")}
               </h2>
             </div>
 
@@ -143,13 +147,12 @@ export default function EditProfilePage() {
                     <UploadAvatar
                       value={field.value}
                       onChange={field.onChange}
-                      // Pastikan UploadAvatar juga menggunakan radius-sm secara internal
                     />
                   )}
                 />
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">
-                  Format: JPG, PNG. <br />
-                  Maks 2MB.
+                  {t("profile.photo_hint_format")} <br />
+                  {t("profile.photo_hint_size")}
                 </p>
               </div>
 
@@ -162,8 +165,8 @@ export default function EditProfilePage() {
                       {...field}
                       errorMessage={errors.name?.message as string}
                       isInvalid={!!errors.name}
-                      label="NAMA LENGKAP"
-                      placeholder="Sesuai identitas resmi"
+                      label={t("profile.form_name")}
+                      placeholder={t("profile.form_name_placeholder")}
                     />
                   )}
                 />
@@ -176,8 +179,8 @@ export default function EditProfilePage() {
                       {...field}
                       errorMessage={errors.email?.message as string}
                       isInvalid={!!errors.email}
-                      label="ALAMAT EMAIL"
-                      placeholder="user@bengkel.com"
+                      label={t("profile.form_email")}
+                      placeholder={t("profile.form_email_placeholder")}
                       startContent={
                         <Mail className="text-gray-400" size={16} />
                       }
@@ -193,9 +196,9 @@ export default function EditProfilePage() {
                       {...field}
                       errorMessage={errors.phone?.message as string}
                       isInvalid={!!errors.phone}
-                      label="NOMOR TELEPON"
+                      label={t("profile.form_phone")}
                       labelPlacement="inside"
-                      placeholder="0812..."
+                      placeholder={t("profile.form_phone_placeholder")}
                       startContent={
                         <Phone className="text-gray-400" size={16} />
                       }
@@ -211,18 +214,24 @@ export default function EditProfilePage() {
                     <Select
                       errorMessage={errors.gender?.message as string}
                       isInvalid={!!errors.gender}
-                      label="JENIS KELAMIN"
-                      placeholder="Pilih"
+                      label={t("profile.form_gender")}
+                      placeholder={t("common.select")}
                       selectedKeys={field.value ? [field.value] : []}
                       onSelectionChange={(keys) =>
                         field.onChange(Array.from(keys)[0])
                       }
                     >
-                      <SelectItem key="male" textValue="Laki-laki">
-                        Laki-laki
+                      <SelectItem
+                        key="male"
+                        textValue={t("hr.common.gender_male")}
+                      >
+                        {t("hr.common.gender_male")}
                       </SelectItem>
-                      <SelectItem key="female" textValue="Perempuan">
-                        Perempuan
+                      <SelectItem
+                        key="female"
+                        textValue={t("hr.common.gender_female")}
+                      >
+                        {t("hr.common.gender_female")}
                       </SelectItem>
                     </Select>
                   )}
@@ -236,8 +245,8 @@ export default function EditProfilePage() {
                       {...field}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="TEMPAT LAHIR"
-                      placeholder="Contoh: Jakarta"
+                      label={t("profile.form_birth_place")}
+                      placeholder={t("profile.form_birth_place_placeholder")}
                     />
                   )}
                 />
@@ -249,7 +258,7 @@ export default function EditProfilePage() {
                     <CustomDatePicker
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Tanggal Lahir"
+                      label={t("profile.form_birth_date")}
                       labelPlacement="inside"
                       value={
                         (field.value ? new Date(field.value) : undefined) as any
@@ -264,7 +273,6 @@ export default function EditProfilePage() {
           </CardBody>
         </Card>
 
-        {/* SECTION 2: ADDRESS & EMERGENCY */}
         <Card>
           <CardBody className="p-8">
             <div className="flex items-center gap-3 mb-6">
@@ -272,7 +280,7 @@ export default function EditProfilePage() {
                 <MapPin size={18} />
               </div>
               <h2 className="text-sm font-black uppercase text-gray-500">
-                Domisili & Kontak Darurat
+                {t("profile.section_domicile")}
               </h2>
             </div>
 
@@ -332,9 +340,9 @@ export default function EditProfilePage() {
                     {...field}
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="ALAMAT LENGKAP"
+                    label={t("profile.form_address")}
                     minRows={3}
-                    placeholder="Nama jalan, nomor rumah, RT/RW..."
+                    placeholder={t("profile.form_address_placeholder")}
                   />
                 )}
               />
@@ -346,8 +354,8 @@ export default function EditProfilePage() {
                   render={({ field }) => (
                     <Input
                       {...(field as any)}
-                      label="NAMA KONTAK DARURAT"
-                      placeholder="Nama kerabat"
+                      label={t("profile.form_emergency_name")}
+                      placeholder={t("profile.form_emergency_name_placeholder")}
                     />
                   )}
                 />
@@ -357,8 +365,10 @@ export default function EditProfilePage() {
                   render={({ field }) => (
                     <Input
                       {...(field as any)}
-                      label="NOMOR KONTAK DARURAT"
-                      placeholder="08..."
+                      label={t("profile.form_emergency_phone")}
+                      placeholder={t(
+                        "profile.form_emergency_phone_placeholder",
+                      )}
                     />
                   )}
                 />
@@ -367,14 +377,13 @@ export default function EditProfilePage() {
           </CardBody>
         </Card>
 
-        {/* ACTIONS */}
         <div className="flex justify-end items-center gap-4 pb-10">
           <Button
             color="danger"
             variant="light"
             onPress={() => navigate("/my-profile/")}
           >
-            Batalkan
+            {t("common.cancel")}
           </Button>
           <Button
             color="primary"
@@ -382,7 +391,7 @@ export default function EditProfilePage() {
             startContent={!loading && <Save size={18} />}
             type="submit"
           >
-            Simpan Perubahan
+            {t("profile.save_changes")}
           </Button>
         </div>
       </form>

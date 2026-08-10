@@ -1,8 +1,9 @@
 import type { IEmployeeSalary } from "@/utils/interfaces/IPayroll";
+import type { TFunction } from "i18next";
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -20,6 +21,7 @@ import {
 } from "@heroui/react";
 import { z } from "zod";
 import { Wallet, Save, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
@@ -28,23 +30,28 @@ import { getEmploye } from "@/stores/features/employe/employe-action";
 import { getSalaries } from "@/stores/features/payroll/payroll-action";
 import InputNumber from "@/components/input-number";
 
-export const SALARY_TYPES = [
-  { key: "monthly", label: "Bulanan" },
-  { key: "weekly", label: "Mingguan" },
-  { key: "daily", label: "Harian" },
+export const getSalaryTypes = (t: TFunction) => [
+  { key: "monthly", label: t("hr.common.monthly") },
+  { key: "weekly", label: t("hr.common.weekly") },
+  { key: "daily", label: t("hr.common.daily") },
 ];
 
-const schema = z.object({
-  user_id: z.number({ message: "Karyawan wajib dipilih" }),
-  salary_type: z.string().min(1, "Tipe gaji wajib dipilih"),
-  base_salary: z.number().min(0, "Gaji pokok tidak valid"),
-  allowance: z.number().min(0).optional(),
-  deduction: z.number().min(0).optional(),
-  note: z.string().optional(),
-  is_active: z.boolean(),
-});
+const createSalarySchema = (t: TFunction) =>
+  z.object({
+    user_id: z.number({ message: t("hr.payroll.validation.employee_required") }),
+    salary_type: z
+      .string()
+      .min(1, t("hr.payroll.validation.salary_type_required")),
+    base_salary: z
+      .number()
+      .min(0, t("hr.payroll.validation.base_salary_invalid")),
+    allowance: z.number().min(0).optional(),
+    deduction: z.number().min(0).optional(),
+    note: z.string().optional(),
+    is_active: z.boolean(),
+  });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof createSalarySchema>>;
 
 interface Props {
   open: boolean;
@@ -54,12 +61,16 @@ interface Props {
 }
 
 export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { list } = useAppSelector((state) => state.employe);
   const { salaryQuery } = useAppSelector((state) => state.payroll);
   const [loading, setLoading] = useState(false);
 
   const employees = list?.data || [];
+
+  const schema = useMemo(() => createSalarySchema(t), [t]);
+  const salaryTypes = useMemo(() => getSalaryTypes(t), [t]);
 
   const { handleSubmit, control, reset } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -137,10 +148,12 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
             </div>
             <div className="flex flex-col">
               <h2 className="text-lg font-black uppercase">
-                {salary?.id ? "Ubah Gaji Karyawan" : "Atur Gaji Karyawan"}
+                {salary?.id
+                  ? t("hr.payroll.salary_modal_edit")
+                  : t("hr.payroll.salary_modal_add")}
               </h2>
               <p className="text-tiny font-medium text-gray-400">
-                Tetapkan gaji pokok, tunjangan, dan potongan tetap.
+                {t("hr.payroll.salary_modal_subtitle")}
               </p>
             </div>
           </ModalHeader>
@@ -155,9 +168,9 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
                   errorMessage={fieldState.error?.message}
                   isDisabled={!!salary?.id}
                   isInvalid={!!fieldState.error}
-                  label="Karyawan"
+                  label={t("hr.common.employee")}
                   labelPlacement="inside"
-                  placeholder="Pilih karyawan"
+                  placeholder={t("hr.attendance.form_employee_placeholder")}
                   selectedKey={field.value ? field.value.toString() : null}
                   variant="faded"
                   onSelectionChange={(key) =>
@@ -169,7 +182,8 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
                       <div className="flex flex-col">
                         <span className="font-semibold">{item.name}</span>
                         <span className="text-tiny text-gray-400">
-                          {item.nik || "-"} · {item.department || "Karyawan"}
+                          {item.nik || "-"} ·{" "}
+                          {item.department || t("hr.common.employee_fallback")}
                         </span>
                       </div>
                     </AutocompleteItem>
@@ -186,7 +200,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
                   <Select
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Tipe Gaji"
+                    label={t("hr.payroll.form_salary_type")}
                     labelPlacement="inside"
                     selectedKeys={field.value ? [field.value] : []}
                     variant="faded"
@@ -194,7 +208,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
                       field.onChange(Array.from(keys)[0]?.toString() || "")
                     }
                   >
-                    {SALARY_TYPES.map((opt) => (
+                    {salaryTypes.map((opt) => (
                       <SelectItem key={opt.key}>{opt.label}</SelectItem>
                     ))}
                   </Select>
@@ -207,7 +221,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
                   <InputNumber
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Gaji Pokok"
+                    label={t("hr.payroll.form_base_salary")}
                     labelPlacement="inside"
                     startContent={<span className="text-gray-400">Rp</span>}
                     value={field.value?.toString() ?? ""}
@@ -224,7 +238,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
                 name="allowance"
                 render={({ field }) => (
                   <Input
-                    label="Tunjangan Tetap"
+                    label={t("hr.payroll.form_fixed_allowance")}
                     labelPlacement="inside"
                     startContent={<span className="text-gray-400">Rp</span>}
                     type="number"
@@ -241,7 +255,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
                 name="deduction"
                 render={({ field }) => (
                   <Input
-                    label="Potongan Tetap"
+                    label={t("hr.payroll.form_fixed_deduction")}
                     labelPlacement="inside"
                     startContent={<span className="text-gray-400">Rp</span>}
                     type="number"
@@ -260,7 +274,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
               name="note"
               render={({ field }) => (
                 <Textarea
-                  label="Catatan"
+                  label={t("common.notes")}
                   labelPlacement="inside"
                   value={field.value || ""}
                   variant="faded"
@@ -275,7 +289,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
               render={({ field }) => (
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-sm border border-gray-100">
                   <span className="text-sm font-bold text-gray-600 uppercase">
-                    Gaji Aktif
+                    {t("hr.payroll.form_salary_active")}
                   </span>
                   <Switch
                     color="success"
@@ -294,7 +308,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
               variant="flat"
               onPress={handleClose}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -302,7 +316,7 @@ export default function SalaryModal({ open, setOpen, salary, onClose }: Props) {
               startContent={!loading && <Save size={18} />}
               type="submit"
             >
-              Simpan
+              {t("common.save")}
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -2,6 +2,7 @@ import type { IService } from "@/utils/interfaces/IService";
 
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Input,
   Table,
@@ -30,6 +31,7 @@ import InputNumber from "@/components/input-number";
 import { asArray } from "@/utils/helpers/as-array";
 
 export default function TabService() {
+  const { t } = useTranslation();
   const { services } = useAppSelector((state) => state.service);
   const { services: selectedServices } = useAppSelector((state) => state.wo);
   const { suppliers } = useAppSelector((state) => state.supplier);
@@ -91,7 +93,7 @@ export default function TabService() {
       <Input
         isClearable
         className="max-w-full"
-        placeholder="Cari nama atau kode jasa servis..."
+        placeholder={t("service.add.search_service")}
         startContent={<Search className="text-default-400" size={18} />}
         value={search}
         variant="bordered"
@@ -105,17 +107,17 @@ export default function TabService() {
         }}
       />
 
-      <Table removeWrapper aria-label="Tabel Pemilihan Jasa">
+      <Table removeWrapper aria-label={t("service.add.service_table_aria")}>
         <TableHeader>
-          <TableColumn width={40}>PILIH</TableColumn>
-          <TableColumn>NAMA JASA</TableColumn>
-          <TableColumn>SUPPLIER</TableColumn>
-          <TableColumn align="end">HARGA SATUAN</TableColumn>
+          <TableColumn width={40}>{t("service.add.select_col")}</TableColumn>
+          <TableColumn>{t("service.add.service_name_col")}</TableColumn>
+          <TableColumn>{t("service.add.supplier_col")}</TableColumn>
+          <TableColumn align="end">{t("service.add.unit_price_col")}</TableColumn>
           <TableColumn align="center" width={160}>
-            QTY / DURASI
+            {t("service.add.qty_duration_col")}
           </TableColumn>
         </TableHeader>
-        <TableBody emptyContent="Layanan jasa tidak ditemukan">
+        <TableBody emptyContent={t("service.add.service_empty")}>
           {(services?.data || []).map((item) => {
             const find = findQty(item);
             const isSelected = selectedIds.includes(item.id);
@@ -150,7 +152,7 @@ export default function TabService() {
                         size="sm"
                         variant="dot"
                       >
-                        Servis
+                        {t("service.add.service_chip")}
                       </Chip>
                     </div>
                   </div>
@@ -161,7 +163,7 @@ export default function TabService() {
                       clearButton: "text-gray-500",
                     }}
                     defaultItems={supplierOptions}
-                    placeholder="Cari Supplier"
+                    placeholder={t("service.add.search_supplier")}
                     selectedKey={find?.supplier_id?.toString()}
                     size="sm"
                     onSelectionChange={(val) => handleSupplier(val, itemData)}

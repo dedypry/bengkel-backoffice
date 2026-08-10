@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import { Search } from "lucide-react";
 
@@ -31,6 +32,7 @@ interface Props {
   selectedIds: number[];
 }
 export default function AddWoItems({ supplierId, onSave, selectedIds }: Props) {
+  const { t } = useTranslation();
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const { servicePayments: data } = useAppSelector((state) => state.wo);
   const [open, setOpen] = useState(false);
@@ -87,26 +89,26 @@ export default function AddWoItems({ supplierId, onSave, selectedIds }: Props) {
         onOpenChange={setOpen}
       >
         <ModalContent>
-          <ModalHeader>List Jasa Service</ModalHeader>
+          <ModalHeader>{t("service.vendor.service_list_title")}</ModalHeader>
           <ModalBody>
             <Input
               defaultValue={query.q}
-              placeholder="Cari no. transaksi, nama jasa.."
+              placeholder={t("service.vendor.search_trx")}
               startContent={<Search className="text-gray-600" size={18} />}
               onValueChange={searchDebounce}
             />
             <Table
               isHeaderSticky
               removeWrapper
-              aria-label="Detail Jasa Table"
+              aria-label={t("service.vendor.table_aria")}
               selectedKeys={selectedKeys}
               selectionMode="multiple"
               onSelectionChange={setSelectedKeys}
             >
               <TableHeader>
-                <TableColumn>No. Trx</TableColumn>
-                <TableColumn>Deskripsi</TableColumn>
-                <TableColumn>Harga</TableColumn>
+                <TableColumn>{t("service.vendor.trx_no")}</TableColumn>
+                <TableColumn>{t("service.vendor.description")}</TableColumn>
+                <TableColumn>{t("service.vendor.price")}</TableColumn>
               </TableHeader>
               <TableBody items={servicePayments}>
                 {(item) => (
@@ -129,7 +131,7 @@ export default function AddWoItems({ supplierId, onSave, selectedIds }: Props) {
           </ModalBody>
           <ModalFooter>
             <div className="flex gap-2">
-              <Button size="sm">Batal</Button>
+              <Button size="sm">{t("common.cancel")}</Button>
               <Button
                 color="primary"
                 size="sm"
@@ -138,14 +140,14 @@ export default function AddWoItems({ supplierId, onSave, selectedIds }: Props) {
                   setOpen(false);
                 }}
               >
-                Simpan
+                {t("common.save")}
               </Button>
             </div>
           </ModalFooter>
         </ModalContent>
       </Modal>
       <Button color="primary" size="sm" onPress={() => setOpen(true)}>
-        Tambah Data
+        {t("service.vendor.add_data")}
       </Button>
     </>
   );

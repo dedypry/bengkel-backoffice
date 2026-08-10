@@ -14,6 +14,7 @@ import {
   Save,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Input,
   Button,
@@ -67,6 +68,7 @@ const productSchema = z.object({
 type ProductFormValues = z.infer<typeof productSchema>;
 
 export default function FormAddStock({ initialData }: { initialData?: any }) {
+  const { t } = useTranslation();
   const { company } = useAppSelector((state) => state.auth);
   const { categories, uoms } = useAppSelector((state) => state.product);
   const [isLoading, setLoading] = useState(false);
@@ -221,13 +223,14 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
             href="/inventory/stock"
             startContent={<Package size={14} />}
           >
-            Inventory
+            {t("inventory.stock.form.breadcrumb_inventory")}
           </BreadcrumbItem>
           <BreadcrumbItem startContent={<Boxes size={14} />}>
-            Spareparts
+            {t("inventory.stock.form.breadcrumb_parts")}
           </BreadcrumbItem>
           <BreadcrumbItem isCurrent>
-            {initialData ? "Edit" : "Tambah"} Stok
+            {initialData ? t("inventory.stock.form.edit") : t("inventory.stock.form.add")}
+            {t("inventory.stock.form.stock_suffix")}
           </BreadcrumbItem>
         </Breadcrumbs>
 
@@ -238,7 +241,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
               <div className="flex items-center gap-2 text-gray-800">
                 <Package className="size-5" />
                 <h2 className="text-lg font-black  uppercase ">
-                  Informasi Dasar
+                  {t("inventory.stock.form.basic_info")}
                 </h2>
               </div>
               <Divider className="bg-gray-100" />
@@ -249,7 +252,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 render={({ field }) => (
                   <div className="space-y-2">
                     <p className="text-tiny font-bold text-gray-500 uppercase">
-                      Foto Produk
+                      {t("inventory.stock.form.photo")}
                     </p>
                     <FileUploader
                       value={field.value}
@@ -268,7 +271,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       {...field}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Kode / SKU"
+                      label={t("inventory.stock.form.code")}
                       placeholder="OLI-001"
                     />
                   )}
@@ -282,7 +285,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       className="md:col-span-2"
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Nama Produk"
+                      label={t("inventory.stock.form.name")}
                       placeholder="Contoh: Oli Toyota Motor Oil 10W-40"
                     />
                   )}
@@ -307,8 +310,8 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       }
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Main Kategori"
-                      placeholder="Pilih Kategori"
+                      label={t("inventory.stock.form.main_category")}
+                      placeholder={t("inventory.stock.bulk_category.select_category")}
                       selectedKey={field.value?.toString()}
                       onSelectionChange={(val) => {
                         if (val != String(field.value)) {
@@ -333,7 +336,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                           {item.name}{" "}
                           {!!item.deleted_at && (
                             <span className="text-xs text-gray-400 hover:text-red-500">
-                              (Sudah Dihapus)
+                              {t("inventory.stock.form.deleted")}
                             </span>
                           )}
                         </AutocompleteItem>
@@ -376,8 +379,8 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       }
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Kategori"
-                      placeholder="Pilih Kategori"
+                      label={t("inventory.stock.form.category")}
+                      placeholder={t("inventory.stock.bulk_category.select_category")}
                       selectedKey={field.value?.toString()}
                       onSelectionChange={(val) => {
                         field.onChange(val);
@@ -407,7 +410,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       defaultItems={Array.isArray(uoms) ? uoms : []}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Satuan"
+                      label={t("inventory.stock.form.unit")}
                       placeholder="Pcs / Liter"
                       selectedKey={field.value?.toString()}
                       onSelectionChange={field.onChange}
@@ -427,7 +430,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     <Input
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Lokasi Rak"
+                      label={t("inventory.stock.form.rack")}
                       placeholder="Gudang A / Rak 1"
                       startContent={
                         <MapPin className="text-gray-400" size={16} />
@@ -443,7 +446,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
             <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
               <div className="flex items-center gap-2 text-gray-500 font-bold">
                 <DollarSign className="size-5" />
-                <h2 className="text-lg  uppercase ">Harga & Inventori</h2>
+                <h2 className="text-lg  uppercase ">{t("inventory.stock.form.price_inventory")}</h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -452,7 +455,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                   name="purchase_price"
                   render={({ field }) => (
                     <InputNumber
-                      label="Harga Beli"
+                      label={t("inventory.stock.form.buy_price")}
                       labelPlacement="inside"
                       prefix="Rp."
                       value={field.value as any}
@@ -465,7 +468,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                   name="sell_price"
                   render={({ field }) => (
                     <InputNumber
-                      label="Harga Jual"
+                      label={t("inventory.stock.form.sell_price")}
                       labelPlacement="inside"
                       prefix="Rp."
                       value={field.value as any}
@@ -480,7 +483,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     <InputNumber
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Stok Awal"
+                      label={t("inventory.stock.form.initial_stock")}
                       labelPlacement="inside"
                       value={field.value as any}
                       onInput={field.onChange}
@@ -494,7 +497,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                     <InputNumber
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Stok Minimum"
+                      label={t("inventory.stock.form.min_stock")}
                       labelPlacement="inside"
                       value={field.value as any}
                       onInput={field.onChange}
@@ -509,7 +512,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
               <div className="md:col-span-2 space-y-4">
                 <div className="flex items-center gap-2 text-gray-500">
                   <Info className="size-5" />
-                  <h2 className="text-lg font-black  uppercase ">Deskripsi</h2>
+                  <h2 className="text-lg font-black  uppercase ">{t("inventory.stock.form.description")}</h2>
                 </div>
                 <Controller
                   control={control}
@@ -528,7 +531,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
               <div className="space-y-6">
                 <div className="flex items-center gap-2 text-gray-500">
                   <Archive className="size-5" />
-                  <h2 className="text-lg font-black  uppercase ">Pengaturan</h2>
+                  <h2 className="text-lg font-black  uppercase ">{t("inventory.stock.form.settings")}</h2>
                 </div>
                 <Card
                   className="bg-gray-50 border border-gray-100"
@@ -536,9 +539,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 >
                   <CardBody className="flex flex-row items-center justify-between p-4">
                     <div className="flex flex-col">
-                      <p className="text-small font-bold">Status Produk</p>
+                      <p className="text-small font-bold">{t("inventory.stock.form.product_status")}</p>
                       <p className="text-tiny text-gray-400 font-medium">
-                        Aktifkan untuk POS
+                        {t("inventory.stock.form.pos_active")}
                       </p>
                     </div>
                     <Controller
@@ -562,7 +565,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                   startContent={!isLoading && <Save size={20} />}
                   type="submit"
                 >
-                  SIMPAN PRODUK
+                  {t("inventory.stock.form.save_product")}
                 </Button>
               </div>
             </section>

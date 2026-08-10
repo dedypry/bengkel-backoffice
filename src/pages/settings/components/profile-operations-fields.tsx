@@ -12,6 +12,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { FileText, Hash, Wrench } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import InputNumber from "@/components/input-number";
 import NextServiceNotesField from "@/components/next-service-notes-field";
@@ -88,6 +89,7 @@ function PrefixInput({
 export default function ProfileOperationsFields({
   control,
 }: ProfileOperationsFieldsProps) {
+  const { t } = useTranslation();
   const { list } = useAppSelector((state) => state.employe);
   const { roles } = useAppSelector((state) => state.role);
   const { warehouses } = useAppSelector((state) => state.warehouse);
@@ -96,54 +98,54 @@ export default function ProfileOperationsFields({
   return (
     <div className="space-y-6">
       <SectionCard
-        description="Format nomor transaksi servis dan penjualan."
+        description={t("settings.operations.transaction_numbering_desc")}
         icon={Hash}
-        title="Penomoran Transaksi"
+        title={t("settings.operations.transaction_numbering")}
         tone="sky"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <PrefixInput
             control={control}
-            label="Pendaftaran Servis"
+            label={t("settings.operations.service_registration")}
             name="service_reg_prefix"
           />
           <PrefixInput
             control={control}
-            label="Pembayaran Servis"
+            label={t("settings.operations.service_payment")}
             name="service_pay_prefix"
           />
           <PrefixInput
             control={control}
-            label="Pembelian Jasa"
+            label={t("settings.operations.job_purchase")}
             name="job_order_prefix"
           />
           <PrefixInput
             control={control}
-            label="Order Penjualan"
+            label={t("settings.operations.sales_order")}
             name="sales_order_prefix"
           />
           <PrefixInput
             control={control}
-            label="Faktur Penjualan"
+            label={t("settings.operations.sales_invoice")}
             name="sales_inv_prefix"
           />
           <PrefixInput
             control={control}
-            label="Retur Penjualan"
+            label={t("settings.operations.sales_return")}
             name="sales_ret_prefix"
           />
           <PrefixInput
             control={control}
-            label="Pembayaran Piutang"
+            label={t("settings.operations.ar_payment")}
             name="ar_pay_prefix"
           />
         </div>
       </SectionCard>
 
       <SectionCard
-        description="Nilai bawaan saat servis dan operasional bengkel."
+        description={t("settings.operations.default_ops_desc")}
         icon={Wrench}
-        title="Default Operasional"
+        title={t("settings.operations.default_ops")}
         tone="violet"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -152,7 +154,7 @@ export default function ProfileOperationsFields({
             name="default_km_increment"
             render={({ field }) => (
               <InputNumber
-                label="Penambahan KM Servis Berikutnya"
+                label={t("settings.operations.next_km_increment")}
                 placeholder="7000"
                 value={
                   field.value != null ? String(field.value) : undefined
@@ -166,7 +168,7 @@ export default function ProfileOperationsFields({
             name="next_service_interval_days"
             render={({ field }) => (
               <InputNumber
-                label="Interval Servis Berikutnya (Hari)"
+                label={t("settings.operations.next_service_interval")}
                 placeholder="90"
                 value={
                   field.value != null ? String(field.value) : undefined
@@ -180,7 +182,7 @@ export default function ProfileOperationsFields({
             name="next_service_reminder_days"
             render={({ field }) => (
               <InputNumber
-                label="Pengingat Email Sebelum Jadwal (Hari)"
+                label={t("settings.operations.email_reminder_days")}
                 placeholder="7"
                 value={
                   field.value != null ? String(field.value) : undefined
@@ -194,7 +196,7 @@ export default function ProfileOperationsFields({
             name="pit_count"
             render={({ field }) => (
               <InputNumber
-                label="Jumlah Pit / Stall Servis"
+                label={t("settings.operations.pit_count")}
                 placeholder="10"
                 value={
                   field.value != null ? String(field.value) : undefined
@@ -208,8 +210,8 @@ export default function ProfileOperationsFields({
             name="default_warehouse_id"
             render={({ field }) => (
               <Select
-                label="Gudang Default Stok"
-                placeholder="Pilih gudang"
+                label={t("settings.operations.default_warehouse")}
+                placeholder={t("settings.operations.select_warehouse")}
                 selectedKeys={
                   field.value ? new Set([String(field.value)]) : new Set()
                 }
@@ -236,9 +238,9 @@ export default function ProfileOperationsFields({
             name="default_cash_account_id"
             render={({ field }) => (
               <InputNumber
-                description="ID akun kas untuk pembayaran default"
-                label="Kas Pembayaran (Account ID)"
-                placeholder="Opsional"
+                description={t("settings.operations.cash_account_desc")}
+                label={t("settings.operations.cash_account")}
+                placeholder={t("common.optional")}
                 value={
                   field.value != null ? String(field.value) : undefined
                 }
@@ -252,8 +254,8 @@ export default function ProfileOperationsFields({
             render={({ field }) => (
               <Autocomplete
                 defaultItems={list?.data || []}
-                label="PIC Service Default"
-                placeholder="Pilih karyawan"
+                label={t("settings.operations.default_pic")}
+                placeholder={t("settings.operations.select_employee")}
                 selectedKey={field.value ? String(field.value) : undefined}
                 variant="bordered"
                 onSelectionChange={(key) =>
@@ -274,8 +276,8 @@ export default function ProfileOperationsFields({
             render={({ field }) => (
               <Autocomplete
                 defaultItems={list?.data || []}
-                label="Service Advisor Default"
-                placeholder="Pilih karyawan"
+                label={t("settings.operations.default_advisor")}
+                placeholder={t("settings.operations.select_employee")}
                 selectedKey={field.value ? String(field.value) : undefined}
                 variant="bordered"
                 onSelectionChange={(key) =>
@@ -296,8 +298,8 @@ export default function ProfileOperationsFields({
             render={({ field }) => (
               <Select
                 className="md:col-span-2"
-                label="Role Mekanik"
-                placeholder="Pilih role yang dihitung sebagai mekanik"
+                label={t("settings.operations.mechanic_role")}
+                placeholder={t("settings.operations.select_mechanic_role")}
                 selectedKeys={new Set(field.value || [])}
                 selectionMode="multiple"
                 variant="bordered"
@@ -315,9 +317,9 @@ export default function ProfileOperationsFields({
       </SectionCard>
 
       <SectionCard
-        description="Catatan bawaan yang tampil di dokumen servis dan penjualan."
+        description={t("settings.operations.document_notes_desc")}
         icon={FileText}
-        title="Catatan Dokumen"
+        title={t("settings.operations.document_notes")}
         tone="amber"
       >
         <div className="grid grid-cols-1 gap-4">
@@ -327,9 +329,11 @@ export default function ProfileOperationsFields({
             render={({ field }) => (
               <Textarea
                 {...field}
-                label="Catatan Invoice Servis"
+                label={t("settings.operations.service_invoice_notes")}
                 minRows={3}
-                placeholder="Terima kasih telah mempercayakan kendaraan Anda..."
+                placeholder={t(
+                  "settings.operations.service_invoice_notes_placeholder",
+                )}
                 value={field.value || ""}
                 variant="bordered"
               />
@@ -341,9 +345,11 @@ export default function ProfileOperationsFields({
             render={({ field }) => (
               <Textarea
                 {...field}
-                label="Catatan Invoice Penjualan"
+                label={t("settings.operations.sales_invoice_notes")}
                 minRows={3}
-                placeholder="Barang yang sudah dibeli tidak dapat ditukar..."
+                placeholder={t(
+                  "settings.operations.sales_invoice_notes_placeholder",
+                )}
                 value={field.value || ""}
                 variant="bordered"
               />

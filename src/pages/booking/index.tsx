@@ -31,6 +31,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import ModalAdd from "./modal-add";
 
@@ -63,7 +64,26 @@ const getStatusColor = (
   }
 };
 
+const getStatusLabel = (
+  status: string,
+  t: (key: string) => string,
+): string => {
+  switch (status.toLowerCase()) {
+    case "confirmed":
+      return t("booking.status.confirmed");
+    case "pending":
+      return t("booking.status.pending");
+    case "completed":
+      return t("booking.status.completed");
+    case "cancelled":
+      return t("booking.status.cancelled");
+    default:
+      return status;
+  }
+};
+
 export default function BookingPage() {
+  const { t } = useTranslation();
   const { bookingQuery, bookings } = useAppSelector((state) => state.booking);
   const { company } = useAppSelector((state) => state.auth);
   const [modalAdd, setModalAdd] = useState(false);
@@ -102,12 +122,11 @@ export default function BookingPage() {
     <div className="space-y-6">
       <ModalAdd data={data} isOpen={modalAdd} setOpen={setModalAdd} />
 
-      {/* Header Halaman */}
       <HeaderAction
         actionIcon={Plus}
-        actionTitle="Tambah Booking"
-        subtitle="Kelola antrean dan jadwal servis bengkel Anda."
-        title="Data Booking"
+        actionTitle={t("booking.add")}
+        subtitle={t("booking.subtitle")}
+        title={t("booking.title")}
         onAction={() => setModalAdd(true)}
       />
 
@@ -116,44 +135,50 @@ export default function BookingPage() {
           <Input
             className="flex-1 min-w-[240px]"
             defaultValue={bookingQuery.q}
-            label="Cari Customer / Kendaraan"
-            placeholder="Ketik nama atau plat nomor..."
+            label={t("booking.search_label")}
+            placeholder={t("booking.search_placeholder")}
             startContent={<Search className="text-default-400" size={18} />}
             onValueChange={searchDebounce}
           />
           <Select
             className="w-full md:w-[180px]"
             defaultSelectedKeys={[bookingQuery.status]}
-            label="Status"
+            label={t("booking.status_label")}
             onSelectionChange={(key) => {
               const status = Array.from(key)[0];
 
               dispatch(setBookingQuery({ status }));
             }}
           >
-            <SelectItem key="all">Semua Status</SelectItem>
-            <SelectItem key="pending">Pending</SelectItem>
-            <SelectItem key="confirmed">Confirmed</SelectItem>
+            <SelectItem key="all">{t("booking.status_all")}</SelectItem>
+            <SelectItem key="pending">
+              {t("booking.status.pending")}
+            </SelectItem>
+            <SelectItem key="confirmed">
+              {t("booking.status.confirmed")}
+            </SelectItem>
           </Select>
 
           <CustomDatePicker
             className="w-full md:w-[200px]"
-            label="Tanggal"
+            label={t("booking.date_label")}
             value={bookingQuery.date as any}
             onChange={(date) => dispatch(setBookingQuery({ date }))}
           />
         </CardHeader>
         <CardBody>
-          <Table removeWrapper aria-label="Tabel Data Booking">
+          <Table removeWrapper aria-label={t("booking.table_aria")}>
             <TableHeader>
-              <TableColumn>CUSTOMER</TableColumn>
-              <TableColumn>KENDARAAN</TableColumn>
-              <TableColumn>LAYANAN</TableColumn>
-              <TableColumn>JADWAL</TableColumn>
-              <TableColumn>STATUS</TableColumn>
-              <TableColumn align="center">AKSI</TableColumn>
+              <TableColumn>{t("booking.columns.customer")}</TableColumn>
+              <TableColumn>{t("booking.columns.vehicle")}</TableColumn>
+              <TableColumn>{t("booking.columns.service")}</TableColumn>
+              <TableColumn>{t("booking.columns.schedule")}</TableColumn>
+              <TableColumn>{t("booking.columns.status")}</TableColumn>
+              <TableColumn align="center">
+                {t("booking.column_actions")}
+              </TableColumn>
             </TableHeader>
-            <TableBody emptyContent="Tidak ada data booking ditemukan">
+            <TableBody emptyContent={t("booking.empty")}>
               {(bookings?.data || []).map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>
@@ -161,7 +186,7 @@ export default function BookingPage() {
                       avatarProps={{
                         size: "sm",
                         radius: "full",
-                        src: row.customer?.profile?.photo_url, // Opsional jika ada
+                        src: row.customer?.profile?.photo_url,
                       }}
                       description={row.customer.phone}
                       name={row.customer.name}
@@ -188,7 +213,7 @@ export default function BookingPage() {
                         {dayjs(row.booking_date).format("DD MMM YYYY")}
                       </span>
                       <span className="text-small font-bold text-default-700">
-                        {formatTime(row.booking_time)} WIB
+                        {formatTime(row.booking_time)} {t("booking.timezone")}
                       </span>
                     </div>
                   </TableCell>
@@ -199,7 +224,7 @@ export default function BookingPage() {
                       size="sm"
                       variant="flat"
                     >
-                      {row.status}
+                      {getStatusLabel(row.status!, t)}
                     </Chip>
                   </TableCell>
                   <TableCell>
@@ -219,7 +244,7 @@ export default function BookingPage() {
                               />
                             </Button>
                           </DropdownTrigger>
-                          <DropdownMenu aria-label="Aksi Booking">
+                          <DropdownMenu aria-label={t("booking.actions_aria")}>
                             <DropdownItem
                               key="edit"
                               startContent={<Edit2 size={16} />}
@@ -228,7 +253,7 @@ export default function BookingPage() {
                                 setModalAdd(true);
                               }}
                             >
-                              Edit Booking
+                              {t("booking.edit_booking")}
                             </DropdownItem>
                             <DropdownItem
                               key="confirm"
@@ -238,7 +263,7 @@ export default function BookingPage() {
                                 navigate(`/service/add?booking=${row.id}`)
                               }
                             >
-                              Konfirmasi (WO)
+                              {t("booking.confirm_wo")}
                             </DropdownItem>
                             <DropdownItem
                               key="delete"
@@ -247,19 +272,20 @@ export default function BookingPage() {
                               startContent={<Trash2 size={16} />}
                               onPress={() => {
                                 confirmSweat(() => handleDelete(row.id), {
-                                  title:
-                                    "Apakah anda yakin ingin membatalkan booking ini?",
-                                  text: "Data yang dihapus tidak dapat dikembalikan!",
+                                  title: t("booking.delete_confirm.title"),
+                                  text: t("booking.delete_confirm.text"),
                                   icon: "warning",
                                   showCancelButton: true,
                                   confirmButtonColor: "#168BAB",
                                   cancelButtonColor: "#d33",
-                                  confirmButtonText: "Ya, batalkan!",
-                                  cancelButtonText: "Batal",
+                                  confirmButtonText: t(
+                                    "booking.delete_confirm.confirm",
+                                  ),
+                                  cancelButtonText: t("common.cancel"),
                                 });
                               }}
                             >
-                              Batalkan Booking
+                              {t("booking.cancel_booking")}
                             </DropdownItem>
                           </DropdownMenu>
                         </Dropdown>

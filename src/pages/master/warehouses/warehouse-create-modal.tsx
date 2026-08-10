@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import PhoneInput from "@/components/forms/phone-input";
 import Province from "@/components/regions/province";
@@ -46,6 +47,7 @@ const schema = z.object({
 type IFormValues = z.infer<typeof schema>;
 
 export default function WarehouseCreateModal({ open, onOpen, data }: Props) {
+  const { t } = useTranslation();
   const { warehouseQuery } = useAppSelector((state) => state.warehouse);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -105,13 +107,13 @@ export default function WarehouseCreateModal({ open, onOpen, data }: Props) {
     <Modal isOpen={open} scrollBehavior="outside" onOpenChange={onOpen}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ModalContent>
-          <ModalHeader>Buat Gudang Baru</ModalHeader>
+          <ModalHeader>{t("master.warehouses.modal.title")}</ModalHeader>
           <ModalBody className="w-full space-y-2">
             <InputController
               control={control}
-              label="Nama Gudang"
+              label={t("master.warehouses.modal.name")}
               name="name"
-              placeholder="Masukkan Nama Gudang"
+              placeholder={t("master.warehouses.modal.name")}
             />
             <Controller
               control={control}
@@ -121,7 +123,7 @@ export default function WarehouseCreateModal({ open, onOpen, data }: Props) {
                   {...(field as any)}
                   errorMessage={fieldState.error?.message}
                   isInvalid={!!fieldState.error?.message}
-                  label="Nomor Telepon"
+                  label={t("master.warehouses.modal.phone")}
                   labelPlacement="outside"
                   placeholder="08xx-xxxx-xxxx"
                   size="sm"
@@ -130,9 +132,9 @@ export default function WarehouseCreateModal({ open, onOpen, data }: Props) {
             />
             <InputController
               control={control}
-              label="Email"
+              label={t("master.warehouses.modal.email")}
               name="email"
-              placeholder="Masukkan Email"
+              placeholder={t("master.warehouses.modal.email")}
             />
             <Controller
               control={control}
@@ -178,15 +180,15 @@ export default function WarehouseCreateModal({ open, onOpen, data }: Props) {
             />
             <InputController
               control={control}
-              label="Kode Pos"
+              label={t("master.warehouses.modal.postal_code")}
               name="zipcode"
-              placeholder="Masukkan Kode Pos"
+              placeholder={t("master.warehouses.modal.postal_code")}
             />
             <InputController
               control={control}
-              label="Alamat"
+              label={t("master.warehouses.modal.address")}
               name="address"
-              placeholder="Masukkan Alamat"
+              placeholder={t("master.warehouses.modal.address")}
               type="textarea"
             />
           </ModalBody>
@@ -197,10 +199,10 @@ export default function WarehouseCreateModal({ open, onOpen, data }: Props) {
               variant="flat"
               onPress={() => onOpen(false)}
             >
-              Tutup
+              {t("common.close")}
             </Button>
             <Button color="primary" isLoading={loading} type="submit">
-              {loading ? "Menyimpan" : "Simpan"}
+              {loading ? t("master.warehouses.modal.saving") : t("common.save")}
             </Button>
           </ModalFooter>
         </ModalContent>

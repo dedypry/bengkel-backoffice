@@ -10,10 +10,10 @@ import {
   ChevronRight,
   Home,
 } from "lucide-react";
-import z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -28,6 +28,11 @@ import {
   Image,
 } from "@heroui/react";
 
+import {
+  createChangePasswordSchema,
+  type ChangePasswordType,
+} from "./schemas/create-schema";
+
 import { useAppSelector } from "@/stores/hooks";
 import { getAvatarByName, getInitials } from "@/utils/helpers/global";
 import Password from "@/components/password";
@@ -35,31 +40,15 @@ import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { formatNPWP } from "@/components/forms/npwp-input";
 
-export const changePasswordSchema = z
-  .object({
-    old_password: z.string().min(1, { message: "Password lama wajib diisi." }),
-    new_password: z
-      .string()
-      .min(8, { message: "Password baru minimal 8 karakter." })
-      .regex(/[A-Z]/, {
-        message: "Harus mengandung minimal satu huruf kapital.",
-      })
-      .regex(/[0-9]/, { message: "Harus mengandung minimal satu angka." }),
-    confirm_password: z
-      .string()
-      .min(1, { message: "Konfirmasi password wajib diisi." }),
-  })
-  .refine((data) => data.new_password === data.confirm_password, {
-    message: "Konfirmasi password tidak cocok.",
-    path: ["confirm_password"],
-  });
-
-export type ChangePasswordType = z.infer<typeof changePasswordSchema>;
-
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const { user: data } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const changePasswordSchema = useMemo(
+    () => createChangePasswordSchema(t),
+    [t],
+  );
 
   const { control, handleSubmit, reset } = useForm<ChangePasswordType>({
     resolver: zodResolver(changePasswordSchema),
@@ -86,11 +75,10 @@ export default function ProfilePage() {
         separator={<ChevronRight size={14} />}
       >
         <BreadcrumbItem href="/" startContent={<Home size={16} />}>
-          Home
+          {t("profile.home")}
         </BreadcrumbItem>
-        <BreadcrumbItem>My Profile</BreadcrumbItem>
+        <BreadcrumbItem>{t("common.my_profile")}</BreadcrumbItem>
       </Breadcrumbs>
-      {/* HEADER SECTION */}
       <Card>
         <CardBody className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
@@ -119,7 +107,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap justify-center md:justify-start gap-6">
                 <div className="flex items-center gap-2 text-gray-500 font-bold text-[11px] uppercase ">
                   <Phone className="text-gray-400" size={14} />{" "}
-                  {data?.profile?.phone_number || "NO PHONE"}
+                  {data?.profile?.phone_number || t("profile.no_phone")}
                 </div>
                 <div className="flex items-center gap-2 text-gray-500 font-bold text-[11px] uppercase ">
                   <Mail className="text-gray-400" size={14} /> {data?.email}
@@ -135,10 +123,11 @@ export default function ProfilePage() {
                 startContent={<Edit size={16} />}
                 onPress={() => navigate("/my-profile/edit")}
               >
-                Ubah Profil
+                {t("profile.edit_profile")}
               </Button>
               <Chip color="success" radius="md" variant="dot">
-                Status: {data?.work_status}
+                {t("profile.status_prefix")}
+                {data?.work_status}
               </Chip>
             </div>
           </div>
@@ -146,15 +135,13 @@ export default function ProfilePage() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* LEFT COLUMN: SECURITY & ROLES */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Security Card */}
           <Card>
             <CardBody className="p-6 space-y-6">
               <div className="flex items-center gap-2">
                 <Lock className="text-gray-900" size={18} />
                 <h3 className="font-black uppercase text-xs text-gray-500">
-                  Keamanan Akun
+                  {t("profile.account_security")}
                 </h3>
               </div>
 
@@ -164,7 +151,7 @@ export default function ProfilePage() {
                   name="old_password"
                   render={({ field, fieldState }) => (
                     <Password
-                      label="Password Lama"
+                      label={t("profile.old_password")}
                       {...field}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
@@ -176,7 +163,7 @@ export default function ProfilePage() {
                   name="new_password"
                   render={({ field, fieldState }) => (
                     <Password
-                      label="Password Baru"
+                      label={t("profile.new_password")}
                       {...field}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
@@ -188,7 +175,7 @@ export default function ProfilePage() {
                   name="confirm_password"
                   render={({ field, fieldState }) => (
                     <Password
-                      label="Konfirmasi"
+                      label={t("profile.confirm_password")}
                       {...field}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
@@ -201,19 +188,18 @@ export default function ProfilePage() {
                   isLoading={loading}
                   type="submit"
                 >
-                  Update Password
+                  {t("profile.update_password")}
                 </Button>
               </form>
             </CardBody>
           </Card>
 
-          {/* Role Card */}
           <Card>
             <CardBody className="p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="text-gray-900" size={18} />
                 <h3 className="font-black uppercase text-xs text-gray-500">
-                  Privilese Sistem
+                  {t("profile.system_privileges")}
                 </h3>
               </div>
               <Divider />
@@ -234,12 +220,11 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        {/* RIGHT COLUMN: COMPANIES */}
         <div className="lg:col-span-8 space-y-4">
           <div className="flex items-center gap-3 px-2 mb-2">
             <Building2 className="text-gray-500" size={20} />
             <h3 className="font-black uppercase text-sm text-gray-500">
-              Unit Bisnis Terdaftar
+              {t("profile.registered_units")}
             </h3>
           </div>
 
@@ -279,7 +264,7 @@ export default function ProfilePage() {
                             radius="md"
                             size="sm"
                           >
-                            Sesi Aktif
+                            {t("profile.active_session")}
                           </Chip>
                         )}
                       </div>
@@ -287,18 +272,18 @@ export default function ProfilePage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                         <InfoItem
                           icon={<Phone size={12} />}
-                          label="Kontak"
+                          label={t("profile.contact")}
                           value={company.phone_number}
                         />
                         <InfoItem
                           icon={<Globe size={12} />}
-                          label="Email"
+                          label={t("common.email")}
                           value={company.email}
                         />
                         <InfoItem
                           fullWidth
                           icon={<MapPin size={12} />}
-                          label="Alamat"
+                          label={t("common.address")}
                           value={`${company.address?.title} ${company.address?.district || ""}, ${company.address?.city || ""}`}
                         />
                       </div>
@@ -312,7 +297,7 @@ export default function ProfilePage() {
                             iconWrapper: "text-primary rounded-md",
                           }}
                           description={formatNPWP(company.npwp)}
-                          title="Nomor Pokok Wajib Pajak"
+                          title={t("profile.npwp")}
                         />
                       )}
                     </div>
@@ -327,7 +312,6 @@ export default function ProfilePage() {
   );
 }
 
-// Sub-component Helper
 function InfoItem({
   icon,
   label,

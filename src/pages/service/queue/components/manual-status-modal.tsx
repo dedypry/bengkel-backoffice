@@ -60,7 +60,7 @@ export default function ManualStatusModal({ item, open, setOpen }: Props) {
     }
 
     if (status === "cancel" && !cancelNote.trim()) {
-      notify("Alasan pembatalan wajib diisi", "warning");
+      notify(t("service.manual_status.cancel_required"), "warning");
 
       return;
     }
@@ -86,13 +86,13 @@ export default function ManualStatusModal({ item, open, setOpen }: Props) {
   return (
     <Modal isOpen={open} scrollBehavior="outside" onOpenChange={setOpen}>
       <ModalContent>
-        <ModalHeader>Ubah Status Manual</ModalHeader>
+        <ModalHeader>{t("service.manual_status.title")}</ModalHeader>
         <ModalBody>
           <p className="text-sm text-gray-500 mb-3">
             {item.vehicle.plate_number} — {item.customer.name}
           </p>
           <RadioGroup
-            label="Pilih status baru"
+            label={t("service.manual_status.select_status")}
             value={status}
             onValueChange={(value) => setStatus(value as StatusOption)}
           >
@@ -119,8 +119,8 @@ export default function ManualStatusModal({ item, open, setOpen }: Props) {
           {status === "cancel" && (
             <Textarea
               className="mt-3"
-              label="Alasan pembatalan"
-              placeholder="Tuliskan alasan membatalkan service ini"
+              label={t("service.manual_status.cancel_note_label")}
+              placeholder={t("service.manual_status.cancel_note_placeholder")}
               value={cancelNote}
               onValueChange={setCancelNote}
             />
@@ -128,7 +128,7 @@ export default function ManualStatusModal({ item, open, setOpen }: Props) {
         </ModalBody>
         <ModalFooter>
           <Button size="sm" variant="bordered" onPress={() => setOpen(false)}>
-            Batal
+            {t("common.cancel")}
           </Button>
           <Button
             color={status === "cancel" ? "danger" : "primary"}
@@ -140,7 +140,9 @@ export default function ManualStatusModal({ item, open, setOpen }: Props) {
             size="sm"
             onPress={handleSave}
           >
-            {status === "cancel" ? "Batalkan Service" : "Simpan"}
+            {status === "cancel"
+              ? t("service.manual_status.cancel_service")
+              : t("common.save")}
           </Button>
         </ModalFooter>
       </ModalContent>

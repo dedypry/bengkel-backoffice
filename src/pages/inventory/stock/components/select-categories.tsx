@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { ArrowRight, ChevronRight, Layers } from "lucide-react";
 
@@ -6,13 +7,14 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { setProductQuery } from "@/stores/features/product/product-slice";
 import { IProductCategory } from "@/utils/interfaces/IProduct";
 
-const ALL_CATEGORY = { id: "all", name: "Semua Kategori" };
+const ALL_CATEGORY_KEY = "all";
 
 function getCategoryLabel(
   categories: IProductCategory[],
   selectedKey: string,
+  allLabel: string,
 ): string {
-  if (selectedKey === "all") return ALL_CATEGORY.name;
+  if (selectedKey === ALL_CATEGORY_KEY) return allLabel;
 
   for (const category of categories) {
     if (String(category.id) === selectedKey) return category.name;
@@ -24,20 +26,22 @@ function getCategoryLabel(
     if (child) return child.name;
   }
 
-  return ALL_CATEGORY.name;
+  return allLabel;
 }
 
 export default function SelectCategories() {
+  const { t } = useTranslation();
   const { products } = useAppSelector((state) => state.product);
-  const [selectedKey, setSelectedKey] = useState<string>("all");
+  const [selectedKey, setSelectedKey] = useState<string>(ALL_CATEGORY_KEY);
   const [parentName, setParentName] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useAppDispatch();
 
   const categories: IProductCategory[] = products?.stats?.categories || [];
+  const allCategoryLabel = t("inventory.stock.select_categories.all");
   const selectedLabel = useMemo(
-    () => getCategoryLabel(categories, selectedKey),
-    [categories, selectedKey],
+    () => getCategoryLabel(categories, selectedKey, allCategoryLabel),
+    [categories, selectedKey, allCategoryLabel],
   );
 
   const handleSelectionChange = (val: string) => {
@@ -45,7 +49,7 @@ export default function SelectCategories() {
     setIsOpen(false);
     dispatch(
       setProductQuery({
-        categoryId: val !== "all" ? Number(val) : undefined,
+        categoryId: val !== ALL_CATEGORY_KEY ? Number(val) : undefined,
       }),
     );
   };
@@ -68,9 +72,9 @@ export default function SelectCategories() {
           <button
             className="rounded-md px-2 py-2 text-left text-sm hover:bg-gray-100"
             type="button"
-            onClick={() => handleSelectionChange("all")}
+            onClick={() => handleSelectionChange(ALL_CATEGORY_KEY)}
           >
-            {ALL_CATEGORY.name}
+            {allCategoryLabel}
           </button>
           {categories.map((cat: IProductCategory) => (
             <div key={cat.id}>
@@ -103,7 +107,7 @@ export default function SelectCategories() {
                             handleSelectionChange(String(child.id))
                           }
                         >
-                          {child.name || "Tidak ada nama"}
+                          {child.name || t("inventory.stock.select_categories.no_name")}
                         </button>
                       ))}
                     </div>

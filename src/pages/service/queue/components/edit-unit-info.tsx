@@ -12,6 +12,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Car, Edit, Save } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
@@ -46,6 +47,7 @@ const schema = z.object({
 type TEditUnitInfo = z.output<typeof schema>;
 
 export default function EditUnitInfo() {
+  const { t } = useTranslation();
   const { master: vehilces } = useAppSelector((state) => state.vehicle);
   const { settings } = useAppSelector((state) => state.setting);
   const { detail: data } = useAppSelector((state) => state.wo);
@@ -165,7 +167,7 @@ export default function EditUnitInfo() {
             <ModalHeader>
               <div className="flex items-center gap-2 text-primary font-bold">
                 <Car className="size-5" />
-                <h5 className="font-bold">Edit Unit Kendaraan</h5>
+                <h5 className="font-bold">{t("service.edit_unit.title")}</h5>
               </div>
             </ModalHeader>
             <ModalBody>
@@ -178,9 +180,9 @@ export default function EditUnitInfo() {
                       {...field}
                       errorMessage={errors.plate_number?.message}
                       isInvalid={!!errors.plate_number}
-                      label="Nomor Polisi"
+                      label={t("service.edit_unit.plate_number")}
                       labelPlacement="outside"
-                      placeholder="Contoh: B1234XYZ"
+                      placeholder={t("service.edit_unit.plate_placeholder")}
                     />
                   )}
                 />
@@ -192,7 +194,7 @@ export default function EditUnitInfo() {
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.invalid}
                       items={(vehilces || []).map((e) => e.type)}
-                      label="Merk"
+                      label={t("service.add.brand")}
                       labelPlacement="outside"
                       value={field.value}
                       onValueChange={(val) => {
@@ -216,7 +218,7 @@ export default function EditUnitInfo() {
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
                       items={(vehicle?.children || []).map((e) => e.merk)}
-                      label="Tipe / Model"
+                      label={t("service.add.model")}
                       labelPlacement="outside"
                       value={field.value}
                       onValueChange={(val) => {
@@ -232,9 +234,9 @@ export default function EditUnitInfo() {
                     <InputNumber
                       errorMessage={errors.year?.message}
                       isInvalid={!!errors.year}
-                      label="Tahun"
+                      label={t("service.add.year")}
                       labelPlacement="outside"
-                      placeholder="Contoh: 2024"
+                      placeholder={t("service.edit_unit.year_placeholder")}
                       value={(field.value || 0) as any}
                       onInput={(val) => field.onChange(String(val))}
                     />
@@ -248,9 +250,9 @@ export default function EditUnitInfo() {
                       {...field}
                       errorMessage={errors.color?.message}
                       isInvalid={!!errors.color}
-                      label="Warna"
+                      label={t("service.add.color")}
                       labelPlacement="outside"
-                      placeholder="Contoh: Hitam"
+                      placeholder={t("service.edit_unit.color_placeholder")}
                     />
                   )}
                 />
@@ -263,9 +265,9 @@ export default function EditUnitInfo() {
                       {...field}
                       errorMessage={errors.vin_number?.message}
                       isInvalid={!!errors.vin_number}
-                      label="Nomor Rangka (VIN)"
+                      label={t("service.add.vin")}
                       labelPlacement="outside"
-                      placeholder="Masukkan No. Rangka"
+                      placeholder={t("service.add.vin_placeholder")}
                     />
                   )}
                 />
@@ -277,9 +279,9 @@ export default function EditUnitInfo() {
                       {...field}
                       errorMessage={errors.engine_number?.message}
                       isInvalid={!!errors.engine_number}
-                      label="Nomor Mesin"
+                      label={t("service.add.engine_number")}
                       labelPlacement="outside"
-                      placeholder="Masukkan No. Mesin"
+                      placeholder={t("service.add.engine_number_placeholder")}
                     />
                   )}
                 />
@@ -291,9 +293,9 @@ export default function EditUnitInfo() {
                       {...field}
                       errorMessage={errors.engine_capacity?.message}
                       isInvalid={!!errors.engine_capacity}
-                      label="Kapasitas Mesin (CC)"
+                      label={t("service.add.engine_capacity")}
                       labelPlacement="outside"
-                      placeholder="Contoh: 1500"
+                      placeholder={t("service.edit_unit.engine_capacity_placeholder")}
                     />
                   )}
                 />
@@ -305,9 +307,9 @@ export default function EditUnitInfo() {
                       {...field}
                       errorMessage={errors.fuel_type?.message}
                       isInvalid={!!errors.fuel_type}
-                      label="Bahan Bakar"
+                      label={t("service.add.fuel_type")}
                       labelPlacement="outside"
-                      placeholder="Contoh: Bensin"
+                      placeholder={t("service.edit_unit.fuel_placeholder")}
                     />
                   )}
                 />
@@ -318,9 +320,9 @@ export default function EditUnitInfo() {
                     <Select
                       errorMessage={errors.transmission_type?.message}
                       isInvalid={!!errors.transmission_type}
-                      label="Tipe Transmisi"
+                      label={t("service.add.transmission")}
                       labelPlacement="outside"
-                      placeholder="Pilih transmisi"
+                      placeholder={t("service.edit_unit.select_transmission")}
                       selectedKeys={field.value ? [field.value] : []}
                       onSelectionChange={(keys) => {
                         field.onChange(Array.from(keys)[0] || "");
@@ -340,9 +342,9 @@ export default function EditUnitInfo() {
                       {...field}
                       errorMessage={errors.tire_size?.message}
                       isInvalid={!!errors.tire_size}
-                      label="Ukuran Ban & Velg"
+                      label={t("service.add.tire_size")}
                       labelPlacement="outside"
-                      placeholder="Contoh: 185/65 R15"
+                      placeholder={t("service.add.tire_size_placeholder")}
                     />
                   )}
                 />
@@ -353,9 +355,9 @@ export default function EditUnitInfo() {
                     <InputNumber
                       errorMessage={errors.current_km?.message}
                       isInvalid={!!errors.current_km}
-                      label="KM Sekarang"
+                      label={t("service.add.current_km")}
                       labelPlacement="outside"
-                      placeholder="Masukkan KM sekarang"
+                      placeholder={t("service.edit_unit.current_km_placeholder")}
                       value={(field.value || 0) as any}
                       onInput={(val: any) => {
                         field.onChange(Number(val));
@@ -377,9 +379,9 @@ export default function EditUnitInfo() {
                     <InputNumber
                       errorMessage={errors.next_km?.message}
                       isInvalid={!!errors.next_km}
-                      label="KM Berikutnya"
+                      label={t("service.add.next_km")}
                       labelPlacement="outside"
-                      placeholder="Masukkan KM berikutnya"
+                      placeholder={t("service.edit_unit.next_km_placeholder")}
                       value={(field.value || 0) as any}
                       onInput={field.onChange}
                     />
@@ -389,7 +391,7 @@ export default function EditUnitInfo() {
             </ModalBody>
             <ModalFooter>
               <Button variant="flat" onPress={() => setOpen(false)}>
-                Batal
+                {t("common.cancel")}
               </Button>
               <Button
                 color="primary"
@@ -397,7 +399,7 @@ export default function EditUnitInfo() {
                 startContent={!isLoading ? <Save size={16} /> : undefined}
                 type="submit"
               >
-                Simpan
+                {t("common.save")}
               </Button>
             </ModalFooter>
           </form>

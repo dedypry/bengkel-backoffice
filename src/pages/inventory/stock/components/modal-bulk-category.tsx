@@ -10,6 +10,7 @@ import {
   Selection,
 } from "@heroui/react";
 import { useRef, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { PlusSquare } from "lucide-react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,6 +51,7 @@ export default function ModalBulkCategory({
   catIds,
   onSuccess,
 }: Props) {
+  const { t } = useTranslation();
   const { categories, productQuery } = useAppSelector((state) => state.product);
   const [modalAddCat, setModalAddCat] = useState(false);
   const [isLoading, setLoading] = useState(false);
@@ -121,7 +123,7 @@ export default function ModalBulkCategory({
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalContent>
-            <ModalHeader>Bulk Update Kategori</ModalHeader>
+            <ModalHeader>{t("inventory.stock.bulk_category.title")}</ModalHeader>
             <ModalBody>
               <div className="flex justify-end">
                 <Button
@@ -131,7 +133,7 @@ export default function ModalBulkCategory({
                   startContent={<PlusSquare />}
                   onPress={() => setModalAddCat(true)}
                 >
-                  Buat Kategori Baru
+                  {t("inventory.stock.bulk_category.create_new")}
                 </Button>
               </div>
               <div className="flex flex-col gap-4">
@@ -143,8 +145,8 @@ export default function ModalBulkCategory({
                       defaultItems={Array.isArray(categories) ? categories : []}
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Kategori"
-                      placeholder="Pilih Kategori"
+                      label={t("inventory.stock.bulk_category.category")}
+                      placeholder={t("inventory.stock.bulk_category.select_category")}
                       selectedKey={field.value.toString()}
                       onSelectionChange={(val) => {
                         field.onChange(Number(val));
@@ -177,8 +179,8 @@ export default function ModalBulkCategory({
                       }
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Sub Kategori"
-                      placeholder="Pilih Sub Kategori"
+                      label={t("inventory.stock.bulk_category.sub_category")}
+                      placeholder={t("inventory.stock.bulk_category.select_sub_category")}
                       selectedKey={field.value.toString()}
                       onSelectionChange={(val) => field.onChange(Number(val))}
                     >
@@ -194,7 +196,7 @@ export default function ModalBulkCategory({
             </ModalBody>
             <ModalFooter>
               <Button color="primary" isLoading={isLoading} type="submit">
-                Bulk Update Kategori
+                {t("inventory.stock.bulk_update")}
               </Button>
             </ModalFooter>
           </ModalContent>

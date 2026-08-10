@@ -1,6 +1,6 @@
 import type { IEmployeeSalary } from "@/utils/interfaces/IPayroll";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -35,9 +35,10 @@ import {
   Layers,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import GeneratePayrollModal from "./components/generate-modal";
-import SalaryModal, { SALARY_TYPES } from "./components/salary-modal";
+import SalaryModal, { getSalaryTypes } from "./components/salary-modal";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import {
@@ -57,10 +58,8 @@ import debounce from "@/utils/helpers/debounce";
 import { dateFormat } from "@/utils/helpers/formater";
 import { formatIDR } from "@/utils/helpers/format";
 
-const salaryTypeLabel = (key: string) =>
-  SALARY_TYPES.find((t) => t.key === key)?.label || key;
-
 export default function PayrollPage() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { payrolls, salaries, summary, payrollQuery, salaryQuery } =
@@ -73,6 +72,11 @@ export default function PayrollPage() {
   const [selectedSalary, setSelectedSalary] =
     useState<IEmployeeSalary | null>();
   const hasFetched = useRef(false);
+
+  const salaryTypes = useMemo(() => getSalaryTypes(t), [t]);
+
+  const salaryTypeLabel = (key: string) =>
+    salaryTypes.find((type) => type.key === key)?.label || key;
 
   useEffect(() => {
     if (company) {
@@ -134,10 +138,14 @@ export default function PayrollPage() {
 
       <HeaderAction
         actionIcon={Plus}
-        actionTitle={tab === "runs" ? "Buat Penggajian" : "Atur Gaji"}
+        actionTitle={
+          tab === "runs"
+            ? t("hr.payroll.create_payroll")
+            : t("hr.payroll.configure_salary")
+        }
         leadIcon={Wallet}
-        subtitle="Kelola gaji karyawan secara mingguan maupun bulanan."
-        title="Penggajian Karyawan"
+        subtitle={t("hr.payroll.subtitle")}
+        title={t("hr.payroll.title")}
         onAction={() => {
           if (tab === "runs") {
             setOpenGenerate(true);
@@ -149,7 +157,7 @@ export default function PayrollPage() {
       />
 
       <Tabs
-        aria-label="Menu Penggajian"
+        aria-label={t("hr.payroll.tabs_aria")}
         color="primary"
         selectedKey={tab}
         variant="underlined"
@@ -159,7 +167,7 @@ export default function PayrollPage() {
           key="runs"
           title={
             <div className="flex items-center gap-2">
-              <Receipt size={16} /> Riwayat Penggajian
+              <Receipt size={16} /> {t("hr.payroll.tab_runs")}
             </div>
           }
         >
@@ -175,7 +183,7 @@ export default function PayrollPage() {
                       {summary.total_run}
                     </span>
                     <span className="text-[10px] font-bold uppercase text-gray-400">
-                      Total Periode Penggajian
+                      {t("hr.payroll.stat_total_periods")}
                     </span>
                   </div>
                 </CardBody>
@@ -190,7 +198,7 @@ export default function PayrollPage() {
                       {formatIDR(summary.paid_amount)}
                     </span>
                     <span className="text-[10px] font-bold uppercase text-gray-400">
-                      Total Gaji Dibayar
+                      {t("hr.payroll.stat_total_paid")}
                     </span>
                   </div>
                 </CardBody>
@@ -202,14 +210,14 @@ export default function PayrollPage() {
                 isClearable
                 className="md:max-w-xs"
                 defaultValue={payrollQuery.q}
-                placeholder="Cari kode penggajian..."
+                placeholder={t("hr.payroll.search_runs")}
                 startContent={<Search className="text-gray-400" size={20} />}
                 onValueChange={searchPayroll}
               />
               <div className="flex gap-2 w-full md:w-auto">
                 <Select
                   className="md:w-40"
-                  label="Tipe"
+                  label={t("hr.payroll.filter_type")}
                   labelPlacement="outside-left"
                   selectedKeys={
                     payrollQuery.period_type ? [payrollQuery.period_type] : []
@@ -224,30 +232,32 @@ export default function PayrollPage() {
                     )
                   }
                 >
-                  <SelectItem key="">Semua</SelectItem>
-                  <SelectItem key="monthly">Bulanan</SelectItem>
-                  <SelectItem key="weekly">Mingguan</SelectItem>
+                  <SelectItem key="">{t("hr.common.all")}</SelectItem>
+                  <SelectItem key="monthly">{t("hr.common.monthly")}</SelectItem>
+                  <SelectItem key="weekly">{t("hr.common.weekly")}</SelectItem>
                 </Select>
               </div>
             </div>
 
             <Table
               isStriped
-              aria-label="Tabel Penggajian"
+              aria-label={t("hr.payroll.runs_table_aria")}
               classNames={{ td: "py-4 px-6 border-b border-gray-200" }}
             >
               <TableHeader>
-                <TableColumn>KODE</TableColumn>
-                <TableColumn>PERIODE</TableColumn>
-                <TableColumn width={110}>TIPE</TableColumn>
-                <TableColumn width={110}>KARYAWAN</TableColumn>
-                <TableColumn>TOTAL</TableColumn>
-                <TableColumn width={120}>STATUS</TableColumn>
+                <TableColumn>{t("hr.payroll.col_code")}</TableColumn>
+                <TableColumn>{t("hr.payroll.col_period")}</TableColumn>
+                <TableColumn width={110}>{t("hr.payroll.col_type")}</TableColumn>
+                <TableColumn width={110}>
+                  {t("hr.payroll.col_employees")}
+                </TableColumn>
+                <TableColumn>{t("hr.payroll.col_total")}</TableColumn>
+                <TableColumn width={120}>{t("hr.payroll.col_status")}</TableColumn>
                 <TableColumn align="center" width={80}>
-                  AKSI
+                  {t("hr.payroll.col_actions")}
                 </TableColumn>
               </TableHeader>
-              <TableBody emptyContent="Belum ada data penggajian">
+              <TableBody emptyContent={t("hr.payroll.empty_runs")}>
                 {(payrolls?.data || []).map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50/50">
                     <TableCell>
@@ -276,13 +286,13 @@ export default function PayrollPage() {
                         variant="flat"
                       >
                         {item.period_type === "monthly"
-                          ? "Bulanan"
-                          : "Mingguan"}
+                          ? t("hr.common.monthly")
+                          : t("hr.common.weekly")}
                       </Chip>
                     </TableCell>
                     <TableCell>
                       <span className="text-xs font-bold text-gray-600">
-                        {item.total_employee || 0} orang
+                        {item.total_employee || 0} {t("hr.common.people_suffix")}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -296,7 +306,9 @@ export default function PayrollPage() {
                         size="sm"
                         variant="dot"
                       >
-                        {item.status === "paid" ? "Dibayar" : "Draft"}
+                        {item.status === "paid"
+                          ? t("hr.common.paid")
+                          : t("hr.common.draft")}
                       </Chip>
                     </TableCell>
                     <TableCell>
@@ -307,7 +319,7 @@ export default function PayrollPage() {
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu
-                          aria-label="Aksi Penggajian"
+                          aria-label={t("hr.payroll.runs_dropdown_aria")}
                           variant="flat"
                         >
                           <DropdownItem
@@ -315,7 +327,7 @@ export default function PayrollPage() {
                             startContent={<Eye size={16} />}
                             onPress={() => navigate(`/hr/payroll/${item.id}`)}
                           >
-                            Lihat Detail
+                            {t("common.view_detail")}
                           </DropdownItem>
                           {item.status !== "paid" ? (
                             <DropdownItem
@@ -327,7 +339,7 @@ export default function PayrollPage() {
                                 confirmSweat(() => handleDeletePayroll(item.id))
                               }
                             >
-                              Hapus
+                              {t("common.delete")}
                             </DropdownItem>
                           ) : null}
                         </DropdownMenu>
@@ -349,7 +361,7 @@ export default function PayrollPage() {
           key="salaries"
           title={
             <div className="flex items-center gap-2">
-              <Wallet size={16} /> Master Gaji
+              <Wallet size={16} /> {t("hr.payroll.tab_master")}
             </div>
           }
         >
@@ -359,7 +371,7 @@ export default function PayrollPage() {
                 isClearable
                 className="md:max-w-xs"
                 defaultValue={salaryQuery.q}
-                placeholder="Cari nama atau NIK..."
+                placeholder={t("hr.payroll.search_master")}
                 startContent={<Search className="text-gray-400" size={20} />}
                 onValueChange={searchSalary}
               />
@@ -367,21 +379,21 @@ export default function PayrollPage() {
 
             <Table
               isStriped
-              aria-label="Tabel Gaji"
+              aria-label={t("hr.payroll.master_table_aria")}
               classNames={{ td: "py-4 px-6 border-b border-gray-200" }}
             >
               <TableHeader>
-                <TableColumn>KARYAWAN</TableColumn>
-                <TableColumn width={110}>TIPE</TableColumn>
-                <TableColumn>GAJI POKOK</TableColumn>
-                <TableColumn>TUNJANGAN</TableColumn>
-                <TableColumn>POTONGAN</TableColumn>
-                <TableColumn width={110}>STATUS</TableColumn>
+                <TableColumn>{t("hr.payroll.col_employee")}</TableColumn>
+                <TableColumn width={110}>{t("hr.payroll.col_type")}</TableColumn>
+                <TableColumn>{t("hr.payroll.col_base_salary")}</TableColumn>
+                <TableColumn>{t("hr.payroll.col_allowance")}</TableColumn>
+                <TableColumn>{t("hr.payroll.col_deduction")}</TableColumn>
+                <TableColumn width={110}>{t("common.status")}</TableColumn>
                 <TableColumn align="center" width={80}>
-                  AKSI
+                  {t("common.actions")}
                 </TableColumn>
               </TableHeader>
-              <TableBody emptyContent="Belum ada konfigurasi gaji">
+              <TableBody emptyContent={t("hr.payroll.empty_master")}>
                 {(salaries?.data || []).map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50/50">
                     <TableCell>
@@ -397,7 +409,7 @@ export default function PayrollPage() {
                           </p>
                           <span className="text-[10px] text-gray-400">
                             {item.user?.nik || "-"} ·{" "}
-                            {item.user?.department || "Karyawan"}
+                            {item.user?.department || t("hr.common.employee")}
                           </span>
                         </div>
                       </div>
@@ -428,7 +440,9 @@ export default function PayrollPage() {
                         size="sm"
                         variant="dot"
                       >
-                        {item.is_active ? "Aktif" : "Non-Aktif"}
+                        {item.is_active
+                          ? t("hr.common.active")
+                          : t("hr.common.inactive")}
                       </Chip>
                     </TableCell>
                     <TableCell>
@@ -438,7 +452,10 @@ export default function PayrollPage() {
                             <MoreVertical className="text-gray-400" size={20} />
                           </Button>
                         </DropdownTrigger>
-                        <DropdownMenu aria-label="Aksi Gaji" variant="flat">
+                        <DropdownMenu
+                          aria-label={t("hr.payroll.master_dropdown_aria")}
+                          variant="flat"
+                        >
                           <DropdownItem
                             key="edit"
                             startContent={<Edit2 size={16} />}
@@ -447,7 +464,7 @@ export default function PayrollPage() {
                               setOpenSalary(true);
                             }}
                           >
-                            Edit
+                            {t("common.edit")}
                           </DropdownItem>
                           <DropdownItem
                             key="delete"
@@ -458,7 +475,7 @@ export default function PayrollPage() {
                               confirmSweat(() => handleDeleteSalary(item.id))
                             }
                           >
-                            Hapus
+                            {t("common.delete")}
                           </DropdownItem>
                         </DropdownMenu>
                       </Dropdown>

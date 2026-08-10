@@ -1,5 +1,6 @@
 import { AlertTriangle, ArrowRight, PackageSearch } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Card,
@@ -13,6 +14,7 @@ import {
 import { useAppSelector } from "@/stores/hooks";
 
 export function InventoryAlert() {
+  const { t } = useTranslation();
   const { dashboard } = useAppSelector((state) => state.dashboard);
   const navigate = useNavigate();
   const itemCount = dashboard?.product?.length || 0;
@@ -26,15 +28,15 @@ export function InventoryAlert() {
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-700">
-              Peringatan Stok
+              {t("dashboard.inventory_alert.title")}
             </h3>
             <p className="text-[11px] text-slate-500">
-              Item kritis perlu restock
+              {t("dashboard.inventory_alert.critical_restock")}
             </p>
           </div>
         </div>
         <Chip color="warning" size="sm" variant="flat">
-          {itemCount} Item
+          {t("dashboard.inventory_alert.item_count", { count: itemCount })}
         </Chip>
       </CardHeader>
 
@@ -43,7 +45,9 @@ export function InventoryAlert() {
           {itemCount === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-slate-400">
               <PackageSearch size={32} />
-              <p className="mt-2 text-sm">Semua stok aman</p>
+              <p className="mt-2 text-sm">
+                {t("dashboard.inventory_alert.empty")}
+              </p>
             </div>
           ) : (
             dashboard?.product.map((item) => (
@@ -54,7 +58,11 @@ export function InventoryAlert() {
                 <div className="flex items-center gap-3">
                   <Tooltip
                     color={item.stock === 0 ? "danger" : "warning"}
-                    content={item.stock === 0 ? "Stok habis" : "Stok menipis"}
+                    content={
+                      item.stock === 0
+                        ? t("dashboard.inventory_alert.out_of_stock")
+                        : t("dashboard.inventory_alert.low_stock")
+                    }
                     placement="left"
                   >
                     <div
@@ -70,7 +78,7 @@ export function InventoryAlert() {
                       {item.name}
                     </p>
                     <p className="text-[11px] text-slate-500">
-                      Sisa:{" "}
+                      {t("dashboard.inventory_alert.remaining")}{" "}
                       <span
                         className={
                           item.stock === 0
@@ -98,7 +106,7 @@ export function InventoryAlert() {
           variant="flat"
           onPress={() => navigate("/inventory/stock")}
         >
-          Lihat Gudang
+          {t("dashboard.inventory_alert.view_warehouse")}
         </Button>
       </CardBody>
     </Card>

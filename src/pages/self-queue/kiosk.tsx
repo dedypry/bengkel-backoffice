@@ -15,6 +15,7 @@ import {
   Users,
   Wrench,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import config from "@/config/api";
 import { useCompanyQueueRealtime } from "@/hooks/use-company-queue-realtime";
@@ -32,6 +33,7 @@ function getCompanyId() {
 }
 
 export default function QueueKioskPage() {
+  const { t } = useTranslation();
   const companyId = useMemo(() => getCompanyId(), []);
   const [categories, setCategories] = useState<IQueueCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -78,7 +80,11 @@ export default function QueueKioskPage() {
         const result = data.data as IQueueGenerateResponse;
 
         setTicket(result);
-        notify(`Nomor antrean ${result.queue.queue_number} berhasil dibuat`);
+        notify(
+          t("self_queue.kiosk.queue_created", {
+            number: result.queue.queue_number,
+          }),
+        );
       })
       .catch((err) => notifyError(err))
       .finally(() => setGeneratingCategoryId(null));
@@ -94,14 +100,13 @@ export default function QueueKioskPage() {
         <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center">
           <div>
             <p className="text-sm font-bold uppercase text-primary">
-              Kiosk Antrean Mandiri
+              {t("self_queue.kiosk.eyebrow")}
             </p>
             <h1 className="text-3xl font-black text-slate-800 md:text-4xl">
-              Pilih Jenis Servis
+              {t("self_queue.kiosk.page_title")}
             </h1>
             <p className="mt-2 text-slate-500">
-              Ambil nomor antrean, cetak tiket, lalu tunggu nomor Anda
-              dipanggil.
+              {t("self_queue.kiosk.description")}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Chip
@@ -109,10 +114,14 @@ export default function QueueKioskPage() {
                 startContent={<Users size={14} />}
                 variant="flat"
               >
-                {display?.total_waiting ?? 0} antrean menunggu
+                {display?.total_waiting ?? 0}
+                {t("self_queue.kiosk.waiting_suffix")}
               </Chip>
               <p className="text-xs text-slate-400">
-                Backend: {config.api} · Company ID: {companyId}
+                {t("self_queue.kiosk.backend")}
+                {config.api}
+                {t("self_queue.kiosk.company_id")}
+                {companyId}
               </p>
             </div>
           </div>
@@ -125,7 +134,7 @@ export default function QueueKioskPage() {
               loadDisplay();
             }}
           >
-            Refresh
+            {t("self_queue.kiosk.refresh")}
           </Button>
         </div>
 
@@ -153,7 +162,8 @@ export default function QueueKioskPage() {
                             <Icon size={34} />
                           </div>
                           <Chip color="primary" size="lg" variant="flat">
-                            Kode {category.prefix_code}
+                            {t("self_queue.kiosk.code_prefix")}
+                            {category.prefix_code}
                           </Chip>
                         </div>
                         <div>
@@ -161,7 +171,9 @@ export default function QueueKioskPage() {
                             {category.name}
                           </h2>
                           <p className="mt-2 text-slate-500">
-                            Estimasi {category.estimated_minutes} menit.
+                            {t("self_queue.kiosk.estimate_prefix")}
+                            {category.estimated_minutes}
+                            {t("self_queue.kiosk.estimate_suffix")}
                           </p>
                         </div>
                       </div>
@@ -173,7 +185,7 @@ export default function QueueKioskPage() {
                         startContent={!isGenerating && <Ticket size={20} />}
                         onPress={() => generate(category)}
                       >
-                        Ambil Nomor
+                        {t("self_queue.kiosk.take_number")}
                       </Button>
                     </CardBody>
                   </Card>
@@ -187,7 +199,7 @@ export default function QueueKioskPage() {
             <CardBody className="flex flex-col justify-between gap-4 p-6 md:flex-row md:items-center">
               <div>
                 <p className="text-sm font-bold uppercase text-slate-400">
-                  Nomor antrean Anda
+                  {t("self_queue.kiosk.your_number")}
                 </p>
                 <p className="text-5xl font-black text-primary">
                   {ticket.queue.queue_number}
@@ -200,7 +212,7 @@ export default function QueueKioskPage() {
                 startContent={<Printer size={20} />}
                 onPress={printTicket}
               >
-                Cetak Tiket
+                {t("self_queue.kiosk.print_ticket")}
               </Button>
             </CardBody>
           </Card>

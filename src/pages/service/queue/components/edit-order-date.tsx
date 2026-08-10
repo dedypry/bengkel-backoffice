@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
 import { CalendarDays, Edit, Save } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
@@ -27,6 +28,7 @@ const schema = z.object({
 type TOrderDateForm = z.output<typeof schema>;
 
 export default function EditOrderDate() {
+  const { t } = useTranslation();
   const { detail: data } = useAppSelector((state) => state.wo);
   const dispatch = useAppDispatch();
   const { hasPermission } = usePermission();
@@ -69,7 +71,7 @@ export default function EditOrderDate() {
         created_at: values.created_at,
       })
       .then(({ data: response }) => {
-        notify(response.message || "Tanggal order berhasil diubah");
+        notify(response.message || t("service.edit_order_date.success"));
         dispatch(getWoDetail(data.id));
         setOpen(false);
       })
@@ -85,7 +87,7 @@ export default function EditOrderDate() {
             <ModalHeader>
               <div className="flex items-center gap-2 text-primary font-bold">
                 <CalendarDays className="size-5" />
-                <h5 className="font-bold">Edit Tanggal Order</h5>
+                <h5 className="font-bold">{t("service.edit_order_date.title")}</h5>
               </div>
             </ModalHeader>
             <ModalBody>
@@ -96,7 +98,7 @@ export default function EditOrderDate() {
                   <CustomDatePicker
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
-                    label="Tanggal Order"
+                    label={t("service.edit_order_date.label")}
                     labelPlacement="outside"
                     maxDate={new Date()}
                     value={field.value}
@@ -107,7 +109,7 @@ export default function EditOrderDate() {
             </ModalBody>
             <ModalFooter>
               <Button variant="flat" onPress={() => setOpen(false)}>
-                Batal
+                {t("common.cancel")}
               </Button>
               <Button
                 color="primary"
@@ -115,7 +117,7 @@ export default function EditOrderDate() {
                 startContent={!isLoading ? <Save size={16} /> : undefined}
                 type="submit"
               >
-                Simpan
+                {t("common.save")}
               </Button>
             </ModalFooter>
           </form>

@@ -8,6 +8,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
@@ -21,6 +22,7 @@ interface Props {
   setOpen: (val: boolean) => void;
 }
 export default function CancelConfirm({ item, open, setOpen }: Props) {
+  const { t } = useTranslation();
   const { woQuery } = useAppSelector((state) => state.wo);
   const [cancelNote, setCancelNote] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,17 +47,17 @@ export default function CancelConfirm({ item, open, setOpen }: Props) {
     <>
       <Modal isOpen={open} scrollBehavior="outside" onOpenChange={setOpen}>
         <ModalContent>
-          <ModalHeader>Alasan dibatalkan</ModalHeader>
+          <ModalHeader>{t("service.cancel_confirm.title")}</ModalHeader>
           <ModalBody>
             <Textarea
-              placeholder="Tuliskan alasan anda membatalkan order ini"
+              placeholder={t("service.cancel_confirm.placeholder")}
               value={cancelNote}
               onValueChange={setCancelNote}
             />
           </ModalBody>
           <ModalFooter>
-            <Button size="sm" variant="bordered">
-              Cancel
+            <Button size="sm" variant="bordered" onPress={() => setOpen(false)}>
+              {t("common.cancel")}
             </Button>
             <Button
               color="danger"
@@ -63,7 +65,7 @@ export default function CancelConfirm({ item, open, setOpen }: Props) {
               size="sm"
               onPress={handleCancel}
             >
-              Batalkan
+              {t("service.cancel_confirm.confirm")}
             </Button>
           </ModalFooter>
         </ModalContent>

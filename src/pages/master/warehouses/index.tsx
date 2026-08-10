@@ -1,5 +1,6 @@
 import { Building2, Edit, Search, Trash2, Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Input,
@@ -27,6 +28,7 @@ import { http } from "@/utils/libs/axios";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 
 export default function WarehousesPage() {
+  const { t } = useTranslation();
   const { warehouses, warehouseQuery } = useAppSelector(
     (state) => state.warehouse,
   );
@@ -84,7 +86,7 @@ export default function WarehousesPage() {
                 )
               }
             >
-              Export Excel
+              {t("master.warehouses.export")}
             </Button>
             <Button
               color="primary"
@@ -94,12 +96,12 @@ export default function WarehousesPage() {
                 setOpen(true);
               }}
             >
-              Buat Gudang Baru
+              {t("master.warehouses.add")}
             </Button>
           </div>
         }
-        subtitle="Master"
-        title="Gudang"
+        subtitle={t("master.warehouses.subtitle")}
+        title={t("master.warehouses.title")}
       />
       <Table
         bottomContent={
@@ -120,7 +122,7 @@ export default function WarehousesPage() {
             />
             <Input
               className="w-sm"
-              placeholder="Cari Gudang"
+              placeholder={t("master.warehouses.search_placeholder")}
               startContent={<Search className="size-4 text-gray-500" />}
               value={search}
               onValueChange={(val) => {
@@ -132,13 +134,15 @@ export default function WarehousesPage() {
         }
       >
         <TableHeader>
-          <TableColumn>Nama Gudang</TableColumn>
-          <TableColumn>Kontak</TableColumn>
-          <TableColumn>Alamat</TableColumn>
-          <TableColumn>Status</TableColumn>
-          <TableColumn className="w-28 text-center">Aksi</TableColumn>
+          <TableColumn>{t("master.warehouses.table.name")}</TableColumn>
+          <TableColumn>{t("master.warehouses.table.contact")}</TableColumn>
+          <TableColumn>{t("master.warehouses.table.address")}</TableColumn>
+          <TableColumn>{t("master.warehouses.table.status")}</TableColumn>
+          <TableColumn className="w-28 text-center">
+            {t("master.warehouses.table.actions")}
+          </TableColumn>
         </TableHeader>
-        <TableBody emptyContent="Data tidak ditemukan">
+        <TableBody emptyContent={t("master.warehouses.table.empty")}>
           {(warehouses?.data || []).map((warehouse) => (
             <TableRow key={warehouse.id}>
               <TableCell>
@@ -166,10 +170,12 @@ export default function WarehousesPage() {
                 </div>
               </TableCell>
               <TableCell>
-                {warehouse.is_active ? "Aktif" : "Tidak Aktif"}
+                {warehouse.is_active
+                  ? t("master.warehouses.active")
+                  : t("master.warehouses.inactive")}
               </TableCell>
               <TableCell>
-                <Tooltip content="Edit" placement="top">
+                <Tooltip content={t("common.edit")} placement="top">
                   <Button
                     isIconOnly
                     color="warning"
@@ -184,7 +190,7 @@ export default function WarehousesPage() {
                     <Edit size={18} />
                   </Button>
                 </Tooltip>
-                <Tooltip content="Hapus" placement="top">
+                <Tooltip content={t("common.delete")} placement="top">
                   <Button
                     isIconOnly
                     color="danger"

@@ -208,21 +208,21 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                   }
                   variant="bordered"
                 >
-                  Cetak
+                  {t("service.detail_tab.print")}
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="Static Actions">
                 <DropdownItem key="inv" onPress={() => downloadInv()}>
-                  Invoice
+                  {t("service.detail_tab.invoice")}
                 </DropdownItem>
                 <DropdownItem
                   key="estimation"
                   onPress={() => downloadInv("estimation")}
                 >
-                  Estimasi Invoice
+                  {t("service.detail_tab.estimation_invoice")}
                 </DropdownItem>
                 <DropdownItem key="wo" onPress={() => downloadInv("wo")}>
-                  Surat Kerja
+                  {t("service.detail_tab.work_order_doc")}
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
@@ -248,7 +248,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                   startContent={<Edit size={18} />}
                   onPress={() => setIsEdit(true)}
                 >
-                  Edit Tabel
+                  {t("service.detail_tab.edit_table")}
                 </Button>
               )}
 
@@ -263,26 +263,26 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
           <div className="flex justify-between items-center mb-6">
             <SectionHeader
               icon={<Receipt size={18} />}
-              title="Rincian Pekerjaan & Part"
+              title={t("service.detail_tab.work_items_title")}
             />
           </div>
 
           <div className="flex justify-between">
             <h1 className="text-sm uppercase font-bold text-gray-700">
-              Sparepart
+              {t("service.detail_tab.sparepart")}
             </h1>
             <h1 className="text-sm uppercase font-bold text-gray-700">
               {formatIDR(data.sparepart_total)}
             </h1>
           </div>
-          <Table removeWrapper aria-label="Work Items" className="mt-1">
+          <Table removeWrapper aria-label={t("service.detail_tab.work_items_aria")} className="mt-1">
             <TableHeader>
-              <TableColumn>ITEM / DESC</TableColumn>
-              <TableColumn align="end">HARGA</TableColumn>
+              <TableColumn>{t("service.detail_tab.item_desc")}</TableColumn>
+              <TableColumn align="end">{t("service.detail_tab.price")}</TableColumn>
               <TableColumn align="center" width={80}>
-                QTY
+                {t("service.detail_tab.qty")}
               </TableColumn>
-              <TableColumn align="end">SUBTOTAL</TableColumn>
+              <TableColumn align="end">{t("service.detail_tab.subtotal")}</TableColumn>
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
             <TableBody>
@@ -389,7 +389,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                     </TableCell>
                     <TableCell>
                       {!["cancel"].includes(data.status) && canDelete && (
-                        <Tooltip color="danger" content="Hapus Item">
+                        <Tooltip color="danger" content={t("service.detail_tab.delete_item")}>
                           <Button
                             isIconOnly
                             color="danger"
@@ -412,17 +412,19 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
           </Table>
           <Divider className="mb-4" />
           <div className="flex justify-between">
-            <h1 className="text-sm uppercase font-bold text-gray-700">Jasa</h1>
+            <h1 className="text-sm uppercase font-bold text-gray-700">
+              {t("service.detail_tab.service")}
+            </h1>
             <h1 className="text-sm uppercase font-bold text-gray-700">
               {formatIDR(data.service_total)}
             </h1>
           </div>
-          <Table removeWrapper aria-label="Work Items" className="mt-2">
+          <Table removeWrapper aria-label={t("service.detail_tab.work_items_aria")} className="mt-2">
             <TableHeader>
-              <TableColumn>ITEM / DESC</TableColumn>
-              <TableColumn align="end">HARGA</TableColumn>
-              <TableColumn width={80}>ESTIMASI</TableColumn>
-              <TableColumn align="end">SUBTOTAL</TableColumn>
+              <TableColumn>{t("service.detail_tab.item_desc")}</TableColumn>
+              <TableColumn align="end">{t("service.detail_tab.price")}</TableColumn>
+              <TableColumn width={80}>{t("service.detail_tab.estimate")}</TableColumn>
+              <TableColumn align="end">{t("service.detail_tab.subtotal")}</TableColumn>
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
             <TableBody>
@@ -517,7 +519,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                     </TableCell>
                     <TableCell>
                       {!["cancel"].includes(data.status) && canDelete && (
-                        <Tooltip showArrow color="danger" content="Hapus Item">
+                        <Tooltip showArrow color="danger" content={t("service.detail_tab.delete_item")}>
                           <Button
                             isIconOnly
                             color="danger"
@@ -586,7 +588,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                   input: "text-end",
                   label: "w-24 text-start text-sm",
                 }}
-                label="Subtotal"
+                label={t("service.detail_tab.subtotal_label")}
                 labelPlacement="outside-left"
                 size="sm"
                 startContent={<p className="text-xs">Rp</p>}
@@ -598,7 +600,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                   input: "text-end",
                   label: "w-24 text-start text-sm",
                 }}
-                label="Disc Final"
+                label={t("service.detail_tab.disc_final")}
                 labelPlacement="outside-left"
                 size="sm"
                 startContent={<p className="text-xs">Rp</p>}
@@ -611,7 +613,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                   label: "w-24 text-start text-sm",
                 }}
                 endContent={<p className="text-xs">%</p>}
-                label="PPN"
+                label={t("service.detail_tab.ppn")}
                 labelPlacement="outside-left"
                 size="sm"
                 value={Number(data.ppn_percent ?? 0) as any}
@@ -622,7 +624,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                   input: "text-end w-full",
                   label: "w-24 text-start text-sm",
                 }}
-                label="Total"
+                label={t("service.detail_tab.total")}
                 labelPlacement="outside-left"
                 size="sm"
                 startContent={<p className="text-xs">Rp</p>}
@@ -638,14 +640,14 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               variant="bordered"
               onPress={() => setIsEdit(false)}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
               size="sm"
               onPress={() => handleSave(generateDataWo(services, sparepart))}
             >
-              Simpan Perubahan
+              {t("service.detail_tab.save_changes")}
             </Button>
           </CardFooter>
         )}
@@ -656,7 +658,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
           <div className="flex flex-wrap justify-between items-center gap-4">
             <SectionHeader
               icon={<Wrench size={18} />}
-              title="Mekanik Bertugas"
+              title={t("service.detail_tab.mechanic_title")}
             />
             <div className="flex gap-2">
               {!["cancel", "closed"].includes(data.status) && canUpdate && (
@@ -674,7 +676,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                       setOpenModal(true);
                     }}
                   >
-                    Pilih Mekanik
+                    {t("service.detail_tab.select_mechanic")}
                   </Button>
                   <ButtonStatus
                     item={data}
@@ -712,7 +714,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                       className={`h-2 w-2 rounded-full ${mech.work_status === "busy" ? "bg-red-500" : "bg-emerald-500"}`}
                     />
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                      {mech.work_status}
+                      {t(`mechanic.status.${mech.work_status}`)}
                     </span>
                   </div>
                 </div>
@@ -727,11 +729,10 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
           <div className="space-y-2">
             <SectionHeader
               icon={<ClipboardCheck size={18} />}
-              title="Rekomendasi Servis Selanjutnya"
+              title={t("service.detail_tab.next_service_title")}
             />
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-              Catat komponen yang perlu diperhatikan atau diganti pada kunjungan
-              berikutnya.
+              {t("service.detail_tab.next_service_desc")}
             </p>
             <Chip
               className="font-black text-[9px] uppercase tracking-widest"
@@ -741,7 +742,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               startContent={<AlertCircle size={12} />}
               variant="flat"
             >
-              Tampil di Invoice Customer
+              {t("service.detail_tab.show_on_invoice")}
             </Chip>
           </div>
 
@@ -751,8 +752,8 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                 allowsCustomValue
                 className="max-w-2xl"
                 inputValue={selectedTemplate}
-                label="Template Rekomendasi"
-                placeholder="Pilih template — editor terisi otomatis"
+                label={t("service.detail_tab.template_label")}
+                placeholder={t("service.detail_tab.template_placeholder")}
                 variant="bordered"
                 onInputChange={setSelectedTemplate}
                 onKeyDown={(event) => {
@@ -790,7 +791,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                     setNextSugestion("");
                   }}
                 >
-                  Kosongkan
+                  {t("service.detail_tab.clear")}
                 </Button>
               </div>
             </div>
@@ -813,7 +814,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                 startContent={<Save size={18} />}
                 onPress={saveNextSugestion}
               >
-                Simpan Rekomendasi
+                {t("service.detail_tab.save_recommendation")}
               </Button>
             </div>
           )}

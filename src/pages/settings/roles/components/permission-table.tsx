@@ -4,6 +4,7 @@ import type { IGroupedPermissions } from "@/utils/interfaces/IRole";
 
 import { Checkbox, Divider } from "@heroui/react";
 import { ShieldCheck, Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   data: IGroupedPermissions;
@@ -16,6 +17,8 @@ export default function PermissionTable({
   selectedIds,
   setSelectedIds,
 }: Props) {
+  const { t } = useTranslation();
+
   const handleToggle = (id: number) => {
     setSelectedIds(
       selectedIds.includes(id)
@@ -47,14 +50,14 @@ export default function PermissionTable({
 
         return (
           <div key={groupName} className="group transition-all">
-            {/* Group Header */}
             <div className="flex items-center justify-between mb-4 px-2">
               <div className="flex items-center gap-3">
                 <div className="size-8 rounded-md bg-gray-500 flex items-center justify-center text-white shadow-sm">
                   <Lock size={14} />
                 </div>
                 <h3 className="text-sm font-black uppercase text-gray-500">
-                  Modul {groupName}
+                  {t("settings.roles.module_prefix")}
+                  {groupName}
                 </h3>
               </div>
 
@@ -70,11 +73,10 @@ export default function PermissionTable({
                   handleToggleGroup(groupIds, isAllGroupSelected)
                 }
               >
-                Pilih Semua
+                {t("settings.roles.select_all")}
               </Checkbox>
             </div>
 
-            {/* Permission Items Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {(items || []).map((item) => {
                 const isSelected = selectedIds.includes(item.id);

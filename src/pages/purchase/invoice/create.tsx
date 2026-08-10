@@ -28,6 +28,7 @@ import {
   Tooltip,
 } from "@heroui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import ModalPart from "../po/modal-part";
@@ -110,6 +111,7 @@ function InvoiceLineTotal({ control, index }: InvoiceLineTotalProps) {
 }
 
 export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
+  const { t } = useTranslation();
   const { warehouses } = useAppSelector((state) => state.warehouse);
   const { suppliersAll } = useAppSelector((state) => state.supplier);
   const { list } = useAppSelector((state) => state.employe);
@@ -347,13 +349,13 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                   )
                 }
               >
-                Download Invoice
+                {t("purchase.shared.download_invoice")}
               </Button>
             </div>
           )
         }
-        subtitle="Tambah faktur pembelian"
-        title="Tambah Faktur"
+        subtitle={t("purchase.invoice.create_subtitle")}
+        title={t("purchase.invoice.create_title")}
       />
       <Card>
         <CardBody>
@@ -369,7 +371,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         label: "w-28 text-sm",
                         mainWrapper: "w-full",
                       }}
-                      label="Tanggal Faktur"
+                      label={t("purchase.invoice.invoice_date")}
                       labelPlacement="outside-left"
                       size="sm"
                       value={field.value}
@@ -389,9 +391,9 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                           label: "w-28 text-sm",
                           mainWrapper: "w-full",
                         }}
-                        label="No. PO"
+                        label={t("purchase.invoice.po_no")}
                         labelPlacement="outside-left"
-                        placeholder="Autogenerate jika kosong"
+                        placeholder={t("purchase.invoice.auto_generate")}
                         size="sm"
                       />
                     )}
@@ -410,9 +412,9 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         label: "w-28 text-sm",
                         mainWrapper: "w-full",
                       }}
-                      label="No. Faktur"
+                      label={t("purchase.invoice.invoice_no")}
                       labelPlacement="outside-left"
-                      placeholder="#Faktur Supplier"
+                      placeholder={t("purchase.invoice.invoice_placeholder")}
                       size="sm"
                     />
                   )}
@@ -421,9 +423,9 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                   <AutocompleteControl
                     control={control}
                     items={Array.isArray(suppliersAll) ? suppliersAll : []}
-                    label="Supplier"
+                    label={t("purchase.shared.supplier")}
                     name="supplier_id"
-                    placeholder="Pilih Supplier"
+                    placeholder={t("purchase.po.select_supplier")}
                   />
                   <Button
                     isIconOnly
@@ -445,7 +447,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         className="w-28 text-sm ml-2 -mr-2"
                         htmlFor="payment_type"
                       >
-                        Pembayaran
+                        {t("purchase.invoice.payment")}
                       </label>
                       <RadioGroup
                         id="payment_type"
@@ -454,8 +456,10 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         value={field.value}
                         onValueChange={(val) => field.onChange(val)}
                       >
-                        <Radio value="cash">Tunai</Radio>
-                        <Radio value="credit">Kredit</Radio>
+                        <Radio value="cash">{t("purchase.invoice.cash")}</Radio>
+                        <Radio value="credit">
+                          {t("purchase.invoice.credit")}
+                        </Radio>
                       </RadioGroup>
                     </div>
                   )}
@@ -469,9 +473,11 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         label: "w-28 text-sm",
                         mainWrapper: "w-full",
                       }}
-                      endContent={<span className="text-sm">Hari</span>}
+                      endContent={
+                        <span className="text-sm">{t("purchase.shared.days")}</span>
+                      }
                       isDisabled={watch("payment_type") === "cash"}
-                      label="Tempo"
+                      label={t("purchase.invoice.credit_term")}
                       labelPlacement="outside-left"
                       size="sm"
                       value={field.value as any}
@@ -492,7 +498,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         mainWrapper: "w-full",
                       }}
                       isDisabled={watch("payment_type") === "cash"}
-                      label="Tgl. Tempo"
+                      label={t("purchase.invoice.due_date")}
                       labelPlacement="outside-left"
                       size="sm"
                       value={field.value as any}
@@ -508,7 +514,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                   <AutocompleteControl
                     control={control}
                     items={warehouses?.data || []}
-                    label="Gudang"
+                    label={t("purchase.shared.warehouse")}
                     name="warehouse_id"
                   />
                   <Button
@@ -529,7 +535,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                 startContent={<Plus size={18} />}
                 onPress={() => setOpen(true)}
               >
-                Tambah Barang
+                {t("purchase.shared.add_item")}
               </Button>
             </div>
             <Table
@@ -539,19 +545,31 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
               }}
             >
               <TableHeader>
-                <TableColumn>Kode Barang</TableColumn>
-                <TableColumn>Nama Barang</TableColumn>
-                <TableColumn>Satuan</TableColumn>
-                <TableColumn className="text-center">Qty</TableColumn>
-                <TableColumn className="text-center">Harga Beli</TableColumn>
-                <TableColumn className="text-center">Disc (%)</TableColumn>
-                <TableColumn className="text-center">Nilai Disc</TableColumn>
-                <TableColumn>Pjk (%)</TableColumn>
-                <TableColumn className="text-center">Jumlah</TableColumn>
-                <TableColumn className="text-center">Aksi</TableColumn>
+                <TableColumn>{t("purchase.shared.table.code")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.name")}</TableColumn>
+                <TableColumn>{t("purchase.shared.table.satuan")}</TableColumn>
+                <TableColumn className="text-center">
+                  {t("purchase.shared.table.qty")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("purchase.shared.table.buy_price")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("purchase.shared.table.disc_pct")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("purchase.shared.table.disc_value")}
+                </TableColumn>
+                <TableColumn>{t("purchase.shared.table.tax_pct")}</TableColumn>
+                <TableColumn className="text-center">
+                  {t("purchase.shared.table.amount")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("purchase.shared.table.actions")}
+                </TableColumn>
               </TableHeader>
               <TableBody
-                emptyContent={<div>Tidak Ada Barang</div>}
+                emptyContent={<div>{t("purchase.shared.no_items")}</div>}
                 items={tableItems}
               >
                 {(field) => {
@@ -706,7 +724,12 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         <InvoiceLineTotal control={control} index={index} />
                       </TableCell>
                       <TableCell>
-                        <Tooltip color="danger" content={`Hapus ${field.name}`}>
+                        <Tooltip
+                          color="danger"
+                          content={t("purchase.shared.delete_item", {
+                            name: field.name,
+                          })}
+                        >
                           <Button
                             isIconOnly
                             color="danger"
@@ -735,7 +758,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         label: "w-34",
                         mainWrapper: "w-full",
                       }}
-                      label="Tanggal Penerimaan"
+                      label={t("purchase.invoice.received_date")}
                       labelPlacement="outside-left"
                       size="sm"
                       value={field.value!}
@@ -748,7 +771,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                   name="signature_id"
                   render={({ field }) => (
                     <Autocomplete
-                      aria-label="Signature"
+                      aria-label={t("purchase.shared.signature")}
                       inputProps={{
                         size: "sm",
                         classNames: {
@@ -757,7 +780,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         },
                       }}
                       items={signatureItems}
-                      label="Signature"
+                      label={t("purchase.shared.signature")}
                       labelPlacement="outside-left"
                       selectedKey={
                         field.value != null ? String(field.value) : null
@@ -788,7 +811,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         label: "w-34",
                         mainWrapper: "w-full",
                       }}
-                      label="Catatan"
+                      label={t("purchase.shared.notes")}
                       labelPlacement="outside-left"
                       size="sm"
                     />
@@ -822,7 +845,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                 startContent={<Save size={18} />}
                 type="submit"
               >
-                Simpan
+                {t("common.save")}
               </Button>
             </div>
           </form>

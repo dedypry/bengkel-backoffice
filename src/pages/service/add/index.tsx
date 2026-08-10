@@ -24,6 +24,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
@@ -87,6 +88,7 @@ import { resetHistory } from "@/stores/features/vehicle/vehicle-slice";
 import ModalHistotyVehicles from "@/components/modal-history-vehicles";
 
 export default function ServiceAddPage() {
+  const { t } = useTranslation();
   const { master: vehilces, histories } = useAppSelector(
     (state) => state.vehicle,
   );
@@ -342,14 +344,13 @@ export default function ServiceAddPage() {
                 startContent={<ChevronLeft />}
                 onPress={() => navigate("/service/queue")}
               >
-                Kembali ke Antrian
+                {t("service.add.back_to_queue")}
               </Button>
             </div>
           }
           leadIcon={FilePlus2}
-          subtitle="Input data kendaraan dan keluhan pelanggan untuk pembuatan Work
-              Order."
-          title="Pendaftaran Servis Baru"
+          subtitle={t("service.add.subtitle")}
+          title={t("service.add.title")}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -359,7 +360,7 @@ export default function ServiceAddPage() {
               <div className="flex justify-between items-center mb-5">
                 <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                   <User className="size-5" />
-                  <h5 className="font-bold">Informasi Pelanggan</h5>
+                  <h5 className="font-bold">{t("service.add.customer_info")}</h5>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -370,7 +371,7 @@ export default function ServiceAddPage() {
                         isSelected={!!field.value}
                         onValueChange={field.onChange}
                       >
-                        Ingatkan Untuk servis berikutnya
+                        {t("service.add.remind_next_service")}
                       </Checkbox>
                     )}
                   />
@@ -380,13 +381,13 @@ export default function ServiceAddPage() {
                     type="button"
                     onPress={handleResetCustomer}
                   >
-                    Reset Form
+                    {t("service.add.reset_form")}
                   </Button>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <CustomerSearch
-                  placeholder="Cari atau masukkan nama..."
+                  placeholder={t("service.add.search_name")}
                   value={watch("customer.name")}
                   onChange={(cus) => {
                     setValue("customer.id", cus?.id || undefined);
@@ -416,13 +417,13 @@ export default function ServiceAddPage() {
                     <Input
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
-                      label="Nomor Telepon / WA"
+                      label={t("service.add.phone_label")}
                       startContent={
                         <PhoneCall className="text-gray-500" size={18} />
                       }
                       {...field}
                       labelPlacement="outside"
-                      placeholder="Cari atau masukkan no hp..."
+                      placeholder={t("service.add.phone_placeholder")}
                     />
                   )}
                 />
@@ -436,7 +437,7 @@ export default function ServiceAddPage() {
                         !!customer?.id && !!customer?.profile?.birth_date
                       }
                       isInvalid={fieldState.invalid}
-                      label="Tanggal Lahir"
+                      label={t("service.add.birth_date")}
                       labelPlacement="outside"
                       value={field.value as any}
                       onChange={field.onChange}
@@ -450,13 +451,13 @@ export default function ServiceAddPage() {
                     <Input
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
-                      label="Email (Optional)"
+                      label={t("service.add.email_optional")}
                       labelPlacement="outside"
                       startContent={
                         <Mail className="text-gray-500" size={18} />
                       }
                       {...(field as any)}
-                      placeholder="Masukan Email valid"
+                      placeholder={t("service.add.email_placeholder")}
                     />
                   )}
                 />
@@ -468,7 +469,7 @@ export default function ServiceAddPage() {
               <div className="flex justify-between items-center mb-5">
                 <div className="flex items-center gap-2 text-primary font-bold">
                   <Car className="size-5" />
-                  <h5 className="font-bold">Detail Kendaraan</h5>
+                  <h5 className="font-bold">{t("service.add.vehicle_detail")}</h5>
                 </div>
 
                 <div className="flex items-center gap-2 ">
@@ -478,7 +479,7 @@ export default function ServiceAddPage() {
                       size="sm"
                       onPress={() => setHistoryModal(true)}
                     >
-                      History
+                      {t("service.add.history_btn")}
                     </Button>
                   )}
                   {isVehicleDisable && (
@@ -489,7 +490,7 @@ export default function ServiceAddPage() {
                       type="button"
                       onPress={() => setEdit(true)}
                     >
-                      Ubah Data
+                      {t("service.add.edit_vehicle")}
                     </Button>
                   )}
                   {!!watch("vehicle.id") && !isNew && (
@@ -501,7 +502,7 @@ export default function ServiceAddPage() {
                         handleVehicleReset();
                       }}
                     >
-                      Kendaraan Baru
+                      {t("service.add.new_vehicle")}
                     </Button>
                   )}
                   {isNew && (
@@ -519,7 +520,7 @@ export default function ServiceAddPage() {
                         }
                       }}
                     >
-                      Setelan awal
+                      {t("service.add.restore_default")}
                     </Button>
                   )}
                 </div>
@@ -575,7 +576,7 @@ export default function ServiceAddPage() {
                       isDisabled={isVehicleDisable}
                       isInvalid={!!fieldState.invalid}
                       items={(vehilces || []).map((e) => e.type)}
-                      label="Merk"
+                      label={t("service.add.brand")}
                       labelPlacement="outside"
                       value={field.value}
                       onValueChange={(val) => {
@@ -601,7 +602,7 @@ export default function ServiceAddPage() {
                       isDisabled={isVehicleDisable}
                       isInvalid={fieldState.invalid}
                       items={(vehicle?.children || []).map((e) => e.merk)}
-                      label="Tipe / Model"
+                      label={t("service.add.model")}
                       labelPlacement="outside"
                       value={field.value}
                       onValueChange={(val) => {
@@ -636,9 +637,9 @@ export default function ServiceAddPage() {
                       disabled={isVehicleDisable}
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
-                      label="Tahun"
+                      label={t("service.add.year")}
                       labelPlacement="outside"
-                      placeholder="Masukan Tahun"
+                      placeholder={t("service.add.year_placeholder")}
                       value={(field.value || 0) as any}
                       onInput={field.onChange}
                     />
@@ -654,9 +655,9 @@ export default function ServiceAddPage() {
                       disabled={isVehicleDisable}
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
-                      label="Nomor Rangka (VIN)"
+                      label={t("service.add.vin")}
                       labelPlacement="outside"
-                      placeholder="Masukkan No. Rangka"
+                      placeholder={t("service.add.vin_placeholder")}
                     />
                   )}
                 />
@@ -670,9 +671,9 @@ export default function ServiceAddPage() {
                       disabled={isVehicleDisable}
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
-                      label="Warna"
+                      label={t("service.add.color")}
                       labelPlacement="outside"
-                      placeholder="Contoh: Hitam Metalic"
+                      placeholder={t("service.add.color_placeholder")}
                     />
                   )}
                 />
@@ -686,9 +687,9 @@ export default function ServiceAddPage() {
                       isInvalid={
                         fieldState.invalid || !field.value || field.value === 0
                       }
-                      label="KM Sekarang"
+                      label={t("service.add.current_km")}
                       labelPlacement="outside"
-                      placeholder="Masukan KM Terakhir"
+                      placeholder={t("service.add.current_km_placeholder")}
                       value={(field.value || 0) as any}
                       onInput={field.onChange}
                     />
@@ -704,9 +705,9 @@ export default function ServiceAddPage() {
                       isInvalid={
                         fieldState.invalid || !field.value || field.value === 0
                       }
-                      label="KM Berikutnya"
+                      label={t("service.add.next_km")}
                       labelPlacement="outside"
-                      placeholder="Masukan KM Berikutnya"
+                      placeholder={t("service.add.next_km_placeholder")}
                       value={(field.value || 0) as any}
                       onInput={field.onChange}
                     />
@@ -715,8 +716,8 @@ export default function ServiceAddPage() {
                 {/* Baris 2: Spesifikasi Teknis (Detail) */}
                 <div className="md:col-span-3 mt-2">
                   <h4 className="text-xs font-semibold mb-4 flex items-center gap-2 text-primary border-b pb-2">
-                    <ClipboardList className="size-4" /> Spesifikasi Teknis
-                    Kendaraan (Optional)
+                    <ClipboardList className="size-4" />{" "}
+                    {t("service.add.tech_spec")}
                   </h4>
 
                   {/* Layout Grid diubah menjadi maksimal 3 kolom pada layar besar agar Input tidak gepeng */}
@@ -731,7 +732,7 @@ export default function ServiceAddPage() {
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
-                          label="Kapasitas Mesin (CC)"
+                          label={t("service.add.engine_capacity")}
                           labelPlacement="outside"
                           placeholder="Contoh: 1500"
                         />
@@ -747,9 +748,9 @@ export default function ServiceAddPage() {
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
-                          label="Bahan Bakar"
+                          label={t("service.add.fuel_type")}
                           labelPlacement="outside"
-                          placeholder="Pertalite / Solar / Dex"
+                          placeholder={t("service.add.fuel_placeholder")}
                         />
                       )}
                     />
@@ -762,9 +763,9 @@ export default function ServiceAddPage() {
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
-                          label="Tipe Transmisi"
+                          label={t("service.add.transmission")}
                           labelPlacement="outside"
-                          placeholder="Pilih Transmisi"
+                          placeholder={t("service.add.transmission_placeholder")}
                           selectedKeys={field.value ? [field.value] : []}
                           onSelectionChange={(keys) =>
                             field.onChange(Array.from(keys)[0])
@@ -786,9 +787,9 @@ export default function ServiceAddPage() {
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
-                          label="Nomor Mesin"
+                          label={t("service.add.engine_number")}
                           labelPlacement="outside"
-                          placeholder="Masukkan No. Mesin"
+                          placeholder={t("service.add.engine_number_placeholder")}
                         />
                       )}
                     />
@@ -802,9 +803,9 @@ export default function ServiceAddPage() {
                           disabled={isVehicleDisable}
                           errorMessage={fieldState.error?.message}
                           isInvalid={fieldState.invalid}
-                          label="Ukuran Ban & Velg"
+                          label={t("service.add.tire_size")}
                           labelPlacement="outside"
-                          placeholder="Contoh: 185/65 R15"
+                          placeholder={t("service.add.tire_size_placeholder")}
                         />
                       )}
                     />
@@ -820,15 +821,14 @@ export default function ServiceAddPage() {
               {isErrorService ||
                 (!isProduct && (
                   <Alert color="warning">
-                    Mohon tambahkan **minimal satu** barang atau jasa sebelum
-                    melanjutkan.
+                    {t("service.add.min_item_alert")}
                   </Alert>
                 ))}
 
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                   <Wrench className="size-5" />
-                  <h5 className="font-bold">Keluhan & Jenis Servis</h5>
+                  <h5 className="font-bold">{t("service.add.complaint_section")}</h5>
                 </div>
                 <div className="text-right">
                   <ModalAddService />
@@ -837,22 +837,22 @@ export default function ServiceAddPage() {
               <div className="space-y-4">
                 <Table
                   removeWrapper
-                  aria-label="Tabel Daftar Layanan dan Sparepart"
+                  aria-label={t("service.add.table_aria")}
                   classNames={{
                     th: "bg-default-50 text-gray-600 font-bold uppercase text-tiny",
                     td: "py-3",
                   }}
                 >
                   <TableHeader>
-                    <TableColumn width={300}>BARANG/JASA</TableColumn>
-                    <TableColumn align="center">QTY</TableColumn>
-                    <TableColumn align="end">BIAYA</TableColumn>
-                    <TableColumn align="end">TOTAL</TableColumn>
+                    <TableColumn width={300}>{t("service.add.item_column")}</TableColumn>
+                    <TableColumn align="center">{t("service.detail_tab.qty")}</TableColumn>
+                    <TableColumn align="end">{t("service.add.cost_column")}</TableColumn>
+                    <TableColumn align="end">{t("service.add.total_column")}</TableColumn>
                     <TableColumn align="center" width={50}>
                       {" "}
                     </TableColumn>
                   </TableHeader>
-                  <TableBody emptyContent="Belum ada item yang ditambahkan">
+                  <TableBody emptyContent={t("service.add.empty_items")}>
                     {[
                       ...(sparepart.length > 0
                         ? [
@@ -861,7 +861,7 @@ export default function ServiceAddPage() {
                               className="bg-default-100"
                             >
                               <TableCell className="font-semibold text-primary">
-                                Sparepart
+                                {t("service.detail_tab.sparepart")}
                               </TableCell>
                               <TableCell className="text-right" colSpan={4}>
                                 <Button
@@ -875,7 +875,7 @@ export default function ServiceAddPage() {
                                     )
                                   }
                                 >
-                                  Hapus Semua
+                                  {t("service.add.delete_all")}
                                 </Button>
                               </TableCell>
                             </TableRow>,
@@ -927,7 +927,7 @@ export default function ServiceAddPage() {
                               className="bg-default-100"
                             >
                               <TableCell className="font-semibold text-primary">
-                                Jasa
+                                {t("service.detail_tab.service")}
                               </TableCell>
                               <TableCell className="text-right" colSpan={4}>
                                 <Button
@@ -941,7 +941,7 @@ export default function ServiceAddPage() {
                                     )
                                   }
                                 >
-                                  Hapus Semua
+                                  {t("service.add.delete_all")}
                                 </Button>
                               </TableCell>
                             </TableRow>,
@@ -1003,11 +1003,11 @@ export default function ServiceAddPage() {
                         }}
                         errorMessage={fieldState.error?.message}
                         isInvalid={fieldState.invalid}
-                        label="Deskripsi Keluhan"
+                        label={t("service.add.complaint_label")}
                         labelPlacement="outside"
                         maxRows={8}
                         minRows={3}
-                        placeholder="Masukkan detail keluhan pelanggan secara lengkap di sini..."
+                        placeholder={t("service.add.complaint_placeholder")}
                         variant="bordered"
                       />
                     )}
@@ -1023,7 +1023,7 @@ export default function ServiceAddPage() {
               <CardBody>
                 <h5 className="font-bold border-b border-white/10 pb-3 flex items-center gap-2">
                   <Users className="size-5" />
-                  Mekanik
+                  {t("service.add.mechanic_section")}
                 </h5>
 
                 <div className="flex flex-col gap-4">
@@ -1033,9 +1033,9 @@ export default function ServiceAddPage() {
                     render={({ field }) => (
                       <Autocomplete
                         defaultItems={employes?.data || []}
-                        label="Service Advisor"
+                        label={t("service.detail.service_advisor")}
                         labelPlacement="outside-top"
-                        placeholder="Pilih Service Advisor"
+                        placeholder={t("service.add.select_sa")}
                         selectedKey={field.value ? String(field.value) : ""}
                         onSelectionChange={(val) => field.onChange(Number(val))}
                       >
@@ -1053,9 +1053,9 @@ export default function ServiceAddPage() {
                     render={({ field }) => (
                       <Autocomplete
                         defaultItems={employes?.data || []}
-                        label="PIC Service"
+                        label={t("service.detail.pic_service")}
                         labelPlacement="outside-top"
-                        placeholder="Pilih PIC Service"
+                        placeholder={t("service.add.select_pic")}
                         selectedKey={String(field.value)}
                         onSelectionChange={(val) => field.onChange(Number(val))}
                       >
@@ -1069,7 +1069,7 @@ export default function ServiceAddPage() {
                   />
 
                   {(watch("mechanic_ids") || []).length > 0 && (
-                    <p className="text-gray-600">Mekanik</p>
+                    <p className="text-gray-600">{t("service.add.mechanic_section")}</p>
                   )}
 
                   <div className="flex flex-wrap gap-1">
@@ -1100,7 +1100,7 @@ export default function ServiceAddPage() {
                     size="sm"
                     onPress={() => setOpenModal(true)}
                   >
-                    Pilih Mekanik
+                    {t("service.queue.select_mechanic")}
                   </Button>
                 </div>
               </CardBody>
@@ -1110,29 +1110,31 @@ export default function ServiceAddPage() {
                 <CardBody>
                   <h5 className="font-bold border-b border-white/10 pb-3 flex items-center gap-2">
                     <ClipboardCheck className="size-5" />
-                    Ringkasan Order
+                    {t("service.add.order_summary")}
                   </h5>
                   <div className="space-y-3 text-sm mb-5">
                     <div className="flex justify-between opacity-80">
-                      <span>Estimasi Waktu</span>
+                      <span>{t("service.add.estimation_time")}</span>
                       <span className="font-semibold">{estimation}</span>
                     </div>
                     <div className="flex justify-between opacity-80">
-                      <span>Total Sparepart</span>
+                      <span>{t("service.add.total_sparepart")}</span>
                       <span>{formatIDR(sparepartPrice)}</span>
                     </div>
                     <div className="flex justify-between opacity-80">
-                      <span>Total Jasa</span>
+                      <span>{t("service.add.total_service")}</span>
                       <span>{formatIDR(servicePrice)}</span>
                     </div>
                     <div className="flex justify-between opacity-80">
-                      <span>Estimasi Harga</span>
+                      <span>{t("service.add.estimation_price")}</span>
                       <span className="font-semibold">
                         {formatIDR(servicePrice + sparepartPrice)}
                       </span>
                     </div>
                     <div className="flex items-center opacity-80 gap-3">
-                      <span className="w-28 flex-shrink-0">Tanggal Order</span>
+                      <span className="w-28 flex-shrink-0">
+                        {t("service.add.order_date")}
+                      </span>
                       <div className="flex-1 min-w-0">
                         <Controller
                           control={control}
@@ -1156,7 +1158,9 @@ export default function ServiceAddPage() {
                       </div>
                     </div>
                     <div className="flex items-center opacity-80 gap-3">
-                      <span className="w-28 flex-shrink-0">Prioritas</span>
+                      <span className="w-28 flex-shrink-0">
+                        {t("service.add.priority")}
+                      </span>
                       <div className="flex-1 min-w-0">
                         <Controller
                           control={control}
@@ -1169,17 +1173,17 @@ export default function ServiceAddPage() {
                                 mainWrapper: "w-full",
                                 trigger: "w-full",
                               }}
-                              placeholder="Pilih Prioritas"
+                              placeholder={t("service.add.select_priority")}
                               selectedKeys={field.value ? [field.value] : []}
                               size="sm"
                               onSelectionChange={(keys) =>
                                 field.onChange(Array.from(keys)[0])
                               }
                             >
-                              <SelectItem key="low">Rendah</SelectItem>
-                              <SelectItem key="normal">Normal</SelectItem>
-                              <SelectItem key="hight">Tinggi</SelectItem>
-                              <SelectItem key="urgent">Urgent</SelectItem>
+                              <SelectItem key="low">{t("low")}</SelectItem>
+                              <SelectItem key="normal">{t("normal")}</SelectItem>
+                              <SelectItem key="hight">{t("high")}</SelectItem>
+                              <SelectItem key="urgent">{t("urgent")}</SelectItem>
                             </Select>
                           )}
                         />
@@ -1194,7 +1198,9 @@ export default function ServiceAddPage() {
                       startContent={<Save />}
                       onPress={() => handleSubmit(onSubmit)()}
                     >
-                      {isLoading ? "Sedang Process..." : "Simpan Work Order"}
+                      {isLoading
+                        ? t("service.add.submitting")
+                        : t("service.add.submit")}
                     </Button>
                   )}
                 </CardBody>
@@ -1203,8 +1209,7 @@ export default function ServiceAddPage() {
               <Card>
                 <CardBody>
                   <p className="text-xs text-primary leading-relaxed">
-                    <strong>Tips:</strong> Pastikan Anda telah memeriksa barang
-                    berharga di dalam kendaraan sebelum memulai servis.
+                    <strong>{t("common.tips")}</strong> {t("service.add.tips")}
                   </p>
                 </CardBody>
               </Card>

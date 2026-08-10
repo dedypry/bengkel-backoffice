@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Edit, Trash2, Phone, Mail, History, Info } from "lucide-react";
 import { Button, Card, CardBody, Tabs, Tab, Avatar, Chip } from "@heroui/react";
 
@@ -15,6 +16,7 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 
 export default function CustomerDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { detail: data, detailLoading } = useAppSelector(
@@ -91,14 +93,14 @@ export default function CustomerDetailPage() {
                 variant="flat"
                 onPress={() => confirmSweat(handleDelete)}
               >
-                Hapus
+                {t("common.delete")}
               </Button>
               <Button
                 color="primary"
                 startContent={<Edit size={18} />}
                 onPress={() => navigate(`/master/customers/${id}/edit`)}
               >
-                Edit Pelanggan
+                {t("master.customers.edit_customer")}
               </Button>
             </div>
           </div>
@@ -123,7 +125,7 @@ export default function CustomerDetailPage() {
           title={
             <div className="flex items-center gap-2">
               <Info size={16} />
-              <span>Detail Informasi</span>
+              <span>{t("master.customers.detail_tab")}</span>
             </div>
           }
         >
@@ -135,7 +137,7 @@ export default function CustomerDetailPage() {
           title={
             <div className="flex items-center gap-2">
               <History size={16} />
-              <span>Riwayat Servis</span>
+              <span>{t("master.customers.service_tab")}</span>
             </div>
           }
         >

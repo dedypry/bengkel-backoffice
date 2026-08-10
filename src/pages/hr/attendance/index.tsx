@@ -3,7 +3,7 @@ import type {
   IAttendanceDevice,
 } from "@/utils/interfaces/IAttendance";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -39,6 +39,7 @@ import {
   Wifi,
   WifiOff,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import ManualAttendanceModal from "./components/manual-modal";
 import DeviceModal from "./components/device-modal";
@@ -57,15 +58,6 @@ import { http } from "@/utils/libs/axios";
 import debounce from "@/utils/helpers/debounce";
 import { dateFormat, dateTimeFormat } from "@/utils/helpers/formater";
 
-const STATUS_CONFIG: Record<string, { label: string; color: any }> = {
-  present: { label: "Hadir", color: "success" },
-  late: { label: "Terlambat", color: "warning" },
-  permit: { label: "Izin", color: "secondary" },
-  sick: { label: "Sakit", color: "secondary" },
-  leave: { label: "Cuti", color: "default" },
-  absent: { label: "Alfa", color: "danger" },
-};
-
 function timeOnly(value: string | null) {
   if (!value) return "--:--";
 
@@ -73,6 +65,7 @@ function timeOnly(value: string | null) {
 }
 
 export default function AttendancePage() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { attendances, summary, devices, attendanceQuery } = useAppSelector(
     (state) => state.attendance,
@@ -86,6 +79,20 @@ export default function AttendancePage() {
   const [selectedDevice, setSelectedDevice] =
     useState<IAttendanceDevice | null>();
   const hasFetched = useRef(false);
+
+  const statusConfig = useMemo<
+    Record<string, { label: string; color: any }>
+  >(
+    () => ({
+      present: { label: t("hr.common.status_present"), color: "success" },
+      late: { label: t("hr.common.status_late"), color: "warning" },
+      permit: { label: t("hr.common.status_permit"), color: "secondary" },
+      sick: { label: t("hr.common.status_sick"), color: "secondary" },
+      leave: { label: t("hr.common.status_leave"), color: "default" },
+      absent: { label: t("hr.common.status_absent"), color: "danger" },
+    }),
+    [t],
+  );
 
   useEffect(() => {
     if (company && !hasFetched.current) {
@@ -125,38 +132,41 @@ export default function AttendancePage() {
       .catch((err) => notifyError(err));
   };
 
-  const summaryCards = [
-    {
-      label: "Total Karyawan",
-      value: summary.total,
-      icon: Users,
-      color: "text-gray-600 bg-gray-100",
-    },
-    {
-      label: "Hadir",
-      value: summary.present,
-      icon: CheckCircle2,
-      color: "text-emerald-600 bg-emerald-100",
-    },
-    {
-      label: "Terlambat",
-      value: summary.late,
-      icon: AlertTriangle,
-      color: "text-amber-600 bg-amber-100",
-    },
-    {
-      label: "Izin/Cuti",
-      value: summary.leave,
-      icon: Clock,
-      color: "text-indigo-600 bg-indigo-100",
-    },
-    {
-      label: "Alfa",
-      value: summary.absent,
-      icon: CalendarOff,
-      color: "text-rose-600 bg-rose-100",
-    },
-  ];
+  const summaryCards = useMemo(
+    () => [
+      {
+        label: t("hr.attendance.stat_total"),
+        value: summary.total,
+        icon: Users,
+        color: "text-gray-600 bg-gray-100",
+      },
+      {
+        label: t("hr.attendance.stat_present"),
+        value: summary.present,
+        icon: CheckCircle2,
+        color: "text-emerald-600 bg-emerald-100",
+      },
+      {
+        label: t("hr.attendance.stat_late"),
+        value: summary.late,
+        icon: AlertTriangle,
+        color: "text-amber-600 bg-amber-100",
+      },
+      {
+        label: t("hr.attendance.stat_leave"),
+        value: summary.leave,
+        icon: Clock,
+        color: "text-indigo-600 bg-indigo-100",
+      },
+      {
+        label: t("hr.attendance.stat_absent"),
+        value: summary.absent,
+        icon: CalendarOff,
+        color: "text-rose-600 bg-rose-100",
+      },
+    ],
+    [summary, t],
+  );
 
   return (
     <div className="space-y-6 pb-20">
@@ -175,10 +185,14 @@ export default function AttendancePage() {
 
       <HeaderAction
         actionIcon={Plus}
-        actionTitle={tab === "daily" ? "Input Absensi" : "Tambah Mesin"}
+        actionTitle={
+          tab === "daily"
+            ? t("hr.attendance.add_manual")
+            : t("hr.attendance.add_device")
+        }
         leadIcon={Clock}
-        subtitle="Kelola kehadiran karyawan dari mesin absensi maupun input manual."
-        title="Absensi Karyawan"
+        subtitle={t("hr.attendance.subtitle")}
+        title={t("hr.attendance.title")}
         onAction={() => {
           if (tab === "daily") {
             setSelected(null);
@@ -191,7 +205,7 @@ export default function AttendancePage() {
       />
 
       <Tabs
-        aria-label="Menu Absensi"
+        aria-label={t("hr.attendance.tabs_aria")}
         color="primary"
         selectedKey={tab}
         variant="underlined"
@@ -201,7 +215,7 @@ export default function AttendancePage() {
           key="daily"
           title={
             <div className="flex items-center gap-2">
-              <Clock size={16} /> Absensi Harian
+              <Clock size={16} /> {t("hr.attendance.tab_daily")}
             </div>
           }
         >
@@ -239,14 +253,14 @@ export default function AttendancePage() {
                   isClearable
                   className="md:max-w-xs"
                   defaultValue={attendanceQuery.q}
-                  placeholder="Cari nama atau NIK..."
+                  placeholder={t("hr.attendance.search_placeholder")}
                   startContent={<Search className="text-gray-400" size={20} />}
                   onValueChange={searchDebounce}
                 />
               </div>
               <div className="flex items-center gap-2 md:w-auto">
                 <span className="text-sm text-gray-500 whitespace-nowrap">
-                  Tanggal
+                  {t("common.date")}
                 </span>
                 <Input
                   className="md:w-44"
@@ -262,21 +276,31 @@ export default function AttendancePage() {
             {/* Table */}
             <Table
               isStriped
-              aria-label="Tabel Absensi"
+              aria-label={t("hr.attendance.table_aria")}
               classNames={{ td: "py-4 px-6 border-b border-gray-200" }}
             >
               <TableHeader>
-                <TableColumn>KARYAWAN</TableColumn>
-                <TableColumn width={120}>TANGGAL</TableColumn>
-                <TableColumn width={110}>MASUK</TableColumn>
-                <TableColumn width={110}>PULANG</TableColumn>
-                <TableColumn width={120}>STATUS</TableColumn>
-                <TableColumn width={110}>SUMBER</TableColumn>
+                <TableColumn>{t("hr.attendance.col_employee")}</TableColumn>
+                <TableColumn width={120}>
+                  {t("hr.attendance.col_date")}
+                </TableColumn>
+                <TableColumn width={110}>
+                  {t("hr.attendance.col_check_in")}
+                </TableColumn>
+                <TableColumn width={110}>
+                  {t("hr.attendance.col_check_out")}
+                </TableColumn>
+                <TableColumn width={120}>
+                  {t("hr.attendance.col_status")}
+                </TableColumn>
+                <TableColumn width={110}>
+                  {t("hr.attendance.col_source")}
+                </TableColumn>
                 <TableColumn align="center" width={80}>
-                  AKSI
+                  {t("hr.attendance.col_actions")}
                 </TableColumn>
               </TableHeader>
-              <TableBody emptyContent="Belum ada data absensi pada tanggal ini">
+              <TableBody emptyContent={t("hr.attendance.empty_daily")}>
                 {(attendances?.data || []).map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50/50">
                     <TableCell>
@@ -292,7 +316,7 @@ export default function AttendancePage() {
                           </p>
                           <span className="text-[10px] text-gray-400">
                             {item.user?.nik || "-"} ·{" "}
-                            {item.user?.department || "Karyawan"}
+                            {item.user?.department || t("hr.common.employee")}
                           </span>
                         </div>
                       </div>
@@ -314,11 +338,11 @@ export default function AttendancePage() {
                     </TableCell>
                     <TableCell>
                       <Chip
-                        color={STATUS_CONFIG[item.status]?.color || "default"}
+                        color={statusConfig[item.status]?.color || "default"}
                         size="sm"
                         variant="dot"
                       >
-                        {STATUS_CONFIG[item.status]?.label || item.status}
+                        {statusConfig[item.status]?.label || item.status}
                       </Chip>
                     </TableCell>
                     <TableCell>
@@ -328,7 +352,9 @@ export default function AttendancePage() {
                         size="sm"
                         variant="flat"
                       >
-                        {item.source === "manual" ? "Manual" : "Mesin"}
+                        {item.source === "manual"
+                          ? t("hr.common.manual")
+                          : t("hr.common.device")}
                       </Chip>
                     </TableCell>
                     <TableCell>
@@ -338,7 +364,10 @@ export default function AttendancePage() {
                             <MoreVertical className="text-gray-400" size={20} />
                           </Button>
                         </DropdownTrigger>
-                        <DropdownMenu aria-label="Aksi Absensi" variant="flat">
+                        <DropdownMenu
+                          aria-label={t("hr.attendance.dropdown_aria")}
+                          variant="flat"
+                        >
                           <DropdownItem
                             key="edit"
                             startContent={<Edit2 size={16} />}
@@ -347,7 +376,7 @@ export default function AttendancePage() {
                               setOpenManual(true);
                             }}
                           >
-                            Koreksi
+                            {t("hr.common.correction")}
                           </DropdownItem>
                           <DropdownItem
                             key="delete"
@@ -358,7 +387,7 @@ export default function AttendancePage() {
                               confirmSweat(() => handleDelete(item.id))
                             }
                           >
-                            Hapus
+                            {t("common.delete")}
                           </DropdownItem>
                         </DropdownMenu>
                       </Dropdown>
@@ -379,25 +408,27 @@ export default function AttendancePage() {
           key="devices"
           title={
             <div className="flex items-center gap-2">
-              <Cpu size={16} /> Mesin Absensi
+              <Cpu size={16} /> {t("hr.attendance.tab_devices")}
             </div>
           }
         >
           <div className="space-y-4">
             <Table
-              aria-label="Tabel Mesin"
+              aria-label={t("hr.attendance.devices_table_aria")}
               classNames={{ td: "py-4 px-6 border-b border-gray-200" }}
             >
               <TableHeader>
-                <TableColumn>SERIAL NUMBER</TableColumn>
-                <TableColumn>NAMA / LOKASI</TableColumn>
-                <TableColumn width={180}>TERAKHIR AKTIF</TableColumn>
-                <TableColumn width={120}>STATUS</TableColumn>
+                <TableColumn>{t("hr.attendance.col_serial")}</TableColumn>
+                <TableColumn>{t("hr.attendance.col_name_location")}</TableColumn>
+                <TableColumn width={180}>
+                  {t("hr.attendance.col_last_active")}
+                </TableColumn>
+                <TableColumn width={120}>{t("common.status")}</TableColumn>
                 <TableColumn align="center" width={80}>
-                  AKSI
+                  {t("common.actions")}
                 </TableColumn>
               </TableHeader>
-              <TableBody emptyContent="Belum ada mesin terdaftar">
+              <TableBody emptyContent={t("hr.attendance.empty_devices")}>
                 {(devices || []).map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50/50">
                     <TableCell>
@@ -415,7 +446,7 @@ export default function AttendancePage() {
                           {item.name || "-"}
                         </p>
                         <span className="text-[10px] text-gray-400">
-                          {item.location || "Lokasi belum diatur"}
+                          {item.location || t("hr.attendance.location_unset")}
                         </span>
                       </div>
                     </TableCell>
@@ -423,7 +454,7 @@ export default function AttendancePage() {
                       <span className="text-xs text-gray-500">
                         {item.last_seen_at
                           ? dateTimeFormat(item.last_seen_at)
-                          : "Belum pernah"}
+                          : t("hr.attendance.never_active")}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -439,7 +470,9 @@ export default function AttendancePage() {
                         }
                         variant="flat"
                       >
-                        {item.is_active ? "Aktif" : "Non-Aktif"}
+                        {item.is_active
+                          ? t("hr.common.active")
+                          : t("hr.common.inactive")}
                       </Chip>
                     </TableCell>
                     <TableCell>
@@ -449,7 +482,10 @@ export default function AttendancePage() {
                             <MoreVertical className="text-gray-400" size={20} />
                           </Button>
                         </DropdownTrigger>
-                        <DropdownMenu aria-label="Aksi Mesin" variant="flat">
+                        <DropdownMenu
+                          aria-label={t("hr.attendance.devices_dropdown_aria")}
+                          variant="flat"
+                        >
                           <DropdownItem
                             key="edit"
                             startContent={<Edit2 size={16} />}
@@ -458,7 +494,7 @@ export default function AttendancePage() {
                               setOpenDevice(true);
                             }}
                           >
-                            Edit
+                            {t("common.edit")}
                           </DropdownItem>
                           <DropdownItem
                             key="delete"
@@ -469,7 +505,7 @@ export default function AttendancePage() {
                               confirmSweat(() => handleDeleteDevice(item.id))
                             }
                           >
-                            Hapus
+                            {t("common.delete")}
                           </DropdownItem>
                         </DropdownMenu>
                       </Dropdown>

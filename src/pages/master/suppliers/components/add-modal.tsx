@@ -3,6 +3,7 @@ import type { ISupplier } from "@/utils/interfaces/ISupplier";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Modal,
   ModalContent,
@@ -53,6 +54,7 @@ export default function AddSupplierModal({
   supplier,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   const { supplierQuery } = useAppSelector((state) => state.supplier);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -121,10 +123,12 @@ export default function AddSupplierModal({
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <h2 className="text-xl font-black uppercase">
-              {supplier?.id ? "Ubah Data Supplier" : "Tambah Supplier Baru"}
+              {supplier?.id
+                ? t("master.suppliers.modal.edit_title")
+                : t("master.suppliers.modal.add_title")}
             </h2>
             <p className="text-tiny font-medium text-gray-400">
-              Kelola informasi vendor untuk kebutuhan operasional.
+              {t("master.suppliers.modal.subtitle")}
             </p>
           </ModalHeader>
 
@@ -132,7 +136,7 @@ export default function AddSupplierModal({
             {/* Bagian Identitas */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 mb-2 text-gray-400 font-black text-xs uppercase">
-                <Building2 size={14} /> Identitas Perusahaan
+                <Building2 size={14} /> {t("master.suppliers.modal.identity")}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Controller
@@ -140,7 +144,7 @@ export default function AddSupplierModal({
                   name="name"
                   render={({ field, fieldState }) => (
                     <Input
-                      label="Nama Supplier"
+                      label={t("master.suppliers.modal.name")}
                       placeholder="PT. Maju Jaya"
                       {...field}
                       errorMessage={fieldState.error?.message}
@@ -153,7 +157,7 @@ export default function AddSupplierModal({
                   name="code"
                   render={({ field, fieldState }) => (
                     <Input
-                      label="Kode"
+                      label={t("master.suppliers.modal.code")}
                       placeholder="SUP-001"
                       startContent={
                         <Hash className="text-gray-400" size={16} />
@@ -170,7 +174,7 @@ export default function AddSupplierModal({
             {/* Bagian Kontak */}
             <section className="space-y-4 mt-5">
               <div className="flex items-center gap-2 mb-2 text-gray-400 font-black text-xs uppercase">
-                <Phone size={14} /> Informasi Kontak
+                <Phone size={14} /> {t("master.suppliers.modal.contact")}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Controller
@@ -180,7 +184,7 @@ export default function AddSupplierModal({
                     <PhoneInput
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="No Telp"
+                      label={t("master.suppliers.modal.phone")}
                       labelPlacement="inside"
                       value={field.value}
                       variant="faded"
@@ -193,7 +197,7 @@ export default function AddSupplierModal({
                   name="email"
                   render={({ field, fieldState }) => (
                     <Input
-                      label="Email"
+                      label={t("master.suppliers.modal.email")}
                       placeholder="vendor@mail.com"
                       startContent={
                         <Mail className="text-gray-400" size={16} />
@@ -211,7 +215,7 @@ export default function AddSupplierModal({
             {/* Bagian Wilayah */}
             <section className="space-y-4 mt-5">
               <div className="flex items-center gap-2 mb-2 text-gray-400 font-black text-xs uppercase">
-                <MapPin size={14} /> Lokasi & Alamat
+                <MapPin size={14} /> {t("master.suppliers.modal.location")}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Controller
@@ -261,7 +265,7 @@ export default function AddSupplierModal({
                   <Textarea
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
-                    label="Alamat Lengkap"
+                    label={t("master.suppliers.modal.address")}
                     placeholder="Jl. Industri No. 5..."
                     value={field.value || ""}
                     onValueChange={field.onChange}
@@ -273,7 +277,7 @@ export default function AddSupplierModal({
             {/* Bagian Administrasi */}
             <section className="space-y-4 mt-5">
               <div className="flex items-center gap-2 mb-2 text-gray-400 font-black text-xs uppercase">
-                <FileText size={14} /> Legalitas & Status
+                <FileText size={14} /> {t("master.suppliers.modal.legal")}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Controller
@@ -283,7 +287,7 @@ export default function AddSupplierModal({
                     <NpwpInput
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="NPWP"
+                      label={t("master.suppliers.modal.npwp")}
                       value={field.value}
                       onValueChange={field.onChange}
                     />
@@ -296,7 +300,7 @@ export default function AddSupplierModal({
                     <Input
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
-                      label="Website"
+                      label={t("master.suppliers.modal.website")}
                       placeholder="https://..."
                       startContent={
                         <Globe className="text-gray-400" size={16} />
@@ -314,12 +318,12 @@ export default function AddSupplierModal({
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-black uppercase  text-gray-500">
-                      Status Aktif
+                      {t("master.suppliers.modal.active_status")}
                     </span>
                     <p className="text-[10px] text-gray-500 max-w-[280px]">
                       {watch("is_active")
-                        ? "Supplier tersedia untuk transaksi aktif."
-                        : "Supplier akan diarsipkan dari daftar pilihan."}
+                        ? t("master.suppliers.modal.active_desc")
+                        : t("master.suppliers.modal.inactive_desc")}
                     </p>
                   </div>
                 </div>
@@ -346,7 +350,7 @@ export default function AddSupplierModal({
               variant="flat"
               onPress={handleClose}
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -354,7 +358,9 @@ export default function AddSupplierModal({
               startContent={!loading && <Save size={18} />}
               type="submit"
             >
-              {supplier?.id ? "Simpan Perubahan" : "Simpan Supplier"}
+              {supplier?.id
+                ? t("master.suppliers.modal.save_changes")
+                : t("master.suppliers.modal.save_supplier")}
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -1,0 +1,71 @@
+{
+    "booking": {
+        "title": "Booking Data",
+        "subtitle": "Manage your workshop service queue and schedule.",
+        "add": "Add Booking",
+        "search_label": "Search Customer / Vehicle",
+        "search_placeholder": "Type name or plate number...",
+        "status_label": "Status",
+        "status_all": "All Status",
+        "date_label": "Date",
+        "timezone": "WIB",
+        "table_aria": "Booking Data Table",
+        "actions_aria": "Booking Actions",
+        "column_actions": "ACTIONS",
+        "empty": "No booking data found",
+        "edit_booking": "Edit Booking",
+        "confirm_wo": "Confirm (WO)",
+        "cancel_booking": "Cancel Booking",
+        "delete_confirm": {
+            "title": "Are you sure you want to cancel this booking?",
+            "text": "Deleted data cannot be recovered!",
+            "confirm": "Yes, cancel!"
+        },
+        "status": {
+            "confirmed": "Confirmed",
+            "pending": "Pending",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        },
+        "columns": {
+            "customer": "CUSTOMER",
+            "vehicle": "VEHICLE",
+            "schedule": "SCHEDULE",
+            "service": "SERVICE",
+            "status": "STATUS"
+        },
+        "modal": {
+            "add_title": "Add Booking",
+            "edit_title": "Edit Booking",
+            "create_title": "Schedule a Service Appointment",
+            "add_customer": "Add New Customer",
+            "customer_label": "Customer Name",
+            "customer_placeholder": "Search customer name...",
+            "no_phone": "No phone number",
+            "plate_label": "Plate Number",
+            "vehicle_placeholder": "Search vehicle...",
+            "arrival_date": "Arrival Date",
+            "time_label": "Time",
+            "time_placeholder": "Select slot",
+            "service_category": "Service Category",
+            "service_placeholder": "Select service type",
+            "complaint_label": "Complaint / Notes",
+            "complaint_placeholder": "Describe the vehicle issue...",
+            "confirm_button": "Confirm Booking",
+            "service_types": {
+                "oil_change": "Oil Change",
+                "periodic": "Periodic Service",
+                "general": "General Repair",
+                "body": "Body Repair"
+            }
+        },
+        "validation": {
+            "customer_required": "Please select a customer",
+            "vehicle_required": "Please select a vehicle",
+            "branch_required": "Please select a branch",
+            "date_required": "Booking date is required",
+            "time_required": "Booking time is required",
+            "service_required": "Please select a service type"
+        }
+    }
+}

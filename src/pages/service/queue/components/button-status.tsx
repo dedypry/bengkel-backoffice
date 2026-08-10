@@ -1,6 +1,7 @@
 import type { IWorkOrder } from "@/utils/interfaces/IUser";
 
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Tooltip } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Play, CheckCircle2, ReceiptText } from "lucide-react";
@@ -25,6 +26,7 @@ export default function ButtonStatus({
   onSuccess,
   onSelectMechanic,
 }: Props) {
+  const { t } = useTranslation();
   const [isLoading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -71,7 +73,7 @@ export default function ButtonStatus({
       variant="shadow"
       onPress={handleStartWork}
     >
-      MULAI KERJA
+      {t("service.queue.start_work_btn")}
     </Button>
   );
 
@@ -88,7 +90,7 @@ export default function ButtonStatus({
       {/* STATUS: QUEUE / PICK UP */}
       {["queue", "pick_up"].includes(item.progress as any) &&
         (startWorkDisabled ? (
-          <Tooltip content="Hanya foreman yang dapat memulai pekerjaan">
+          <Tooltip content={t("service.queue.foreman_only")}>
             <span className="inline-flex">{startWorkButton}</span>
           </Tooltip>
         ) : (
@@ -107,7 +109,7 @@ export default function ButtonStatus({
           variant="flat"
           onPress={() => setOpen(true)}
         >
-          SELESAIKAN
+          {t("service.queue.finish_work")}
         </Button>
       )}
 
@@ -126,7 +128,7 @@ export default function ButtonStatus({
             navigate("/cashier");
           }}
         >
-          KASIR / PULANG
+          {t("service.queue.cashier_checkout")}
         </Button>
       )}
 
@@ -139,7 +141,7 @@ export default function ButtonStatus({
           variant="flat"
           onPress={() => navigate(`/service/queue/${item.id}`)}
         >
-          Detail
+          {t("common.detail")}
         </Button>
       )}
     </React.Fragment>

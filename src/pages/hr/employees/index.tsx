@@ -23,6 +23,7 @@ import {
   CardBody,
   CardHeader,
 } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 import HeaderAction from "@/components/header-action";
 import { getInitials, getJoinDuration } from "@/utils/helpers/global";
@@ -40,6 +41,7 @@ import StatCard from "@/components/stat-card";
 import debounce from "@/utils/helpers/debounce";
 
 export default function EmployeesPage() {
+  const { t } = useTranslation();
   const { summary, list, searchQuery } = useAppSelector(
     (state) => state.employe,
   );
@@ -87,53 +89,51 @@ export default function EmployeesPage() {
     <div className="space-y-10 pb-20">
       <HeaderAction
         actionIcon={UserPlus}
-        actionTitle="Tambah Karyawan"
+        actionTitle={t("hr.employees.add")}
         leadIcon={Users}
-        subtitle="Kelola informasi personil dan dokumen legalitas tim bengkel secara terpusat."
-        title="Database Karyawan"
+        subtitle={t("hr.employees.subtitle")}
+        title={t("hr.employees.title")}
         onAction={() => navigate("/hr/employees/create")}
       />
 
-      {/* Stats Section - Industrial Icons */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
           {
-            label: "Total Personil",
+            label: t("hr.employees.stat_total"),
             val: summary.total,
             icon: Users,
             color: "text-primary",
             bg: "bg-blue-50/50",
-            suffix: "Orang",
+            suffix: t("hr.employees.suffix_people"),
           },
           {
-            label: "Karyawan Tetap",
+            label: t("hr.employees.stat_permanent"),
             val: summary.permanent,
             icon: ShieldCheck,
             color: "text-emerald-500",
             bg: "bg-emerald-50/50",
-            suffix: "Personil",
+            suffix: t("hr.employees.suffix_personnel"),
           },
           {
-            label: "Divisi Aktif",
+            label: t("hr.employees.stat_departments"),
             val: summary.department,
             icon: Briefcase,
             color: "text-orange-500",
             bg: "bg-orange-50/50",
-            suffix: "Departemen",
+            suffix: t("hr.employees.suffix_departments"),
           },
         ].map((stat, i) => (
           <StatCard key={i} {...(stat as any)} />
         ))}
       </div>
 
-      {/* Table Section */}
       <Card>
         <CardHeader className="flex justify-end">
           <div>
             <Input
               isClearable
               defaultValue={searchQuery.q}
-              placeholder="Cari nama, ID, atau jabatan..."
+              placeholder={t("hr.employees.search_placeholder")}
               startContent={<Search className="text-gray-400" size={20} />}
               variant="bordered"
               onValueChange={searchDebounce}
@@ -141,15 +141,15 @@ export default function EmployeesPage() {
           </div>
         </CardHeader>
         <CardBody>
-          <Table removeWrapper aria-label="Tabel Karyawan" shadow="none">
+          <Table removeWrapper aria-label={t("hr.employees.table_aria")} shadow="none">
             <TableHeader>
-              <TableColumn>PERSONIL</TableColumn>
-              <TableColumn>KONTAK & AKSES</TableColumn>
-              <TableColumn>STATUS KERJA</TableColumn>
-              <TableColumn>MASA KERJA</TableColumn>
-              <TableColumn align="center">AKSI</TableColumn>
+              <TableColumn>{t("hr.employees.col_personnel")}</TableColumn>
+              <TableColumn>{t("hr.employees.col_contact")}</TableColumn>
+              <TableColumn>{t("hr.employees.col_status")}</TableColumn>
+              <TableColumn>{t("hr.employees.col_tenure")}</TableColumn>
+              <TableColumn align="center">{t("hr.employees.col_actions")}</TableColumn>
             </TableHeader>
-            <TableBody emptyContent="Data karyawan tidak ditemukan">
+            <TableBody emptyContent={t("hr.employees.empty")}>
               {(list?.data || []).map((emp) => (
                 <TableRow
                   key={emp.id}
@@ -170,7 +170,7 @@ export default function EmployeesPage() {
                             {emp.roles.map((e) => e.name).join(" • ")}
                           </span>
                           <span className="text-[9px] font-bold text-gray-400 uppercase">
-                            {emp.department || "No Department"}
+                            {emp.department || t("hr.common.no_department")}
                           </span>
                         </div>
                       }
@@ -199,7 +199,9 @@ export default function EmployeesPage() {
                       size="sm"
                       variant="flat"
                     >
-                      {emp.status}
+                      {emp.status === "Permanent"
+                        ? t("hr.common.status_permanent")
+                        : t("hr.common.status_contract")}
                     </Chip>
                   </TableCell>
                   <TableCell>
@@ -208,7 +210,7 @@ export default function EmployeesPage() {
                         {getJoinDuration(emp.profile?.join_date || "", true)}
                       </span>
                       <span className="text-[9px] font-bold text-gray-500 uppercase">
-                        Sejak Terdaftar
+                        {t("hr.common.since_registered")}
                       </span>
                     </div>
                   </TableCell>
@@ -228,8 +230,10 @@ export default function EmployeesPage() {
 
       <div className="flex justify-between items-center px-4">
         <p className="text-[10px] font-black uppercase text-gray-400 italic">
-          Menampilkan {list?.data?.length || 0} dari {list?.meta?.total || 0}{" "}
-          Personil
+          {t("hr.common.showing", {
+            shown: list?.data?.length || 0,
+            total: list?.meta?.total || 0,
+          })}
         </p>
         <CustomPagination
           meta={list?.meta!}

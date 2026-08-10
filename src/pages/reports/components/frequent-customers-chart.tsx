@@ -7,6 +7,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 
 import { formatNumber } from "@/utils/helpers/format";
 
@@ -24,6 +25,7 @@ type FrequentCustomersChartProps = {
 export default function FrequentCustomersChart({
   data,
 }: FrequentCustomersChartProps) {
+  const { t } = useTranslation();
   return (
     <div className="h-72 w-full rounded-2xl border border-violet-100 bg-gradient-to-br from-white to-violet-50/40 p-4 shadow-sm">
       <ResponsiveContainer height="100%" width="100%">
@@ -60,7 +62,7 @@ export default function FrequentCustomersChart({
             }}
             formatter={(value) => [
               formatNumber(Number(value ?? 0)),
-              "Jumlah Service",
+              t("reports.frequent_customers.chart_series"),
             ]}
             labelFormatter={(_, payload) =>
               payload?.[0]?.payload?.fullName || ""

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, RefreshCcw, ShieldAlert, SearchX } from "lucide-react";
 import { Button, Image } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 import EmptyBox from "@/assets/images/empty-box.png";
 
@@ -10,6 +11,7 @@ interface Props {
 
 export default function Detail404({ id }: Props) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="flex min-h-[75vh] flex-col items-center justify-center p-8 text-center bg-transparent">
@@ -38,19 +40,17 @@ export default function Detail404({ id }: Props) {
       {/* Message Section */}
       <div className="max-w-lg space-y-4">
         <h2 className="text-4xl font-black uppercase italic tracking-tighter text-gray-800 leading-none">
-          Data Hilang dari Radar
+          {t("hr.employees.not_found_title")}
         </h2>
         <div className="space-y-2">
           <p className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">
-            Pencarian Gagal untuk ID:{" "}
+            {t("hr.employees.not_found_search")}
             <span className="text-rose-500 font-black italic">
               #{id || "NULL"}
             </span>
           </p>
           <p className="text-gray-500 text-sm font-medium italic leading-relaxed">
-            Sistem tidak dapat mengidentifikasi personil dengan kode tersebut.
-            Data mungkin telah diarsipkan, dihapus secara permanen, atau terjadi
-            kesalahan pada input tautan.
+            {t("hr.employees.not_found_body")}
           </p>
         </div>
       </div>
@@ -63,20 +63,20 @@ export default function Detail404({ id }: Props) {
           variant="flat"
           onPress={() => navigate("/hr/employees")}
         >
-          Kembali ke Database
+          {t("hr.employees.back_database")}
         </Button>
         <Button
           className="h-14 px-8 rounded-2xl bg-gray-900 text-white font-black uppercase italic text-xs tracking-widest shadow-xl shadow-gray-200"
           startContent={<RefreshCcw size={18} />}
           onPress={() => window.location.reload()}
         >
-          Sinkronkan Ulang
+          {t("hr.employees.resync")}
         </Button>
       </div>
 
       {/* Subtle Hint */}
       <p className="mt-12 text-[10px] font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2">
-        <SearchX size={12} /> Hubungi IT Support jika masalah berlanjut
+        <SearchX size={12} /> {t("hr.employees.it_support")}
       </p>
     </div>
   );
