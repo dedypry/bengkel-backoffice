@@ -29,17 +29,28 @@ export function getCashierWoStatus(
   return normalizeCashierCustomerStatus(woQuery.status);
 }
 
+export function getTodayDateRange() {
+  const today = dayjs().format("YYYY-MM-DD");
+
+  return { date_from: today, date_to: today };
+}
+
 export function buildCashierWoQuery(tab: CashierTab, woQuery: CashierWoQuery) {
   const status = getCashierWoStatus(tab, woQuery);
 
   if (!status) return null;
 
-  const { date_from: _from, date_to: _to, date, ...rest } = woQuery;
+  const { date: _date, ...rest } = woQuery;
 
   return {
     ...rest,
     status,
     pageSize: 100,
-    ...(date ? { date: dayjs(date).format("YYYY-MM-DD") } : {}),
+    ...(woQuery.date_from
+      ? { date_from: dayjs(woQuery.date_from).format("YYYY-MM-DD") }
+      : {}),
+    ...(woQuery.date_to
+      ? { date_to: dayjs(woQuery.date_to).format("YYYY-MM-DD") }
+      : {}),
   };
 }

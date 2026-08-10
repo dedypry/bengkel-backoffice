@@ -323,7 +323,9 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
 
                 {!["finish", "cancel", "rejected"].includes(
                   item.progress || "",
-                ) && resDelete ? (
+                ) &&
+                !["closed", "cancel"].includes(item.status || "") &&
+                resDelete ? (
                   <DropdownItem
                     key="delete"
                     className="text-danger"

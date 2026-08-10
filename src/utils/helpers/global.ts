@@ -129,18 +129,20 @@ export async function handleDownload(
   fileName: string = "",
   isRedirect: boolean = false,
   setLoading?: (val: boolean) => void,
+  options?: { extension?: string; mimeType?: string },
 ) {
+  const extension = options?.extension ?? "pdf";
+  const mimeType = options?.mimeType ?? "application/pdf";
+
   try {
     if (setLoading) {
       setLoading(true);
     }
-    // 1. Lakukan request dengan responseType 'blob'
     const response = await http.get(linkUrl, {
       responseType: "blob",
     });
 
-    // 2. Buat URL sementara dari blob tersebut
-    const blob = new Blob([response.data], { type: "application/pdf" });
+    const blob = new Blob([response.data], { type: mimeType });
     const url = window.URL.createObjectURL(blob);
 
     if (isRedirect) {
@@ -150,7 +152,7 @@ export async function handleDownload(
 
       link.href = url;
 
-      link.setAttribute("download", `${fileName}.pdf`);
+      link.setAttribute("download", `${fileName}.${extension}`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -158,12 +160,25 @@ export async function handleDownload(
     }
   } catch (error) {
     console.error("Download gagal:", error);
-    notifyError("Gagal mendownload PDF");
+    notifyError("Gagal mendownload file");
   } finally {
     if (setLoading) {
       setLoading(false);
     }
   }
+}
+
+export async function handleDownloadFile(
+  linkUrl: string,
+  fileName: string,
+  extension: string = "sql",
+  mimeType: string = "application/sql",
+  setLoading?: (val: boolean) => void,
+) {
+  return handleDownload(linkUrl, fileName, false, setLoading, {
+    extension,
+    mimeType,
+  });
 }
 
 export const calculatePerformance = (rating: any, totalWork: any) => {

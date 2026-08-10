@@ -4,7 +4,11 @@ import { useTranslation } from "react-i18next";
 import ListOrder from "./components/list-order";
 import PanelCustomer from "./components/panel-customer";
 import PanelProduct from "./components/panel-product";
-import { buildCashierWoQuery, type CashierTab } from "./cashier-query";
+import {
+  buildCashierWoQuery,
+  getTodayDateRange,
+  type CashierTab,
+} from "./cashier-query";
 
 import { useSidebar, SIDEBAR_COLLAPSED_KEY } from "@/context/sidebar-context";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -80,8 +84,8 @@ export default function CashierPage() {
       setWoQuery({
         status: "finish",
         page: 1,
-        date_from: "",
-        date_to: "",
+        date: "",
+        ...getTodayDateRange(),
       }),
     );
   }, [tabCashier, dispatch]);

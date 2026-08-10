@@ -85,6 +85,10 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
   const { hasPermission } = usePermission();
   const canUpdate = hasPermission("wo.update");
   const canDelete = hasPermission("wo.delete");
+  const canDeleteItem =
+    canDelete &&
+    !["cancel", "closed"].includes(data.status) &&
+    data.progress !== "finish";
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
@@ -412,7 +416,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                           )}
                         </TableCell>
                         <TableCell>
-                          {!["cancel"].includes(data.status) && canDelete && (
+                          {canDeleteItem && (
                             <Tooltip
                               color="danger"
                               content={t("service.detail_tab.delete_item")}
@@ -562,7 +566,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                           )}
                         </TableCell>
                         <TableCell>
-                          {!["cancel"].includes(data.status) && canDelete && (
+                          {canDeleteItem && (
                             <Tooltip
                               showArrow
                               color="danger"

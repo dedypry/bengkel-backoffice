@@ -39,6 +39,7 @@ import Password from "@/components/password";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { formatNPWP } from "@/components/forms/npwp-input";
+import BackupDataCard from "./components/backup-data-card";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
@@ -193,6 +194,8 @@ export default function ProfilePage() {
               </form>
             </CardBody>
           </Card>
+
+          <BackupDataCard roles={data?.roles} userType={data?.type} />
 
           <Card>
             <CardBody className="p-6 space-y-4">

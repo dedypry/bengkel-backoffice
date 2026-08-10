@@ -10,11 +10,11 @@ import {
   Input,
   Chip,
 } from "@heroui/react";
-import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
 import {
   getCashierWoStatus,
+  getTodayDateRange,
   normalizeCashierCustomerStatus,
   type CashierCustomerStatus,
   type CashierTab,
@@ -32,7 +32,7 @@ import {
 import { getProduct } from "@/stores/features/product/product-action";
 import { setProductQuery } from "@/stores/features/product/product-slice";
 import { CustomPagination } from "@/components/custom-pagination";
-import CustomDatePicker from "@/components/forms/date-picker";
+import CustomDateRangePicker from "@/components/forms/date-range-picker";
 
 const CUSTOMER_STATUSES: CashierCustomerStatus[] = ["ready", "finish"];
 
@@ -72,8 +72,6 @@ export default function ListOrder() {
         q,
         page: 1,
         status: woStatus,
-        date_from: "",
-        date_to: "",
       }),
     );
   }, 500);
@@ -91,8 +89,8 @@ export default function ListOrder() {
         q: "",
         page: 1,
         status: normalizeCashierCustomerStatus(woQuery.status),
-        date_from: "",
-        date_to: "",
+        date: "",
+        ...getTodayDateRange(),
       }),
     );
   };
@@ -102,8 +100,6 @@ export default function ListOrder() {
       setWoQuery({
         status,
         page: 1,
-        date_from: "",
-        date_to: "",
       }),
     );
   };
@@ -142,25 +138,25 @@ export default function ListOrder() {
           )}
 
           {isCustomer && (
-            <CustomDatePicker
+            <CustomDateRangePicker
               label={t("cashier.date")}
               labelPlacement="outside"
-              placeholder={t("cashier.all_dates")}
               size="sm"
               value={
-                woQuery.date
-                  ? dayjs(woQuery.date).format("YYYY-MM-DD")
-                  : ("" as any)
+                {
+                  start: woQuery.date_from,
+                  end: woQuery.date_to,
+                } as any
               }
               variant="bordered"
-              onChange={(date) =>
+              onChange={(val: any) =>
                 dispatch(
                   setWoQuery({
-                    date: date || "",
+                    date: "",
+                    date_from: val?.start || "",
+                    date_to: val?.end || "",
                     page: 1,
                     status: woStatus,
-                    date_from: "",
-                    date_to: "",
                   }),
                 )
               }
@@ -213,8 +209,6 @@ export default function ListOrder() {
                   : setWoQuery({
                       page,
                       status: woStatus,
-                      date_from: "",
-                      date_to: "",
                     }),
               )
             }
