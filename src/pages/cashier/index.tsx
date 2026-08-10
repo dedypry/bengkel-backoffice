@@ -9,6 +9,7 @@ import { buildCashierWoQuery, type CashierTab } from "./cashier-query";
 import { useSidebar, SIDEBAR_COLLAPSED_KEY } from "@/context/sidebar-context";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWo } from "@/stores/features/work-order/wo-action";
+import { setTabCashier, setWoQuery } from "@/stores/features/work-order/wo-slice";
 import { useServiceQueueRealtime } from "@/hooks/use-service-queue-realtime";
 import { announceCashierCall } from "@/utils/helpers/queue-announcement";
 import { notify } from "@/utils/helpers/notify";
@@ -67,6 +68,20 @@ export default function CashierPage() {
 
     fetchCashierOrders();
   }, [company, woQuery, activeTab, fetchCashierOrders]);
+
+  useEffect(() => {
+    if (tabCashier !== "finish") return;
+
+    dispatch(setTabCashier("customer"));
+    dispatch(
+      setWoQuery({
+        status: "finish",
+        page: 1,
+        date_from: "",
+        date_to: "",
+      }),
+    );
+  }, [tabCashier, dispatch]);
 
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-100px)] gap-4 antialiased">

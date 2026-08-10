@@ -8,15 +8,17 @@ import {
   CardBody,
   CardFooter,
   Input,
+  Chip,
 } from "@heroui/react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
 import ListCustomer from "./list-customer";
-import ListCustomerFinished from "./list-customer-finished";
 import ListProduct from "./list-product";
 import {
   getCashierWoStatus,
+  normalizeCashierCustomerStatus,
+  type CashierCustomerStatus,
   type CashierTab,
 } from "../cashier-query";
 
@@ -31,6 +33,8 @@ import { setProductQuery } from "@/stores/features/product/product-slice";
 import { CustomPagination } from "@/components/custom-pagination";
 import CustomDatePicker from "@/components/forms/date-picker";
 
+const CUSTOMER_STATUSES: CashierCustomerStatus[] = ["ready", "finish"];
+
 export default function ListOrder() {
   const { t } = useTranslation();
   const { orders, tabCashier, woQuery } = useAppSelector((state) => state.wo);
@@ -41,8 +45,9 @@ export default function ListOrder() {
   const hasFetched = useRef(false);
   const activeTab = tabCashier as CashierTab;
   const isProduct = activeTab === "product";
-  const isCustomerWo = activeTab === "customer" || activeTab === "finish";
-  const woStatus = getCashierWoStatus(activeTab);
+  const isCustomer = activeTab === "customer";
+  const customerStatus = normalizeCashierCustomerStatus(woQuery.status);
+  const woStatus = getCashierWoStatus(activeTab, woQuery);
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -84,7 +89,18 @@ export default function ListOrder() {
       setWoQuery({
         q: "",
         page: 1,
-        status: getCashierWoStatus(tab),
+        status: normalizeCashierCustomerStatus(woQuery.status),
+        date_from: "",
+        date_to: "",
+      }),
+    );
+  };
+
+  const handleStatusChange = (status: CashierCustomerStatus) => {
+    dispatch(
+      setWoQuery({
+        status,
+        page: 1,
         date_from: "",
         date_to: "",
       }),
@@ -105,11 +121,26 @@ export default function ListOrder() {
             onSelectionChange={(key) => handleTabChange(String(key))}
           >
             <Tab key="customer" title={t("cashier.tabs.customer")} />
-            <Tab key="finish" title={t("cashier.tabs.finish")} />
             <Tab key="product" title={t("cashier.tabs.product")} />
           </Tabs>
 
-          {isCustomerWo && (
+          {isCustomer && (
+            <div className="flex flex-wrap gap-2">
+              {CUSTOMER_STATUSES.map((status) => (
+                <Chip
+                  key={status}
+                  className="cursor-pointer"
+                  color={customerStatus === status ? "primary" : "default"}
+                  variant={customerStatus === status ? "solid" : "flat"}
+                  onClick={() => handleStatusChange(status)}
+                >
+                  {t(status)}
+                </Chip>
+              ))}
+            </div>
+          )}
+
+          {isCustomer && (
             <CustomDatePicker
               label={t("cashier.date")}
               labelPlacement="outside"
@@ -139,7 +170,7 @@ export default function ListOrder() {
             aria-label={
               isProduct
                 ? t("cashier.search.product_aria")
-                : activeTab === "finish"
+                : customerStatus === "finish"
                   ? t("cashier.search.finish_aria")
                   : t("cashier.search.customer_aria")
             }
@@ -147,7 +178,7 @@ export default function ListOrder() {
             placeholder={
               isProduct
                 ? t("cashier.search.product_placeholder")
-                : activeTab === "finish"
+                : customerStatus === "finish"
                   ? t("cashier.search.finish_placeholder")
                   : t("cashier.search.customer_placeholder")
             }
@@ -162,9 +193,12 @@ export default function ListOrder() {
           />
         </CardHeader>
         <CardBody className="overflow-y-auto scrollbar-modern flex-1">
-          {activeTab === "customer" && <ListCustomer />}
-          {activeTab === "finish" && <ListCustomerFinished />}
-          {activeTab === "product" && <ListProduct />}
+          {isCustomer && (
+            <ListCustomer
+              variant={customerStatus === "finish" ? "finished" : "pending"}
+            />
+          )}
+          {isProduct && <ListProduct />}
         </CardBody>
         <CardFooter>
           <CustomPagination

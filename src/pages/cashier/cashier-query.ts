@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 
-export type CashierTab = "customer" | "finish" | "product";
+export type CashierTab = "customer" | "product";
+
+export type CashierCustomerStatus = "ready" | "finish";
 
 type CashierWoQuery = {
   page?: number;
@@ -12,15 +14,23 @@ type CashierWoQuery = {
   date_to?: string;
 };
 
-export function getCashierWoStatus(tab: CashierTab) {
-  if (tab === "finish") return "finish";
-  if (tab === "customer") return "ready";
+export function normalizeCashierCustomerStatus(
+  status?: string,
+): CashierCustomerStatus {
+  return status === "finish" ? "finish" : "ready";
+}
 
-  return undefined;
+export function getCashierWoStatus(
+  tab: CashierTab,
+  woQuery: CashierWoQuery,
+): CashierCustomerStatus | undefined {
+  if (tab === "product") return undefined;
+
+  return normalizeCashierCustomerStatus(woQuery.status);
 }
 
 export function buildCashierWoQuery(tab: CashierTab, woQuery: CashierWoQuery) {
-  const status = getCashierWoStatus(tab);
+  const status = getCashierWoStatus(tab, woQuery);
 
   if (!status) return null;
 
