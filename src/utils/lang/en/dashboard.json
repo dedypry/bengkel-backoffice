@@ -23,7 +23,25 @@
             "subtitle": "Revenue comparison for the last 7 days",
             "last_7_days": "Last 7 days",
             "vs_last_week": "vs last week",
-            "revenue_label": "Revenue"
+            "revenue_label": "Revenue",
+            "period": {
+                "7d": "7 Days",
+                "1m": "1 Month",
+                "3m": "3 Months",
+                "1y": "1 Year"
+            },
+            "period_subtitle": {
+                "7d": "Last 7 days",
+                "1m": "Last 30 days",
+                "3m": "Last 3 months (weekly)",
+                "1y": "Last 12 months"
+            },
+            "vs_previous": {
+                "7d": "vs previous 7 days",
+                "1m": "vs previous 30 days",
+                "3m": "vs previous 3 months",
+                "1y": "vs previous year"
+            }
         },
         "inventory_alert": {
             "title": "Stock Alert",

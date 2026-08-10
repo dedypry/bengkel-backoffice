@@ -23,7 +23,25 @@
             "subtitle": "Perbandingan pendapatan 7 hari terakhir",
             "last_7_days": "7 hari terakhir",
             "vs_last_week": "vs minggu lalu",
-            "revenue_label": "Pendapatan"
+            "revenue_label": "Pendapatan",
+            "period": {
+                "7d": "7 Hari",
+                "1m": "1 Bulan",
+                "3m": "3 Bulan",
+                "1y": "1 Tahun"
+            },
+            "period_subtitle": {
+                "7d": "7 hari terakhir",
+                "1m": "30 hari terakhir",
+                "3m": "3 bulan terakhir (per minggu)",
+                "1y": "12 bulan terakhir"
+            },
+            "vs_previous": {
+                "7d": "vs 7 hari sebelumnya",
+                "1m": "vs 30 hari sebelumnya",
+                "3m": "vs 3 bulan sebelumnya",
+                "1y": "vs tahun sebelumnya"
+            }
         },
         "inventory_alert": {
             "title": "Peringatan Stok",
