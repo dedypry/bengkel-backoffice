@@ -31,10 +31,7 @@ export function Sidebar() {
       initial={false}
       transition={sidebarWidthTransition}
     >
-      <div
-        className="flex h-full w-full flex-col px-3"
-        style={{ width: SIDEBAR_EXPANDED_WIDTH }}
-      >
+      <div className="flex h-full w-full min-w-0 flex-col px-3">
         <SidebarHeader />
         <SidebarNav />
 

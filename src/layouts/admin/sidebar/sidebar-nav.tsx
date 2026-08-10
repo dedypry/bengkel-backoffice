@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Tooltip } from "@heroui/react";
 
 import { CollapsedMenuFlyout } from "./collapsed-menu-flyout";
+import { SidebarCollapsedTooltip } from "./sidebar-collapsed-tooltip";
 import { sidebarItemRowClass } from "./sidebar-item-styles";
 import { submenuTransition } from "./sidebar.constants";
 import { SidebarLabel } from "./sidebar-label";
@@ -36,7 +36,7 @@ function SidebarLeafItem({
   if (item.external) {
     const link = (
       <a
-        className={sidebarItemRowClass()}
+        className={sidebarItemRowClass(false, collapsed)}
         href={item.href}
         rel="noreferrer"
         target="_blank"
@@ -45,24 +45,24 @@ function SidebarLeafItem({
         <span className="flex size-[18px] shrink-0 items-center justify-center">
           <item.icon className="size-[18px]" />
         </span>
-        <SidebarLabel className="min-w-0 flex-1" collapsed={collapsed}>
-          <span className="block truncate pl-3">{label}</span>
-        </SidebarLabel>
+        {!collapsed && (
+          <SidebarLabel className="min-w-0 flex-1" collapsed={collapsed}>
+            <span className="block truncate pl-3">{label}</span>
+          </SidebarLabel>
+        )}
       </a>
     );
 
     if (!collapsed) return link;
 
     return (
-      <Tooltip closeDelay={80} content={label} delay={150}>
-        {link}
-      </Tooltip>
+      <SidebarCollapsedTooltip label={label}>{link}</SidebarCollapsedTooltip>
     );
   }
 
   const inner = (
     <NavLink
-      className={({ isActive }) => sidebarItemRowClass(isActive)}
+      className={({ isActive }) => sidebarItemRowClass(isActive, collapsed)}
       end={item.href === "/"}
       to={item.href ?? "#"}
       onClick={onNavigate}
@@ -72,9 +72,11 @@ function SidebarLeafItem({
           <span className="flex size-[18px] shrink-0 items-center justify-center">
             <item.icon className="size-[18px]" />
           </span>
-          <SidebarLabel className="min-w-0 flex-1" collapsed={collapsed}>
-            <span className="block truncate pl-3">{label}</span>
-          </SidebarLabel>
+          {!collapsed && (
+            <SidebarLabel className="min-w-0 flex-1" collapsed={collapsed}>
+              <span className="block truncate pl-3">{label}</span>
+            </SidebarLabel>
+          )}
           {!collapsed && item.badge !== undefined && (
             <span className="bg-danger flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white">
               {item.badge}
@@ -87,11 +89,7 @@ function SidebarLeafItem({
 
   if (!collapsed) return inner;
 
-  return (
-    <Tooltip closeDelay={80} content={label} delay={150}>
-      {inner}
-    </Tooltip>
-  );
+  return <SidebarCollapsedTooltip label={label}>{inner}</SidebarCollapsedTooltip>;
 }
 
 function SidebarItem({ item, collapsed, onNavigate }: SidebarItemProps) {

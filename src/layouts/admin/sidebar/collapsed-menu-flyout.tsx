@@ -95,7 +95,7 @@ export function CollapsedMenuFlyout({
         ref={triggerRef}
         aria-expanded={open}
         aria-label={label}
-        className={sidebarItemRowClass(isChildActive)}
+        className={sidebarItemRowClass(isChildActive, true)}
         type="button"
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
