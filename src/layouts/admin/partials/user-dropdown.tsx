@@ -1,7 +1,6 @@
 import { User, LogOut, Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Cookies from "js-cookie";
 import {
   Dropdown,
   DropdownTrigger,
@@ -15,6 +14,7 @@ import {
 import { useAppSelector } from "@/stores/hooks";
 import { getInitials } from "@/utils/helpers/global";
 import { confirmSweat } from "@/utils/helpers/notify";
+import { forceLogout } from "@/utils/helpers/auth-session";
 
 export default function UserMenu() {
   const { user } = useAppSelector((state) => state.auth);
@@ -22,9 +22,7 @@ export default function UserMenu() {
   const { t } = useTranslation();
 
   const handleLogout = () => {
-    localStorage.clear();
-    Cookies.remove("token");
-    navigate("/login");
+    forceLogout();
   };
 
   return (

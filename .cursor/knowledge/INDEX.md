@@ -5,6 +5,7 @@ Baca sebelum task kompleks. Shared knowledge: `backend/.cursor/knowledge/INDEX.m
 | Topik | File | Isi singkat |
 |-------|------|-------------|
 | Service / WO UI | [service.md](service.md) | queue, form register, datetime picker |
+| Frontend gotchas | [frontend-gotchas.md](frontend-gotchas.md) | HeroUI Table, Redux key, date picker, loading skeleton |
 | AI workflow | [ai-workflow.md](ai-workflow.md) | rules & skills |
 
 **Terakhir diupdate:** 2026-08-10

@@ -13,6 +13,10 @@ const paymentSlice = createSlice({
       page: 1,
       pageSize: 10,
       q: "",
+      date_from: "",
+      date_to: "",
+      customer_id: "",
+      cashier_id: "",
     },
   },
   reducers: {

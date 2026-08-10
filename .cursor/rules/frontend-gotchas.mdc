@@ -1,0 +1,40 @@
+---
+description: Hindari error berulang HeroUI Table, Redux selector, date picker, dan loading spinner di admin
+alwaysApply: true
+---
+
+# Frontend Gotchas (bengkel-admin)
+
+Sebelum edit Table, Redux selector, date picker, atau loading state — cek `.cursor/knowledge/frontend-gotchas.md`.
+
+## HeroUI Table / TableBody
+
+- **Jangan** pass wrapper component sebagai child `TableBody` (mis. `<MySkeletonRow />`) — error `getCollectionNode is not a function`.
+- **Jangan** pakai prop `items` + render function kecuali `TableHeader` juga pakai prop `columns` (pola list-table queue).
+- **Loading skeleton:** `TableBody isLoading={...} loadingContent={<DivSkeleton />}` — skeleton berbasis `div`, bukan `TableRow` palsu (contoh: `categories-skeleton.tsx`).
+- **Alternatif:** `map` langsung ke `<TableRow>` + `<TableCell>` inline; jangan extract ke FC yang hanya wrap `TableRow`.
+
+## Redux useAppSelector
+
+- Key state = nama di `src/stores/index.ts`, **bukan** `name` field di `createSlice`.
+- Contoh: employee slice → `state.employe` (bukan `state.employee`).
+- Jika destructure undefined, grep `stores/index.ts` dulu sebelum assume nama.
+
+## CustomDateRangePicker
+
+- Range kosong: input harus `""` agar placeholder tampil — jangan format null jadi `- -`.
+- Effect format value wajib guard: both empty → `setValue("")`.
+
+## Sebelum commit UI table/filter
+
+- Buka tab/halaman terkait; pastikan tidak ada error console collection/Redux.
+- Filter baru: verifikasi backend query param + frontend `paymentQuery` / slice field selaras.
+
+## Loading state — pakai Skeleton, bukan Spinner
+
+- **Default:** halaman/panel/list/card loading → `Skeleton` (HeroUI) yang meniru layout konten asli.
+- **Jangan** `Spinner` centered kecuali aksi tombol (`isLoading` button) atau submit form singkat.
+- **Pola:** komponen terpisah `*-skeleton.tsx` di folder `components/` halaman yang sama; mirror struktur UI (card, row, stat grid).
+- **Table:** `TableBody isLoading` + `loadingContent` div skeleton — lihat `categories-skeleton.tsx`.
+- **Scroll list:** skeleton boleh pakai `max-h` + `overflow-y-auto` yang sama dengan konten loaded.
+- **Contoh:** `revenue-skeleton.tsx`, `login-sessions-skeleton.tsx`, `customer-detail-skeleton.tsx`.

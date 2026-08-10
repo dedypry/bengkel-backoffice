@@ -2,11 +2,10 @@ import {
   Mail,
   Building2,
   ShieldCheck,
-  MapPin,
-  Phone,
-  Globe,
   Lock,
   Edit,
+  Monitor,
+  Phone,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,14 +13,14 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
-  Alert,
   Avatar,
   Button,
   Card,
   CardBody,
   Chip,
   Divider,
-  Image,
+  Tab,
+  Tabs,
 } from "@heroui/react";
 
 import {
@@ -29,18 +28,20 @@ import {
   type ChangePasswordType,
 } from "./schemas/create-schema";
 import BackupDataCard from "./components/backup-data-card";
+import RegisteredUnitsTab from "./components/registered-units-tab";
+import LoginSessionsTab from "./components/login-sessions-tab";
 
 import { useAppSelector } from "@/stores/hooks";
 import { getAvatarByName, getInitials } from "@/utils/helpers/global";
 import Password from "@/components/password";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
-import { formatNPWP } from "@/components/forms/npwp-input";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
   const { user: data } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
+  const [profileTab, setProfileTab] = useState("units");
   const navigate = useNavigate();
   const changePasswordSchema = useMemo(
     () => createChangePasswordSchema(t),
@@ -209,118 +210,46 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        <div className="lg:col-span-8 space-y-4">
-          <div className="flex items-center gap-3 px-2 mb-2">
-            <Building2 className="text-gray-500" size={20} />
-            <h3 className="font-black uppercase text-sm text-gray-500">
-              {t("profile.registered_units")}
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            {data?.companies.map((company: any) => (
-              <Card key={company.id}>
-                <CardBody className="p-0">
-                  <div className="flex flex-col sm:flex-row">
-                    <div className="w-full sm:w-40 h-40 bg-gray-50 flex items-center justify-center border-r border-gray-100">
-                      {company.logo_url ? (
-                        <Image
-                          alt={company.name}
-                          className="object-contain w-24 h-24"
-                          src={company.logo_url}
-                        />
-                      ) : (
-                        <Building2 className="text-gray-200" size={40} />
-                      )}
-                    </div>
-                    <div className="p-6 flex-1 space-y-4">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                          <h4 className="text-lg font-black uppercase  text-gray-500">
-                            {company.name}
-                          </h4>
-                          <p className="text-[9px] font-bold text-gray-400 uppercase">
-                            {company.slug}
-                          </p>
-                        </div>
-                        {data.company_id === company.id && (
-                          <Chip
-                            className="text-white uppercase"
-                            classNames={{
-                              content: "font-bold",
-                            }}
-                            color="success"
-                            radius="md"
-                            size="sm"
-                          >
-                            {t("profile.active_session")}
-                          </Chip>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                        <InfoItem
-                          icon={<Phone size={12} />}
-                          label={t("profile.contact")}
-                          value={company.phone_number}
-                        />
-                        <InfoItem
-                          icon={<Globe size={12} />}
-                          label={t("common.email")}
-                          value={company.email}
-                        />
-                        <InfoItem
-                          fullWidth
-                          icon={<MapPin size={12} />}
-                          label={t("common.address")}
-                          value={`${company.address?.title} ${company.address?.district || ""}, ${company.address?.city || ""}`}
-                        />
-                      </div>
-
-                      {company.npwp && (
-                        <Alert
-                          classNames={{
-                            title:
-                              "text-[10px] font-black text-gray-500 uppercase",
-                            description: "text-[11px] font-bold text-gray-600",
-                            iconWrapper: "text-primary rounded-md",
-                          }}
-                          description={formatNPWP(company.npwp)}
-                          title={t("profile.npwp")}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
+        <div className="lg:col-span-8">
+          <Tabs
+            aria-label={t("profile.tabs_aria")}
+            color="primary"
+            selectedKey={profileTab}
+            variant="underlined"
+            onSelectionChange={(key) => setProfileTab(String(key))}
+          >
+            <Tab
+              key="units"
+              title={
+                <div className="flex items-center gap-2">
+                  <Building2 size={16} />
+                  {t("profile.registered_units")}
+                </div>
+              }
+            >
+              <div className="pt-4">
+                <RegisteredUnitsTab
+                  activeCompanyId={data?.company_id}
+                  companies={data?.companies || []}
+                />
+              </div>
+            </Tab>
+            <Tab
+              key="sessions"
+              title={
+                <div className="flex items-center gap-2">
+                  <Monitor size={16} />
+                  {t("profile.login_devices")}
+                </div>
+              }
+            >
+              <div className="pt-4">
+                <LoginSessionsTab />
+              </div>
+            </Tab>
+          </Tabs>
         </div>
       </div>
-    </div>
-  );
-}
-
-function InfoItem({
-  icon,
-  label,
-  value,
-  fullWidth = false,
-}: {
-  icon: any;
-  label: string;
-  value: string;
-  fullWidth?: boolean;
-}) {
-  return (
-    <div className={`${fullWidth ? "md:col-span-2" : ""} space-y-1`}>
-      <div className="flex items-center gap-2 text-gray-500">
-        {icon}
-        <span className="text-[9px] font-black uppercase">{label}</span>
-      </div>
-      <p className="text-[11px] font-bold uppercase text-gray-700">
-        {value || "-"}
-      </p>
     </div>
   );
 }

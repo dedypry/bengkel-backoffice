@@ -22,6 +22,7 @@ import {
 import { http } from "@/utils/libs/axios";
 import GuestGuard from "@/utils/guard/guest-guard";
 import { notifyError } from "@/utils/helpers/notify";
+import { saveAuthSession } from "@/utils/helpers/auth-session";
 import Password from "@/components/password";
 
 export default function LoginPage() {
@@ -65,6 +66,7 @@ export default function LoginPage() {
           path: "/",
           sameSite: "strict",
         });
+        saveAuthSession(data.session_id);
         navigate("/");
       })
       .catch((err) => notifyError(err))

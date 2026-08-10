@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -11,6 +11,8 @@ import {
   User,
   Input,
   Card,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 import {
   Eye,
@@ -20,6 +22,8 @@ import {
   CreditCard,
   Download,
   Receipt,
+  UserCircle,
+  UserCog,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -30,22 +34,58 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getPayment } from "@/stores/features/payments/payment-action";
 import { CustomPagination } from "@/components/custom-pagination";
 import { setPaymentQuery } from "@/stores/features/payments/payment-slice";
+import { getCustomerList } from "@/stores/features/customer/customer-action";
+import { getEmploye } from "@/stores/features/employe/employe-action";
 import { getAvatarByName } from "@/utils/helpers/global";
 import { formatIDR } from "@/utils/helpers/format";
+import { asArray } from "@/utils/helpers/as-array";
 
 interface Props {
   noHeader?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
-export default function InvoiceListPage({ noHeader = false }: Props) {
+export default function InvoiceListPage({
+  noHeader = false,
+  dateFrom,
+  dateTo,
+}: Props) {
   const { t } = useTranslation();
   const { payments, paymentQuery } = useAppSelector((state) => state.payment);
   const { company } = useAppSelector((state) => state.auth);
+  const { data: customers } = useAppSelector((state) => state.customer);
+  const { list: employees } = useAppSelector((state) => state.employe);
   const [search, setSearch] = useState("");
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
+  const hasLoadedFilters = useRef(false);
+
+  const customerItems = useMemo(() => asArray(customers), [customers]);
+  const cashierItems = useMemo(
+    () => asArray(employees?.data),
+    [employees?.data],
+  );
+
+  useEffect(() => {
+    if (!company || hasLoadedFilters.current) return;
+
+    hasLoadedFilters.current = true;
+    dispatch(getCustomerList());
+    dispatch(getEmploye({ page: 1, pageSize: 200 }));
+  }, [company, dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      setPaymentQuery({
+        date_from: dateFrom || "",
+        date_to: dateTo || "",
+        page: 1,
+      }),
+    );
+  }, [dateFrom, dateTo, dispatch]);
 
   useEffect(() => {
     if (company && !hasFetched.current) {
@@ -76,8 +116,8 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
         />
       )}
 
-      <Card className="flex flex-col md:flex-row gap-4 items-center  p-4 ">
-        <div className="relative flex-1 group">
+      <Card className="flex flex-col gap-4 p-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Input
             placeholder={t("finance.invoices.search_placeholder")}
             startContent={
@@ -85,14 +125,68 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
             }
             onValueChange={setSearch}
           />
+          <Autocomplete
+            isClearable
+            aria-label={t("finance.invoices.filter_customer")}
+            defaultItems={customerItems}
+            placeholder={t("finance.invoices.filter_customer_placeholder")}
+            selectedKey={
+              paymentQuery.customer_id ? String(paymentQuery.customer_id) : null
+            }
+            startContent={<UserCircle className="text-default-400" size={18} />}
+            onClear={() =>
+              dispatch(setPaymentQuery({ customer_id: "", page: 1 }))
+            }
+            onSelectionChange={(key) =>
+              dispatch(
+                setPaymentQuery({
+                  customer_id: key ? String(key) : "",
+                  page: 1,
+                }),
+              )
+            }
+          >
+            {(item) => (
+              <AutocompleteItem key={item.id} textValue={item.name}>
+                {item.name}
+              </AutocompleteItem>
+            )}
+          </Autocomplete>
+          <Autocomplete
+            isClearable
+            aria-label={t("finance.invoices.filter_cashier")}
+            defaultItems={cashierItems}
+            placeholder={t("finance.invoices.filter_cashier_placeholder")}
+            selectedKey={
+              paymentQuery.cashier_id ? String(paymentQuery.cashier_id) : null
+            }
+            startContent={<UserCog className="text-default-400" size={18} />}
+            onClear={() =>
+              dispatch(setPaymentQuery({ cashier_id: "", page: 1 }))
+            }
+            onSelectionChange={(key) =>
+              dispatch(
+                setPaymentQuery({
+                  cashier_id: key ? String(key) : "",
+                  page: 1,
+                }),
+              )
+            }
+          >
+            {(item) => (
+              <AutocompleteItem key={item.id} textValue={item.name}>
+                {item.name}
+              </AutocompleteItem>
+            )}
+          </Autocomplete>
+          <Button
+            color="primary"
+            startContent={<Search size={18} />}
+            onPress={onSearch}
+          >
+            {t("finance.invoices.search_button")}
+          </Button>
         </div>
-        <Button
-          color="primary"
-          startContent={<Search size={18} />}
-          onPress={onSearch}
-        >
-          {t("finance.invoices.search_button")}
-        </Button>
       </Card>
 
       <Table aria-label={t("finance.invoices.table_aria")}>

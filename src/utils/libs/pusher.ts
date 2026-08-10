@@ -48,6 +48,28 @@ export function subscribeUserNotifications(
   };
 }
 
+export function subscribeSessionRevoke(
+  userId: number,
+  onRevoked: (
+    payload: import("@/utils/interfaces/ILoginSession").SessionRevokedPayload,
+  ) => void,
+) {
+  const client = getPusherClient();
+
+  if (!client) {
+    return null;
+  }
+
+  const channelName = `private-user-${userId}`;
+  const channel: Channel = client.subscribe(channelName);
+
+  channel.bind("session.revoked", onRevoked);
+
+  return () => {
+    channel.unbind("session.revoked", onRevoked);
+  };
+}
+
 export function disconnectPusher() {
   if (pusherClient) {
     pusherClient.disconnect();

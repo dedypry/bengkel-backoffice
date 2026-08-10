@@ -2,6 +2,7 @@ import type { IReport } from "@/utils/interfaces/IReport";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -29,15 +30,17 @@ import {
   ModalFooter,
   ModalHeader,
   Progress,
-  Spinner,
 } from "@heroui/react";
 
 import InvoiceListPage from "../finance/list";
 
 import RevenueChart from "./components/revenue-chart";
+import RevenueSkeleton from "./components/revenue-skeleton";
 
 import HeaderAction from "@/components/header-action";
+import CustomDateRangePicker from "@/components/forms/date-range-picker";
 import { formatIDR, formatNumber } from "@/utils/helpers/format";
+import { handleDownloadExcel } from "@/utils/helpers/global";
 import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 
@@ -57,18 +60,29 @@ function getProgressColor(progress: number) {
   return "danger" as const;
 }
 
+const defaultStartDate = dayjs().startOf("month").format("YYYY-MM-DD");
+const defaultEndDate = dayjs().format("YYYY-MM-DD");
+
 export default function RevenuePage() {
   const { t } = useTranslation();
   const [report, setReport] = useState<IReport>();
   const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState(defaultStartDate);
+  const [endDate, setEndDate] = useState(defaultEndDate);
   const [targetModalOpen, setTargetModalOpen] = useState(false);
   const [targetInput, setTargetInput] = useState("");
   const [savingTarget, setSavingTarget] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
-  const getReport = useCallback(async () => {
+  const getReport = useCallback(async (start: string, end: string) => {
     setLoading(true);
     http
-      .get("/reports/revenue")
+      .get("/reports/revenue", {
+        params: {
+          startDate: start,
+          endDate: end,
+        },
+      })
       .then(({ data }) => {
         setReport(data);
         setTargetInput(String(data.reportMonthly?.target_amount || ""));
@@ -78,11 +92,22 @@ export default function RevenuePage() {
   }, []);
 
   useEffect(() => {
-    void getReport();
-  }, [getReport]);
+    void getReport(startDate, endDate);
+  }, [startDate, endDate, getReport]);
 
   const monthly = report?.reportMonthly;
   const progressColor = getProgressColor(monthly?.progress_value || 0);
+
+  const periodLabel = useMemo(() => {
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+
+    if (start.isSame(end, "month") && start.isSame(end, "year")) {
+      return start.format("MMMM YYYY");
+    }
+
+    return `${start.format("DD MMM YYYY")} - ${end.format("DD MMM YYYY")}`;
+  }, [startDate, endDate]);
 
   const stats = useMemo(
     () => [
@@ -155,20 +180,47 @@ export default function RevenuePage() {
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 pb-20">
       <HeaderAction
-        actionIcon={FileSpreadsheet}
+        actionContent={
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <CustomDateRangePicker
+              className="w-full sm:w-[280px]"
+              value={{
+                start: startDate ? dayjs(startDate).toDate() : undefined,
+                end: endDate ? dayjs(endDate).toDate() : undefined,
+              }}
+              onChange={(val) => {
+                setStartDate(val?.start || defaultStartDate);
+                setEndDate(val?.end || defaultEndDate);
+              }}
+            />
+            <Button
+              color="primary"
+              isLoading={exportingExcel}
+              startContent={
+                !exportingExcel ? <FileSpreadsheet size={16} /> : undefined
+              }
+              variant="flat"
+              onPress={() =>
+                void handleDownloadExcel(
+                  "/reports/revenue/export/excel",
+                  { startDate, endDate },
+                  "laporan-pendapatan",
+                  setExportingExcel,
+                )
+              }
+            >
+              {t("common.export")}
+            </Button>
+          </div>
+        }
         subtitle={t("reports.revenue.subtitle")}
         title={t("reports.revenue.title")}
-        onAction={() => {
-          /* Logic Export */
-        }}
       />
 
-      {loading && !report ? (
-        <div className="flex justify-center py-24">
-          <Spinner color="primary" size="lg" />
-        </div>
+      {loading ? (
+        <RevenueSkeleton />
       ) : (
-        <>
+        <div className="space-y-8">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((item) => (
               <Card
@@ -206,7 +258,7 @@ export default function RevenuePage() {
                   </h3>
                   <p className="text-xs text-slate-500">
                     {t("reports.revenue.chart_subtitle", {
-                      month: monthly?.month_name,
+                      period: periodLabel,
                     })}
                   </p>
                 </div>
@@ -357,23 +409,23 @@ export default function RevenuePage() {
               </CardBody>
             </Card>
           </div>
-        </>
-      )}
 
-      <div className="pt-2">
-        <div className="mb-6 flex items-center gap-3 px-1">
-          <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-primary to-secondary" />
-          <div>
-            <h2 className="text-lg font-bold text-slate-800">
-              {t("reports.revenue.recent_transactions")}
-            </h2>
-            <p className="text-xs text-slate-500">
-              {t("reports.revenue.recent_subtitle")}
-            </p>
+          <div className="pt-2">
+            <div className="mb-6 flex items-center gap-3 px-1">
+              <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-primary to-secondary" />
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">
+                  {t("reports.revenue.recent_transactions")}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  {t("reports.revenue.recent_subtitle")}
+                </p>
+              </div>
+            </div>
+            <InvoiceListPage noHeader dateFrom={startDate} dateTo={endDate} />
           </div>
         </div>
-        <InvoiceListPage noHeader />
-      </div>
+      )}
 
       <Modal
         isOpen={targetModalOpen}
