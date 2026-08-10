@@ -20,6 +20,8 @@ import {
   Input,
   Tabs,
   Tab,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 import {
   EyeIcon,
@@ -39,7 +41,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo, type Key } from "react";
+import { useState, useMemo, useEffect, type Key } from "react";
 import { useTranslation } from "react-i18next";
 
 import StatusQueue from "./status-queue";
@@ -76,6 +78,11 @@ interface Props {
   setOpenModal: (val: boolean) => void;
   setWoId: (id: number) => void;
   setStartWorkOnSave: (val: boolean) => void;
+}
+
+interface MechanicOption {
+  id: number;
+  name: string;
 }
 
 function QueueTabLabel({
@@ -150,6 +157,7 @@ export default function ListTable({
   const [openManual, setOpenManual] = useState(false);
   const [woItem, setWoItem] = useState<IWorkOrder>();
   const [callingCashierId, setCallingCashierId] = useState<number | null>(null);
+  const [mechanicOptions, setMechanicOptions] = useState<MechanicOption[]>([]);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -163,6 +171,15 @@ export default function ListTable({
     (q) => dispatch(setWoQuery({ q, page: 1 })),
     500,
   );
+
+  useEffect(() => {
+    http
+      .get<MechanicOption[]>("/work-order/mechanic-options")
+      .then(({ data }) => setMechanicOptions(Array.isArray(data) ? data : []))
+      .catch(() => setMechanicOptions([]));
+  }, []);
+
+  const selectedMechanicIds = woQuery.mechanic_ids || [];
 
   const handleCallCashier = (item: IWorkOrder) => {
     setCallingCashierId(item.id);
@@ -518,7 +535,40 @@ export default function ListTable({
               dispatch(setWoQuery({ pageSize: val, page: 1 }));
             }}
           />
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-wrap items-end justify-end gap-2">
+            <Select
+              aria-label={t("service.queue.filter_mechanic")}
+              className="w-[280px]"
+              label={t("service.queue.filter_mechanic")}
+              placeholder={t("service.queue.filter_mechanic_placeholder")}
+              selectedKeys={new Set(selectedMechanicIds.map(String))}
+              selectionMode="multiple"
+              onSelectionChange={(keys) => {
+                if (keys === "all") {
+                  dispatch(
+                    setWoQuery({
+                      mechanic_ids: mechanicOptions.map((item) => item.id),
+                      page: 1,
+                    }),
+                  );
+
+                  return;
+                }
+
+                dispatch(
+                  setWoQuery({
+                    mechanic_ids: Array.from(keys).map(Number),
+                    page: 1,
+                  }),
+                );
+              }}
+            >
+              {mechanicOptions.map((item) => (
+                <SelectItem key={String(item.id)} textValue={item.name}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </Select>
             <Input
               isClearable
               className="w-[400px]"

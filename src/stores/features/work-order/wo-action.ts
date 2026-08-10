@@ -5,10 +5,16 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { http } from "@/utils/libs/axios";
 interface WoQuery extends IQuery {
   status?: string;
+  mechanic_ids?: number[];
 }
 export const getWo = createAsyncThunk("get-wo", async (params: WoQuery) => {
   try {
-    const { data } = await http.get(`/work-order`, { params });
+    const { mechanic_ids, ...rest } = params;
+    const queryParams = {
+      ...rest,
+      ...(mechanic_ids?.length ? { mechanic_ids: mechanic_ids.join(",") } : {}),
+    };
+    const { data } = await http.get(`/work-order`, { params: queryParams });
 
     return data;
   } catch (error) {

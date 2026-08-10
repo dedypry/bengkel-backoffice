@@ -45,6 +45,8 @@
             "empty": "Tidak ada antrean saat ini",
             "empty_desc": "Unit yang masuk antrian akan muncul di sini.",
             "search_placeholder": "Cari No. Polisi atau Nama...",
+            "filter_mechanic": "Mekanik",
+            "filter_mechanic_placeholder": "Pilih mekanik...",
             "filter_aria": "Filter antrean",
             "table_aria": "Tabel Antrean Bengkel",
             "dropdown_aria": "Aksi Antrean",

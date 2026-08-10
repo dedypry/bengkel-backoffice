@@ -45,6 +45,8 @@
             "empty": "No queue items at the moment",
             "empty_desc": "Units checked in for service will appear here.",
             "search_placeholder": "Search plate number or name...",
+            "filter_mechanic": "Mechanic",
+            "filter_mechanic_placeholder": "Select mechanic...",
             "filter_aria": "Queue filter",
             "table_aria": "Workshop Queue Table",
             "dropdown_aria": "Queue Actions",

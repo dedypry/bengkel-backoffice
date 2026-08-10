@@ -33,6 +33,7 @@ const woSlice = createSlice({
       date_from: new Date().toLocaleDateString("en-CA"),
       date_to: new Date().toLocaleDateString("en-CA"),
       date: "",
+      mechanic_ids: [] as number[],
     },
     services: [] as IWo[],
     sparepart: [] as ISparepart[],
