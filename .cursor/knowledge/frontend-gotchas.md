@@ -43,3 +43,9 @@
 - **Konteks:** Pusher auth pakai `fetch` manual padahal sudah ada `src/utils/libs/axios.ts`.
 - **Pola:** Semua call backend API → `http.get/post/...` path relatif; auth + 401 logout otomatis. Rule `http-client.mdc`.
 - **File:** `src/utils/libs/pusher.ts`, `src/utils/libs/axios.ts`
+
+## .gitignore `logs` mengabaikan src/pages/logs — 2026-08-10
+- **Konteks:** CI build gagal `Cannot find module './pages/logs/...'` padahal file ada lokal.
+- **Penyebab:** `.gitignore` entry `logs` match semua folder bernama logs, termasuk `src/pages/logs/`.
+- **Pola:** Pakai `/logs` (root only) bukan `logs`.
+- **File:** `.gitignore`

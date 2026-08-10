@@ -58,7 +58,7 @@ export const authSlice = createSlice({
           (e) => e.id === action.payload.company_id,
         )!;
         const userPermissions: string[] = action.payload.permissions || [];
-        const userRoleSlugs =
+        const userRoleSlugs: string[] =
           action.payload.roles?.map((role) => role.slug) ?? [];
 
         const filterNav = (navItems: any[], parentRoles?: string[]): any[] => {
