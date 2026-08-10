@@ -1,6 +1,7 @@
 import { ArrowRight, Award, Star, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import {
   Avatar,
   Button,
@@ -11,6 +12,7 @@ import {
   ScrollShadow,
 } from "@heroui/react";
 
+import MechanicReviewsModal from "@/pages/reports/components/mechanic-reviews-modal";
 import { useAppSelector } from "@/stores/hooks";
 import { formatNumber } from "@/utils/helpers/format";
 import { getAvatarByName, getInitials } from "@/utils/helpers/global";
@@ -28,6 +30,19 @@ export function BestEmployees() {
   const { dashboard } = useAppSelector((state) => state.dashboard);
   const navigate = useNavigate();
   const employees = dashboard?.bestEmployees || [];
+  const [reviewModal, setReviewModal] = useState<{
+    open: boolean;
+    mechanicId: number | null;
+    mechanicName?: string;
+  }>({ open: false, mechanicId: null });
+
+  const openReviews = (employee: (typeof employees)[number]) => {
+    setReviewModal({
+      open: true,
+      mechanicId: employee.id,
+      mechanicName: employee.name,
+    });
+  };
 
   return (
     <Card className="overflow-hidden border border-amber-100 bg-amber-50/40 shadow-sm">
@@ -96,12 +111,16 @@ export function BestEmployees() {
                   </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1 rounded-full bg-white/80 px-2.5 py-1">
+                <button
+                  className="flex shrink-0 items-center gap-1 rounded-full bg-white/80 px-2.5 py-1 transition-colors hover:bg-amber-50"
+                  type="button"
+                  onClick={() => openReviews(employee)}
+                >
                   <Star className="size-3.5 fill-amber-400 text-amber-400" />
                   <span className="text-sm font-black text-slate-700">
                     {formatNumber(employee.rating)}
                   </span>
-                </div>
+                </button>
               </div>
             ))
           )}
@@ -119,6 +138,19 @@ export function BestEmployees() {
           {t("dashboard.best_employees.view_all")}
         </Button>
       </CardBody>
+
+      <MechanicReviewsModal
+        mechanicId={reviewModal.mechanicId}
+        mechanicName={reviewModal.mechanicName}
+        open={reviewModal.open}
+        onClose={() =>
+          setReviewModal({
+            open: false,
+            mechanicId: null,
+            mechanicName: undefined,
+          })
+        }
+      />
     </Card>
   );
 }
