@@ -7,8 +7,6 @@ import {
   Globe,
   Lock,
   Edit,
-  ChevronRight,
-  Home,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,8 +16,6 @@ import { useNavigate } from "react-router-dom";
 import {
   Alert,
   Avatar,
-  BreadcrumbItem,
-  Breadcrumbs,
   Button,
   Card,
   CardBody,
@@ -70,16 +66,6 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs
-        className="pt-5"
-        itemClasses={{ item: "text-gray-500 font-medium" }}
-        separator={<ChevronRight size={14} />}
-      >
-        <BreadcrumbItem href="/" startContent={<Home size={16} />}>
-          {t("profile.home")}
-        </BreadcrumbItem>
-        <BreadcrumbItem>{t("common.my_profile")}</BreadcrumbItem>
-      </Breadcrumbs>
       <Card>
         <CardBody className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-8">

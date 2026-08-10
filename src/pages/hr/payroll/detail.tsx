@@ -16,14 +16,7 @@ import {
   Avatar,
   Spinner,
 } from "@heroui/react";
-import {
-  ArrowLeft,
-  BadgeCheck,
-  CalendarRange,
-  Pencil,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { BadgeCheck, CalendarRange, Pencil, Users, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import ItemModal from "./components/item-modal";
@@ -34,6 +27,7 @@ import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { dateFormat } from "@/utils/helpers/formater";
 import { formatIDR } from "@/utils/helpers/format";
+import HeaderAction from "@/components/header-action";
 
 export default function PayrollDetailPage() {
   const { t } = useTranslation();
@@ -80,31 +74,30 @@ export default function PayrollDetailPage() {
         onClose={() => setSelectedItem(null)}
       />
 
-      <div className="flex items-center justify-between">
-        <Button
-          startContent={<ArrowLeft size={18} />}
-          variant="light"
-          onPress={() => navigate("/hr/payroll")}
-        >
-          {t("hr.payroll.detail_back")}
-        </Button>
-        {!isPaid && (
-          <Button
-            color="success"
-            startContent={<BadgeCheck size={18} />}
-            onPress={() =>
-              confirmSweat(handlePay, {
-                title: t("hr.payroll.confirm_paid_title"),
-                text: t("hr.payroll.confirm_paid_text"),
-                confirmButtonText: t("hr.payroll.confirm_paid_yes"),
-                icon: "question",
-              })
-            }
-          >
-            {t("hr.payroll.mark_paid")}
-          </Button>
-        )}
-      </div>
+      <HeaderAction
+        actionContent={
+          !isPaid ? (
+            <Button
+              color="success"
+              startContent={<BadgeCheck size={18} />}
+              onPress={() =>
+                confirmSweat(handlePay, {
+                  title: t("hr.payroll.confirm_paid_title"),
+                  text: t("hr.payroll.confirm_paid_text"),
+                  confirmButtonText: t("hr.payroll.confirm_paid_yes"),
+                  icon: "question",
+                })
+              }
+            >
+              {t("hr.payroll.mark_paid")}
+            </Button>
+          ) : undefined
+        }
+        leadIcon={Wallet}
+        subtitle={`${dateFormat(detail?.period_start, "DD MMM YYYY")} - ${dateFormat(detail?.period_end, "DD MMM YYYY")}`}
+        title={detail?.code || t("hr.payroll.title")}
+        onBack={() => navigate("/hr/payroll")}
+      />
 
       {/* Header info */}
       <Card className="border border-gray-100 shadow-none">

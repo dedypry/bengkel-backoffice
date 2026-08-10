@@ -4,7 +4,6 @@ import { useFieldArray, useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CarFront,
-  ChevronLeft,
   ClipboardList,
   Plus,
   Save,
@@ -38,6 +37,7 @@ import Province from "@/components/regions/province";
 import City from "@/components/regions/city";
 import District from "@/components/regions/district";
 import CustomDatePicker from "@/components/forms/date-picker";
+import HeaderAction from "@/components/header-action";
 
 export default function CustomerFormPage({
   data,
@@ -107,54 +107,49 @@ export default function CustomerFormPage({
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Sticky Header Action */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20 bg-white/80 backdrop-blur-md py-4 border-b border-gray-100">
-        <div className="flex items-center gap-4">
-          <Button
-            isIconOnly
-            className="bg-gray-100"
-            variant="flat"
-            onPress={() => navigate(-1)}
-          >
-            <ChevronLeft size={20} />
-          </Button>
-          <div>
-            <h1 className="text-xl font-black uppercase text-gray-500">
+      <HeaderAction
+        actionContent={
+          <div className="flex gap-2">
+            <Button
+              className="font-bold"
+              variant="light"
+              onPress={() => {
+                if (onAction) {
+                  onAction();
+                } else if (data?.id) {
+                  navigate(`/master/customers/${data.id}`);
+                } else {
+                  navigate("/master/customers");
+                }
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              color="primary"
+              isLoading={isLoading}
+              startContent={!isLoading && <Save size={18} />}
+              onPress={() => handleSubmit(onSubmit)()}
+            >
               {data
-                ? t("master.customers.edit_title")
-                : t("master.customers.create_title")}
-            </h1>
-            <p className="text-tiny font-medium text-gray-400">
-              {t("master.customers.create_subtitle")}
-            </p>
+                ? t("master.customers.update_data")
+                : t("master.customers.save_customer")}
+            </Button>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            className="font-bold"
-            variant="light"
-            onPress={() => {
-              if (onAction) {
-                onAction();
-              } else {
-                navigate(-1);
-              }
-            }}
-          >
-            {t("common.cancel")}
-          </Button>
-          <Button
-            color="primary"
-            isLoading={isLoading}
-            startContent={!isLoading && <Save size={18} />}
-            onPress={() => handleSubmit(onSubmit)()}
-          >
-            {data
-              ? t("master.customers.update_data")
-              : t("master.customers.save_customer")}
-          </Button>
-        </div>
-      </div>
+        }
+        leadIcon={User}
+        subtitle={t("master.customers.create_subtitle")}
+        title={
+          data
+            ? t("master.customers.edit_title")
+            : t("master.customers.create_title")
+        }
+        onBack={() =>
+          data?.id
+            ? navigate(`/master/customers/${data.id}`)
+            : navigate("/master/customers")
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* KOLOM KIRI: Informasi Utama */}

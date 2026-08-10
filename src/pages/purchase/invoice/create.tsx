@@ -356,6 +356,7 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
         }
         subtitle={t("purchase.invoice.create_subtitle")}
         title={t("purchase.invoice.create_title")}
+        onBack={() => navigate("/purchase/invoice")}
       />
       <Card>
         <CardBody>

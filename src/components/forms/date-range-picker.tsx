@@ -226,14 +226,29 @@ function CustomDateRangePicker(
         endDate: dates.end ? dayjs(dates.end).toDate() : dateRange.endDate,
         key: "target",
       });
+
+      return;
     }
+
+    setDateRange({
+      startDate: null,
+      endDate: null,
+      key: "target",
+    } as any);
+    setValue("");
   }, [dates]);
 
   useEffect(() => {
+    if (!dateRange.startDate && !dateRange.endDate) {
+      setValue("");
+
+      return;
+    }
+
     const value = `${dateFormat(dateRange.startDate as any, format)} - ${dateFormat(dateRange.endDate as any, format)}`;
 
     setValue(value);
-  }, [dateRange]);
+  }, [dateRange, format]);
 
   function handleTimeInput(
     key: "startDate" | "endDate",

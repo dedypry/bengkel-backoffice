@@ -55,6 +55,10 @@
             "vehicle_garage": "Gudang Kendaraan ({{count}})",
             "nik_ktp": "NIK KTP",
             "service_search": "Cari No. Invoice, Plat kendaraan...",
+            "service_date_all": "Semua tanggal",
+            "service_empty": "Belum ada riwayat servis",
+            "service_empty_desc": "Riwayat servis pelanggan akan muncul di sini",
+            "service_export_pdf": "Export PDF",
             "service_table": {
                 "date_id": "TANGGAL & ID",
                 "vehicle": "KENDARAAN",

@@ -1,17 +1,25 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Edit, Trash2, Phone, Mail, History, Info } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  Phone,
+  Mail,
+  History,
+  Info,
+  ArrowLeft,
+} from "lucide-react";
 import { Button, Card, CardBody, Tabs, Tab, Avatar, Chip } from "@heroui/react";
 
 import DetailCustomerTab from "./components/detail-customer";
 import DetailServiceTab from "./components/detail-service";
+import CustomerDetailSkeleton from "./components/customer-detail-skeleton";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getDetailCustomer } from "@/stores/features/customer/customer-action";
 import { getInitials } from "@/utils/helpers/global";
 import Detail404 from "@/pages/hr/employees/components/detail-404";
-import DetailSkeleton from "@/pages/hr/employees/components/detail-skeleton";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 
@@ -35,7 +43,7 @@ export default function CustomerDetailPage() {
     }
   }, [id, dispatch]);
 
-  if (detailLoading) return <DetailSkeleton />;
+  if (detailLoading) return <CustomerDetailSkeleton />;
   if (!data) return <Detail404 id={id} />;
 
   function handleDelete() {
@@ -54,14 +62,25 @@ export default function CustomerDetailPage() {
       <Card className="border border-gray-200 shadow-sm overflow-hidden">
         <CardBody>
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <Avatar
-              className="w-24 h-24 border-4 border-gray-50 shadow-md font-black italic text-gray-400 text-2xl"
-              fallback={getInitials(data?.name)}
-              src={
-                data?.profile?.photo_url ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${data?.name}`
-              }
-            />
+            <div className="flex items-center gap-4 shrink-0">
+              <Button
+                isIconOnly
+                aria-label={t("common.back")}
+                className="rounded-full bg-white shadow-sm shrink-0"
+                variant="flat"
+                onPress={() => navigate("/master/customers")}
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              <Avatar
+                className="w-24 h-24 border-4 border-gray-50 shadow-md font-black italic text-gray-400 text-2xl"
+                fallback={getInitials(data?.name)}
+                src={
+                  data?.profile?.photo_url ||
+                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${data?.name}`
+                }
+              />
+            </div>
 
             <div className="flex-1 text-center md:text-left space-y-2">
               <div className="flex flex-col md:flex-row md:items-center gap-3">

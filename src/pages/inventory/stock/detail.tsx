@@ -1,27 +1,15 @@
-import { useParams, Link as RouterLink } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Card,
-  CardBody,
-  Button,
-  Breadcrumbs,
-  BreadcrumbItem,
-  Chip,
-  Image,
-  Divider,
-} from "@heroui/react";
+import { Card, CardBody, Chip, Image, Divider } from "@heroui/react";
 import {
   Tag,
   Database,
   DollarSign,
   MapPin,
   AlertTriangle,
-  ChevronRight,
   Edit,
   Package,
-  ArrowLeft,
-  Boxes,
   ArrowBigRightDash,
 } from "lucide-react";
 
@@ -29,11 +17,13 @@ import { formatIDR } from "@/utils/helpers/format";
 import { useAppSelector, useAppDispatch } from "@/stores/hooks";
 import { getProductDetail } from "@/stores/features/product/product-action";
 import Carousel from "@/components/carousel";
+import HeaderAction from "@/components/header-action";
 
 export default function ProductDetail() {
   const { t } = useTranslation();
   const { product } = useAppSelector((state) => state.product);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { id } = useParams();
   const hasFetched = useRef(false);
 
@@ -80,46 +70,15 @@ export default function ProductDetail() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER NAVIGASI */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <Breadcrumbs
-          itemClasses={{ item: "text-gray-500 font-medium" }}
-          separator={<ChevronRight size={14} />}
-        >
-          <BreadcrumbItem
-            href="/inventory/stock"
-            startContent={<Package size={14} />}
-          >
-            {t("inventory.stock.detail.breadcrumb_inventory")}
-          </BreadcrumbItem>
-          <BreadcrumbItem startContent={<Boxes size={14} />}>
-            {t("inventory.stock.detail.breadcrumb_parts")}
-          </BreadcrumbItem>
-          <BreadcrumbItem isCurrent>{product.code}</BreadcrumbItem>
-        </Breadcrumbs>
-
-        <div className="flex gap-2">
-          <Button
-            as={RouterLink}
-            size="sm"
-            startContent={<ArrowLeft size={16} />}
-            to="/inventory/stock"
-            variant="flat"
-          >
-            {t("common.back")}
-          </Button>
-          <Button
-            as={RouterLink}
-            className="text-white"
-            color="warning"
-            size="sm"
-            startContent={<Edit size={16} />}
-            to={`/inventory/stock/${product.id}/edit`}
-          >
-            {t("inventory.stock.detail.edit_product")}
-          </Button>
-        </div>
-      </div>
+      <HeaderAction
+        actionIcon={Edit}
+        actionTitle={t("inventory.stock.detail.edit_product")}
+        leadIcon={Package}
+        subtitle={product.code}
+        title={product.name}
+        onAction={() => navigate(`/inventory/stock/${product.id}/edit`)}
+        onBack={() => navigate("/inventory/stock")}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* SIDEBAR: GAMBAR & STATUS */}

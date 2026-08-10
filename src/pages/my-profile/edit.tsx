@@ -1,14 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  MapPin,
-  Save,
-  User2,
-  Phone,
-  Mail,
-  ChevronRight,
-  Home,
-} from "lucide-react";
+import { MapPin, Save, User2, Phone, Mail } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -21,12 +13,11 @@ import {
   SelectItem,
   Textarea,
   Divider,
-  BreadcrumbItem,
-  Breadcrumbs,
 } from "@heroui/react";
 
 import { createFormSchema } from "./schemas/create-schema";
 
+import HeaderAction from "@/components/header-action";
 import UploadAvatar from "@/components/upload-avatar";
 import Province from "@/components/regions/province";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -111,19 +102,13 @@ export default function EditProfilePage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs
-        className="pb-5"
-        itemClasses={{ item: "text-gray-500 font-medium" }}
-        separator={<ChevronRight size={14} />}
-      >
-        <BreadcrumbItem href="/" startContent={<Home size={16} />}>
-          {t("profile.home")}
-        </BreadcrumbItem>
-        <BreadcrumbItem href="/my-profile">
-          {t("common.my_profile")}
-        </BreadcrumbItem>
-        <BreadcrumbItem>{t("profile.edit_breadcrumb")}</BreadcrumbItem>
-      </Breadcrumbs>
+      <HeaderAction
+        leadIcon={User2}
+        subtitle={t("profile.section_personal")}
+        title={t("profile.edit_breadcrumb")}
+        onBack={() => navigate("/my-profile")}
+      />
+
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <Card>
           <CardBody className="p-8">

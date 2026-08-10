@@ -55,6 +55,10 @@
             "vehicle_garage": "Vehicle Garage ({{count}})",
             "nik_ktp": "NIK ID Card",
             "service_search": "Search Invoice No., Plate number...",
+            "service_date_all": "All dates",
+            "service_empty": "No service history yet",
+            "service_empty_desc": "Customer service records will appear here",
+            "service_export_pdf": "Export PDF",
             "service_table": {
                 "date_id": "DATE & ID",
                 "vehicle": "VEHICLE",

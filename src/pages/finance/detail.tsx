@@ -1,7 +1,7 @@
 import type { IPayment } from "@/utils/interfaces/IUser";
 
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   Card,
@@ -14,19 +14,14 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  BreadcrumbItem,
-  Breadcrumbs,
   Tooltip,
 } from "@heroui/react";
 import {
   Banknote,
   CheckCircle,
-  ChevronRight,
   CreditCard,
-  Home,
   NotebookPen,
   Printer,
-  Receipt,
   User,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +34,7 @@ import HeaderAction from "@/components/header-action";
 
 export default function PaymentDetailPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [data, setData] = useState<IPayment>();
   const { id } = useParams();
   const hasFetched = useRef(false);
@@ -61,30 +57,12 @@ export default function PaymentDetailPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex justify-between">
-        <Breadcrumbs
-          className="pt-5"
-          itemClasses={{ item: "text-gray-500 font-medium" }}
-          separator={<ChevronRight size={14} />}
-        >
-          <BreadcrumbItem href="/" startContent={<Home size={16} />}>
-            {t("finance.detail.home")}
-          </BreadcrumbItem>
-          <BreadcrumbItem
-            href="/finance/list"
-            startContent={<Receipt size={16} />}
-          >
-            {t("finance.detail.finance")}
-          </BreadcrumbItem>
-          <BreadcrumbItem>{data.payment_no}</BreadcrumbItem>
-        </Breadcrumbs>
-        <Button as={Link} color="primary" size="sm" to="/cashier">
-          {t("finance.detail.back_cashier")}
-        </Button>
-      </div>
       <HeaderAction
         actionContent={
           <div className="flex items-center gap-3">
+            <Button as={Link} color="primary" size="sm" to="/cashier">
+              {t("finance.detail.back_cashier")}
+            </Button>
             <Chip
               className="text-white uppercase"
               classNames={{
@@ -119,6 +97,7 @@ export default function PaymentDetailPage() {
           date: dayjs(data?.payment_date).format("DD/MM/YYYY HH:mm"),
         })}
         title={t("finance.detail.title")}
+        onBack={() => navigate("/finance/list")}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">

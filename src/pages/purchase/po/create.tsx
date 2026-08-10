@@ -280,6 +280,7 @@ export default function PoCreatePage({ po }: Props) {
           po ? t("purchase.po.edit_subtitle") : t("purchase.po.create_subtitle")
         }
         title={po ? t("purchase.po.edit_title") : t("purchase.po.create_title")}
+        onBack={() => navigate("/purchase/po")}
       />
 
       <form onSubmit={handleSubmit(onSubmit)}>

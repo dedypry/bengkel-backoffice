@@ -63,6 +63,7 @@ export default function EmployeesDetailPage() {
         })}
         title={t("hr.employees.detail_title")}
         onAction={() => navigate(`/hr/employees/${id}/edit`)}
+        onBack={() => navigate("/hr/employees")}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

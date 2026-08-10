@@ -4,8 +4,6 @@ import * as z from "zod";
 import { useEffect, useRef, useState } from "react";
 import {
   Archive,
-  Boxes,
-  ChevronRight,
   DollarSign,
   Info,
   MapPin,
@@ -23,8 +21,6 @@ import {
   Card,
   CardBody,
   Divider,
-  BreadcrumbItem,
-  Breadcrumbs,
   Autocomplete,
   AutocompleteItem,
 } from "@heroui/react";
@@ -43,6 +39,7 @@ import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { IProductCategory } from "@/utils/interfaces/IProduct";
 import { setCategories } from "@/stores/features/product/product-slice";
+import HeaderAction from "@/components/header-action";
 
 const productSchema = z.object({
   id: z.number().optional(),
@@ -213,29 +210,21 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
           dispatch(getCategories({}));
         }}
       />
+      <HeaderAction
+        leadIcon={Package}
+        subtitle={t("inventory.stock.form.basic_info")}
+        title={
+          initialData
+            ? `${t("inventory.stock.form.edit")}${t("inventory.stock.form.stock_suffix")}`
+            : `${t("inventory.stock.form.add")}${t("inventory.stock.form.stock_suffix")}`
+        }
+        onBack={() =>
+          initialData?.id
+            ? navigate(`/inventory/stock/${initialData.id}`)
+            : navigate("/inventory/stock")
+        }
+      />
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <Breadcrumbs
-          className="pt-5"
-          itemClasses={{ item: "text-gray-500 font-medium" }}
-          separator={<ChevronRight size={14} />}
-        >
-          <BreadcrumbItem
-            href="/inventory/stock"
-            startContent={<Package size={14} />}
-          >
-            {t("inventory.stock.form.breadcrumb_inventory")}
-          </BreadcrumbItem>
-          <BreadcrumbItem startContent={<Boxes size={14} />}>
-            {t("inventory.stock.form.breadcrumb_parts")}
-          </BreadcrumbItem>
-          <BreadcrumbItem isCurrent>
-            {initialData
-              ? t("inventory.stock.form.edit")
-              : t("inventory.stock.form.add")}
-            {t("inventory.stock.form.stock_suffix")}
-          </BreadcrumbItem>
-        </Breadcrumbs>
-
         <Card>
           <CardBody className="p-6 space-y-8">
             {/* SECTION 1: INFORMASI DASAR */}

@@ -141,7 +141,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
             ? t("hr.employees.create_title_edit")
             : t("hr.employees.create_title_new")
         }
-        onBack={() => navigate("/hr/employees")}
+        onBack={() => navigate(id ? `/hr/employees/${id}` : "/hr/employees")}
       />
 
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
