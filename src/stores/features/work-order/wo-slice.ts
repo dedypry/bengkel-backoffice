@@ -201,6 +201,9 @@ const woSlice = createSlice({
       })
       .addCase(getWoDetail.pending, (state) => {
         state.isLoadingDetail = true;
+      })
+      .addCase(getWoDetail.rejected, (state) => {
+        state.isLoadingDetail = false;
       }),
 });
 

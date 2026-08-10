@@ -37,6 +37,7 @@ import { useTranslation } from "react-i18next";
 import ModalAddService from "../../add/components/modal-add-service";
 
 import ButtonStatus from "./button-status";
+import DetailTabSkeleton from "./detail-tab-skeleton";
 import { SectionHeader } from "./helper";
 
 import BlogEditor from "@/components/text-editor";
@@ -72,7 +73,9 @@ interface Props {
   setOpenModal: (val: boolean) => void;
 }
 export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
-  const { sparepart, services } = useAppSelector((state) => state.wo);
+  const { sparepart, services, isLoadingDetail } = useAppSelector(
+    (state) => state.wo,
+  );
   const { suppliers }: any = useAppSelector((state) => state.supplier);
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -193,6 +196,13 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
     );
   }
 
+  const hasSpareparts = (data.spareparts?.length ?? 0) > 0;
+  const hasServices = (data.services?.length ?? 0) > 0;
+
+  if (isLoadingDetail) {
+    return <DetailTabSkeleton />;
+  }
+
   return (
     <div className="space-y-3">
       <Card>
@@ -267,306 +277,314 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
             />
           </div>
 
-          <div className="flex justify-between">
-            <h1 className="text-sm uppercase font-bold text-gray-700">
-              {t("service.detail_tab.sparepart")}
-            </h1>
-            <h1 className="text-sm uppercase font-bold text-gray-700">
-              {formatIDR(data.sparepart_total)}
-            </h1>
-          </div>
-          <Table
-            removeWrapper
-            aria-label={t("service.detail_tab.work_items_aria")}
-            className="mt-1"
-          >
-            <TableHeader>
-              <TableColumn>{t("service.detail_tab.item_desc")}</TableColumn>
-              <TableColumn align="end">
-                {t("service.detail_tab.price")}
-              </TableColumn>
-              <TableColumn align="center" width={80}>
-                {t("service.detail_tab.qty")}
-              </TableColumn>
-              <TableColumn align="end">
-                {t("service.detail_tab.subtotal")}
-              </TableColumn>
-              <TableColumn align="end"> </TableColumn>
-            </TableHeader>
-            <TableBody>
-              {[
-                ...(data.spareparts || []).map((e) => ({
-                  ...e,
-                  type: "pr",
-                })),
-              ].map((item: any, idx: number) => {
-                const find = sparepart.find((e) => e.id === item.data.id);
-                const editPrice = Number(find?.price ?? item.price ?? 0);
-                const editQty = Number(find?.qty ?? item.qty ?? 0);
+          {hasSpareparts && (
+            <>
+              <div className="flex justify-between">
+                <h1 className="text-sm uppercase font-bold text-gray-700">
+                  {t("service.detail_tab.sparepart")}
+                </h1>
+                <h1 className="text-sm uppercase font-bold text-gray-700">
+                  {formatIDR(data.sparepart_total)}
+                </h1>
+              </div>
+              <Table
+                removeWrapper
+                aria-label={t("service.detail_tab.work_items_aria")}
+                className="mt-1"
+              >
+                <TableHeader>
+                  <TableColumn>{t("service.detail_tab.item_desc")}</TableColumn>
+                  <TableColumn align="end">
+                    {t("service.detail_tab.price")}
+                  </TableColumn>
+                  <TableColumn align="center" width={80}>
+                    {t("service.detail_tab.qty")}
+                  </TableColumn>
+                  <TableColumn align="end">
+                    {t("service.detail_tab.subtotal")}
+                  </TableColumn>
+                  <TableColumn align="end"> </TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {[
+                    ...(data.spareparts || []).map((e) => ({
+                      ...e,
+                      type: "pr",
+                    })),
+                  ].map((item: any, idx: number) => {
+                    const find = sparepart.find((e) => e.id === item.data.id);
+                    const editPrice = Number(find?.price ?? item.price ?? 0);
+                    const editQty = Number(find?.qty ?? item.qty ?? 0);
 
-                return (
-                  <TableRow key={idx}>
-                    <TableCell>
-                      <div
-                        className={`flex flex-col max-w-[${isEdit ? "100px" : "200px"}]`}
-                      >
-                        <Tooltip content={item.data.name}>
-                          <span className="text-gray-600 text-xs truncate block">
-                            {item.data.name}
-                          </span>
-                        </Tooltip>
-                        <div className="flex gap-2 items-center truncate">
-                          <span className="text-[11px] text-gray-600">
-                            {find?.suplier_name ||
-                              item.supplier_name ||
-                              item.data.code}
-                          </span>
-                          {isEdit && (
-                            <SelectSupplierPopover
-                              suppliers={suppliers as ISupplier[]}
-                              value={find?.supplier_id || item.supplier_id}
-                              onSelectionChange={(val) => {
-                                dispatch(
-                                  addSparepartService({
-                                    ...item,
-                                    ...item.data,
-                                    supplier_id: val.id,
-                                    suplier_name: val.name,
-                                  }),
-                                );
-                              }}
-                            >
-                              <Edit
-                                className="text-amber-600 cursor-pointer w-4"
-                                size={15}
-                              />
-                            </SelectSupplierPopover>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-gray-500">
-                      {isEdit ? (
-                        <InputNumber
-                          classNames={{
-                            input: "text-right w-20 text-xs",
-                          }}
-                          size="sm"
-                          startContent={<p className="text-xs">Rp</p>}
-                          value={editPrice.toString()}
-                          onInput={(val) =>
-                            editPart(val, editQty, find || item.data)
-                          }
-                        />
-                      ) : Number(item.disc_value) > 0 ? (
-                        <>
-                          <p className="text-[10px] line-through italic">
-                            {formatIDR(item.price)}
-                          </p>
-                          <p className="">
-                            {formatIDR(
-                              Number(item.price || 0) -
-                                Number(item.disc_value || 0),
-                            )}
-                          </p>
-                        </>
-                      ) : (
-                        formatIDR(item.price)
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {isEdit ? (
-                        <InputNumber
-                          classNames={{
-                            input: "text-center text-xs w-8",
-                          }}
-                          size="sm"
-                          value={editQty.toString()}
-                          onInput={(val) =>
-                            editPart(editPrice, val, find || item.data)
-                          }
-                        />
-                      ) : (
-                        <p className="text-center">{formatNumber(item.qty)}</p>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-gray-500 text-right">
-                      {formatIDR(
-                        isEdit
-                          ? (find?.total_price ?? editPrice * editQty)
-                          : item.total_price,
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {!["cancel"].includes(data.status) && canDelete && (
-                        <Tooltip
-                          color="danger"
-                          content={t("service.detail_tab.delete_item")}
-                        >
-                          <Button
-                            isIconOnly
-                            color="danger"
-                            radius="full"
-                            size="sm"
-                            variant="flat"
-                            onPress={() =>
-                              confirmSweat(() => handleDelete(item.id))
-                            }
+                    return (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          <div
+                            className={`flex flex-col max-w-[${isEdit ? "100px" : "200px"}]`}
                           >
-                            <Trash2 size={16} />
-                          </Button>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-          <Divider className="mb-4" />
-          <div className="flex justify-between">
-            <h1 className="text-sm uppercase font-bold text-gray-700">
-              {t("service.detail_tab.service")}
-            </h1>
-            <h1 className="text-sm uppercase font-bold text-gray-700">
-              {formatIDR(data.service_total)}
-            </h1>
-          </div>
-          <Table
-            removeWrapper
-            aria-label={t("service.detail_tab.work_items_aria")}
-            className="mt-2"
-          >
-            <TableHeader>
-              <TableColumn>{t("service.detail_tab.item_desc")}</TableColumn>
-              <TableColumn align="end">
-                {t("service.detail_tab.price")}
-              </TableColumn>
-              <TableColumn width={80}>
-                {t("service.detail_tab.estimate")}
-              </TableColumn>
-              <TableColumn align="end">
-                {t("service.detail_tab.subtotal")}
-              </TableColumn>
-              <TableColumn align="end"> </TableColumn>
-            </TableHeader>
-            <TableBody>
-              {[
-                ...(data.services || []).map((e) => ({ ...e, type: "srv" })),
-              ].map((item: any, idx: number) => {
-                const find = services.find((e) => e.id === item.data?.id);
-                const editPrice = Number(find?.price ?? item.price ?? 0);
-                const editQty = Number(find?.qty ?? item.qty ?? 0);
+                            <Tooltip content={item.data.name}>
+                              <span className="text-gray-600 text-xs truncate block">
+                                {item.data.name}
+                              </span>
+                            </Tooltip>
+                            <div className="flex gap-2 items-center truncate">
+                              <span className="text-[11px] text-gray-600">
+                                {find?.suplier_name ||
+                                  item.supplier_name ||
+                                  item.data.code}
+                              </span>
+                              {isEdit && (
+                                <SelectSupplierPopover
+                                  suppliers={suppliers as ISupplier[]}
+                                  value={find?.supplier_id || item.supplier_id}
+                                  onSelectionChange={(val) => {
+                                    dispatch(
+                                      addSparepartService({
+                                        ...item,
+                                        ...item.data,
+                                        supplier_id: val.id,
+                                        suplier_name: val.name,
+                                      }),
+                                    );
+                                  }}
+                                >
+                                  <Edit
+                                    className="text-amber-600 cursor-pointer w-4"
+                                    size={15}
+                                  />
+                                </SelectSupplierPopover>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-gray-500">
+                          {isEdit ? (
+                            <InputNumber
+                              classNames={{
+                                input: "text-right w-20 text-xs",
+                              }}
+                              size="sm"
+                              startContent={<p className="text-xs">Rp</p>}
+                              value={editPrice.toString()}
+                              onInput={(val) =>
+                                editPart(val, editQty, find || item.data)
+                              }
+                            />
+                          ) : Number(item.disc_value) > 0 ? (
+                            <>
+                              <p className="text-[10px] line-through italic">
+                                {formatIDR(item.price)}
+                              </p>
+                              <p className="">
+                                {formatIDR(
+                                  Number(item.price || 0) -
+                                    Number(item.disc_value || 0),
+                                )}
+                              </p>
+                            </>
+                          ) : (
+                            formatIDR(item.price)
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isEdit ? (
+                            <InputNumber
+                              classNames={{
+                                input: "text-center text-xs w-8",
+                              }}
+                              size="sm"
+                              value={editQty.toString()}
+                              onInput={(val) =>
+                                editPart(editPrice, val, find || item.data)
+                              }
+                            />
+                          ) : (
+                            <p className="text-center">{formatNumber(item.qty)}</p>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-gray-500 text-right">
+                          {formatIDR(
+                            isEdit
+                              ? (find?.total_price ?? editPrice * editQty)
+                              : item.total_price,
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {!["cancel"].includes(data.status) && canDelete && (
+                            <Tooltip
+                              color="danger"
+                              content={t("service.detail_tab.delete_item")}
+                            >
+                              <Button
+                                isIconOnly
+                                color="danger"
+                                radius="full"
+                                size="sm"
+                                variant="flat"
+                                onPress={() =>
+                                  confirmSweat(() => handleDelete(item.id))
+                                }
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            </Tooltip>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </>
+          )}
+          {hasSpareparts && hasServices && <Divider className="mb-4" />}
+          {hasServices && (
+            <>
+              <div className="flex justify-between">
+                <h1 className="text-sm uppercase font-bold text-gray-700">
+                  {t("service.detail_tab.service")}
+                </h1>
+                <h1 className="text-sm uppercase font-bold text-gray-700">
+                  {formatIDR(data.service_total)}
+                </h1>
+              </div>
+              <Table
+                removeWrapper
+                aria-label={t("service.detail_tab.work_items_aria")}
+                className="mt-2"
+              >
+                <TableHeader>
+                  <TableColumn>{t("service.detail_tab.item_desc")}</TableColumn>
+                  <TableColumn align="end">
+                    {t("service.detail_tab.price")}
+                  </TableColumn>
+                  <TableColumn width={80}>
+                    {t("service.detail_tab.estimate")}
+                  </TableColumn>
+                  <TableColumn align="end">
+                    {t("service.detail_tab.subtotal")}
+                  </TableColumn>
+                  <TableColumn align="end"> </TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {[
+                    ...(data.services || []).map((e) => ({ ...e, type: "srv" })),
+                  ].map((item: any, idx: number) => {
+                    const find = services.find((e) => e.id === item.data?.id);
+                    const editPrice = Number(find?.price ?? item.price ?? 0);
+                    const editQty = Number(find?.qty ?? item.qty ?? 0);
 
-                return (
-                  <TableRow key={idx}>
-                    <TableCell>
-                      <div
-                        className={`flex flex-col max-w-[${isEdit ? "100px" : "170px"}]`}
-                      >
-                        <Tooltip content={item.data?.name}>
-                          <span className="text-gray-600 text-xs truncate block">
-                            {item.data?.name}
-                          </span>
-                        </Tooltip>
-                        <div className=" flex gap-2 items-center">
-                          <span className="text-[11px] text-gray-600 truncate block">
-                            {find?.suplier_name ||
-                              item.supplier_name ||
-                              item.data.code}
-                          </span>
-                          {isEdit && (
-                            <SelectSupplierPopover
-                              suppliers={suppliers as ISupplier[]}
-                              value={find?.supplier_id || item.supplier_id}
-                              onSelectionChange={(val) => {
-                                dispatch(
-                                  addWoService({
-                                    ...item,
-                                    ...item.data,
-                                    supplier_id: val.id,
-                                    suplier_name: val.name,
-                                  }),
-                                );
-                              }}
-                            >
-                              <Edit
-                                className="text-amber-600 cursor-pointer w-4"
-                                size={15}
-                              />
-                            </SelectSupplierPopover>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-gray-500">
-                      {isEdit ? (
-                        <InputNumber
-                          classNames={{
-                            input: "text-right w-20 text-xs",
-                          }}
-                          size="sm"
-                          startContent={<p className="text-xs">Rp</p>}
-                          value={editPrice.toString()}
-                          onInput={(val) =>
-                            editService(val, editQty, {
-                              ...(find || item.data),
-                              qty: editQty,
-                            })
-                          }
-                        />
-                      ) : Number(item.disc_value) > 0 ? (
-                        <>
-                          <p className="text-[10px] line-through italic">
-                            {formatIDR(item.price)}
-                          </p>
-                          <p className="">
-                            {formatIDR(
-                              Number(item.price || 0) -
-                                Number(item.disc_value || 0),
-                            )}
-                          </p>
-                        </>
-                      ) : (
-                        formatIDR(item.price)
-                      )}
-                    </TableCell>
-                    <TableCell className="text-gray-500 ">
-                      {item?.data?.estimated_duration * item.qty}{" "}
-                      {t(item?.data?.estimated_type)}
-                    </TableCell>
-                    <TableCell className="text-gray-500 text-right">
-                      {formatIDR(
-                        isEdit ? editPrice * editQty : item.total_price,
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {!["cancel"].includes(data.status) && canDelete && (
-                        <Tooltip
-                          showArrow
-                          color="danger"
-                          content={t("service.detail_tab.delete_item")}
-                        >
-                          <Button
-                            isIconOnly
-                            color="danger"
-                            radius="full"
-                            size="sm"
-                            variant="flat"
-                            onPress={() =>
-                              confirmSweat(() => handleDelete(item.id))
-                            }
+                    return (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          <div
+                            className={`flex flex-col max-w-[${isEdit ? "100px" : "170px"}]`}
                           >
-                            <Trash2 size={16} />
-                          </Button>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                            <Tooltip content={item.data?.name}>
+                              <span className="text-gray-600 text-xs truncate block">
+                                {item.data?.name}
+                              </span>
+                            </Tooltip>
+                            <div className=" flex gap-2 items-center">
+                              <span className="text-[11px] text-gray-600 truncate block">
+                                {find?.suplier_name ||
+                                  item.supplier_name ||
+                                  item.data.code}
+                              </span>
+                              {isEdit && (
+                                <SelectSupplierPopover
+                                  suppliers={suppliers as ISupplier[]}
+                                  value={find?.supplier_id || item.supplier_id}
+                                  onSelectionChange={(val) => {
+                                    dispatch(
+                                      addWoService({
+                                        ...item,
+                                        ...item.data,
+                                        supplier_id: val.id,
+                                        suplier_name: val.name,
+                                      }),
+                                    );
+                                  }}
+                                >
+                                  <Edit
+                                    className="text-amber-600 cursor-pointer w-4"
+                                    size={15}
+                                  />
+                                </SelectSupplierPopover>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-gray-500">
+                          {isEdit ? (
+                            <InputNumber
+                              classNames={{
+                                input: "text-right w-20 text-xs",
+                              }}
+                              size="sm"
+                              startContent={<p className="text-xs">Rp</p>}
+                              value={editPrice.toString()}
+                              onInput={(val) =>
+                                editService(val, editQty, {
+                                  ...(find || item.data),
+                                  qty: editQty,
+                                })
+                              }
+                            />
+                          ) : Number(item.disc_value) > 0 ? (
+                            <>
+                              <p className="text-[10px] line-through italic">
+                                {formatIDR(item.price)}
+                              </p>
+                              <p className="">
+                                {formatIDR(
+                                  Number(item.price || 0) -
+                                    Number(item.disc_value || 0),
+                                )}
+                              </p>
+                            </>
+                          ) : (
+                            formatIDR(item.price)
+                          )}
+                        </TableCell>
+                        <TableCell className="text-gray-500 ">
+                          {item?.data?.estimated_duration * item.qty}{" "}
+                          {t(item?.data?.estimated_type)}
+                        </TableCell>
+                        <TableCell className="text-gray-500 text-right">
+                          {formatIDR(
+                            isEdit ? editPrice * editQty : item.total_price,
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {!["cancel"].includes(data.status) && canDelete && (
+                            <Tooltip
+                              showArrow
+                              color="danger"
+                              content={t("service.detail_tab.delete_item")}
+                            >
+                              <Button
+                                isIconOnly
+                                color="danger"
+                                radius="full"
+                                size="sm"
+                                variant="flat"
+                                onPress={() =>
+                                  confirmSweat(() => handleDelete(item.id))
+                                }
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            </Tooltip>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </>
+          )}
           <div className="flex justify-end mt-5 items-end border-t pt-5">
             <div>
               {/* <div className="w-full h-full col-span-2">
