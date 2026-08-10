@@ -74,6 +74,9 @@ import { http } from "@/utils/libs/axios";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import InputNumber from "@/components/input-number";
 import CustomDatePicker from "@/components/forms/date-picker";
+import CustomDateTimePicker, {
+  DATETIME_VALUE_FORMAT,
+} from "@/components/forms/date-time-picker";
 import HeaderAction from "@/components/header-action";
 import { getMechanic } from "@/stores/features/mechanic/mechanic-action";
 import {
@@ -149,7 +152,7 @@ export default function ServiceAddPage() {
       defaultValues: {
         priority: "normal",
         remind_next_service: false,
-        created_at: dayjs().format("YYYY-MM-DD"),
+        created_at: dayjs().format(DATETIME_VALUE_FORMAT),
         customer: {
           birth_date: "",
         },
@@ -238,7 +241,7 @@ export default function ServiceAddPage() {
         setValue("current_km", 0);
         setValue("next_km", 0);
         reset();
-        setValue("created_at", dayjs().format("YYYY-MM-DD"));
+        setValue("created_at", dayjs().format(DATETIME_VALUE_FORMAT));
         handleVehicleReset();
         handleResetCustomer();
         dispatch(formWoClear());
@@ -1163,7 +1166,7 @@ export default function ServiceAddPage() {
                           control={control}
                           name="created_at"
                           render={({ field, fieldState }) => (
-                            <CustomDatePicker
+                            <CustomDateTimePicker
                               className="w-full"
                               classNames={{
                                 inputWrapper: "w-full",

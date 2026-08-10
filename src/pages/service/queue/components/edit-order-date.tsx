@@ -7,17 +7,23 @@ import {
   ModalHeader,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import dayjs from "dayjs";
 import { CalendarDays, Edit, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
-import CustomDatePicker from "@/components/forms/date-picker";
+import CustomDateTimePicker, {
+  DATETIME_VALUE_FORMAT,
+} from "@/components/forms/date-time-picker";
 import { usePermission } from "@/components/use-permission";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
+import {
+  formatWorkOrderDateTimeFull,
+  toWorkOrderDateTimeInput,
+} from "@/utils/helpers/dayjs";
+import dayjs from "@/utils/helpers/dayjs";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 
@@ -44,7 +50,7 @@ export default function EditOrderDate() {
   const { control, reset, handleSubmit } = useForm<TOrderDateForm>({
     resolver: zodResolver(schema),
     defaultValues: {
-      created_at: dayjs().format("YYYY-MM-DD"),
+      created_at: dayjs().format(DATETIME_VALUE_FORMAT),
     },
   });
 
@@ -52,15 +58,11 @@ export default function EditOrderDate() {
     if (!open || !data?.created_at) return;
 
     reset({
-      created_at: dayjs(data.created_at).format("YYYY-MM-DD"),
+      created_at: toWorkOrderDateTimeInput(data.created_at),
     });
   }, [open, data, reset]);
 
   if (!data?.created_at) return null;
-
-  const formattedDate = new Date(data.created_at).toLocaleDateString("id-ID", {
-    dateStyle: "full",
-  });
 
   const onSubmit = (values: TOrderDateForm) => {
     if (!data?.id) return;
@@ -97,7 +99,7 @@ export default function EditOrderDate() {
                 control={control}
                 name="created_at"
                 render={({ field, fieldState }) => (
-                  <CustomDatePicker
+                  <CustomDateTimePicker
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
                     label={t("service.edit_order_date.label")}
@@ -128,7 +130,7 @@ export default function EditOrderDate() {
 
       <div className="flex items-center gap-2">
         <CalendarDays className="text-gray-400" size={14} />
-        <span>{formattedDate}</span>
+        <span>{formatWorkOrderDateTimeFull(data.created_at)}</span>
         {canEdit && (
           <Button
             isIconOnly

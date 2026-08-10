@@ -367,7 +367,7 @@
         },
         "edit_order_date": {
             "title": "Edit Order Date",
-            "label": "Order Date",
+            "label": "Order Date & Time",
             "date_required": "Date is required",
             "success": "Order date updated successfully"
         },

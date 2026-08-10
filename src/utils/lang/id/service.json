@@ -367,7 +367,7 @@
         },
         "edit_order_date": {
             "title": "Edit Tanggal Order",
-            "label": "Tanggal Order",
+            "label": "Tanggal & Jam Order",
             "date_required": "Tanggal wajib diisi",
             "success": "Tanggal order berhasil diubah"
         },
