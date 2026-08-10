@@ -10,6 +10,8 @@ export interface IQuery {
   pageSize?: number;
   page?: number;
   q?: string;
+  id?: string;
+  min_rating?: number | string;
   noStats?: number;
   noPaginate?: number;
   category_id?: string | number;

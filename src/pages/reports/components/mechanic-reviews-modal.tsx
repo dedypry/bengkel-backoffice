@@ -2,7 +2,7 @@ import type { IMechanicReview, IRatingSummary } from "@/utils/interfaces/IUser";
 
 import dayjs from "dayjs";
 import { MessageSquare, Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Chip,
@@ -10,8 +10,11 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
-  Spinner,
 } from "@heroui/react";
+
+import MechanicReviewsSkeleton, {
+  MechanicReviewsListSkeleton,
+} from "./mechanic-reviews-skeleton";
 
 import { Rating } from "@/components/rating";
 import { http } from "@/utils/libs/axios";
@@ -24,6 +27,19 @@ interface MechanicReviewsModalProps {
   onClose: () => void;
 }
 
+type RatingFilter = "all" | 1 | 2 | 3 | 4 | 5;
+
+const PAGE_SIZE = 25;
+const RATING_FILTERS: RatingFilter[] = ["all", 1, 2, 3, 4, 5];
+
+interface ReviewsResponse {
+  data: IMechanicReview[];
+  total: number;
+  page: number;
+  pageSize: number;
+  rating_summary: IRatingSummary;
+}
+
 export default function MechanicReviewsModal({
   open,
   mechanicId,
@@ -32,27 +48,89 @@ export default function MechanicReviewsModal({
 }: MechanicReviewsModalProps) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [reviews, setReviews] = useState<IMechanicReview[]>([]);
   const [summary, setSummary] = useState<IRatingSummary | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState<RatingFilter>("all");
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  const fetchReviews = useCallback(
+    async (pageNum: number, reset: boolean) => {
+      if (!mechanicId) return;
+
+      const params: Record<string, number | string> = {
+        page: pageNum,
+        pageSize: PAGE_SIZE,
+      };
+
+      if (ratingFilter !== "all") {
+        params.rating = ratingFilter;
+      }
+
+      const { data } = await http.get<ReviewsResponse>(
+        `/employees/${mechanicId}/reviews`,
+        { params },
+      );
+
+      setReviews((prev) =>
+        reset ? data.data : [...prev, ...(data.data || [])],
+      );
+      setSummary(data.rating_summary || null);
+      setHasMore(pageNum * PAGE_SIZE < (data.total || 0));
+      setPage(pageNum);
+    },
+    [mechanicId, ratingFilter],
+  );
 
   useEffect(() => {
-    if (!open || !mechanicId) {
-      return;
-    }
+    if (!open || !mechanicId) return;
 
     setLoading(true);
-    http
-      .get(`/employees/${mechanicId}`)
-      .then(({ data }) => {
-        setReviews(data.reviews || []);
-        setSummary(data.rating_summary || null);
-      })
-      .finally(() => setLoading(false));
-  }, [open, mechanicId]);
+    setReviews([]);
+    setPage(1);
+    fetchReviews(1, true).finally(() => setLoading(false));
+  }, [open, mechanicId, ratingFilter, fetchReviews]);
+
+  const loadMore = useCallback(async () => {
+    if (!hasMore || loading || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      await fetchReviews(page + 1, false);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [fetchReviews, hasMore, loading, loadingMore, page]);
+
+  useEffect(() => {
+    const root = scrollRef.current;
+    const target = loadMoreRef.current;
+
+    if (!open || !root || !target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore();
+        }
+      },
+      { root, threshold: 0.1 },
+    );
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [open, loadMore, reviews.length]);
 
   const handleClose = () => {
     setReviews([]);
     setSummary(null);
+    setPage(1);
+    setHasMore(false);
+    setRatingFilter("all");
     onClose();
   };
 
@@ -74,10 +152,33 @@ export default function MechanicReviewsModal({
           ) : null}
         </ModalHeader>
         <ModalBody className="py-6">
+          <div className="mb-4 flex flex-wrap gap-1.5">
+            {RATING_FILTERS.map((filter) => (
+              <Chip
+                key={filter}
+                className="cursor-pointer h-6 min-h-6"
+                classNames={{
+                  content: "text-[11px] px-0.5 font-semibold",
+                }}
+                color={ratingFilter === filter ? "warning" : "default"}
+                size="sm"
+                variant={ratingFilter === filter ? "solid" : "flat"}
+                onClick={() => setRatingFilter(filter)}
+              >
+                {filter === "all" ? (
+                  t("reports.mechanics.filter_all")
+                ) : (
+                  <span className="flex items-center gap-0.5">
+                    {filter}
+                    <Star className="size-2.5" fill="currentColor" />
+                  </span>
+                )}
+              </Chip>
+            ))}
+          </div>
+
           {loading ? (
-            <div className="flex justify-center py-12">
-              <Spinner color="primary" />
-            </div>
+            <MechanicReviewsSkeleton />
           ) : reviews.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-gray-400">
               <Star size={32} />
@@ -99,7 +200,10 @@ export default function MechanicReviewsModal({
                 </Chip>
               </div>
 
-              <div className="space-y-3">
+              <div
+                ref={scrollRef}
+                className="max-h-[55vh] space-y-3 overflow-y-auto pr-1"
+              >
                 {reviews.map((review) => (
                   <div
                     key={review.id}
@@ -146,6 +250,12 @@ export default function MechanicReviewsModal({
                     ) : null}
                   </div>
                 ))}
+
+                <div ref={loadMoreRef} className="py-1">
+                  {loadingMore ? (
+                    <MechanicReviewsListSkeleton count={2} />
+                  ) : null}
+                </div>
               </div>
             </div>
           )}

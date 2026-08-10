@@ -461,6 +461,10 @@
             "unit": "Units",
             "rating": "Rating",
             "total_prefix": "TOTAL:",
+            "stat_total": "Total",
+            "stat_ready": "Ready",
+            "stat_busy": "Busy",
+            "stat_break": "Break",
             "ready_prefix": "READY:",
             "busy_prefix": "BUSY:",
             "break_prefix": "BREAK:",
@@ -482,7 +486,15 @@
             "reviews_empty": "No reviews for this mechanic yet.",
             "reviews_count": "{{count}} reviews",
             "average_rating": "Average rating",
-            "work_order": "Work Order"
+            "work_order": "Work Order",
+            "filter_all": "All",
+            "filter_search": "Search Mechanic",
+            "filter_search_placeholder": "Search name, ID, or NIK...",
+            "filter_name": "Mechanic Name",
+            "filter_name_placeholder": "Search mechanic name...",
+            "filter_id": "Mechanic ID",
+            "filter_id_placeholder": "Search ID or NIK...",
+            "filter_rating": "Minimum Rating"
         }
     },
     "settings": {

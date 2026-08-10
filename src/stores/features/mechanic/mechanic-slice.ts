@@ -9,8 +9,10 @@ const mechanicSlice = createSlice({
   initialState: {
     mechanics: [] as IUser[],
     mechanicIds: [] as number[],
+    isLoadingMechanics: false,
     mechanicQuery: {
       q: "",
+      min_rating: "",
     },
   },
   reducers: {
@@ -25,11 +27,19 @@ const mechanicSlice = createSlice({
     },
   },
   extraReducers: (builder) =>
-    builder.addCase(getMechanic.fulfilled, (state, action) => {
-      state.mechanics = Array.isArray(action.payload)
-        ? action.payload
-        : action.payload?.data || [];
-    }),
+    builder
+      .addCase(getMechanic.pending, (state) => {
+        state.isLoadingMechanics = true;
+      })
+      .addCase(getMechanic.fulfilled, (state, action) => {
+        state.isLoadingMechanics = false;
+        state.mechanics = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.data || [];
+      })
+      .addCase(getMechanic.rejected, (state) => {
+        state.isLoadingMechanics = false;
+      }),
 });
 
 export const { setMechanic, setMechanicQuery } = mechanicSlice.actions;

@@ -461,6 +461,10 @@
             "unit": "Unit",
             "rating": "Rating",
             "total_prefix": "TOTAL:",
+            "stat_total": "Total",
+            "stat_ready": "Tersedia",
+            "stat_busy": "Sibuk",
+            "stat_break": "Istirahat",
             "ready_prefix": "READY:",
             "busy_prefix": "BUSY:",
             "break_prefix": "BREAK:",
@@ -482,7 +486,15 @@
             "reviews_empty": "Belum ada ulasan untuk mekanik ini.",
             "reviews_count": "{{count}} ulasan",
             "average_rating": "Rating rata-rata",
-            "work_order": "Work Order"
+            "work_order": "Work Order",
+            "filter_all": "Semua",
+            "filter_search": "Cari Mekanik",
+            "filter_search_placeholder": "Cari nama, ID, atau NIK...",
+            "filter_name": "Nama Mekanik",
+            "filter_name_placeholder": "Cari nama mekanik...",
+            "filter_id": "ID Mekanik",
+            "filter_id_placeholder": "Cari ID atau NIK...",
+            "filter_rating": "Rating Minimum"
         }
     },
     "settings": {
