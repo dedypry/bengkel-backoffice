@@ -137,7 +137,9 @@ function MechanicCell({ item }: { item: IWorkOrder }) {
 
 export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { t } = useTranslation();
-  const { orders, woQuery, isLoadingOrder } = useAppSelector((state) => state.wo);
+  const { orders, woQuery, isLoadingOrder } = useAppSelector(
+    (state) => state.wo,
+  );
   const { collapsed } = useSidebar();
   const [openCancel, setOpenCancel] = useState(false);
   const [openManual, setOpenManual] = useState(false);
@@ -175,7 +177,9 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
     "cancel",
   ] as const;
 
-  const activeTab = queueTabs.includes(woQuery.status as (typeof queueTabs)[number])
+  const activeTab = queueTabs.includes(
+    woQuery.status as (typeof queueTabs)[number],
+  )
     ? woQuery.status
     : "active";
 
