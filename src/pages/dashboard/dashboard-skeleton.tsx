@@ -67,6 +67,24 @@ function ServiceQueueSkeleton() {
   );
 }
 
+function QuickActionsSkeleton() {
+  return (
+    <Card className="border border-slate-200 shadow-sm">
+      <CardBody className="space-y-4 p-5">
+        <div className="flex items-center gap-2">
+          <Skeleton className="size-4 rounded-sm" />
+          <Skeleton className="h-4 w-24 rounded-sm" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-2xl" />
+          ))}
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
 function SidebarCardSkeleton({ rows = 3 }: { rows?: number }) {
   return (
     <Card className="overflow-hidden border border-slate-200 shadow-sm">
@@ -121,6 +139,7 @@ export default function DashboardSkeleton() {
         <div className="space-y-8 lg:col-span-4">
           <SidebarCardSkeleton rows={3} />
           <SidebarCardSkeleton rows={4} />
+          <QuickActionsSkeleton />
         </div>
       </div>
     </>

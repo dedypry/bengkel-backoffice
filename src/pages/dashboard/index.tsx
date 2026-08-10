@@ -13,6 +13,7 @@ import { ServiceQueue } from "@/components/dashboard/service-queue";
 import { StatsGrid } from "@/components/dashboard/stats-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { InventoryAlert } from "@/components/dashboard/inventory-alert";
+import { QuickActions } from "@/components/dashboard/quick-action";
 import { BestEmployees } from "@/components/dashboard/best-employees";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getDashboard } from "@/stores/features/dashboard/dashboard-action";
@@ -89,6 +90,7 @@ export default function HomePage() {
             <div className="space-y-8 lg:col-span-4">
               <BestEmployees />
               <InventoryAlert />
+              <QuickActions />
             </div>
           </div>
         </>
