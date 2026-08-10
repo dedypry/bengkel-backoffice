@@ -14,7 +14,7 @@ import {
 import { useAppSelector } from "@/stores/hooks";
 import { getInitials } from "@/utils/helpers/global";
 import { confirmSweat } from "@/utils/helpers/notify";
-import { forceLogout } from "@/utils/helpers/auth-session";
+import { logoutSession } from "@/utils/helpers/auth-session";
 
 export default function UserMenu() {
   const { user } = useAppSelector((state) => state.auth);
@@ -22,7 +22,7 @@ export default function UserMenu() {
   const { t } = useTranslation();
 
   const handleLogout = () => {
-    forceLogout();
+    void logoutSession();
   };
 
   return (

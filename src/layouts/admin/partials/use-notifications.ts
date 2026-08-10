@@ -12,10 +12,7 @@ import {
 } from "lucide-react";
 
 import { useAppSelector } from "@/stores/hooks";
-import {
-  disconnectPusher,
-  subscribeUserNotifications,
-} from "@/utils/libs/pusher";
+import { subscribeUserNotifications } from "@/utils/libs/pusher";
 import { http } from "@/utils/libs/axios";
 
 dayjs.extend(relativeTime);
@@ -139,7 +136,6 @@ export function useNotifications() {
 
     return () => {
       unsubscribe?.();
-      disconnectPusher();
     };
   }, [fetchNotifications, user?.id]);
 

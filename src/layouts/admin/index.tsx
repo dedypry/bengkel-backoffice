@@ -12,7 +12,7 @@ import UserMenu from "./partials/user-dropdown";
 
 import { useSidebar } from "@/context/sidebar-context";
 import AuthGuard from "@/utils/guard/auth-guard";
-import { useSessionRevoke } from "@/hooks/use-session-revoke";
+import { useUserRealtime } from "@/hooks/use-user-realtime";
 
 interface Props {
   children?: ReactNode;
@@ -21,7 +21,7 @@ interface Props {
 export default function AdminLayout({ children }: Props) {
   const { isMobile, toggleCollapsed, toggleMobile } = useSidebar();
 
-  useSessionRevoke();
+  useUserRealtime();
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {

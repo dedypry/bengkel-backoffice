@@ -38,3 +38,10 @@ Sebelum edit Table, Redux selector, date picker, atau loading state — cek `.cu
 - **Table:** `TableBody isLoading` + `loadingContent` div skeleton — lihat `categories-skeleton.tsx`.
 - **Scroll list:** skeleton boleh pakai `max-h` + `overflow-y-auto` yang sama dengan konten loaded.
 - **Contoh:** `revenue-skeleton.tsx`, `login-sessions-skeleton.tsx`, `customer-detail-skeleton.tsx`.
+
+## Pusher private-user channel
+
+- **Jangan** `disconnectPusher()` atau `client.unsubscribe(channel)` di cleanup hook komponen (notifikasi, dll.).
+- Pakai `bindUserChannelEvent` / `getUserChannel` — cleanup hanya `unbind` handler.
+- `disconnectPusher` hanya lewat `forceLogout`. Listener revoke sesi: `useUserRealtime` di admin layout.
+- Sync `session_id`: `GET /user/sessions` → item `is_current` → `saveAuthSession`.

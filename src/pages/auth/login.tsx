@@ -8,21 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { Lock, Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-// Import HeroUI Components
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Input,
-  Button,
-  Link,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardFooter, Input, Link } from "@heroui/react";
 
 import { http } from "@/utils/libs/axios";
 import GuestGuard from "@/utils/guard/guest-guard";
 import { notifyError } from "@/utils/helpers/notify";
 import { saveAuthSession } from "@/utils/helpers/auth-session";
+import { disconnectPusher } from "@/utils/libs/pusher";
 import Password from "@/components/password";
 
 export default function LoginPage() {
@@ -61,6 +53,7 @@ export default function LoginPage() {
     http
       .post("/auth/login", values)
       .then(({ data }) => {
+        disconnectPusher();
         Cookies.set("token", data.access_token, {
           expires: 1,
           path: "/",
@@ -75,17 +68,19 @@ export default function LoginPage() {
 
   return (
     <GuestGuard>
-      <div className="flex items-center justify-center px-4">
-        <form className="w-full max-w-sm" onSubmit={handleSubmit(onSubmit)}>
-          <Card className="p-2">
-            <CardHeader className="flex flex-col items-start gap-1">
-              <h1 className="text-xl font-bold">{t("auth.login_title")}</h1>
-              <p className="text-gray-500 text-small">
-                {t("auth.login_subtitle")}
-              </p>
-            </CardHeader>
+      <div className="space-y-6">
+        <div className="space-y-1 text-left">
+          <h2 className="text-2xl font-black uppercase text-slate-700">
+            {t("auth.form_title")}
+          </h2>
+          <p className="text-sm font-medium text-slate-500">
+            {t("auth.form_subtitle")}
+          </p>
+        </div>
 
-            <CardBody className="flex flex-col gap-4">
+        <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+          <Card className="border border-slate-100 bg-white/90 p-2 shadow-lg backdrop-blur-sm">
+            <CardBody className="flex flex-col gap-4 pt-6">
               <Controller
                 control={control}
                 name="username"
@@ -118,12 +113,12 @@ export default function LoginPage() {
                   />
                 )}
               />
-              <Link className="text-xs flex justify-end cursor-pointer">
+              <Link className="flex cursor-pointer justify-end text-xs">
                 {t("auth.forgot_password")}
               </Link>
             </CardBody>
 
-            <CardFooter className="flex flex-col gap-3">
+            <CardFooter className="flex flex-col gap-3 pb-6">
               <Button
                 fullWidth
                 color="primary"

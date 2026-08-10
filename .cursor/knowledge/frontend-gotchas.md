@@ -27,3 +27,9 @@
 - **Konteks:** Tab perangkat login & halaman report pakai spinner centered saat fetch.
 - **Pola:** Buat `*-skeleton.tsx` mirror layout konten; HeroUI `Skeleton`. Spinner hanya untuk `Button isLoading` / aksi singkat.
 - **File:** `src/pages/my-profile/components/login-sessions-skeleton.tsx`, `src/pages/reports/components/revenue-skeleton.tsx`
+
+## Pusher user channel — jangan disconnect/unsubscribe di cleanup hook — 2026-08-10
+- **Konteks:** Logout realtime sesi gagal; notifikasi memutus listener `session.revoked`.
+- **Penyebab:** cleanup `disconnectPusher`/`unsubscribe`; listener menunggu Redux `user.id`; auth header Pusher stale; tanpa `session_id` event diabaikan.
+- **Pola:** `getUserChannel` + `bind` only; subscribe pakai `getUserIdFromToken()` (JWT); custom Pusher `authorizer` + token fresh via `fetch`; handler `session.revoked` → `forceLogout` / verify `GET /user/sessions`; `window.location.replace('/login')`.
+- **File:** `src/utils/libs/pusher.ts`, `src/hooks/use-user-realtime.ts`, `src/utils/helpers/auth-session.ts`
