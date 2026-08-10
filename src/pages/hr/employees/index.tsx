@@ -141,13 +141,19 @@ export default function EmployeesPage() {
           </div>
         </CardHeader>
         <CardBody>
-          <Table removeWrapper aria-label={t("hr.employees.table_aria")} shadow="none">
+          <Table
+            removeWrapper
+            aria-label={t("hr.employees.table_aria")}
+            shadow="none"
+          >
             <TableHeader>
               <TableColumn>{t("hr.employees.col_personnel")}</TableColumn>
               <TableColumn>{t("hr.employees.col_contact")}</TableColumn>
               <TableColumn>{t("hr.employees.col_status")}</TableColumn>
               <TableColumn>{t("hr.employees.col_tenure")}</TableColumn>
-              <TableColumn align="center">{t("hr.employees.col_actions")}</TableColumn>
+              <TableColumn align="center">
+                {t("hr.employees.col_actions")}
+              </TableColumn>
             </TableHeader>
             <TableBody emptyContent={t("hr.employees.empty")}>
               {(list?.data || []).map((emp) => (

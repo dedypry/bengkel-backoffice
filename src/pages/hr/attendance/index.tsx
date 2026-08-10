@@ -80,9 +80,7 @@ export default function AttendancePage() {
     useState<IAttendanceDevice | null>();
   const hasFetched = useRef(false);
 
-  const statusConfig = useMemo<
-    Record<string, { label: string; color: any }>
-  >(
+  const statusConfig = useMemo<Record<string, { label: string; color: any }>>(
     () => ({
       present: { label: t("hr.common.status_present"), color: "success" },
       late: { label: t("hr.common.status_late"), color: "warning" },
@@ -419,7 +417,9 @@ export default function AttendancePage() {
             >
               <TableHeader>
                 <TableColumn>{t("hr.attendance.col_serial")}</TableColumn>
-                <TableColumn>{t("hr.attendance.col_name_location")}</TableColumn>
+                <TableColumn>
+                  {t("hr.attendance.col_name_location")}
+                </TableColumn>
                 <TableColumn width={180}>
                   {t("hr.attendance.col_last_active")}
                 </TableColumn>

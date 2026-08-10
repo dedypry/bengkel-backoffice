@@ -40,9 +40,7 @@ export type NotificationFormValues = z.infer<
   ReturnType<typeof createNotificationSchema>
 >;
 
-export function isEmailConfigSaved(
-  settings?: Record<string, unknown> | null,
-) {
+export function isEmailConfigSaved(settings?: Record<string, unknown> | null) {
   if (!settings) {
     return false;
   }

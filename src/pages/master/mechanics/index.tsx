@@ -106,7 +106,9 @@ function MechanicGridCard({
             <p className="text-[9px] font-black uppercase text-gray-400">
               {t("master.mechanics.skill_level")}
             </p>
-            <p className="text-xs font-black text-gray-700">{mec.level || "PRO"}</p>
+            <p className="text-xs font-black text-gray-700">
+              {mec.level || "PRO"}
+            </p>
           </div>
           <div className="flex flex-col items-center rounded-xl border border-gray-100 bg-gray-50 p-3">
             <Clock className="mb-1 text-gray-400" size={16} />
@@ -204,7 +206,10 @@ function MechanicTableView({
         </TableHeader>
         <TableBody emptyContent={t("master.mechanics.no_data")}>
           {mechanics.map((mec) => {
-            const performance = calculatePerformance(mec?.rating, mec?.total_work);
+            const performance = calculatePerformance(
+              mec?.rating,
+              mec?.total_work,
+            );
 
             return (
               <TableRow key={mec.id} className="border-b border-gray-100">
@@ -213,8 +218,7 @@ function MechanicTableView({
                     avatarProps={{
                       radius: "lg",
                       size: "sm",
-                      src:
-                        mec.profile?.photo_url || getAvatarByName(mec.name),
+                      src: mec.profile?.photo_url || getAvatarByName(mec.name),
                     }}
                     classNames={{
                       name: "text-sm font-bold text-gray-800",

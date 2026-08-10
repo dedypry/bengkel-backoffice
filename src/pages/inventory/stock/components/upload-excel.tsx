@@ -79,7 +79,8 @@ export default function UploadExcel() {
                   {t("inventory.stock.upload_no_template")}
                 </p>
                 <p>
-                  {t("common.download")}. {t("inventory.stock.upload_column_format")}.{" "}
+                  {t("common.download")}.{" "}
+                  {t("inventory.stock.upload_column_format")}.{" "}
                   {t("inventory.stock.upload_sheet_name")}{" "}
                   <span className="font-medium">
                     {t("inventory.stock.upload_sheet_value")}

@@ -29,11 +29,13 @@ export default function UploadExcelService() {
   function onSubmit() {
     if (!files[0]) {
       notify(t("master.services.select_file_first"), "warning");
+
       return;
     }
 
     setIsLoading(true);
     const form = new FormData();
+
     form.append("file", files[0]);
 
     http

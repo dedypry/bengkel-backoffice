@@ -112,7 +112,9 @@ export default function TabService() {
           <TableColumn width={40}>{t("service.add.select_col")}</TableColumn>
           <TableColumn>{t("service.add.service_name_col")}</TableColumn>
           <TableColumn>{t("service.add.supplier_col")}</TableColumn>
-          <TableColumn align="end">{t("service.add.unit_price_col")}</TableColumn>
+          <TableColumn align="end">
+            {t("service.add.unit_price_col")}
+          </TableColumn>
           <TableColumn align="center" width={160}>
             {t("service.add.qty_duration_col")}
           </TableColumn>

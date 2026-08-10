@@ -240,9 +240,12 @@ export default function ModalAddCategory({
                                 isInvalid={
                                   !!errors.subCategories?.[index]?.name
                                 }
-                                placeholder={t("inventory.categories.modal.sub_placeholder", {
-                                  n: index + 1,
-                                })}
+                                placeholder={t(
+                                  "inventory.categories.modal.sub_placeholder",
+                                  {
+                                    n: index + 1,
+                                  },
+                                )}
                                 radius="sm"
                                 size="sm"
                                 variant="bordered"

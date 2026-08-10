@@ -118,7 +118,9 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
           {(onCloseModal) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <h3 className="text-xl font-bold">{t("service.add.modal_title")}</h3>
+                <h3 className="text-xl font-bold">
+                  {t("service.add.modal_title")}
+                </h3>
                 <p className="text-tiny text-gray-500 font-normal">
                   {t("service.add.modal_subtitle")}
                 </p>

@@ -363,12 +363,16 @@ export default function PoCreatePage({ po }: Props) {
                 <TableColumn>{t("purchase.shared.table.quantity")}</TableColumn>
                 <TableColumn>{t("purchase.shared.table.price")}</TableColumn>
                 <TableColumn>{t("purchase.shared.table.disc_pct")}</TableColumn>
-                <TableColumn>{t("purchase.shared.table.disc_value")}</TableColumn>
+                <TableColumn>
+                  {t("purchase.shared.table.disc_value")}
+                </TableColumn>
                 <TableColumn>{t("purchase.shared.table.ppn_pct")}</TableColumn>
                 <TableColumn>{t("purchase.shared.total")}</TableColumn>
                 <TableColumn>{t("purchase.shared.table.actions")}</TableColumn>
               </TableHeader>
-              <TableBody emptyContent={<div>{t("purchase.shared.no_parts")}</div>}>
+              <TableBody
+                emptyContent={<div>{t("purchase.shared.no_parts")}</div>}
+              >
                 {fields.map((field, index) => {
                   return (
                     <TableRow key={field.id}>
@@ -560,7 +564,9 @@ export default function PoCreatePage({ po }: Props) {
                         input: "text-end",
                       }}
                       endContent={
-                        <span className="text-sm">{t("purchase.shared.days")}</span>
+                        <span className="text-sm">
+                          {t("purchase.shared.days")}
+                        </span>
                       }
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
@@ -718,4 +724,3 @@ export default function PoCreatePage({ po }: Props) {
     </div>
   );
 }
-

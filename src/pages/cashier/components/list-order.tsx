@@ -13,14 +13,15 @@ import {
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
-import ListCustomer from "./list-customer";
-import ListProduct from "./list-product";
 import {
   getCashierWoStatus,
   normalizeCashierCustomerStatus,
   type CashierCustomerStatus,
   type CashierTab,
 } from "../cashier-query";
+
+import ListCustomer from "./list-customer";
+import ListProduct from "./list-product";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import debounce from "@/utils/helpers/debounce";

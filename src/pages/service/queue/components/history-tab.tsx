@@ -81,9 +81,15 @@ export default function HistoryTab({ id, isNoDate }: Props) {
       <Table>
         <TableHeader>
           <TableColumn>{t("service.history.columns.date_id")}</TableColumn>
-          <TableColumn>{t("service.history.columns.service_detail")}</TableColumn>
-          <TableColumn align="end">{t("service.history.columns.total_cost")}</TableColumn>
-          <TableColumn align="center">{t("service.history.columns.status")}</TableColumn>
+          <TableColumn>
+            {t("service.history.columns.service_detail")}
+          </TableColumn>
+          <TableColumn align="end">
+            {t("service.history.columns.total_cost")}
+          </TableColumn>
+          <TableColumn align="center">
+            {t("service.history.columns.status")}
+          </TableColumn>
           <TableColumn align="center"> </TableColumn>
         </TableHeader>
         <TableBody emptyContent={<p>{t("service.history.empty_date")}</p>}>
@@ -119,7 +125,8 @@ export default function HistoryTab({ id, isNoDate }: Props) {
                     size="sm"
                     variant="flat"
                   >
-                    {t("service.history.mechanic_prefix")}: {item.mechanics?.map((e) => e.name).join(", ")}
+                    {t("service.history.mechanic_prefix")}:{" "}
+                    {item.mechanics?.map((e) => e.name).join(", ")}
                   </Chip>
                 </div>
               </TableCell>

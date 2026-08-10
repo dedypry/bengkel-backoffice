@@ -208,7 +208,8 @@ export default function QueueDisplayPage() {
               {current?.queue_number || t("self_queue.display.empty_number")}
             </div>
             <p className="relative mt-3 line-clamp-2 max-w-full text-base font-bold text-primary-800 sm:mt-4 sm:text-xl lg:text-2xl">
-              {current?.category?.name || t("self_queue.display.no_queue_called")}
+              {current?.category?.name ||
+                t("self_queue.display.no_queue_called")}
             </p>
             {current?.counter_number && (
               <Chip

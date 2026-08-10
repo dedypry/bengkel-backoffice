@@ -233,7 +233,9 @@ export default function PayrollPage() {
                   }
                 >
                   <SelectItem key="">{t("hr.common.all")}</SelectItem>
-                  <SelectItem key="monthly">{t("hr.common.monthly")}</SelectItem>
+                  <SelectItem key="monthly">
+                    {t("hr.common.monthly")}
+                  </SelectItem>
                   <SelectItem key="weekly">{t("hr.common.weekly")}</SelectItem>
                 </Select>
               </div>
@@ -247,12 +249,16 @@ export default function PayrollPage() {
               <TableHeader>
                 <TableColumn>{t("hr.payroll.col_code")}</TableColumn>
                 <TableColumn>{t("hr.payroll.col_period")}</TableColumn>
-                <TableColumn width={110}>{t("hr.payroll.col_type")}</TableColumn>
+                <TableColumn width={110}>
+                  {t("hr.payroll.col_type")}
+                </TableColumn>
                 <TableColumn width={110}>
                   {t("hr.payroll.col_employees")}
                 </TableColumn>
                 <TableColumn>{t("hr.payroll.col_total")}</TableColumn>
-                <TableColumn width={120}>{t("hr.payroll.col_status")}</TableColumn>
+                <TableColumn width={120}>
+                  {t("hr.payroll.col_status")}
+                </TableColumn>
                 <TableColumn align="center" width={80}>
                   {t("hr.payroll.col_actions")}
                 </TableColumn>
@@ -292,7 +298,8 @@ export default function PayrollPage() {
                     </TableCell>
                     <TableCell>
                       <span className="text-xs font-bold text-gray-600">
-                        {item.total_employee || 0} {t("hr.common.people_suffix")}
+                        {item.total_employee || 0}{" "}
+                        {t("hr.common.people_suffix")}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -384,7 +391,9 @@ export default function PayrollPage() {
             >
               <TableHeader>
                 <TableColumn>{t("hr.payroll.col_employee")}</TableColumn>
-                <TableColumn width={110}>{t("hr.payroll.col_type")}</TableColumn>
+                <TableColumn width={110}>
+                  {t("hr.payroll.col_type")}
+                </TableColumn>
                 <TableColumn>{t("hr.payroll.col_base_salary")}</TableColumn>
                 <TableColumn>{t("hr.payroll.col_allowance")}</TableColumn>
                 <TableColumn>{t("hr.payroll.col_deduction")}</TableColumn>

@@ -275,14 +275,22 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               {formatIDR(data.sparepart_total)}
             </h1>
           </div>
-          <Table removeWrapper aria-label={t("service.detail_tab.work_items_aria")} className="mt-1">
+          <Table
+            removeWrapper
+            aria-label={t("service.detail_tab.work_items_aria")}
+            className="mt-1"
+          >
             <TableHeader>
               <TableColumn>{t("service.detail_tab.item_desc")}</TableColumn>
-              <TableColumn align="end">{t("service.detail_tab.price")}</TableColumn>
+              <TableColumn align="end">
+                {t("service.detail_tab.price")}
+              </TableColumn>
               <TableColumn align="center" width={80}>
                 {t("service.detail_tab.qty")}
               </TableColumn>
-              <TableColumn align="end">{t("service.detail_tab.subtotal")}</TableColumn>
+              <TableColumn align="end">
+                {t("service.detail_tab.subtotal")}
+              </TableColumn>
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
             <TableBody>
@@ -346,7 +354,9 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                           size="sm"
                           startContent={<p className="text-xs">Rp</p>}
                           value={editPrice.toString()}
-                          onInput={(val) => editPart(val, editQty, find || item.data)}
+                          onInput={(val) =>
+                            editPart(val, editQty, find || item.data)
+                          }
                         />
                       ) : Number(item.disc_value) > 0 ? (
                         <>
@@ -389,7 +399,10 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                     </TableCell>
                     <TableCell>
                       {!["cancel"].includes(data.status) && canDelete && (
-                        <Tooltip color="danger" content={t("service.detail_tab.delete_item")}>
+                        <Tooltip
+                          color="danger"
+                          content={t("service.detail_tab.delete_item")}
+                        >
                           <Button
                             isIconOnly
                             color="danger"
@@ -419,12 +432,22 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               {formatIDR(data.service_total)}
             </h1>
           </div>
-          <Table removeWrapper aria-label={t("service.detail_tab.work_items_aria")} className="mt-2">
+          <Table
+            removeWrapper
+            aria-label={t("service.detail_tab.work_items_aria")}
+            className="mt-2"
+          >
             <TableHeader>
               <TableColumn>{t("service.detail_tab.item_desc")}</TableColumn>
-              <TableColumn align="end">{t("service.detail_tab.price")}</TableColumn>
-              <TableColumn width={80}>{t("service.detail_tab.estimate")}</TableColumn>
-              <TableColumn align="end">{t("service.detail_tab.subtotal")}</TableColumn>
+              <TableColumn align="end">
+                {t("service.detail_tab.price")}
+              </TableColumn>
+              <TableColumn width={80}>
+                {t("service.detail_tab.estimate")}
+              </TableColumn>
+              <TableColumn align="end">
+                {t("service.detail_tab.subtotal")}
+              </TableColumn>
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
             <TableBody>
@@ -519,7 +542,11 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                     </TableCell>
                     <TableCell>
                       {!["cancel"].includes(data.status) && canDelete && (
-                        <Tooltip showArrow color="danger" content={t("service.detail_tab.delete_item")}>
+                        <Tooltip
+                          showArrow
+                          color="danger"
+                          content={t("service.detail_tab.delete_item")}
+                        >
                           <Button
                             isIconOnly
                             color="danger"

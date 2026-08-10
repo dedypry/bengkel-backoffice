@@ -49,7 +49,10 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
 
   return (
     <>
-      <Tooltip closeDelay={0} content={t("inventory.stock.update_stock.tooltip")}>
+      <Tooltip
+        closeDelay={0}
+        content={t("inventory.stock.update_stock.tooltip")}
+      >
         <Button
           isIconOnly
           className="bg-amber-50 text-amber-600 hover:bg-amber-100 min-w-unit-8 w-8 h-8"

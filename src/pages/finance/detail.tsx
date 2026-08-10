@@ -141,7 +141,10 @@ export default function PaymentDetailPage() {
                   label={t("finance.detail.customer")}
                   value={data?.order?.customer?.name}
                 />
-                <DataField label={t("finance.detail.po_no")} value={data?.order?.po_no} />
+                <DataField
+                  label={t("finance.detail.po_no")}
+                  value={data?.order?.po_no}
+                />
                 <DataField
                   isBadge
                   label={t("finance.detail.payment_method")}
@@ -186,10 +189,18 @@ export default function PaymentDetailPage() {
           <Table aria-label={t("finance.detail.table_aria")}>
             <TableHeader>
               <TableColumn>{t("finance.detail.col_item")}</TableColumn>
-              <TableColumn align="end">{t("finance.detail.col_price")}</TableColumn>
-              <TableColumn align="end">{t("finance.detail.col_disc")}</TableColumn>
-              <TableColumn align="end">{t("finance.detail.col_tax")}</TableColumn>
-              <TableColumn align="end">{t("finance.detail.col_total")}</TableColumn>
+              <TableColumn align="end">
+                {t("finance.detail.col_price")}
+              </TableColumn>
+              <TableColumn align="end">
+                {t("finance.detail.col_disc")}
+              </TableColumn>
+              <TableColumn align="end">
+                {t("finance.detail.col_tax")}
+              </TableColumn>
+              <TableColumn align="end">
+                {t("finance.detail.col_total")}
+              </TableColumn>
             </TableHeader>
             <TableBody>
               {(data?.order?.items || []).map((item) => (

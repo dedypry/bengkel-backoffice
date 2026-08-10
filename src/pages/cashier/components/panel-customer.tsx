@@ -647,7 +647,9 @@ export default function PanelCustomer() {
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <p className="w-24 text-xs pl-2">{t("cashier.panel.mechanic")}</p>
+                  <p className="w-24 text-xs pl-2">
+                    {t("cashier.panel.mechanic")}
+                  </p>
                   <div className="flex flex-wrap gap-1">
                     {(workOrder.mechanics || []).map((item) => (
                       <Chip key={item.id} size="sm" variant="bordered">
@@ -678,7 +680,9 @@ export default function PanelCustomer() {
                           {formatIDR(workOrder.payment?.amount)}
                         </p>
 
-                        <p className="font-bold text-xs">{t("cashier.panel.time")}</p>
+                        <p className="font-bold text-xs">
+                          {t("cashier.panel.time")}
+                        </p>
                         <p className="text-xs text-right">
                           {dayjs(
                             workOrder.payment?.payment_date ||

@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
 import type { Channel } from "pusher-js";
+
+import { useEffect, useRef } from "react";
 
 import { getPublicPusherClient } from "@/hooks/use-company-queue-realtime";
 

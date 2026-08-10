@@ -95,7 +95,9 @@ export default function TabPayment() {
         <CardBody>
           <Table removeWrapper>
             <TableHeader>
-              <TableColumn>{t("service.vendor.columns.purchase_no")}</TableColumn>
+              <TableColumn>
+                {t("service.vendor.columns.purchase_no")}
+              </TableColumn>
               <TableColumn>{t("service.vendor.columns.supplier")}</TableColumn>
               <TableColumn className="text-right">
                 {t("service.vendor.columns.subtotal")}

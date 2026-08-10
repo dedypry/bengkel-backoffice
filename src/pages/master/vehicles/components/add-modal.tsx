@@ -104,7 +104,9 @@ export default function ModalAdd({ open, setOpen, data, onRefresh }: Props) {
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>
-            {data ? t("master.vehicles.modal.edit") : t("master.vehicles.modal.add")}
+            {data
+              ? t("master.vehicles.modal.edit")
+              : t("master.vehicles.modal.add")}
             {t("master.vehicles.modal.title_suffix")}
           </ModalHeader>
           <ModalBody>

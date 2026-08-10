@@ -89,7 +89,9 @@ export default function WoComplaint() {
             <ModalHeader>
               <div className="flex items-center gap-2 text-primary font-bold">
                 <AlertCircle className="size-5" />
-                <h5 className="font-bold">{t("service.edit_complaint.title")}</h5>
+                <h5 className="font-bold">
+                  {t("service.edit_complaint.title")}
+                </h5>
               </div>
             </ModalHeader>
             <ModalBody>

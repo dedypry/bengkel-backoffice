@@ -172,7 +172,9 @@ export default function ResultMechanic({
                                 "text-tiny font-bold text-default-500 uppercase tracking-wider",
                               input: "text-small",
                             }}
-                            label={t("service.result_mechanic.evaluation_label")}
+                            label={t(
+                              "service.result_mechanic.evaluation_label",
+                            )}
                             labelPlacement="outside"
                             minRows={2}
                             placeholder={t(

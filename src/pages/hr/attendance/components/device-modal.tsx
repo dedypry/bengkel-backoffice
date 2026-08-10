@@ -165,7 +165,9 @@ export default function DeviceModal({ open, setOpen, device, onClose }: Props) {
                   <Input
                     label={t("hr.attendance.form_device_name")}
                     labelPlacement="inside"
-                    placeholder={t("hr.attendance.form_device_name_placeholder")}
+                    placeholder={t(
+                      "hr.attendance.form_device_name_placeholder",
+                    )}
                     value={field.value || ""}
                     variant="faded"
                     onValueChange={field.onChange}

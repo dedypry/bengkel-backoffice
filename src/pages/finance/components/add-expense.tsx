@@ -120,7 +120,9 @@ export default function ExpenseModal({ isOpen, onClose }: Props) {
                     errorMessage={fieldState.error?.message}
                     isInvalid={!!fieldState.error}
                     label={t("finance.expenses.form_category")}
-                    placeholder={t("finance.expenses.form_category_placeholder")}
+                    placeholder={t(
+                      "finance.expenses.form_category_placeholder",
+                    )}
                     selectedKey={field.value}
                     onSelectionChange={field.onChange}
                   >

@@ -111,10 +111,18 @@ export default function HistoryPage() {
             <TableHeader>
               <TableColumn>{t("service.history.columns.date_id")}</TableColumn>
               <TableColumn>{t("service.history.columns.vehicle")}</TableColumn>
-              <TableColumn>{t("service.history.columns.service_detail")}</TableColumn>
-              <TableColumn align="end">{t("service.history.columns.total_cost")}</TableColumn>
-              <TableColumn align="center">{t("service.history.columns.status")}</TableColumn>
-              <TableColumn align="center">{t("service.history.columns.action")}</TableColumn>
+              <TableColumn>
+                {t("service.history.columns.service_detail")}
+              </TableColumn>
+              <TableColumn align="end">
+                {t("service.history.columns.total_cost")}
+              </TableColumn>
+              <TableColumn align="center">
+                {t("service.history.columns.status")}
+              </TableColumn>
+              <TableColumn align="center">
+                {t("service.history.columns.action")}
+              </TableColumn>
             </TableHeader>
             <TableBody>
               {(orders?.data || []).map((item) => (
@@ -151,7 +159,8 @@ export default function HistoryPage() {
                         size="sm"
                         variant="flat"
                       >
-                        {t("service.history.mechanic_prefix")}: {item.mechanics?.map((e) => e.name).join(", ")}
+                        {t("service.history.mechanic_prefix")}:{" "}
+                        {item.mechanics?.map((e) => e.name).join(", ")}
                       </Chip>
                     </div>
                   </TableCell>

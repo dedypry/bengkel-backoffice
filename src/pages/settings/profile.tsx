@@ -451,7 +451,10 @@ export default function ProfileSettingsPage() {
                       control={control}
                       name="npwp"
                       render={({ field }) => (
-                        <NpwpInput {...field} label={t("settings.profile.company_npwp")} />
+                        <NpwpInput
+                          {...field}
+                          label={t("settings.profile.company_npwp")}
+                        />
                       )}
                     />
                   </div>

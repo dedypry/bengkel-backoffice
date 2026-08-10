@@ -295,7 +295,9 @@ export default function EditUnitInfo() {
                       isInvalid={!!errors.engine_capacity}
                       label={t("service.add.engine_capacity")}
                       labelPlacement="outside"
-                      placeholder={t("service.edit_unit.engine_capacity_placeholder")}
+                      placeholder={t(
+                        "service.edit_unit.engine_capacity_placeholder",
+                      )}
                     />
                   )}
                 />
@@ -357,7 +359,9 @@ export default function EditUnitInfo() {
                       isInvalid={!!errors.current_km}
                       label={t("service.add.current_km")}
                       labelPlacement="outside"
-                      placeholder={t("service.edit_unit.current_km_placeholder")}
+                      placeholder={t(
+                        "service.edit_unit.current_km_placeholder",
+                      )}
                       value={(field.value || 0) as any}
                       onInput={(val: any) => {
                         field.onChange(Number(val));

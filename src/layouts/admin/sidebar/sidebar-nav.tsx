@@ -89,7 +89,9 @@ function SidebarLeafItem({
 
   if (!collapsed) return inner;
 
-  return <SidebarCollapsedTooltip label={label}>{inner}</SidebarCollapsedTooltip>;
+  return (
+    <SidebarCollapsedTooltip label={label}>{inner}</SidebarCollapsedTooltip>
+  );
 }
 
 function SidebarItem({ item, collapsed, onNavigate }: SidebarItemProps) {

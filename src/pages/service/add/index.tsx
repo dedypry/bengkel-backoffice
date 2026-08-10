@@ -360,7 +360,9 @@ export default function ServiceAddPage() {
               <div className="flex justify-between items-center mb-5">
                 <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                   <User className="size-5" />
-                  <h5 className="font-bold">{t("service.add.customer_info")}</h5>
+                  <h5 className="font-bold">
+                    {t("service.add.customer_info")}
+                  </h5>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -402,7 +404,10 @@ export default function ServiceAddPage() {
 
                     dispatch(setCustomer(cus));
 
-                    if (!watch("vehicle.plate_number") && cus?.vehicles?.length) {
+                    if (
+                      !watch("vehicle.plate_number") &&
+                      cus?.vehicles?.length
+                    ) {
                       setFormVehicle(cus.vehicles[0]);
                       setNew(false);
                       setEdit(false);
@@ -469,7 +474,9 @@ export default function ServiceAddPage() {
               <div className="flex justify-between items-center mb-5">
                 <div className="flex items-center gap-2 text-primary font-bold">
                   <Car className="size-5" />
-                  <h5 className="font-bold">{t("service.add.vehicle_detail")}</h5>
+                  <h5 className="font-bold">
+                    {t("service.add.vehicle_detail")}
+                  </h5>
                 </div>
 
                 <div className="flex items-center gap-2 ">
@@ -765,7 +772,9 @@ export default function ServiceAddPage() {
                           isInvalid={fieldState.invalid}
                           label={t("service.add.transmission")}
                           labelPlacement="outside"
-                          placeholder={t("service.add.transmission_placeholder")}
+                          placeholder={t(
+                            "service.add.transmission_placeholder",
+                          )}
                           selectedKeys={field.value ? [field.value] : []}
                           onSelectionChange={(keys) =>
                             field.onChange(Array.from(keys)[0])
@@ -789,7 +798,9 @@ export default function ServiceAddPage() {
                           isInvalid={fieldState.invalid}
                           label={t("service.add.engine_number")}
                           labelPlacement="outside"
-                          placeholder={t("service.add.engine_number_placeholder")}
+                          placeholder={t(
+                            "service.add.engine_number_placeholder",
+                          )}
                         />
                       )}
                     />
@@ -828,7 +839,9 @@ export default function ServiceAddPage() {
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 mb-2 text-primary font-bold">
                   <Wrench className="size-5" />
-                  <h5 className="font-bold">{t("service.add.complaint_section")}</h5>
+                  <h5 className="font-bold">
+                    {t("service.add.complaint_section")}
+                  </h5>
                 </div>
                 <div className="text-right">
                   <ModalAddService />
@@ -844,10 +857,18 @@ export default function ServiceAddPage() {
                   }}
                 >
                   <TableHeader>
-                    <TableColumn width={300}>{t("service.add.item_column")}</TableColumn>
-                    <TableColumn align="center">{t("service.detail_tab.qty")}</TableColumn>
-                    <TableColumn align="end">{t("service.add.cost_column")}</TableColumn>
-                    <TableColumn align="end">{t("service.add.total_column")}</TableColumn>
+                    <TableColumn width={300}>
+                      {t("service.add.item_column")}
+                    </TableColumn>
+                    <TableColumn align="center">
+                      {t("service.detail_tab.qty")}
+                    </TableColumn>
+                    <TableColumn align="end">
+                      {t("service.add.cost_column")}
+                    </TableColumn>
+                    <TableColumn align="end">
+                      {t("service.add.total_column")}
+                    </TableColumn>
                     <TableColumn align="center" width={50}>
                       {" "}
                     </TableColumn>
@@ -1069,7 +1090,9 @@ export default function ServiceAddPage() {
                   />
 
                   {(watch("mechanic_ids") || []).length > 0 && (
-                    <p className="text-gray-600">{t("service.add.mechanic_section")}</p>
+                    <p className="text-gray-600">
+                      {t("service.add.mechanic_section")}
+                    </p>
                   )}
 
                   <div className="flex flex-wrap gap-1">
@@ -1181,9 +1204,13 @@ export default function ServiceAddPage() {
                               }
                             >
                               <SelectItem key="low">{t("low")}</SelectItem>
-                              <SelectItem key="normal">{t("normal")}</SelectItem>
+                              <SelectItem key="normal">
+                                {t("normal")}
+                              </SelectItem>
                               <SelectItem key="hight">{t("high")}</SelectItem>
-                              <SelectItem key="urgent">{t("urgent")}</SelectItem>
+                              <SelectItem key="urgent">
+                                {t("urgent")}
+                              </SelectItem>
                             </Select>
                           )}
                         />

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import {
   Button,
   Modal,
@@ -168,7 +167,9 @@ export default function ModalProductOrder({
               </ModalBody>
               <ModalFooter className="border-t border-gray-100">
                 <div className="text-sm  w-full">
-                  <p className="text-xs">{t("cashier.payment.total_payment")}</p>
+                  <p className="text-xs">
+                    {t("cashier.payment.total_payment")}
+                  </p>
                   <p className="font-bold">{formatIDR(watch("total"))}</p>
                 </div>
                 <Button

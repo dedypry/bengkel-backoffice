@@ -57,7 +57,12 @@ export default function MechanicReviewsModal({
   };
 
   return (
-    <Modal isOpen={open} scrollBehavior="inside" size="2xl" onClose={handleClose}>
+    <Modal
+      isOpen={open}
+      scrollBehavior="inside"
+      size="2xl"
+      onClose={handleClose}
+    >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 border-b border-gray-100 pb-4">
           <div className="flex items-center gap-2">
@@ -76,7 +81,9 @@ export default function MechanicReviewsModal({
           ) : reviews.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-gray-400">
               <Star size={32} />
-              <p className="mt-3 text-sm">{t("reports.mechanics.reviews_empty")}</p>
+              <p className="mt-3 text-sm">
+                {t("reports.mechanics.reviews_empty")}
+              </p>
             </div>
           ) : (
             <div className="space-y-5">
@@ -102,7 +109,8 @@ export default function MechanicReviewsModal({
                       <div className="space-y-2">
                         <p className="text-xs font-black uppercase text-primary">
                           {t("reports.mechanics.work_order")}:{" "}
-                          {review.work_order?.trx_no || `#${review.work_order_id}`}
+                          {review.work_order?.trx_no ||
+                            `#${review.work_order_id}`}
                         </p>
                         {review.work_order?.vehicle ? (
                           <p className="text-sm font-semibold text-gray-700">
@@ -116,7 +124,9 @@ export default function MechanicReviewsModal({
                           </p>
                         ) : null}
                         <p className="text-[10px] font-bold uppercase text-gray-400">
-                          {dayjs(review.created_at).format("DD MMMM YYYY, HH:mm")}
+                          {dayjs(review.created_at).format(
+                            "DD MMMM YYYY, HH:mm",
+                          )}
                         </p>
                       </div>
 

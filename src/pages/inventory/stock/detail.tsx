@@ -60,11 +60,20 @@ export default function ProductDetail() {
 
   const getStockStatus = (current: number, min: number) => {
     if (current === 0)
-      return { label: t("inventory.stock.detail.out_of_stock"), color: "danger" as const };
+      return {
+        label: t("inventory.stock.detail.out_of_stock"),
+        color: "danger" as const,
+      };
     if (current <= (min || 5))
-      return { label: t("inventory.stock.detail.low_stock"), color: "warning" as const };
+      return {
+        label: t("inventory.stock.detail.low_stock"),
+        color: "warning" as const,
+      };
 
-    return { label: t("inventory.stock.detail.available"), color: "success" as const };
+    return {
+      label: t("inventory.stock.detail.available"),
+      color: "success" as const,
+    };
   };
 
   const status = getStockStatus(product.stock, product.min_stock);
@@ -238,7 +247,8 @@ export default function ProductDetail() {
                       {t("inventory.stock.detail.min_stock")}
                     </span>
                     <span className="text-sm font-black text-red-600">
-                      {product.min_stock || 0} {t("inventory.stock.detail.items")}
+                      {product.min_stock || 0}{" "}
+                      {t("inventory.stock.detail.items")}
                     </span>
                   </div>
                 </div>
@@ -264,7 +274,8 @@ export default function ProductDetail() {
                         </>
                       )}
                       <p className="text-lg font-black text-gray-600 uppercase">
-                        {product.category?.name || t("inventory.stock.detail.no_category")}
+                        {product.category?.name ||
+                          t("inventory.stock.detail.no_category")}
                       </p>
                     </div>
                   </div>

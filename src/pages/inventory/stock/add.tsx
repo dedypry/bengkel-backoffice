@@ -229,7 +229,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
             {t("inventory.stock.form.breadcrumb_parts")}
           </BreadcrumbItem>
           <BreadcrumbItem isCurrent>
-            {initialData ? t("inventory.stock.form.edit") : t("inventory.stock.form.add")}
+            {initialData
+              ? t("inventory.stock.form.edit")
+              : t("inventory.stock.form.add")}
             {t("inventory.stock.form.stock_suffix")}
           </BreadcrumbItem>
         </Breadcrumbs>
@@ -311,7 +313,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label={t("inventory.stock.form.main_category")}
-                      placeholder={t("inventory.stock.bulk_category.select_category")}
+                      placeholder={t(
+                        "inventory.stock.bulk_category.select_category",
+                      )}
                       selectedKey={field.value?.toString()}
                       onSelectionChange={(val) => {
                         if (val != String(field.value)) {
@@ -380,7 +384,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label={t("inventory.stock.form.category")}
-                      placeholder={t("inventory.stock.bulk_category.select_category")}
+                      placeholder={t(
+                        "inventory.stock.bulk_category.select_category",
+                      )}
                       selectedKey={field.value?.toString()}
                       onSelectionChange={(val) => {
                         field.onChange(val);
@@ -446,7 +452,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
             <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
               <div className="flex items-center gap-2 text-gray-500 font-bold">
                 <DollarSign className="size-5" />
-                <h2 className="text-lg  uppercase ">{t("inventory.stock.form.price_inventory")}</h2>
+                <h2 className="text-lg  uppercase ">
+                  {t("inventory.stock.form.price_inventory")}
+                </h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -512,7 +520,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
               <div className="md:col-span-2 space-y-4">
                 <div className="flex items-center gap-2 text-gray-500">
                   <Info className="size-5" />
-                  <h2 className="text-lg font-black  uppercase ">{t("inventory.stock.form.description")}</h2>
+                  <h2 className="text-lg font-black  uppercase ">
+                    {t("inventory.stock.form.description")}
+                  </h2>
                 </div>
                 <Controller
                   control={control}
@@ -531,7 +541,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
               <div className="space-y-6">
                 <div className="flex items-center gap-2 text-gray-500">
                   <Archive className="size-5" />
-                  <h2 className="text-lg font-black  uppercase ">{t("inventory.stock.form.settings")}</h2>
+                  <h2 className="text-lg font-black  uppercase ">
+                    {t("inventory.stock.form.settings")}
+                  </h2>
                 </div>
                 <Card
                   className="bg-gray-50 border border-gray-100"
@@ -539,7 +551,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                 >
                   <CardBody className="flex flex-row items-center justify-between p-4">
                     <div className="flex flex-col">
-                      <p className="text-small font-bold">{t("inventory.stock.form.product_status")}</p>
+                      <p className="text-small font-bold">
+                        {t("inventory.stock.form.product_status")}
+                      </p>
                       <p className="text-tiny text-gray-400 font-medium">
                         {t("inventory.stock.form.pos_active")}
                       </p>

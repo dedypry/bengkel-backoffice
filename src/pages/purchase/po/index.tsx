@@ -127,15 +127,14 @@ export function PoPage() {
       />
 
       <Table
-        selectedKeys={selectedKeys}
-        selectionMode="multiple"
-        onSelectionChange={setSelectedKeys}
         bottomContent={
           <CustomPagination
             meta={list?.meta!}
             onPageChange={(page) => dispatch(setPoQuery({ page }))}
           />
         }
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
         topContent={
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2">
@@ -187,6 +186,7 @@ export function PoPage() {
             </div>
           </div>
         }
+        onSelectionChange={setSelectedKeys}
       >
         <TableHeader>
           <TableColumn>{t("purchase.po.table.po_no")}</TableColumn>

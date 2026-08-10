@@ -101,7 +101,9 @@ export default function InvoiceListPage({ noHeader = false }: Props) {
           <TableColumn>{t("finance.invoices.col_customer")}</TableColumn>
           <TableColumn>{t("finance.invoices.col_total")}</TableColumn>
           <TableColumn>{t("finance.invoices.col_cashier")}</TableColumn>
-          <TableColumn align="center">{t("finance.invoices.col_actions")}</TableColumn>
+          <TableColumn align="center">
+            {t("finance.invoices.col_actions")}
+          </TableColumn>
         </TableHeader>
         <TableBody
           emptyContent={

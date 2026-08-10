@@ -30,8 +30,8 @@ export default function StatusQueue({ wo }: Props) {
 
   const timeLabel = (
     <span className="text-[11px] text-gray-400 italic">
-      {wo.start_at && dayjs(wo.start_at).format("HH:mm")}{" "}
-      {wo.end_at ? "-" : ""} {wo.end_at && dayjs(wo.end_at).format("HH:mm")}{" "}
+      {wo.start_at && dayjs(wo.start_at).format("HH:mm")} {wo.end_at ? "-" : ""}{" "}
+      {wo.end_at && dayjs(wo.end_at).format("HH:mm")}{" "}
       {wo.start_at ? t("service.queue.timezone") : ""}
     </span>
   );
@@ -40,6 +40,7 @@ export default function StatusQueue({ wo }: Props) {
     <>
       {isCancel && hasCancelNote ? (
         <Tooltip
+          showArrow
           closeDelay={100}
           content={
             <div className="max-w-xs px-1 py-1">
@@ -51,7 +52,6 @@ export default function StatusQueue({ wo }: Props) {
           }
           delay={200}
           placement="top"
-          showArrow
         >
           {statusLabel}
         </Tooltip>

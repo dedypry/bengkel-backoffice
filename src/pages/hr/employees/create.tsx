@@ -252,7 +252,9 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         errorMessage={fieldState.error?.message}
                         isInvalid={!!fieldState.error}
                         label={t("hr.employees.form_department")}
-                        placeholder={t("hr.employees.form_department_placeholder")}
+                        placeholder={t(
+                          "hr.employees.form_department_placeholder",
+                        )}
                         selectedKeys={[field.value]}
                         onSelectionChange={(key) => {
                           const val = Array.from(key)[0];
@@ -274,7 +276,9 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                         errorMessage={fieldState.error?.message}
                         isInvalid={!!fieldState.error}
                         label={t("hr.employees.form_work_status")}
-                        placeholder={t("hr.employees.form_work_status_placeholder")}
+                        placeholder={t(
+                          "hr.employees.form_work_status_placeholder",
+                        )}
                         selectedKeys={[field.value]}
                         onSelectionChange={(key) => {
                           const val = Array.from(key)[0];
@@ -362,7 +366,9 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label={t("hr.employees.form_birth_place")}
-                      placeholder={t("hr.employees.form_birth_place_placeholder")}
+                      placeholder={t(
+                        "hr.employees.form_birth_place_placeholder",
+                      )}
                     />
                   )}
                 />
@@ -505,9 +511,7 @@ export default function CreateEmployeePage({ id, userForm }: Props) {
             {t("hr.employees.cancel")}
           </Button>
           <Button color="primary" isLoading={isLoading} type="submit">
-            {id
-              ? t("hr.employees.save_update")
-              : t("hr.employees.save_new")}
+            {id ? t("hr.employees.save_update") : t("hr.employees.save_new")}
           </Button>
         </div>
       </form>

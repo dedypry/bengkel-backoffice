@@ -169,8 +169,12 @@ export default function AddMechanich({
                 }}
               >
                 <TableHeader>
-                  <TableColumn>{t("service.mechanic_modal.mechanic_col")}</TableColumn>
-                  <TableColumn>{t("service.mechanic_modal.contact_col")}</TableColumn>
+                  <TableColumn>
+                    {t("service.mechanic_modal.mechanic_col")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("service.mechanic_modal.contact_col")}
+                  </TableColumn>
                   <TableColumn align="center">
                     {t("service.mechanic_modal.status_col")}
                   </TableColumn>

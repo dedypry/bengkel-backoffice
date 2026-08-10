@@ -91,7 +91,8 @@ export default function ReportTopPart() {
                       {item.name}
                     </h3>
                     <p className="text-[10px] font-black text-gray-400 uppercase">
-                      {item.category?.name || t("reports.top_parts.general_part")}
+                      {item.category?.name ||
+                        t("reports.top_parts.general_part")}
                     </p>
                   </div>
                 </CardHeader>

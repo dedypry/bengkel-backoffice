@@ -474,7 +474,9 @@ export default function PoInvoiceCreatePage({ po }: { po?: IPo }) {
                         mainWrapper: "w-full",
                       }}
                       endContent={
-                        <span className="text-sm">{t("purchase.shared.days")}</span>
+                        <span className="text-sm">
+                          {t("purchase.shared.days")}
+                        </span>
                       }
                       isDisabled={watch("payment_type") === "cash"}
                       label={t("purchase.invoice.credit_term")}

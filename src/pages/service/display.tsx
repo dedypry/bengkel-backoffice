@@ -1,4 +1,7 @@
-import type { IServiceDisplay, IServiceDisplayOrder } from "@/utils/interfaces/IServiceDisplay";
+import type {
+  IServiceDisplay,
+  IServiceDisplayOrder,
+} from "@/utils/interfaces/IServiceDisplay";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -220,7 +223,9 @@ export default function ServiceDisplayPage() {
 
   const featured = display?.featured;
   const featuredStatus = featured
-    ? FEATURED_STATUS_KEYS[featured.progress as keyof typeof FEATURED_STATUS_KEYS]
+    ? FEATURED_STATUS_KEYS[
+        featured.progress as keyof typeof FEATURED_STATUS_KEYS
+      ]
     : null;
 
   const load = useCallback(() => {
@@ -410,7 +415,9 @@ export default function ServiceDisplayPage() {
             <div className="pointer-events-none absolute -bottom-20 -left-16 size-64 rounded-full bg-emerald-200/30 blur-2xl" />
 
             <p className="relative mb-2 rounded-full bg-primary/10 px-4 py-1 text-sm font-black uppercase tracking-wider text-primary sm:mb-3 sm:text-base">
-              {featuredStatus ? t(featuredStatus.label) : t("service.display.no_unit")}
+              {featuredStatus
+                ? t(featuredStatus.label)
+                : t("service.display.no_unit")}
             </p>
 
             <div className="relative bg-gradient-to-b from-slate-800 to-sky-600 bg-clip-text font-black leading-none tracking-tight text-transparent [font-size:clamp(2.5rem,10vh,5.5rem)]">

@@ -310,7 +310,10 @@ export default function CustomerFormPage({
             {fields.map((field, index) => (
               <div key={field.id} className="relative">
                 {fields.length > 1 && (
-                  <Tooltip color="danger" content={t("master.customers.remove_unit")}>
+                  <Tooltip
+                    color="danger"
+                    content={t("master.customers.remove_unit")}
+                  >
                     <Button
                       isIconOnly
                       className="absolute -top-3 -right-1 rounded-full shadow-md z-50"

@@ -69,7 +69,10 @@ export default function CategoryAdd({ onFinish }: Props) {
 
   return (
     <>
-      <Tooltip content={t("master.services.category_modal.tooltip")} placement="top">
+      <Tooltip
+        content={t("master.services.category_modal.tooltip")}
+        placement="top"
+      >
         <Button
           isIconOnly
           color="primary"

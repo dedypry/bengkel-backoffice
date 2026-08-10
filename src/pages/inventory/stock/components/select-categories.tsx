@@ -107,7 +107,8 @@ export default function SelectCategories() {
                             handleSelectionChange(String(child.id))
                           }
                         >
-                          {child.name || t("inventory.stock.select_categories.no_name")}
+                          {child.name ||
+                            t("inventory.stock.select_categories.no_name")}
                         </button>
                       ))}
                     </div>

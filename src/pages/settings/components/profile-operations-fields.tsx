@@ -156,9 +156,7 @@ export default function ProfileOperationsFields({
               <InputNumber
                 label={t("settings.operations.next_km_increment")}
                 placeholder="7000"
-                value={
-                  field.value != null ? String(field.value) : undefined
-                }
+                value={field.value != null ? String(field.value) : undefined}
                 onInput={field.onChange}
               />
             )}
@@ -170,9 +168,7 @@ export default function ProfileOperationsFields({
               <InputNumber
                 label={t("settings.operations.next_service_interval")}
                 placeholder="90"
-                value={
-                  field.value != null ? String(field.value) : undefined
-                }
+                value={field.value != null ? String(field.value) : undefined}
                 onInput={field.onChange}
               />
             )}
@@ -184,9 +180,7 @@ export default function ProfileOperationsFields({
               <InputNumber
                 label={t("settings.operations.email_reminder_days")}
                 placeholder="7"
-                value={
-                  field.value != null ? String(field.value) : undefined
-                }
+                value={field.value != null ? String(field.value) : undefined}
                 onInput={field.onChange}
               />
             )}
@@ -198,9 +192,7 @@ export default function ProfileOperationsFields({
               <InputNumber
                 label={t("settings.operations.pit_count")}
                 placeholder="10"
-                value={
-                  field.value != null ? String(field.value) : undefined
-                }
+                value={field.value != null ? String(field.value) : undefined}
                 onInput={field.onChange}
               />
             )}
@@ -241,9 +233,7 @@ export default function ProfileOperationsFields({
                 description={t("settings.operations.cash_account_desc")}
                 label={t("settings.operations.cash_account")}
                 placeholder={t("common.optional")}
-                value={
-                  field.value != null ? String(field.value) : undefined
-                }
+                value={field.value != null ? String(field.value) : undefined}
                 onInput={field.onChange}
               />
             )}

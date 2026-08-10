@@ -107,7 +107,10 @@ export interface IMechanicReview {
   rating: number;
   notes?: string | null;
   work_order_id?: number;
-  work_order?: Pick<IWorkOrder, "id" | "trx_no" | "queue_no" | "vehicle" | "customer">;
+  work_order?: Pick<
+    IWorkOrder,
+    "id" | "trx_no" | "queue_no" | "vehicle" | "customer"
+  >;
 }
 
 export interface IUserForm {

@@ -238,10 +238,10 @@ export default function InvoicePage() {
               <div className="flex gap-3 bg-blue-50 p-4 rounded-2xl border border-blue-100">
                 <Info className="text-blue-500 shrink-0" size={20} />
                 <p
-                  className="text-xs text-blue-700 font-medium"
                   dangerouslySetInnerHTML={{
                     __html: t("finance.invoice_print.payment_info"),
                   }}
+                  className="text-xs text-blue-700 font-medium"
                 />
               </div>
               <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 w-fit">

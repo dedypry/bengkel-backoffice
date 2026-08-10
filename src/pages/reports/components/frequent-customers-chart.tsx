@@ -26,6 +26,7 @@ export default function FrequentCustomersChart({
   data,
 }: FrequentCustomersChartProps) {
   const { t } = useTranslation();
+
   return (
     <div className="h-72 w-full rounded-2xl border border-violet-100 bg-gradient-to-br from-white to-violet-50/40 p-4 shadow-sm">
       <ResponsiveContainer height="100%" width="100%">

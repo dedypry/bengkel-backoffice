@@ -50,7 +50,9 @@ export function RevenueChart() {
                 {t("dashboard.revenue_chart.title")}
               </h3>
               <p className="text-xs text-slate-500">
-                {t(`dashboard.revenue_chart.period_subtitle.${revenueTrendPeriod}`)}
+                {t(
+                  `dashboard.revenue_chart.period_subtitle.${revenueTrendPeriod}`,
+                )}
               </p>
             </div>
           </div>
@@ -78,9 +80,7 @@ export function RevenueChart() {
                 {Math.abs(dashboard?.revenueComparison.percentageChange || 0)}%
               </Chip>
               <span className="text-[10px] font-medium text-slate-400">
-                {t(
-                  `dashboard.revenue_chart.vs_previous.${revenueTrendPeriod}`,
-                )}
+                {t(`dashboard.revenue_chart.vs_previous.${revenueTrendPeriod}`)}
               </span>
             </div>
           </div>

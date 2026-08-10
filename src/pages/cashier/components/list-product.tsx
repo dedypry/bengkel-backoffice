@@ -74,7 +74,9 @@ export default function ListProduct() {
                     </p>
                     <p className="text-[10px] text-gray-400 font-medium">
                       {t("cashier.product_list.per_unit", {
-                        unit: item.uom?.name || t("cashier.product_list.unit_fallback"),
+                        unit:
+                          item.uom?.name ||
+                          t("cashier.product_list.unit_fallback"),
                       })}
                     </p>
                   </div>

@@ -38,7 +38,9 @@ export const getSalaryTypes = (t: TFunction) => [
 
 const createSalarySchema = (t: TFunction) =>
   z.object({
-    user_id: z.number({ message: t("hr.payroll.validation.employee_required") }),
+    user_id: z.number({
+      message: t("hr.payroll.validation.employee_required"),
+    }),
     salary_type: z
       .string()
       .min(1, t("hr.payroll.validation.salary_type_required")),

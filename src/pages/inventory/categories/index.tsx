@@ -229,9 +229,15 @@ export default function InventoryCategoryPage() {
                 updateQuery({ is_active: value || "all" });
               }}
             >
-              <SelectItem key="all">{t("inventory.categories.filter.all_status")}</SelectItem>
-              <SelectItem key="true">{t("inventory.categories.filter.active")}</SelectItem>
-              <SelectItem key="false">{t("inventory.categories.filter.inactive")}</SelectItem>
+              <SelectItem key="all">
+                {t("inventory.categories.filter.all_status")}
+              </SelectItem>
+              <SelectItem key="true">
+                {t("inventory.categories.filter.active")}
+              </SelectItem>
+              <SelectItem key="false">
+                {t("inventory.categories.filter.inactive")}
+              </SelectItem>
             </Select>
 
             <Select
@@ -244,9 +250,15 @@ export default function InventoryCategoryPage() {
                 updateQuery({ productFilter: value || "all" });
               }}
             >
-              <SelectItem key="all">{t("inventory.categories.filter.all_products")}</SelectItem>
-              <SelectItem key="has">{t("inventory.categories.filter.has_products")}</SelectItem>
-              <SelectItem key="empty">{t("inventory.categories.filter.no_products")}</SelectItem>
+              <SelectItem key="all">
+                {t("inventory.categories.filter.all_products")}
+              </SelectItem>
+              <SelectItem key="has">
+                {t("inventory.categories.filter.has_products")}
+              </SelectItem>
+              <SelectItem key="empty">
+                {t("inventory.categories.filter.no_products")}
+              </SelectItem>
             </Select>
 
             <Select
@@ -259,9 +271,15 @@ export default function InventoryCategoryPage() {
                 updateQuery({ subCategoryFilter: value || "all" });
               }}
             >
-              <SelectItem key="all">{t("inventory.categories.filter.all")}</SelectItem>
-              <SelectItem key="has">{t("inventory.categories.filter.has_sub")}</SelectItem>
-              <SelectItem key="empty">{t("inventory.categories.filter.no_sub")}</SelectItem>
+              <SelectItem key="all">
+                {t("inventory.categories.filter.all")}
+              </SelectItem>
+              <SelectItem key="has">
+                {t("inventory.categories.filter.has_sub")}
+              </SelectItem>
+              <SelectItem key="empty">
+                {t("inventory.categories.filter.no_sub")}
+              </SelectItem>
             </Select>
 
             <Select
@@ -277,18 +295,32 @@ export default function InventoryCategoryPage() {
                 updateQuery({ sortBy, sortOrder });
               }}
             >
-              <SelectItem key="created_at:desc">{t("inventory.categories.filter.newest")}</SelectItem>
-              <SelectItem key="created_at:asc">{t("inventory.categories.filter.oldest")}</SelectItem>
-              <SelectItem key="name:asc">{t("inventory.categories.filter.name_az")}</SelectItem>
-              <SelectItem key="name:desc">{t("inventory.categories.filter.name_za")}</SelectItem>
-              <SelectItem key="total_product:desc">{t("inventory.categories.filter.most_products")}</SelectItem>
-              <SelectItem key="total_product:asc">{t("inventory.categories.filter.least_products")}</SelectItem>
+              <SelectItem key="created_at:desc">
+                {t("inventory.categories.filter.newest")}
+              </SelectItem>
+              <SelectItem key="created_at:asc">
+                {t("inventory.categories.filter.oldest")}
+              </SelectItem>
+              <SelectItem key="name:asc">
+                {t("inventory.categories.filter.name_az")}
+              </SelectItem>
+              <SelectItem key="name:desc">
+                {t("inventory.categories.filter.name_za")}
+              </SelectItem>
+              <SelectItem key="total_product:desc">
+                {t("inventory.categories.filter.most_products")}
+              </SelectItem>
+              <SelectItem key="total_product:asc">
+                {t("inventory.categories.filter.least_products")}
+              </SelectItem>
             </Select>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-gray-500">
-              {t("inventory.categories.filter.showing", { count: categories.length })}
+              {t("inventory.categories.filter.showing", {
+                count: categories.length,
+              })}
             </p>
             <Button
               size="sm"
@@ -319,12 +351,24 @@ export default function InventoryCategoryPage() {
               }}
             >
               <TableHeader>
-                <TableColumn width={280}>{t("inventory.categories.table.category")}</TableColumn>
-                <TableColumn>{t("inventory.categories.table.sub_category")}</TableColumn>
-                <TableColumn>{t("inventory.categories.table.description")}</TableColumn>
-                <TableColumn align="center">{t("inventory.categories.table.products")}</TableColumn>
-                <TableColumn align="center">{t("inventory.categories.table.status")}</TableColumn>
-                <TableColumn align="end">{t("inventory.categories.table.created")}</TableColumn>
+                <TableColumn width={280}>
+                  {t("inventory.categories.table.category")}
+                </TableColumn>
+                <TableColumn>
+                  {t("inventory.categories.table.sub_category")}
+                </TableColumn>
+                <TableColumn>
+                  {t("inventory.categories.table.description")}
+                </TableColumn>
+                <TableColumn align="center">
+                  {t("inventory.categories.table.products")}
+                </TableColumn>
+                <TableColumn align="center">
+                  {t("inventory.categories.table.status")}
+                </TableColumn>
+                <TableColumn align="end">
+                  {t("inventory.categories.table.created")}
+                </TableColumn>
                 <TableColumn align="center" width={80}>
                   {t("inventory.categories.table.actions")}
                 </TableColumn>
@@ -364,7 +408,8 @@ export default function InventoryCategoryPage() {
                     </TableCell>
                     <TableCell>
                       <p className="text-xs text-gray-500 line-clamp-2 max-w-xs">
-                        {cat.description || t("inventory.categories.table.no_description")}
+                        {cat.description ||
+                          t("inventory.categories.table.no_description")}
                       </p>
                     </TableCell>
                     <TableCell>

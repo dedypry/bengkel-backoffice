@@ -123,7 +123,9 @@ export default function ModalBulkCategory({
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalContent>
-            <ModalHeader>{t("inventory.stock.bulk_category.title")}</ModalHeader>
+            <ModalHeader>
+              {t("inventory.stock.bulk_category.title")}
+            </ModalHeader>
             <ModalBody>
               <div className="flex justify-end">
                 <Button
@@ -146,7 +148,9 @@ export default function ModalBulkCategory({
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label={t("inventory.stock.bulk_category.category")}
-                      placeholder={t("inventory.stock.bulk_category.select_category")}
+                      placeholder={t(
+                        "inventory.stock.bulk_category.select_category",
+                      )}
                       selectedKey={field.value.toString()}
                       onSelectionChange={(val) => {
                         field.onChange(Number(val));
@@ -180,7 +184,9 @@ export default function ModalBulkCategory({
                       errorMessage={fieldState.error?.message}
                       isInvalid={!!fieldState.error}
                       label={t("inventory.stock.bulk_category.sub_category")}
-                      placeholder={t("inventory.stock.bulk_category.select_sub_category")}
+                      placeholder={t(
+                        "inventory.stock.bulk_category.select_sub_category",
+                      )}
                       selectedKey={field.value.toString()}
                       onSelectionChange={(val) => field.onChange(Number(val))}
                     >

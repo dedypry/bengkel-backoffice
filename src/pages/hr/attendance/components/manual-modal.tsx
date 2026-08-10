@@ -34,7 +34,9 @@ import {
 
 const createManualAttendanceSchema = (t: TFunction) =>
   z.object({
-    user_id: z.number({ message: t("hr.attendance.validation.employee_required") }),
+    user_id: z.number({
+      message: t("hr.attendance.validation.employee_required"),
+    }),
     date: z.string().min(1, t("hr.attendance.validation.date_required")),
     check_in: z.string().optional().or(z.literal("")),
     check_out: z.string().optional().or(z.literal("")),

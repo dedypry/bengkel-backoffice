@@ -44,7 +44,10 @@ import { dateTimeFormat } from "@/utils/helpers/formater";
 
 const STATUS_CONFIG: Record<
   QueueStatus,
-  { labelKey: string; color: "default" | "warning" | "primary" | "danger" | "success" }
+  {
+    labelKey: string;
+    color: "default" | "warning" | "primary" | "danger" | "success";
+  }
 > = {
   WAITING: { labelKey: "service.self_queue.status_waiting", color: "default" },
   CALLING: { labelKey: "service.self_queue.status_calling", color: "warning" },
@@ -326,7 +329,9 @@ export default function SelfQueuePanelPage() {
                         confirmSweat(() => updateStatus(item, "SKIP"), {
                           title: t("service.self_queue.skip_title"),
                           text: t("service.self_queue.skip_text"),
-                          confirmButtonText: t("service.self_queue.skip_confirm"),
+                          confirmButtonText: t(
+                            "service.self_queue.skip_confirm",
+                          ),
                         })
                       }
                     >

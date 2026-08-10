@@ -87,7 +87,9 @@ export default function TabList() {
               <TableColumn>{t("service.vendor.columns.no")}</TableColumn>
               <TableColumn>{t("service.vendor.columns.supplier")}</TableColumn>
               <TableColumn>{t("service.vendor.columns.code")}</TableColumn>
-              <TableColumn>{t("service.vendor.columns.total_items")}</TableColumn>
+              <TableColumn>
+                {t("service.vendor.columns.total_items")}
+              </TableColumn>
               <TableColumn> </TableColumn>
             </TableHeader>
             <TableBody emptyContent={<p>{t("service.vendor.no_data")}</p>}>

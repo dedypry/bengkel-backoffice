@@ -100,9 +100,15 @@ export default function DetailServiceTab({ id }: Props) {
       </div>
       <Table aria-label="History Table" shadow="none">
         <TableHeader>
-          <TableColumn>{t("master.customers.service_table.date_id")}</TableColumn>
-          <TableColumn>{t("master.customers.service_table.vehicle")}</TableColumn>
-          <TableColumn>{t("master.customers.service_table.service")}</TableColumn>
+          <TableColumn>
+            {t("master.customers.service_table.date_id")}
+          </TableColumn>
+          <TableColumn>
+            {t("master.customers.service_table.vehicle")}
+          </TableColumn>
+          <TableColumn>
+            {t("master.customers.service_table.service")}
+          </TableColumn>
           <TableColumn align="end">
             {t("master.customers.service_table.total")}
           </TableColumn>

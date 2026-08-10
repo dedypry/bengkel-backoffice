@@ -52,9 +52,15 @@ export default function ItemModal({
   const moneyFields = useMemo(
     () =>
       [
-        { name: "base_salary" as const, label: t("hr.payroll.form_base_salary") },
+        {
+          name: "base_salary" as const,
+          label: t("hr.payroll.form_base_salary"),
+        },
         { name: "allowance" as const, label: t("hr.payroll.form_allowance") },
-        { name: "overtime_amount" as const, label: t("hr.payroll.form_overtime") },
+        {
+          name: "overtime_amount" as const,
+          label: t("hr.payroll.form_overtime"),
+        },
         { name: "bonus" as const, label: t("hr.payroll.form_bonus") },
         { name: "deduction" as const, label: t("hr.payroll.form_deduction") },
       ] as const,

@@ -140,7 +140,9 @@ export default function FinanceExpensePage() {
           </TableColumn>
           <TableColumn>{t("finance.expenses.col_date")}</TableColumn>
           <TableColumn>{t("finance.expenses.col_status")}</TableColumn>
-          <TableColumn align="end">{t("finance.expenses.col_amount")}</TableColumn>
+          <TableColumn align="end">
+            {t("finance.expenses.col_amount")}
+          </TableColumn>
           <TableColumn align="center" width={50}>
             {" "}
           </TableColumn>

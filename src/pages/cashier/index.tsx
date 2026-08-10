@@ -9,7 +9,10 @@ import { buildCashierWoQuery, type CashierTab } from "./cashier-query";
 import { useSidebar, SIDEBAR_COLLAPSED_KEY } from "@/context/sidebar-context";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWo } from "@/stores/features/work-order/wo-action";
-import { setTabCashier, setWoQuery } from "@/stores/features/work-order/wo-slice";
+import {
+  setTabCashier,
+  setWoQuery,
+} from "@/stores/features/work-order/wo-slice";
 import { useServiceQueueRealtime } from "@/hooks/use-service-queue-realtime";
 import { announceCashierCall } from "@/utils/helpers/queue-announcement";
 import { notify } from "@/utils/helpers/notify";

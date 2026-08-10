@@ -195,7 +195,10 @@ export default function InventoryStockPage() {
                 );
               }}
             >
-              <SelectItem key="empty" textValue={t("inventory.stock.status_empty")}>
+              <SelectItem
+                key="empty"
+                textValue={t("inventory.stock.status_empty")}
+              >
                 {t("inventory.stock.status_empty")}
               </SelectItem>
               <SelectItem key="low" textValue={t("inventory.stock.status_low")}>
@@ -240,11 +243,21 @@ export default function InventoryStockPage() {
         >
           <TableHeader>
             <TableColumn>{t("inventory.stock.table.info")}</TableColumn>
-            <TableColumn align="center">{t("inventory.stock.table.stock")}</TableColumn>
-            <TableColumn align="center">{t("inventory.stock.table.category")}</TableColumn>
-            <TableColumn align="end">{t("inventory.stock.table.buy_price")}</TableColumn>
-            <TableColumn align="end">{t("inventory.stock.table.sell_price")}</TableColumn>
-            <TableColumn align="center">{t("inventory.stock.table.status")}</TableColumn>
+            <TableColumn align="center">
+              {t("inventory.stock.table.stock")}
+            </TableColumn>
+            <TableColumn align="center">
+              {t("inventory.stock.table.category")}
+            </TableColumn>
+            <TableColumn align="end">
+              {t("inventory.stock.table.buy_price")}
+            </TableColumn>
+            <TableColumn align="end">
+              {t("inventory.stock.table.sell_price")}
+            </TableColumn>
+            <TableColumn align="center">
+              {t("inventory.stock.table.status")}
+            </TableColumn>
             <TableColumn align="end"> </TableColumn>
           </TableHeader>
           <TableBody emptyContent={t("inventory.stock.table.empty")}>
@@ -271,7 +284,8 @@ export default function InventoryStockPage() {
                         </span>
                       </div>
                       <span className="text-[9px] text-gray-400 italic">
-                        {t("inventory.stock.min_stock")} {Number(item.min_stock ?? 0)}
+                        {t("inventory.stock.min_stock")}{" "}
+                        {Number(item.min_stock ?? 0)}
                       </span>
                     </div>
                     <UpdateStock

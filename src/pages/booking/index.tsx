@@ -64,10 +64,7 @@ const getStatusColor = (
   }
 };
 
-const getStatusLabel = (
-  status: string,
-  t: (key: string) => string,
-): string => {
+const getStatusLabel = (status: string, t: (key: string) => string): string => {
   switch (status.toLowerCase()) {
     case "confirmed":
       return t("booking.status.confirmed");
@@ -151,9 +148,7 @@ export default function BookingPage() {
             }}
           >
             <SelectItem key="all">{t("booking.status_all")}</SelectItem>
-            <SelectItem key="pending">
-              {t("booking.status.pending")}
-            </SelectItem>
+            <SelectItem key="pending">{t("booking.status.pending")}</SelectItem>
             <SelectItem key="confirmed">
               {t("booking.status.confirmed")}
             </SelectItem>

@@ -87,7 +87,9 @@ export default function EditOrderDate() {
             <ModalHeader>
               <div className="flex items-center gap-2 text-primary font-bold">
                 <CalendarDays className="size-5" />
-                <h5 className="font-bold">{t("service.edit_order_date.title")}</h5>
+                <h5 className="font-bold">
+                  {t("service.edit_order_date.title")}
+                </h5>
               </div>
             </ModalHeader>
             <ModalBody>

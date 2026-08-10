@@ -363,7 +363,9 @@ export default function DetailTrx({
                           render={({ field, fieldState }) => (
                             <Input
                               isDisabled={isViewOnly}
-                              placeholder={t("service.vendor.invoice_placeholder")}
+                              placeholder={t(
+                                "service.vendor.invoice_placeholder",
+                              )}
                               size="sm"
                               {...(field as any)}
                               errorMessage={fieldState.error?.message}
@@ -410,8 +412,12 @@ export default function DetailTrx({
                               value={[field.value || ""]}
                               onValueChange={(val) => field.onChange(val[1])}
                             >
-                              <Checkbox value="cash">{t("service.vendor.cash")}</Checkbox>
-                              <Checkbox value="credit">{t("service.vendor.credit")}</Checkbox>
+                              <Checkbox value="cash">
+                                {t("service.vendor.cash")}
+                              </Checkbox>
+                              <Checkbox value="credit">
+                                {t("service.vendor.credit")}
+                              </Checkbox>
                             </CheckboxGroup>
                           )}
                         />
@@ -506,7 +512,10 @@ export default function DetailTrx({
                 )}
 
                 {/* TABLE SECTION */}
-                <Table removeWrapper aria-label={t("service.vendor.table_aria")}>
+                <Table
+                  removeWrapper
+                  aria-label={t("service.vendor.table_aria")}
+                >
                   <TableHeader>
                     <TableColumn>
                       {!isViewOnly && (

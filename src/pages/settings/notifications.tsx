@@ -102,7 +102,9 @@ export default function NotificationSettingsPage() {
 
   useEffect(() => {
     if (settings) {
-      reset(mapNotificationSettings(settings as unknown as Record<string, unknown>));
+      reset(
+        mapNotificationSettings(settings as unknown as Record<string, unknown>),
+      );
     }
   }, [reset, settings]);
 
@@ -211,9 +213,7 @@ export default function NotificationSettingsPage() {
                   isDisabled={!emailEnabled}
                   label={t("settings.notifications.smtp_port")}
                   placeholder="587"
-                  value={
-                    field.value != null ? String(field.value) : undefined
-                  }
+                  value={field.value != null ? String(field.value) : undefined}
                   onInput={field.onChange}
                 />
               )}
@@ -412,7 +412,9 @@ export default function NotificationSettingsPage() {
                       {t("settings.notifications.trigger_service_reminder")}
                     </p>
                     <p className="text-sm text-default-500">
-                      {t("settings.notifications.trigger_service_reminder_hint")}
+                      {t(
+                        "settings.notifications.trigger_service_reminder_hint",
+                      )}
                     </p>
                   </div>
                   <Switch
