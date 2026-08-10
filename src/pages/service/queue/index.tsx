@@ -16,6 +16,7 @@ export default function QueuePage() {
   const { t } = useTranslation();
   const [openModal, setOpenModal] = useState(false);
   const [woId, setWoId] = useState(0);
+  const [startWorkOnSave, setStartWorkOnSave] = useState(false);
   const { woQuery } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
 
@@ -44,7 +45,14 @@ export default function QueuePage() {
 
   return (
     <div className="space-y-6 pb-10">
-      <AddMechanich id={woId} open={openModal} setOpen={setOpenModal} />
+      <AddMechanich
+        id={woId}
+        open={openModal}
+        setOpen={setOpenModal}
+        startWorkOnSave={startWorkOnSave}
+        onRefresh={refreshQueue}
+        onStartWorkModeReset={() => setStartWorkOnSave(false)}
+      />
       <HeaderAction
         actionIcon={Plus}
         actionTitle={t("service.queue.register")}
@@ -54,7 +62,11 @@ export default function QueuePage() {
         onAction={() => navigate("/service/add")}
       />
 
-      <ListTable setOpenModal={setOpenModal} setWoId={setWoId} />
+      <ListTable
+        setOpenModal={setOpenModal}
+        setStartWorkOnSave={setStartWorkOnSave}
+        setWoId={setWoId}
+      />
     </div>
   );
 }

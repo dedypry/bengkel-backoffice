@@ -75,6 +75,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 interface Props {
   setOpenModal: (val: boolean) => void;
   setWoId: (id: number) => void;
+  setStartWorkOnSave: (val: boolean) => void;
 }
 
 function QueueTabLabel({
@@ -135,7 +136,11 @@ function MechanicCell({ item }: { item: IWorkOrder }) {
   );
 }
 
-export default function ListTable({ setOpenModal, setWoId }: Props) {
+export default function ListTable({
+  setOpenModal,
+  setWoId,
+  setStartWorkOnSave,
+}: Props) {
   const { t } = useTranslation();
   const { orders, woQuery, isLoadingOrder } = useAppSelector(
     (state) => state.wo,
@@ -349,8 +354,9 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                 item={item}
                 onSelectMechanic={() => {
                   dispatch(setMechanic(item.mechanics?.map((m) => m.id)));
-                  setOpenModal(true);
                   setWoId(item.id);
+                  setStartWorkOnSave(true);
+                  setOpenModal(true);
                 }}
                 onSuccess={() => dispatch(getWo(woQuery))}
               />
@@ -381,8 +387,9 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                     startContent={<UserCircleIcon size={18} />}
                     onPress={() => {
                       dispatch(setMechanic(item.mechanics?.map((m) => m.id)));
-                      setOpenModal(true);
                       setWoId(item.id);
+                      setStartWorkOnSave(false);
+                      setOpenModal(true);
                     }}
                   >
                     {t("service.queue.select_mechanic")}

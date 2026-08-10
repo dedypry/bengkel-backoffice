@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { CircleXIcon, PhoneCallIcon, Search, UserPlus2 } from "lucide-react";
+import {
+  CircleXIcon,
+  PhoneCallIcon,
+  Play,
+  Search,
+  UserPlus2,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
@@ -34,6 +40,8 @@ interface Props {
   setOpen: (val: boolean) => void;
   onRefresh?: () => void;
   onSave?: (ids: number[]) => void;
+  startWorkOnSave?: boolean;
+  onStartWorkModeReset?: () => void;
 }
 
 export default function AddMechanich({
@@ -42,6 +50,8 @@ export default function AddMechanich({
   id,
   onRefresh,
   onSave,
+  startWorkOnSave = false,
+  onStartWorkModeReset,
 }: Props) {
   const { mechanics, mechanicIds, mechanicQuery } = useAppSelector(
     (state) => state.mechanic,
@@ -77,6 +87,20 @@ export default function AddMechanich({
     }
   }, [company, open, dispatch, mechanicQuery]);
 
+  const handleClose = () => {
+    dispatch(setMechanic([]));
+    onStartWorkModeReset?.();
+    setOpen(false);
+  };
+
+  const refreshAfterSave = () => {
+    if (onRefresh) {
+      onRefresh();
+    } else {
+      dispatch(getWo(woQuery));
+    }
+  };
+
   const handleSubmit = () => {
     setLoading(true);
 
@@ -84,7 +108,7 @@ export default function AddMechanich({
       onSave(mechanicIds);
       dispatch(setMechanic([]));
       setLoading(false);
-      setOpen(false);
+      handleClose();
 
       return;
     }
@@ -97,17 +121,35 @@ export default function AddMechanich({
         .then(({ data }) => {
           notify(data.message);
           dispatch(setMechanic([]));
-
-          if (onRefresh) {
-            onRefresh();
-          } else {
-            dispatch(getWo(woQuery));
-          }
-          setOpen(false);
+          refreshAfterSave();
+          handleClose();
         })
         .catch((err) => notifyError(err))
         .finally(() => setLoading(false));
     }
+  };
+
+  const handleStartWork = () => {
+    if (!id || mechanicIds.length < 1) return;
+
+    setLoading(true);
+    http
+      .patch(`/work-order/mechanic/${id}`, {
+        ids: mechanicIds,
+      })
+      .then(() =>
+        http.patch(`/work-order/${id}`, {
+          progress: "on_progress",
+        }),
+      )
+      .then(({ data }) => {
+        notify(data.message);
+        dispatch(setMechanic([]));
+        refreshAfterSave();
+        handleClose();
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -116,10 +158,16 @@ export default function AddMechanich({
       isOpen={open}
       scrollBehavior="outside"
       size="3xl"
-      onOpenChange={setOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          handleClose();
+        } else {
+          setOpen(true);
+        }
+      }}
     >
       <ModalContent>
-        {(onClose) => (
+        {() => (
           <>
             <ModalHeader className="flex flex-col gap-4">
               <div className="flex gap-2 items-center">
@@ -245,17 +293,43 @@ export default function AddMechanich({
               </Table>
             </ModalBody>
             <ModalFooter className="border-t border-default-100">
-              <Button color="danger" variant="light" onPress={onClose}>
+              <Button color="danger" variant="light" onPress={handleClose}>
                 {t("common.cancel")}
               </Button>
-              <Button
-                className="font-bold"
-                color="primary"
-                isLoading={loading}
-                onPress={handleSubmit}
-              >
-                {t("service.mechanic_modal.save")}
-              </Button>
+              {!onSave && (
+                <Button
+                  className="font-bold"
+                  color="primary"
+                  isLoading={loading}
+                  variant="flat"
+                  onPress={handleSubmit}
+                >
+                  {t("service.mechanic_modal.save")}
+                </Button>
+              )}
+              {startWorkOnSave && !onSave && (
+                <Button
+                  className="font-bold"
+                  color="primary"
+                  isDisabled={mechanicIds.length < 1}
+                  isLoading={loading}
+                  startContent={<Play fill="currentColor" size={16} />}
+                  variant="shadow"
+                  onPress={handleStartWork}
+                >
+                  {t("service.queue.start_work_btn")}
+                </Button>
+              )}
+              {onSave && (
+                <Button
+                  className="font-bold"
+                  color="primary"
+                  isLoading={loading}
+                  onPress={handleSubmit}
+                >
+                  {t("service.mechanic_modal.save")}
+                </Button>
+              )}
             </ModalFooter>
           </>
         )}
