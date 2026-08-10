@@ -347,8 +347,6 @@ export default function InventoryCategoryPage() {
 
         <Table
           aria-label={t("inventory.categories.table.category")}
-          isLoading={loading}
-          loadingContent={<GridLoader color="#0096FF" />}
           shadow="none"
         >
           <TableHeader>
@@ -372,7 +370,11 @@ export default function InventoryCategoryPage() {
             </TableColumn>
             <TableColumn align="center"> </TableColumn>
           </TableHeader>
-          <TableBody emptyContent={t("inventory.categories.table.empty")}>
+          <TableBody
+            emptyContent={t("inventory.categories.table.empty")}
+            isLoading={loading}
+            loadingContent={<GridLoader color="#0096FF" />}
+          >
             {categories.map((cat) => (
               <TableRow key={cat.id}>
                 <TableCell>
