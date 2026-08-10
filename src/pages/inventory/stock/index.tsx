@@ -1,3 +1,5 @@
+import type { IProduct } from "@/utils/interfaces/IProduct";
+
 import {
   Search,
   Plus,
@@ -8,7 +10,7 @@ import {
   ArrowRight,
   Pencil,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -53,10 +55,13 @@ export default function InventoryStockPage() {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [openBulkCategory, setOpenBulkCategory] = useState(false);
   const [isExcelLoading, setIsExcelLoading] = useState(false);
+  const [queryProduct, setQueryProduct] = useState<IProduct | null>(null);
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
+  const updateStockId = Number(searchParams.get("updateStock") || 0) || null;
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -67,6 +72,44 @@ export default function InventoryStockPage() {
       }, 1000);
     }
   }, [company, productQuery, dispatch]);
+
+  useEffect(() => {
+    if (!updateStockId) {
+      setQueryProduct(null);
+
+      return;
+    }
+
+    const inList = products?.data?.find((item) => item.id === updateStockId);
+
+    if (inList) {
+      setQueryProduct(inList);
+
+      return;
+    }
+
+    http
+      .get(`/products/${updateStockId}`)
+      .then(({ data }) => setQueryProduct(data))
+      .catch((err) => {
+        notifyError(err);
+        clearUpdateStockParam();
+      });
+  }, [updateStockId, products?.data]);
+
+  function clearUpdateStockParam() {
+    if (!searchParams.has("updateStock")) {
+      setQueryProduct(null);
+
+      return;
+    }
+
+    const nextParams = new URLSearchParams(searchParams);
+
+    nextParams.delete("updateStock");
+    setSearchParams(nextParams, { replace: true });
+    setQueryProduct(null);
+  }
 
   const searchDebounce = debounce((q) => dispatch(setProductQuery({ q })), 800);
 
@@ -371,6 +414,17 @@ export default function InventoryStockPage() {
           onPageChange={(page) => dispatch(setProductQuery({ page }))}
         />
       </Card>
+
+      {queryProduct ? (
+        <UpdateStock
+          defaultOpen
+          hideTrigger
+          currentStock={Number(queryProduct.stock ?? 0)}
+          id={queryProduct.id}
+          name={queryProduct.name}
+          onClosed={clearUpdateStockParam}
+        />
+      ) : null}
     </div>
   );
 }

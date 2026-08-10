@@ -27,6 +27,8 @@ export type NotificationViewItem = {
   time: string;
   icon: LucideIcon;
   unread: boolean;
+  type: string;
+  href?: string;
 };
 
 const iconByType: Record<string, LucideIcon> = {
@@ -36,6 +38,20 @@ const iconByType: Record<string, LucideIcon> = {
   info: Bell,
 };
 
+function getNotificationHref(notification: INotification): string | undefined {
+  if (notification.type === "low_stock") {
+    const productId = notification.data?.product_id;
+
+    if (productId) {
+      return `/inventory/stock?updateStock=${productId}`;
+    }
+
+    return "/inventory/stock";
+  }
+
+  return undefined;
+}
+
 function toViewItem(notification: INotification): NotificationViewItem {
   return {
     id: notification.id,
@@ -44,6 +60,8 @@ function toViewItem(notification: INotification): NotificationViewItem {
     time: dayjs(notification.created_at).fromNow(),
     icon: iconByType[notification.type] ?? Bell,
     unread: !notification.read_at,
+    type: notification.type,
+    href: getNotificationHref(notification),
   };
 }
 

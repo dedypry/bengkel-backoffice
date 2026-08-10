@@ -1,5 +1,5 @@
 import { Edit, PackagePlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
@@ -21,17 +21,41 @@ interface Props {
   id: number;
   name: string;
   currentStock: number;
+  defaultOpen?: boolean;
+  hideTrigger?: boolean;
+  onClosed?: () => void;
 }
 
-export default function UpdateStock({ id, name, currentStock }: Props) {
+export default function UpdateStock({
+  id,
+  name,
+  currentStock,
+  defaultOpen = false,
+  hideTrigger = false,
+  onClosed,
+}: Props) {
   const { t } = useTranslation();
   const { productQuery } = useAppSelector((state) => state.product);
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [stock, setStock] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (defaultOpen) {
+      setOpen(true);
+    }
+  }, [defaultOpen]);
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+
+    if (!nextOpen) {
+      onClosed?.();
+    }
+  }
 
   function onSubmit() {
     setLoading(true);
@@ -39,7 +63,7 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
       .patch(`/products/update-stock/${id}`, { stock })
       .then(({ data }) => {
         notify(data.message);
-        setOpen(false);
+        handleOpenChange(false);
         setStock(0);
         dispatch(getProduct(productQuery));
       })
@@ -49,20 +73,22 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
 
   return (
     <>
-      <Tooltip
-        closeDelay={0}
-        content={t("inventory.stock.update_stock.tooltip")}
-      >
-        <Button
-          isIconOnly
-          className="bg-amber-50 text-amber-600 hover:bg-amber-100 min-w-unit-8 w-8 h-8"
-          size="sm"
-          variant="flat"
-          onPress={() => setOpen(true)}
+      {!hideTrigger ? (
+        <Tooltip
+          closeDelay={0}
+          content={t("inventory.stock.update_stock.tooltip")}
         >
-          <Edit size={14} />
-        </Button>
-      </Tooltip>
+          <Button
+            isIconOnly
+            className="bg-amber-50 text-amber-600 hover:bg-amber-100 min-w-unit-8 w-8 h-8"
+            size="sm"
+            variant="flat"
+            onPress={() => handleOpenChange(true)}
+          >
+            <Edit size={14} />
+          </Button>
+        </Tooltip>
+      ) : null}
 
       <Modal
         backdrop="blur"
@@ -74,7 +100,7 @@ export default function UpdateStock({ id, name, currentStock }: Props) {
         isOpen={open}
         placement="center"
         scrollBehavior="outside"
-        onOpenChange={setOpen}
+        onOpenChange={handleOpenChange}
       >
         <ModalContent>
           {(onClose) => (
