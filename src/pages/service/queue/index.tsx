@@ -8,7 +8,9 @@ import AddMechanich from "../components/add-mekanik";
 import ListTable from "./components/list-table";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
+import { store } from "@/stores/index";
 import { getWo } from "@/stores/features/work-order/wo-action";
+import { setWoQuery } from "@/stores/features/work-order/wo-slice";
 import HeaderAction from "@/components/header-action";
 import { useServiceQueueRealtime } from "@/hooks/use-service-queue-realtime";
 
@@ -25,23 +27,33 @@ export default function QueuePage() {
   const hasFetched = useRef(false);
 
   const refreshQueue = useCallback(() => {
-    dispatch(getWo(woQuery));
-  }, [dispatch, woQuery]);
+    dispatch(getWo(store.getState().wo.woQuery));
+  }, [dispatch]);
 
   useServiceQueueRealtime(company?.id, {
     onServiceUpdate: refreshQueue,
   });
 
   useEffect(() => {
+    const today = new Date().toLocaleDateString("en-CA");
+
+    dispatch(setWoQuery({ date_from: today, date_to: today }));
+
+    return () => {
+      dispatch(setWoQuery({ date_from: "", date_to: "" }));
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
     if (company && !hasFetched.current) {
       hasFetched.current = true;
-      dispatch(getWo(woQuery));
+      dispatch(getWo(store.getState().wo.woQuery));
 
       setTimeout(() => {
         hasFetched.current = false;
       }, 1000);
     }
-  }, [company, woQuery]);
+  }, [company, woQuery, dispatch]);
 
   return (
     <div className="space-y-6 pb-10">
