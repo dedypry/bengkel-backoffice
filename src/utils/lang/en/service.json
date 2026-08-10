@@ -10,7 +10,8 @@
                 "waiting": "Waiting",
                 "processing": "In Progress",
                 "ready": "Ready for Pickup",
-                "completed": "Completed"
+                "completed": "Completed",
+                "cancelled": "Cancelled"
             },
             "tabs": {
                 "active": "All Active",

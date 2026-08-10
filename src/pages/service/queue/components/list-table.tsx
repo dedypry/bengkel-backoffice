@@ -39,7 +39,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
 import { useState, useMemo, type Key } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -54,6 +53,7 @@ import {
 } from "./list-table-skeleton";
 import QueueEmptyState from "./queue-empty-state";
 
+import { formatWorkOrderDateTime } from "@/utils/helpers/dayjs";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import {
   calculateTotalEstimation,
@@ -196,10 +196,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
     const stats = orders?.stats;
 
     const activeCount =
-      (stats?.waiting_queue || 0) +
-      (stats?.waiting || 0) +
-      (stats?.processing || 0) +
-      (stats?.ready || 0);
+      (stats?.waiting || 0) + (stats?.processing || 0) + (stats?.ready || 0);
 
     return [
       {
@@ -236,6 +233,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
         key: "cancel",
         label: t("service.queue.tabs.cancel"),
         icon: XCircle,
+        count: stats?.cancelled || 0,
       },
     ];
   }, [orders?.stats, t]);
@@ -321,7 +319,7 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
           <div className="flex items-center gap-2 text-default-600">
             <CalendarDays className="text-gray-400" size={14} />
             <span className="text-tiny font-medium">
-              {dayjs(item.created_at).format("DD MMM YY | HH:mm")}
+              {formatWorkOrderDateTime(item.created_at)}
             </span>
           </div>
         );

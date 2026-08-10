@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint --fix",
+    "lint": "eslint --fix --cache --cache-location .eslintcache",
     "preview": "vite preview",
     "prod": "npx serve -s admin.pradanaautocare.id",
     "prepare": "husky"
@@ -76,10 +76,14 @@
     "eslint-plugin-unused-imports": "4.1.4",
     "globals": "16.0.0",
     "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
     "postcss": "8.5.6",
     "prettier": "3.5.3",
     "typescript": "5.6.3",
     "vite": "6.0.11",
     "vite-tsconfig-paths": "5.1.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --fix --cache --cache-location .eslintcache"
   }
 }

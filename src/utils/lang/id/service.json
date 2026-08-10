@@ -10,7 +10,8 @@
                 "waiting": "Menunggu",
                 "processing": "Dikerjakan",
                 "ready": "Siap Diambil",
-                "completed": "Selesai"
+                "completed": "Selesai",
+                "cancelled": "Batal"
             },
             "tabs": {
                 "active": "Semua Aktif",
