@@ -30,10 +30,17 @@ import {
   Trash2,
   PencilIcon,
   BellRing,
+  LayoutGrid,
+  Clock,
+  Wrench,
+  CheckCircle2,
+  Flag,
+  XCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import { useState, type Key } from "react";
+import { useState, useMemo, type Key } from "react";
 import { useTranslation } from "react-i18next";
 
 import StatusQueue from "./status-queue";
@@ -41,6 +48,11 @@ import ButtonStatus from "./button-status";
 import ChipPriority from "./chip-priority";
 import CancelConfirm from "./cancel-confirm";
 import ManualStatusModal from "./manual-status-modal";
+import {
+  createQueueSkeletonItems,
+  QueueCellSkeleton,
+} from "./list-table-skeleton";
+import QueueEmptyState from "./queue-empty-state";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import {
@@ -63,6 +75,26 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 interface Props {
   setOpenModal: (val: boolean) => void;
   setWoId: (id: number) => void;
+}
+
+function QueueTabLabel({
+  icon: Icon,
+  label,
+  count,
+}: {
+  icon: LucideIcon;
+  label: string;
+  count?: number;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Icon size={15} strokeWidth={2.2} />
+      <span>{label}</span>
+      {typeof count === "number" ? (
+        <span className="tabular-nums opacity-75">({count})</span>
+      ) : null}
+    </span>
+  );
 }
 
 function MechanicCell({ item }: { item: IWorkOrder }) {
@@ -105,7 +137,7 @@ function MechanicCell({ item }: { item: IWorkOrder }) {
 
 export default function ListTable({ setOpenModal, setWoId }: Props) {
   const { t } = useTranslation();
-  const { orders, woQuery } = useAppSelector((state) => state.wo);
+  const { orders, woQuery, isLoadingOrder } = useAppSelector((state) => state.wo);
   const { collapsed } = useSidebar();
   const [openCancel, setOpenCancel] = useState(false);
   const [openManual, setOpenManual] = useState(false);
@@ -134,9 +166,75 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
       .finally(() => setCallingCashierId(null));
   };
 
-  const activeTab = ["active", "finish", "cancel"].includes(woQuery.status)
+  const queueTabs = [
+    "active",
+    "queue",
+    "on_progress",
+    "ready",
+    "finish",
+    "cancel",
+  ] as const;
+
+  const activeTab = queueTabs.includes(woQuery.status as (typeof queueTabs)[number])
     ? woQuery.status
     : "active";
+
+  const skeletonItems = useMemo(
+    () => createQueueSkeletonItems(woQuery.pageSize),
+    [woQuery.pageSize],
+  );
+
+  const tableItems: Array<IWorkOrder | { id: string }> = isLoadingOrder
+    ? skeletonItems
+    : orders?.data || [];
+
+  const queueTabItems = useMemo(() => {
+    const stats = orders?.stats;
+
+    const activeCount =
+      (stats?.waiting_queue || 0) +
+      (stats?.waiting || 0) +
+      (stats?.processing || 0) +
+      (stats?.ready || 0);
+
+    return [
+      {
+        key: "active",
+        label: t("service.queue.tabs.active"),
+        icon: LayoutGrid,
+        count: activeCount,
+      },
+      {
+        key: "queue",
+        label: t("service.queue.stats.waiting"),
+        icon: Clock,
+        count: stats?.waiting || 0,
+      },
+      {
+        key: "on_progress",
+        label: t("service.queue.stats.processing"),
+        icon: Wrench,
+        count: stats?.processing || 0,
+      },
+      {
+        key: "ready",
+        label: t("service.queue.stats.ready"),
+        icon: CheckCircle2,
+        count: stats?.ready || 0,
+      },
+      {
+        key: "finish",
+        label: t("service.queue.tabs.finish"),
+        icon: Flag,
+        count: stats?.completed || 0,
+      },
+      {
+        key: "cancel",
+        label: t("service.queue.tabs.cancel"),
+        icon: XCircle,
+      },
+    ];
+  }, [orders?.stats, t]);
 
   const columns = mergePriorityMechanic
     ? [
@@ -370,20 +468,34 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
       <Tabs
         aria-label={t("service.queue.filter_aria")}
         classNames={{
-          cursor: "bg-primary",
+          base: "w-full overflow-x-auto",
+          tabList: "gap-1 p-1 bg-default-100 rounded-xl w-max min-w-full",
+          tab: "h-10 px-3",
+          cursor: "rounded-lg shadow-sm bg-white",
           tabContent:
-            "group-data-[selected=true]:text-primary text-black font-semibold",
+            "text-gray-600 group-data-[selected=true]:text-primary font-semibold",
+          panel: "hidden",
         }}
         color="primary"
         selectedKey={activeTab}
-        variant="underlined"
+        size="lg"
+        variant="light"
         onSelectionChange={(key) =>
           dispatch(setWoQuery({ status: String(key), page: 1 }))
         }
       >
-        <Tab key="active" title={t("service.queue.tabs.active")} />
-        <Tab key="finish" title={t("service.queue.tabs.finish")} />
-        <Tab key="cancel" title={t("service.queue.tabs.cancel")} />
+        {queueTabItems.map((tab) => (
+          <Tab
+            key={tab.key}
+            title={
+              <QueueTabLabel
+                count={tab.count}
+                icon={tab.icon}
+                label={tab.label}
+              />
+            }
+          />
+        ))}
       </Tabs>
 
       <Card>
@@ -453,8 +565,8 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
               )}
             </TableHeader>
             <TableBody
-              emptyContent={t("service.queue.empty")}
-              items={orders?.data || []}
+              emptyContent={!isLoadingOrder ? <QueueEmptyState /> : null}
+              items={tableItems}
             >
               {(item) => (
                 <TableRow
@@ -462,7 +574,13 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
                   className="border-b border-default-50 last:border-none"
                 >
                   {(columnKey) => (
-                    <TableCell>{renderCell(item, columnKey)}</TableCell>
+                    <TableCell>
+                      {isLoadingOrder ? (
+                        <QueueCellSkeleton columnKey={String(columnKey)} />
+                      ) : (
+                        renderCell(item as IWorkOrder, columnKey)
+                      )}
+                    </TableCell>
                   )}
                 </TableRow>
               )}

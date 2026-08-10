@@ -191,6 +191,9 @@ const woSlice = createSlice({
       .addCase(getWo.pending, (state) => {
         state.isLoadingOrder = true;
       })
+      .addCase(getWo.rejected, (state) => {
+        state.isLoadingOrder = false;
+      })
       .addCase(getWoDetail.fulfilled, (state, action) => {
         state.detail = action.payload;
         state.workOrder = action.payload;

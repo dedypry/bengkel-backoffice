@@ -6,13 +6,15 @@
             "register": "Service Registration",
             "stats": {
                 "total": "Total Queue",
+                "waiting_queue": "Waiting in Queue",
                 "waiting": "Waiting",
                 "processing": "In Progress",
+                "ready": "Ready for Pickup",
                 "completed": "Completed"
             },
             "tabs": {
-                "active": "On Progress",
-                "finish": "Finished",
+                "active": "All Active",
+                "finish": "Completed",
                 "cancel": "Cancelled"
             },
             "columns": {
@@ -40,6 +42,7 @@
             "detail_order": "Order Detail",
             "cancel_service": "Cancel Service",
             "empty": "No queue items at the moment",
+            "empty_desc": "Units checked in for service will appear here.",
             "search_placeholder": "Search plate number or name...",
             "filter_aria": "Queue filter",
             "table_aria": "Workshop Queue Table",

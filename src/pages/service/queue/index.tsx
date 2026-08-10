@@ -55,13 +55,19 @@ export default function QueuePage() {
         onAction={() => navigate("/service/add")}
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
         {[
           {
             label: t("service.queue.stats.total"),
             count: orders?.stats?.total || 0,
             color: "text-primary",
             barColor: "bg-primary",
+          },
+          {
+            label: t("service.queue.stats.waiting_queue"),
+            count: orders?.stats?.waiting_queue || 0,
+            color: "text-orange-600",
+            barColor: "bg-orange-500",
           },
           {
             label: t("service.queue.stats.waiting"),
@@ -74,6 +80,12 @@ export default function QueuePage() {
             count: orders?.stats?.processing || 0,
             color: "text-indigo-600",
             barColor: "bg-indigo-600",
+          },
+          {
+            label: t("service.queue.stats.ready"),
+            count: orders?.stats?.ready || 0,
+            color: "text-sky-600",
+            barColor: "bg-sky-500",
           },
           {
             label: t("service.queue.stats.completed"),
