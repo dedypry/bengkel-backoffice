@@ -399,7 +399,9 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                               }
                             />
                           ) : (
-                            <p className="text-center">{formatNumber(item.qty)}</p>
+                            <p className="text-center">
+                              {formatNumber(item.qty)}
+                            </p>
                           )}
                         </TableCell>
                         <TableCell className="text-gray-500 text-right">
@@ -468,7 +470,10 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                 </TableHeader>
                 <TableBody>
                   {[
-                    ...(data.services || []).map((e) => ({ ...e, type: "srv" })),
+                    ...(data.services || []).map((e) => ({
+                      ...e,
+                      type: "srv",
+                    })),
                   ].map((item: any, idx: number) => {
                     const find = services.find((e) => e.id === item.data?.id);
                     const editPrice = Number(find?.price ?? item.price ?? 0);
