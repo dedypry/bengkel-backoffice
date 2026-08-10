@@ -40,7 +40,7 @@ export function RevenueChart() {
           <div className="text-right">
             <p className="text-2xl font-black text-primary">
               {formatIDR(
-                Number(dashboard?.revenueComparison.lastTotal || 0),
+                Number(dashboard?.revenueComparison.currentTotal || 0),
                 "short",
               )}
             </p>
