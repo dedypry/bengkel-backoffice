@@ -15,10 +15,10 @@ import {
   Card,
   CardBody,
   Chip,
+  Divider,
   Input,
   Select,
   SelectItem,
-  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -28,6 +28,7 @@ import {
 } from "@heroui/react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { GridLoader } from "react-spinners";
 
 import ModalAddCategory from "./components/add-category";
 
@@ -63,6 +64,7 @@ export default function InventoryCategoryPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [detail, setDetail] = useState<IProductCategory>();
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState(categoryQuery.q || "");
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
 
@@ -79,9 +81,9 @@ export default function InventoryCategoryPage() {
     }
   }, [categoryQuery, company, dispatch]);
 
-  const searchBounce = debounce(
-    (q: string) => dispatch(setCategoryQuery({ q })),
-    800,
+  const searchDebounce = useMemo(
+    () => debounce((q: string) => dispatch(setCategoryQuery({ q })), 800),
+    [dispatch],
   );
 
   const stats = useMemo(() => {
@@ -118,6 +120,7 @@ export default function InventoryCategoryPage() {
   }
 
   function handleResetFilters() {
+    setSearch("");
     dispatch(
       setCategoryQuery({
         q: "",
@@ -135,7 +138,7 @@ export default function InventoryCategoryPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-10">
+    <div className="space-y-6 pb-10">
       <ModalAddCategory
         initialData={detail}
         open={modalOpen}
@@ -154,73 +157,76 @@ export default function InventoryCategoryPage() {
         }}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
           {
             label: t("inventory.categories.stats.total"),
             value: formatNumber(stats.total),
-            icon: Layers,
-            card: "border-violet-200 bg-violet-50/40",
-            iconWrap: "bg-violet-100 text-violet-600",
+            icon: <Layers className="text-gray-600" size={22} />,
+            color: "border-gray-200",
           },
           {
             label: t("inventory.categories.stats.active"),
             value: formatNumber(stats.activeCount),
-            icon: Tags,
-            card: "border-emerald-200 bg-emerald-50/40",
-            iconWrap: "bg-emerald-100 text-emerald-600",
+            icon: <Tags className="text-emerald-600" size={22} />,
+            color: "border-emerald-400",
           },
           {
             label: t("inventory.categories.stats.sub"),
             value: formatNumber(stats.subCategoryTotal),
-            icon: Package,
-            card: "border-sky-200 bg-sky-50/40",
-            iconWrap: "bg-sky-100 text-sky-600",
+            icon: <Package className="text-gray-600" size={22} />,
+            color: "border-gray-200",
           },
           {
             label: t("inventory.categories.stats.with_products"),
             value: formatNumber(stats.withProducts),
-            icon: Package,
-            card: "border-amber-200 bg-amber-50/40",
-            iconWrap: "bg-amber-100 text-amber-600",
+            icon: <Package className="text-amber-600" size={22} />,
+            color: "border-amber-400",
           },
-        ].map((item) => (
+        ].map((stat) => (
           <Card
-            key={item.label}
-            className={`border shadow-sm ${item.card}`}
-            shadow="none"
+            key={stat.label}
+            className={`border-l-4 ${stat.color} border-y border-r border-primary`}
           >
             <CardBody className="flex flex-row items-center gap-4 p-4">
-              <div className={`p-3 rounded-xl ${item.iconWrap}`}>
-                <item.icon size={20} />
-              </div>
+              <div className="rounded-xl bg-gray-50 p-3">{stat.icon}</div>
               <div>
-                <p className="text-[10px] font-bold uppercase text-gray-500">
-                  {item.label}
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                  {stat.label}
                 </p>
-                <p className="text-xl font-black text-gray-700">{item.value}</p>
+                <p className="text-xl font-black tracking-tight text-gray-800">
+                  {stat.value}
+                </p>
               </div>
             </CardBody>
           </Card>
         ))}
       </div>
 
-      <Card className="border border-gray-200 shadow-sm" shadow="none">
-        <CardBody className="flex flex-col gap-4 p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <Card>
+        <div className="flex flex-col gap-4 px-4 pt-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             <Input
               isClearable
-              defaultValue={query.q}
-              label={t("inventory.categories.search_label")}
+              className="w-full"
               placeholder={t("inventory.categories.search_placeholder")}
               startContent={<Search className="size-4 text-gray-400" />}
+              value={search}
               variant="bordered"
-              onClear={() => updateQuery({ q: "" })}
-              onValueChange={searchBounce}
+              onClear={() => {
+                setSearch("");
+                updateQuery({ q: "" });
+              }}
+              onValueChange={(value) => {
+                setSearch(value);
+                searchDebounce(value);
+              }}
             />
 
             <Select
-              label={t("common.status")}
+              aria-label={t("common.status")}
+              className="w-full"
+              placeholder={t("common.status")}
               selectedKeys={[query.is_active || "all"]}
               variant="bordered"
               onSelectionChange={(keys) => {
@@ -241,7 +247,9 @@ export default function InventoryCategoryPage() {
             </Select>
 
             <Select
-              label={t("inventory.categories.table.products")}
+              aria-label={t("inventory.categories.table.products")}
+              className="w-full"
+              placeholder={t("inventory.categories.table.products")}
               selectedKeys={[query.productFilter || "all"]}
               variant="bordered"
               onSelectionChange={(keys) => {
@@ -262,7 +270,9 @@ export default function InventoryCategoryPage() {
             </Select>
 
             <Select
-              label={t("inventory.categories.table.sub_category")}
+              aria-label={t("inventory.categories.table.sub_category")}
+              className="w-full"
+              placeholder={t("inventory.categories.table.sub_category")}
               selectedKeys={[query.subCategoryFilter || "all"]}
               variant="bordered"
               onSelectionChange={(keys) => {
@@ -283,7 +293,9 @@ export default function InventoryCategoryPage() {
             </Select>
 
             <Select
-              label={t("inventory.categories.filter.sort")}
+              aria-label={t("inventory.categories.filter.sort")}
+              className="w-full md:col-span-2 xl:col-span-1"
+              placeholder={t("inventory.categories.filter.sort")}
               selectedKeys={[
                 `${query.sortBy || "created_at"}:${query.sortOrder || "desc"}`,
               ]}
@@ -331,138 +343,123 @@ export default function InventoryCategoryPage() {
               {t("inventory.categories.filter.reset")}
             </Button>
           </div>
-        </CardBody>
-      </Card>
+        </div>
 
-      <Card className="border border-gray-200 shadow-sm" shadow="none">
-        <CardBody className="p-0">
-          {loading ? (
-            <div className="flex justify-center py-16">
-              <Spinner color="primary" />
-            </div>
-          ) : (
-            <Table
-              isStriped
-              removeWrapper
-              aria-label="Tabel kategori produk"
-              classNames={{
-                th: "bg-gray-50 text-[10px] font-black uppercase text-gray-500",
-                td: "py-4 px-4 border-b border-gray-100",
-              }}
-            >
-              <TableHeader>
-                <TableColumn width={280}>
-                  {t("inventory.categories.table.category")}
-                </TableColumn>
-                <TableColumn>
-                  {t("inventory.categories.table.sub_category")}
-                </TableColumn>
-                <TableColumn>
-                  {t("inventory.categories.table.description")}
-                </TableColumn>
-                <TableColumn align="center">
-                  {t("inventory.categories.table.products")}
-                </TableColumn>
-                <TableColumn align="center">
-                  {t("inventory.categories.table.status")}
-                </TableColumn>
-                <TableColumn align="end">
-                  {t("inventory.categories.table.created")}
-                </TableColumn>
-                <TableColumn align="center" width={80}>
-                  {t("inventory.categories.table.actions")}
-                </TableColumn>
-              </TableHeader>
-              <TableBody emptyContent={t("inventory.categories.table.empty")}>
-                {categories.map((cat) => (
-                  <TableRow key={cat.id}>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <p className="font-black text-gray-700 uppercase text-xs">
-                          {cat.name}
-                        </p>
-                        <p className="text-[10px] text-gray-400 font-mono">
-                          {cat.slug}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {cat.children?.length ? (
-                        <div className="flex flex-wrap gap-1 max-w-xs">
-                          {cat.children.map((child) => (
-                            <Chip
-                              key={child.id}
-                              className="text-[10px] font-bold"
-                              size="sm"
-                              variant="flat"
-                            >
-                              {child.name}
-                            </Chip>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400 italic">
-                          {t("inventory.categories.table.no_sub")}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-xs text-gray-500 line-clamp-2 max-w-xs">
-                        {cat.description ||
-                          t("inventory.categories.table.no_description")}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-center">
-                        <p className="font-black text-gray-700">
-                          {formatNumber(getProductCount(cat))}
-                        </p>
-                        <p className="text-[10px] text-gray-400 uppercase">
-                          {t("inventory.categories.table.items")}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center">
+        <Table
+          aria-label={t("inventory.categories.table.category")}
+          isLoading={loading}
+          loadingContent={<GridLoader color="#0096FF" />}
+          shadow="none"
+        >
+          <TableHeader>
+            <TableColumn>
+              {t("inventory.categories.table.category")}
+            </TableColumn>
+            <TableColumn>
+              {t("inventory.categories.table.sub_category")}
+            </TableColumn>
+            <TableColumn>
+              {t("inventory.categories.table.description")}
+            </TableColumn>
+            <TableColumn align="center">
+              {t("inventory.categories.table.products")}
+            </TableColumn>
+            <TableColumn align="center">
+              {t("inventory.categories.table.status")}
+            </TableColumn>
+            <TableColumn align="end">
+              {t("inventory.categories.table.created")}
+            </TableColumn>
+            <TableColumn align="center"> </TableColumn>
+          </TableHeader>
+          <TableBody emptyContent={t("inventory.categories.table.empty")}>
+            {categories.map((cat) => (
+              <TableRow key={cat.id}>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-small font-bold uppercase text-gray-800">
+                      {cat.name}
+                    </span>
+                    <span className="font-mono text-[10px] italic tracking-tighter text-gray-400">
+                      {cat.slug}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {cat.children?.length ? (
+                    <div className="flex max-w-xs flex-wrap gap-1">
+                      {cat.children.map((child) => (
                         <Chip
-                          color={cat.is_active ? "success" : "default"}
+                          key={child.id}
+                          classNames={{
+                            base: "bg-gray-100 border-none h-6",
+                            content:
+                              "text-[10px] font-black uppercase text-gray-600",
+                          }}
                           size="sm"
                           variant="flat"
                         >
-                          {cat.is_active
-                            ? t("inventory.categories.filter.active")
-                            : t("inventory.categories.filter.inactive")}
+                          {child.name}
                         </Chip>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-xs text-gray-500 text-end">
-                        {dayjs(cat.created_at).format("DD MMM YYYY")}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center">
-                        <TableAction
-                          isDeleteSeparator={false}
-                          viewDetail={false}
-                          onDelete={() => handleDelete(cat.id)}
-                          onEdit={() => handleEditData(cat)}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardBody>
-      </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-tiny italic text-gray-400">
+                      {t("inventory.categories.table.no_sub")}
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <span className="line-clamp-2 max-w-xs text-tiny text-gray-500">
+                    {cat.description ||
+                      t("inventory.categories.table.no_description")}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="text-center">
+                    <span className="text-small font-black text-gray-700">
+                      {formatNumber(getProductCount(cat))}
+                    </span>
+                    <p className="text-[9px] uppercase text-gray-400">
+                      {t("inventory.categories.table.items")}
+                    </p>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    className="font-bold text-tiny"
+                    color={cat.is_active ? "success" : "default"}
+                    variant="dot"
+                  >
+                    {cat.is_active
+                      ? t("inventory.categories.filter.active")
+                      : t("inventory.categories.filter.inactive")}
+                  </Chip>
+                </TableCell>
+                <TableCell>
+                  <span className="text-tiny text-gray-500">
+                    {dayjs(cat.created_at).format("DD MMM YYYY")}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <TableAction
+                    isDeleteSeparator={false}
+                    viewDetail={false}
+                    onDelete={() => handleDelete(cat.id)}
+                    onEdit={() => handleEditData(cat)}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      <Card className="border border-gray-200 shadow-sm" shadow="none">
-        <CardBody className="flex flex-row gap-3 p-4">
-          <AlertCircle className="size-5 text-gray-500 shrink-0" />
-          <p className="text-tiny text-gray-600 leading-relaxed font-medium">
-            <strong className="text-gray-900 uppercase tracking-tighter mr-1">
+        <Divider />
+
+        <CardBody className="flex flex-row gap-3 py-4">
+          <AlertCircle className="size-4 shrink-0 text-gray-400" />
+          <p className="text-tiny font-medium leading-relaxed text-gray-500">
+            <strong className="mr-1 uppercase tracking-tighter text-gray-700">
               {t("inventory.categories.note_title")}
             </strong>
             {t("inventory.categories.note_body")}

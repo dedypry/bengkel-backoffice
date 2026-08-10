@@ -1,57 +1,78 @@
 import { Card, CardBody, CardHeader, Skeleton } from "@heroui/react";
 
-export default function TopPartSkeleton() {
+type ViewMode = "grid" | "table";
+
+function GridSkeleton() {
   return (
-    <div className="space-y-10 pb-20 px-4 max-w-7xl mx-auto">
-      {/* Header Skeleton */}
-      <div className="flex flex-col gap-2">
-        <Skeleton className="w-48 h-8 rounded-sm" />
-        <Skeleton className="w-96 h-4 rounded-sm" />
-      </div>
-
-      {/* Grid Skeleton (6 Items) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[...Array(6)].map((_, index) => (
-          <Card key={index} className="p-4 shadow-none border border-gray-100">
-            <CardHeader className="flex flex-col items-start px-4 pt-6 relative">
-              {/* Floating Rank Indicator Skeleton */}
-              <div className="absolute top-0 right-2">
-                <Skeleton className="rounded-full w-20 h-6" />
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Card key={index} className="border border-gray-100">
+          <CardHeader className="relative px-5 pb-0 pt-5">
+            <Skeleton className="absolute right-3 top-3 h-6 w-20 rounded-full" />
+            <div className="mt-2 w-full space-y-2">
+              <Skeleton className="h-4 w-3/4 rounded-sm" />
+              <Skeleton className="h-3 w-1/2 rounded-sm" />
+            </div>
+          </CardHeader>
+          <CardBody className="space-y-5 px-5 pb-5 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Skeleton className="h-2.5 w-16 rounded-sm" />
+                <Skeleton className="h-6 w-20 rounded-sm" />
               </div>
-
-              <div className="text-start mt-2 w-full space-y-2">
-                <Skeleton className="w-3/4 h-5 rounded-sm" />
-                <Skeleton className="w-1/2 h-3 rounded-sm" />
+              <div className="space-y-2">
+                <Skeleton className="h-2.5 w-20 rounded-sm" />
+                <Skeleton className="h-6 w-24 rounded-sm" />
               </div>
-            </CardHeader>
+            </div>
+            <Skeleton className="h-20 w-full rounded-sm" />
+          </CardBody>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
-            <CardBody className="space-y-6">
-              {/* Metrics Skeleton */}
-              <div className="flex flex-col gap-4">
-                <div className="space-y-2">
-                  <Skeleton className="w-16 h-2 rounded-sm" />
-                  <Skeleton className="w-24 h-6 rounded-sm" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="w-20 h-2 rounded-sm" />
-                  <Skeleton className="w-32 h-6 rounded-sm" />
-                </div>
-              </div>
-
-              {/* Stock Section Skeleton */}
-              <div className="p-2 rounded-sm border border-gray-50 bg-gray-50/30">
-                <div className="flex gap-4 items-center">
-                  <Skeleton className="size-11 rounded-sm" />
-                  <div className="space-y-2">
-                    <Skeleton className="w-20 h-2 rounded-sm" />
-                    <Skeleton className="w-14 h-5 rounded-sm" />
-                  </div>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
+function TableSkeleton() {
+  return (
+    <Card className="overflow-hidden border border-gray-100">
+      <div className="space-y-0 p-2">
+        <div className="flex gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3">
+          {Array.from({ length: 7 }).map((_, index) => (
+            <Skeleton key={index} className="h-4 flex-1 rounded-sm" />
+          ))}
+        </div>
+        {Array.from({ length: 6 }).map((_, rowIndex) => (
+          <div
+            key={rowIndex}
+            className="flex items-center gap-3 border-b border-gray-100 px-4 py-4 last:border-none"
+          >
+            <Skeleton className="h-6 w-10 shrink-0 rounded-full" />
+            <Skeleton className="h-10 w-36 shrink-0 rounded-sm" />
+            <Skeleton className="hidden h-4 flex-1 rounded-sm sm:block" />
+            <Skeleton className="h-4 w-16 rounded-sm" />
+            <Skeleton className="hidden h-4 w-24 rounded-sm md:block" />
+            <Skeleton className="h-4 w-14 rounded-sm" />
+            <Skeleton className="hidden h-6 w-20 rounded-full lg:block" />
+          </div>
         ))}
       </div>
+    </Card>
+  );
+}
+
+export default function TopPartSkeleton({
+  viewMode = "table",
+}: {
+  viewMode?: ViewMode;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-end gap-2">
+        <Skeleton className="h-8 w-8 rounded-md" />
+        <Skeleton className="h-8 w-8 rounded-md" />
+      </div>
+      {viewMode === "grid" ? <GridSkeleton /> : <TableSkeleton />}
     </div>
   );
 }

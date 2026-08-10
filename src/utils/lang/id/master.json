@@ -491,6 +491,8 @@
             "subtitle": "Daftar Order Pembelian Sparepart Bengkel",
             "add": "Buat PO Baru",
             "search_placeholder": "Cari PO",
+            "filter_supplier": "Filter berdasarkan supplier",
+            "filter_date": "Filter tanggal PO",
             "bulk_download_invoice": "Download {{count}} Invoice (ZIP)",
             "create_title": "Buat PO",
             "edit_title": "Edit PO",

@@ -1,6 +1,8 @@
 import { Box, Download, Plus, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
+  Autocomplete,
+  AutocompleteItem,
   Button,
   Input,
   Selection,
@@ -15,6 +17,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GridLoader } from "react-spinners";
+import dayjs from "dayjs";
 
 import { ModalPoDetail } from "./modal-detail";
 
@@ -34,6 +37,7 @@ import { setPoQuery } from "@/stores/features/po/po-slice";
 import PageSize from "@/components/page-size";
 import debounce from "@/utils/helpers/debounce";
 import { handleDownload } from "@/utils/helpers/global";
+import DateRangePicker from "@/components/forms/date-range-picker";
 
 export function PoPage() {
   const { t } = useTranslation();
@@ -114,6 +118,14 @@ export function PoPage() {
 
   const searchDebounce = debounce((q) => dispatch(setPoQuery({ q })), 500);
 
+  const dateRangeValue = useMemo(
+    () => ({
+      start: poQuery.date_from ? dayjs(poQuery.date_from).toDate() : undefined,
+      end: poQuery.date_to ? dayjs(poQuery.date_to).toDate() : undefined,
+    }),
+    [poQuery.date_from, poQuery.date_to],
+  );
+
   return (
     <>
       <ModalPoDetail open={open} onOpen={setOpen} />
@@ -133,38 +145,40 @@ export function PoPage() {
             onPageChange={(page) => dispatch(setPoQuery({ page }))}
           />
         }
+        className="mt-5"
         selectedKeys={selectedKeys}
         selectionMode="multiple"
         topContent={
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-2">
-              <PageSize
-                selectedKeys={[poQuery.pageSize.toString()]}
-                onSelectionChange={(key) => {
-                  const val = Array.from(key)[0].toString();
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <PageSize
+                  selectedKeys={[poQuery.pageSize.toString()]}
+                  onSelectionChange={(key) => {
+                    const val = Array.from(key)[0].toString();
 
-                  dispatch(setPoQuery({ pageSize: val }));
-                }}
-              />
-              {hasSelection ? (
-                <Button
-                  color="success"
-                  isLoading={bulkDownloading}
-                  size="sm"
-                  startContent={<Download size={16} />}
-                  variant="flat"
-                  onPress={handleBulkDownload}
-                >
-                  {t("purchase.po.bulk_download_invoice", {
-                    count: selectedIds.length,
-                  })}
-                </Button>
-              ) : null}
-            </div>
-            <div>
+                    dispatch(setPoQuery({ pageSize: val }));
+                  }}
+                />
+                {hasSelection ? (
+                  <Button
+                    color="success"
+                    isLoading={bulkDownloading}
+                    size="sm"
+                    startContent={<Download size={16} />}
+                    variant="flat"
+                    onPress={handleBulkDownload}
+                  >
+                    {t("purchase.po.bulk_download_invoice", {
+                      count: selectedIds.length,
+                    })}
+                  </Button>
+                ) : null}
+              </div>
               <Input
+                className="w-full sm:max-w-xs"
                 endContent={
-                  search && (
+                  search ? (
                     <X
                       className="cursor-pointer"
                       size={18}
@@ -173,7 +187,7 @@ export function PoPage() {
                         dispatch(setPoQuery({ q: "" }));
                       }}
                     />
-                  )
+                  ) : null
                 }
                 placeholder={t("purchase.po.search_placeholder")}
                 startContent={<Search size={18} />}
@@ -182,6 +196,46 @@ export function PoPage() {
                   setSearch(val);
                   searchDebounce(val);
                 }}
+              />
+            </div>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <Autocomplete
+                aria-label={t("purchase.po.filter_supplier")}
+                className="w-full lg:max-w-xs"
+                classNames={{
+                  clearButton: "text-gray-500",
+                }}
+                defaultItems={list?.stats?.suppliers ?? []}
+                placeholder={t("purchase.po.filter_supplier")}
+                selectedKey={(poQuery.supplier_id || "").toString()}
+                onClear={() => dispatch(setPoQuery({ supplier_id: undefined }))}
+                onSelectionChange={(val) => {
+                  if (val) {
+                    dispatch(
+                      setPoQuery({
+                        supplier_id: val ? Number(val) : undefined,
+                      }),
+                    );
+                  }
+                }}
+              >
+                {(item: { id: number; name: string }) => (
+                  <AutocompleteItem key={item.id}>{item.name}</AutocompleteItem>
+                )}
+              </Autocomplete>
+              <DateRangePicker
+                aria-label={t("purchase.po.filter_date")}
+                className="w-full lg:max-w-sm"
+                placeholder={t("purchase.po.filter_date")}
+                value={dateRangeValue}
+                onChange={(val) =>
+                  dispatch(
+                    setPoQuery({
+                      date_from: val?.start,
+                      date_to: val?.end,
+                    }),
+                  )
+                }
               />
             </div>
           </div>

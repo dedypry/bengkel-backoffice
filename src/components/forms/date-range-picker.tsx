@@ -174,21 +174,20 @@ const idInputRanges = [
   },
 ];
 
-interface Props {
-  value: {
-    start?: Date;
-    end?: Date;
-  };
+interface DateRangeValue {
+  start?: Date;
+  end?: Date;
+}
+
+interface Props
+  extends Omit<InputProps, "value" | "onChange" | "defaultValue"> {
+  value: DateRangeValue;
   format?: string;
   showTime?: boolean;
+  onChange?: (range: { start?: string; end?: string }) => void;
 }
 function CustomDateRangePicker(
-  {
-    value: dates,
-    format = "DD MMM YY",
-    showTime,
-    ...props
-  }: Props & InputProps,
+  { value: dates, format = "DD MMM YY", showTime, onChange, ...props }: Props,
   ref: React.Ref<HTMLInputElement>,
 ) {
   const [open, setOpen] = useState(false);
@@ -210,11 +209,11 @@ function CustomDateRangePicker(
       ...dateRange,
       ...dateR,
     });
-    if (props.onChange) {
-      props.onChange({
+    if (onChange) {
+      onChange({
         start: dayjs(dateR.startDate).format("YYYY-MM-DD"),
         end: dayjs(dateR.endDate).format("YYYY-MM-DD"),
-      } as any);
+      });
     }
   }
 
@@ -246,8 +245,11 @@ function CustomDateRangePicker(
         [key]: dayjs(val?.toDate()).toDate(),
       };
 
-      if (props.onChange) {
-        props.onChange(dateR as any);
+      if (onChange) {
+        onChange({
+          start: dayjs(dateR.startDate).format("YYYY-MM-DD"),
+          end: dayjs(dateR.endDate).format("YYYY-MM-DD"),
+        });
       }
 
       return dateR;
@@ -271,11 +273,11 @@ function CustomDateRangePicker(
                 endDate: null,
                 key: "target",
               } as any);
-              if (props.onChange) {
-                props.onChange({
+              if (onChange) {
+                onChange({
                   start: "",
                   end: "",
-                } as any);
+                });
               }
             }}
           >

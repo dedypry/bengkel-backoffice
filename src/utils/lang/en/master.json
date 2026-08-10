@@ -491,6 +491,8 @@
             "subtitle": "Workshop Spare Part Purchase Order List",
             "add": "Create New PO",
             "search_placeholder": "Search PO",
+            "filter_supplier": "Filter by supplier",
+            "filter_date": "Filter PO date",
             "bulk_download_invoice": "Download {{count}} Invoices (ZIP)",
             "create_title": "Create PO",
             "edit_title": "Edit PO",
