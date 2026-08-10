@@ -6,19 +6,18 @@ import { Outlet } from "react-router-dom";
 import { MobileDrawer } from "./sidebar/mobile-drawer";
 import { Sidebar } from "./sidebar/sidebar";
 import LanguageSwitch from "./partials/language-switch";
+import MenuSearch from "./partials/menu-search";
 import NotificationDropdown from "./partials/notification";
 import UserMenu from "./partials/user-dropdown";
 
 import { useSidebar } from "@/context/sidebar-context";
 import AuthGuard from "@/utils/guard/auth-guard";
-import { useAppSelector } from "@/stores/hooks";
 
 interface Props {
   children?: ReactNode;
 }
 
 export default function AdminLayout({ children }: Props) {
-  const { company } = useAppSelector((state) => state.auth);
   const { isMobile, toggleCollapsed, toggleMobile } = useSidebar();
 
   const toggleFullScreen = () => {
@@ -44,10 +43,10 @@ export default function AdminLayout({ children }: Props) {
             isBlurred={false}
             maxWidth="full"
           >
-            <NavbarContent>
+            <NavbarContent className="min-w-0 flex-1 gap-2">
               <Button
                 isIconOnly
-                className="text-primary"
+                className="shrink-0 text-primary"
                 radius="full"
                 size="sm"
                 variant="light"
@@ -55,9 +54,7 @@ export default function AdminLayout({ children }: Props) {
               >
                 <MenuIcon />
               </Button>
-              <p className="truncate font-semibold text-primary">
-                {company?.name}
-              </p>
+              <MenuSearch />
             </NavbarContent>
             <NavbarContent justify="end">
               <Button isIconOnly variant="ghost" onPress={toggleFullScreen}>
