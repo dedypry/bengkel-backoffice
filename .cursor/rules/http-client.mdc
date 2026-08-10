@@ -1,0 +1,34 @@
+---
+description: API calls bengkel-admin wajib pakai http axios, bukan fetch manual
+alwaysApply: true
+---
+
+# HTTP Client (bengkel-admin)
+
+Semua request ke backend API **wajib** pakai `http` dari `@/utils/libs/axios`.
+
+## Wajib
+
+- Import: `import { http } from "@/utils/libs/axios";`
+- Path relatif ke `baseURL` (mis. `http.post("/notifications/pusher/auth", body)`)
+- **Jangan** `fetch(\`${config.api}/...\`)` — duplikasi auth header, tanpa interceptor 401, raw error handling
+
+## Kenapa
+
+`http` sudah attach `Authorization: Bearer` dari cookie, `forceLogout` on 401, dan `baseURL` dari config.
+
+## Contoh
+
+```typescript
+// ❌ BAD
+fetch(`${config.api}/user/sessions`, {
+  headers: { Authorization: `Bearer ${token}` },
+});
+
+// ✅ GOOD
+const { data } = await http.get("/user/sessions");
+```
+
+## Pengecualian
+
+Hanya jika bukan backend API (CDN, third-party tanpa auth proyek) — komentar singkat kenapa `fetch` dipakai.

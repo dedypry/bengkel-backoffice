@@ -31,5 +31,15 @@
 ## Pusher user channel — jangan disconnect/unsubscribe di cleanup hook — 2026-08-10
 - **Konteks:** Logout realtime sesi gagal; notifikasi memutus listener `session.revoked`.
 - **Penyebab:** cleanup `disconnectPusher`/`unsubscribe`; listener menunggu Redux `user.id`; auth header Pusher stale; tanpa `session_id` event diabaikan.
-- **Pola:** `getUserChannel` + `bind` only; subscribe pakai `getUserIdFromToken()` (JWT); custom Pusher `authorizer` + token fresh via `fetch`; handler `session.revoked` → `forceLogout` / verify `GET /user/sessions`; `window.location.replace('/login')`.
+- **Pola:** `getUserChannel` + `bind` only; subscribe pakai `getUserIdFromToken()` (JWT); custom Pusher `authorizer` via `http.post('/notifications/pusher/auth')` (bukan `fetch`); handler `session.revoked` → `forceLogout` / verify `GET /user/sessions`; `window.location.replace('/login')`.
 - **File:** `src/utils/libs/pusher.ts`, `src/hooks/use-user-realtime.ts`, `src/utils/helpers/auth-session.ts`
+
+## Warna teks secondary bukan default — 2026-08-10
+- **Konteks:** Halaman log aktivitas pakai `text-default-*` — kurang selaras brand.
+- **Pola:** Label `text-secondary-500`, body `text-secondary-600/700`, muted `text-secondary-400`, border `border-secondary-100`. Set HeroUI `classNames` di Table/User/Input/Modal.
+- **File:** `src/pages/logs/activity/`, `src/pages/logs/components/activity-body-modal.tsx`, `logs-filters-bar.tsx`, rule `frontend-gotchas.mdc`
+
+## HTTP client — pakai axios `http`, bukan fetch — 2026-08-10
+- **Konteks:** Pusher auth pakai `fetch` manual padahal sudah ada `src/utils/libs/axios.ts`.
+- **Pola:** Semua call backend API → `http.get/post/...` path relatif; auth + 401 logout otomatis. Rule `http-client.mdc`.
+- **File:** `src/utils/libs/pusher.ts`, `src/utils/libs/axios.ts`

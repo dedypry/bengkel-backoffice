@@ -58,34 +58,37 @@ export const authSlice = createSlice({
           (e) => e.id === action.payload.company_id,
         )!;
         const userPermissions: string[] = action.payload.permissions || [];
+        const userRoleSlugs =
+          action.payload.roles?.map((role) => role.slug) ?? [];
 
-        const filterNav = (navItems: any[]): any[] => {
-          return (
-            navItems
-              .filter((nav) => {
-                // 1. Cek Permission (jika ada)
-                const hasPermission = nav.permissions
-                  ? nav.permissions.some((p: string) =>
-                      userPermissions.includes(p),
-                    )
-                  : true;
+        const filterNav = (navItems: any[], parentRoles?: string[]): any[] => {
+          return navItems
+            .filter((nav) => {
+              const requiredRoles = nav.roles ?? parentRoles;
+              const hasRole = requiredRoles
+                ? requiredRoles.some((role: string) =>
+                    userRoleSlugs.includes(role),
+                  )
+                : true;
+              const hasPermission = nav.permissions
+                ? nav.permissions.some((p: string) =>
+                    userPermissions.includes(p),
+                  )
+                : true;
 
-                return hasPermission;
-              })
-              .map((nav): any => {
-                // 3. Jika punya sub-items, filter juga sub-itemsnya secara rekursif
-                if (nav.items) {
-                  return {
-                    ...nav,
-                    items: filterNav(nav.items),
-                  };
-                }
+              return hasRole && hasPermission;
+            })
+            .map((nav): any => {
+              if (nav.items) {
+                return {
+                  ...nav,
+                  items: filterNav(nav.items, nav.roles ?? parentRoles),
+                };
+              }
 
-                return nav;
-              })
-              // 4. Buang menu utama jika sub-items nya kosong (opsional)
-              .filter((nav) => !nav.items || (nav.items || []).length > 0)
-          );
+              return nav;
+            })
+            .filter((nav) => !nav.items || (nav.items || []).length > 0);
         };
 
         state.navigations = filterNav(navigation);

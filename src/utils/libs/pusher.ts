@@ -2,31 +2,19 @@ import Cookies from "js-cookie";
 import Pusher, { type Channel } from "pusher-js";
 
 import config from "@/config/api";
+import { http } from "@/utils/libs/axios";
 
 let pusherClient: Pusher | null = null;
 let cachedToken: string | null = null;
 const userChannels = new Map<number, Channel>();
 
 function authorizeChannel(socketId: string, channelName: string) {
-  const token = Cookies.get("token");
-
-  return fetch(`${config.api}/notifications/pusher/auth`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({
+  return http
+    .post("/notifications/pusher/auth", {
       socket_id: socketId,
       channel_name: channelName,
-    }),
-  }).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(`Pusher auth failed (${response.status})`);
-    }
-
-    return response.json();
-  });
+    })
+    .then(({ data }) => data);
 }
 
 export function getPusherClient() {

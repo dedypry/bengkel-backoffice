@@ -277,6 +277,27 @@ export const navigation = [
     ],
   },
   {
+    roles: ["super-admin"],
+    header: "Logs",
+    i18nKey: "nav.logs.header",
+    href: "/logs",
+    icon: "ScrollText",
+    items: [
+      {
+        title: "Log Login",
+        i18nKey: "nav.logs.login",
+        href: "login",
+        icon: "LogIn",
+      },
+      {
+        title: "Log Aktivitas",
+        i18nKey: "nav.logs.activity",
+        href: "activity",
+        icon: "Activity",
+      },
+    ],
+  },
+  {
     roles: ["super-admin", "owner", "hrd"],
     header: "Human Resources",
     i18nKey: "nav.hr.header",

@@ -142,6 +142,68 @@
             "kiosk": "Customer Kiosk",
             "display": "Queue Display (TV)",
             "service_display": "Service Status Display (TV)"
+        },
+        "logs": {
+            "header": "Logs",
+            "login": "Login Log",
+            "activity": "Activity Log"
+        }
+    },
+    "logs": {
+        "login": {
+            "title": "Login Log",
+            "subtitle": "User login history from all devices, including ended sessions.",
+            "search_placeholder": "Search name, email, device, or IP...",
+            "empty": "No login logs in this period.",
+            "columns": {
+                "user": "User",
+                "device": "Device",
+                "platform": "Platform",
+                "browser": "Browser",
+                "ip": "IP Address",
+                "login_at": "Login Time",
+                "last_used": "Last Active",
+                "status": "Status"
+            },
+            "status": {
+                "active": "Active",
+                "revoked": "Ended",
+                "expired": "Expired"
+            }
+        },
+        "activity": {
+            "title": "Activity Log",
+            "subtitle": "Audit trail of user mutation actions in the system.",
+            "search_placeholder": "Search user, URL, or action...",
+            "empty": "No activity logs in this period.",
+            "detail_title": "Activity Log Detail",
+            "view_detail": "View detail",
+            "columns": {
+                "user": "User",
+                "action": "Action",
+                "url": "URL",
+                "session": "Session",
+                "status": "Status",
+                "body": "Detail",
+                "created_at": "Time"
+            },
+            "status": {
+                "success": "Success",
+                "error": "Error"
+            },
+            "session": "Login Session",
+            "request_body": "Request Body",
+            "response_message": "Response"
+        },
+        "filter": {
+            "date_range": "Period",
+            "search": "Search",
+            "action": "Action",
+            "action_placeholder": "All actions",
+            "url": "URL",
+            "url_placeholder": "All URLs",
+            "status": "Status",
+            "status_placeholder": "All statuses"
         }
     },
     "cashier": {

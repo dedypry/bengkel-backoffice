@@ -53,6 +53,8 @@ import PoInvoiceEditPage from "./pages/purchase/invoice/edit";
 import QueueKioskPage from "./pages/self-queue/kiosk";
 import QueueDisplayPage from "./pages/self-queue/display";
 import ServiceDisplayPage from "./pages/service/display";
+import LoginLogsPage from "./pages/logs/login";
+import ActivityLogsPage from "./pages/logs/activity";
 
 import HomePage from "@/pages/dashboard/index";
 
@@ -144,6 +146,10 @@ function App() {
           <Route element={<PayrollPage />} path="payroll" />
           <Route element={<PayrollDetailPage />} path="payroll/:id" />
           <Route element={<RolesPage />} path="roles" />
+        </Route>
+        <Route path="/logs">
+          <Route element={<LoginLogsPage />} path="login" />
+          <Route element={<ActivityLogsPage />} path="activity" />
         </Route>
       </Route>
     </Routes>

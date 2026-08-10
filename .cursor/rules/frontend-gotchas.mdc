@@ -45,3 +45,10 @@ Sebelum edit Table, Redux selector, date picker, atau loading state — cek `.cu
 - Pakai `bindUserChannelEvent` / `getUserChannel` — cleanup hanya `unbind` handler.
 - `disconnectPusher` hanya lewat `forceLogout`. Listener revoke sesi: `useUserRealtime` di admin layout.
 - Sync `session_id`: `GET /user/sessions` → item `is_current` → `saveAuthSession`.
+
+## Warna teks — pakai secondary, bukan default — 2026-08-10
+
+- **Jangan** `text-default-*` / `border-default-*` / `bg-default-*` untuk label, metadata, isi tabel, dan panel filter halaman admin.
+- **Pakai:** label/caption → `text-secondary-500`; body/teks utama → `text-secondary-600` / `text-secondary-700`; muted/kosong → `text-secondary-400`; border/panel → `border-secondary-100` / `bg-secondary-50`.
+- HeroUI: set `classNames` pada `Table`, `User`, `Input`, `ModalContent` — jangan andalkan warna default theme.
+- **Contoh:** `src/pages/logs/activity/index.tsx`, `src/pages/logs/components/activity-body-modal.tsx`, `src/pages/logs/components/logs-filters-bar.tsx`

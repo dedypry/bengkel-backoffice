@@ -39,6 +39,20 @@ import {
 import dayjs from "dayjs";
 import { dateFormat } from "@/utils/helpers/formater";
 
+const DATETIME_RANGE_FORMAT = "YYYY-MM-DD HH:mm:ss";
+
+function isValidDate(date: Date | null | undefined) {
+  return date instanceof Date && !Number.isNaN(date.getTime());
+}
+
+function toTimeInputValue(date: Date | null | undefined) {
+  if (!isValidDate(date)) {
+    return null;
+  }
+
+  return parseAbsoluteToLocal(dayjs(date).toISOString());
+}
+
 /** Preset kiri + Tahun ini / Tahun lalu (label bahasa Indonesia) */
 const idStaticRanges = createStaticRanges([
   {
@@ -199,21 +213,38 @@ function CustomDateRangePicker(
     key: "target",
   });
 
-  function handleChooseDateRange(event: RangeKeyDict) {
-    const dateR = {
-      startDate: event.target.startDate!,
-      endDate: event.target.endDate!,
-    };
+  const displayFormat = showTime ? "DD MMM YYYY HH:mm" : format;
 
-    setDateRange({
-      ...dateRange,
-      ...dateR,
-    });
-    if (onChange) {
-      onChange({
-        start: dayjs(dateR.startDate).format("YYYY-MM-DD"),
-        end: dayjs(dateR.endDate).format("YYYY-MM-DD"),
-      });
+  function formatRangeOutput(startDate: Date, endDate: Date) {
+    if (!isValidDate(startDate) || !isValidDate(endDate)) {
+      return { start: "", end: "" };
+    }
+
+    if (showTime) {
+      return {
+        start: dayjs(startDate).format(DATETIME_RANGE_FORMAT),
+        end: dayjs(endDate).format(DATETIME_RANGE_FORMAT),
+      };
+    }
+
+    return {
+      start: dayjs(startDate).format("YYYY-MM-DD"),
+      end: dayjs(endDate).format("YYYY-MM-DD"),
+    };
+  }
+
+  function handleChooseDateRange(event: RangeKeyDict) {
+    const startDate = event.target.startDate;
+    const endDate = event.target.endDate;
+
+    setDateRange((prev) => ({
+      ...prev,
+      startDate: isValidDate(startDate) ? startDate! : prev.startDate,
+      endDate: isValidDate(endDate) ? endDate! : prev.endDate,
+    }));
+
+    if (onChange && isValidDate(startDate) && isValidDate(endDate)) {
+      onChange(formatRangeOutput(startDate!, endDate!));
     }
   }
 
@@ -245,31 +276,50 @@ function CustomDateRangePicker(
       return;
     }
 
-    const value = `${dateFormat(dateRange.startDate as any, format)} - ${dateFormat(dateRange.endDate as any, format)}`;
+    const value = `${dateFormat(dateRange.startDate as any, displayFormat)} - ${dateFormat(dateRange.endDate as any, displayFormat)}`;
 
     setValue(value);
-  }, [dateRange, format]);
+  }, [dateRange, displayFormat]);
 
   function handleTimeInput(
     key: "startDate" | "endDate",
     val?: ZonedDateTime | null,
   ) {
+    if (!val) {
+      return;
+    }
+
     setDateRange((state) => {
+      const current = isValidDate(state[key]) ? state[key]! : new Date();
       const dateR = {
         ...state,
-        [key]: dayjs(val?.toDate()).toDate(),
+        [key]: dayjs(val.toDate()).isValid()
+          ? dayjs(val.toDate()).toDate()
+          : current,
       };
 
-      if (onChange) {
-        onChange({
-          start: dayjs(dateR.startDate).format("YYYY-MM-DD"),
-          end: dayjs(dateR.endDate).format("YYYY-MM-DD"),
-        });
+      if (
+        onChange &&
+        isValidDate(dateR.startDate) &&
+        isValidDate(dateR.endDate)
+      ) {
+        onChange(formatRangeOutput(dateR.startDate, dateR.endDate));
       }
 
       return dateR;
     });
   }
+
+  const hasValidRange =
+    isValidDate(dateRange.startDate) && isValidDate(dateRange.endDate);
+
+  const pickerRange = hasValidRange
+    ? dateRange
+    : {
+        startDate: startOfMonth(now),
+        endDate: endOfMonth(now),
+        key: "target",
+      };
 
   return (
     <Input
@@ -315,27 +365,23 @@ function CustomDateRangePicker(
                   locale={id}
                   moveRangeOnFirstSelection={false}
                   rangeColors={["#077fb6"]}
-                  ranges={[dateRange]}
+                  ranges={[pickerRange]}
                   retainEndDateOnFirstSelection={false}
                   staticRanges={idStaticRanges}
                   onChange={handleChooseDateRange}
                 />
-                {showTime && (
+                {showTime && hasValidRange && (
                   <div className="flex gap-2">
                     <TimeInput
                       hourCycle={24}
                       label="Waktu Mulai"
-                      value={parseAbsoluteToLocal(
-                        dayjs(dateRange.startDate).toISOString(),
-                      )}
+                      value={toTimeInputValue(dateRange.startDate)}
                       onChange={(val) => handleTimeInput("startDate", val)}
                     />
                     <TimeInput
                       hourCycle={24}
                       label="Waktu Berakhir"
-                      value={parseAbsoluteToLocal(
-                        dayjs(dateRange.endDate).toISOString(),
-                      )}
+                      value={toTimeInputValue(dateRange.endDate)}
                       onChange={(val) => handleTimeInput("endDate", val)}
                     />
                   </div>

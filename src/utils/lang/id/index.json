@@ -142,6 +142,68 @@
             "kiosk": "Kiosk Pelanggan",
             "display": "Display Antrean (TV)",
             "service_display": "Display Status Service (TV)"
+        },
+        "logs": {
+            "header": "Logs",
+            "login": "Log Login",
+            "activity": "Log Aktivitas"
+        }
+    },
+    "logs": {
+        "login": {
+            "title": "Log Login",
+            "subtitle": "Riwayat login pengguna dari semua perangkat, termasuk sesi yang sudah diakhiri.",
+            "search_placeholder": "Cari nama, email, perangkat, atau IP...",
+            "empty": "Tidak ada log login pada periode ini.",
+            "columns": {
+                "user": "Pengguna",
+                "device": "Perangkat",
+                "platform": "Platform",
+                "browser": "Browser",
+                "ip": "Alamat IP",
+                "login_at": "Waktu Login",
+                "last_used": "Terakhir Aktif",
+                "status": "Status"
+            },
+            "status": {
+                "active": "Aktif",
+                "revoked": "Diakhiri",
+                "expired": "Kadaluarsa"
+            }
+        },
+        "activity": {
+            "title": "Log Aktivitas",
+            "subtitle": "Rekam jejak aksi mutasi pengguna di sistem.",
+            "search_placeholder": "Cari pengguna, URL, atau aksi...",
+            "empty": "Tidak ada log aktivitas pada periode ini.",
+            "detail_title": "Detail Log Aktivitas",
+            "view_detail": "Lihat detail",
+            "columns": {
+                "user": "Pengguna",
+                "action": "Aksi",
+                "url": "URL",
+                "session": "Sesi",
+                "status": "Status",
+                "body": "Detail",
+                "created_at": "Waktu"
+            },
+            "status": {
+                "success": "Sukses",
+                "error": "Error"
+            },
+            "session": "Sesi Login",
+            "request_body": "Request Body",
+            "response_message": "Response"
+        },
+        "filter": {
+            "date_range": "Periode",
+            "search": "Pencarian",
+            "action": "Aksi",
+            "action_placeholder": "Semua aksi",
+            "url": "URL",
+            "url_placeholder": "Semua URL",
+            "status": "Status",
+            "status_placeholder": "Semua status"
         }
     },
     "cashier": {
