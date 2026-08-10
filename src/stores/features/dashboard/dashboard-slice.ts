@@ -12,15 +12,23 @@ const dashboardSlice = createSlice({
   name: "dashboard",
   initialState: {
     dashboard: null as IDashboard | null,
+    isLoadingDashboard: false,
     revenueTrendPeriod: "7d" as RevenueTrendPeriod,
     revenueTrendLoading: false,
   },
   reducers: {},
   extraReducers: (builder) =>
     builder
+      .addCase(getDashboard.pending, (state) => {
+        state.isLoadingDashboard = true;
+      })
       .addCase(getDashboard.fulfilled, (state, action) => {
         state.dashboard = action.payload;
+        state.isLoadingDashboard = false;
         state.revenueTrendPeriod = "7d";
+      })
+      .addCase(getDashboard.rejected, (state) => {
+        state.isLoadingDashboard = false;
       })
       .addCase(getRevenueTrend.pending, (state, action) => {
         state.revenueTrendLoading = true;

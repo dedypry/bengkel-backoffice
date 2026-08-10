@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button, Chip } from "@heroui/react";
 
+import DashboardSkeleton from "./dashboard-skeleton";
+
 import { ServiceQueue } from "@/components/dashboard/service-queue";
 import { StatsGrid } from "@/components/dashboard/stats-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { InventoryAlert } from "@/components/dashboard/inventory-alert";
 import { BestEmployees } from "@/components/dashboard/best-employees";
-import { useAppDispatch } from "@/stores/hooks";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getDashboard } from "@/stores/features/dashboard/dashboard-action";
 
 dayjs.locale("id");
@@ -21,6 +23,11 @@ export default function HomePage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
+  const { isLoadingDashboard, dashboard } = useAppSelector(
+    (state) => state.dashboard,
+  );
+
+  const isInitialLoading = isLoadingDashboard && !dashboard;
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -66,41 +73,47 @@ export default function HomePage() {
         </div>
       </div>
 
-      <StatsGrid />
+      {isInitialLoading ? (
+        <DashboardSkeleton />
+      ) : (
+        <>
+          <StatsGrid />
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        <div className="space-y-8 lg:col-span-8">
-          <RevenueChart />
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+            <div className="space-y-8 lg:col-span-8">
+              <RevenueChart />
 
-          <section>
-            <div className="mb-4 flex items-center justify-between px-1">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">
-                  {t("dashboard.queue_title")}
-                </h2>
-                <p className="text-xs text-slate-500">
-                  {t("dashboard.queue_subtitle")}
-                </p>
-              </div>
-              <Button
-                className="font-semibold"
-                color="primary"
-                size="sm"
-                variant="flat"
-                onPress={() => navigate("/service/queue")}
-              >
-                {t("common.view_all")}
-              </Button>
+              <section>
+                <div className="mb-4 flex items-center justify-between px-1">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-800">
+                      {t("dashboard.queue_title")}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {t("dashboard.queue_subtitle")}
+                    </p>
+                  </div>
+                  <Button
+                    className="font-semibold"
+                    color="primary"
+                    size="sm"
+                    variant="flat"
+                    onPress={() => navigate("/service/queue")}
+                  >
+                    {t("common.view_all")}
+                  </Button>
+                </div>
+                <ServiceQueue />
+              </section>
             </div>
-            <ServiceQueue />
-          </section>
-        </div>
 
-        <div className="space-y-8 lg:col-span-4">
-          <BestEmployees />
-          <InventoryAlert />
-        </div>
-      </div>
+            <div className="space-y-8 lg:col-span-4">
+              <BestEmployees />
+              <InventoryAlert />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -114,7 +114,7 @@ export function BestEmployees() {
           endContent={<ArrowRight className="size-4" />}
           size="sm"
           variant="flat"
-          onPress={() => navigate("/master/mechanics")}
+          onPress={() => navigate("/reports/mechanics")}
         >
           {t("dashboard.best_employees.view_all")}
         </Button>
