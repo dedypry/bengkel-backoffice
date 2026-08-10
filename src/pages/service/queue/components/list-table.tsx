@@ -228,6 +228,11 @@ export default function ListTable({ setOpenModal, setWoId }: Props) {
             {resUpdate && (
               <ButtonStatus
                 item={item}
+                onSelectMechanic={() => {
+                  dispatch(setMechanic(item.mechanics?.map((m) => m.id)));
+                  setOpenModal(true);
+                  setWoId(item.id);
+                }}
                 onSuccess={() => dispatch(getWo(woQuery))}
               />
             )}

@@ -17,9 +17,14 @@ import { setTabCashier } from "@/stores/features/work-order/wo-slice";
 interface Props {
   item: IWorkOrder;
   onSuccess?: () => void;
+  onSelectMechanic?: () => void;
 }
 
-export default function ButtonStatus({ item, onSuccess }: Props) {
+export default function ButtonStatus({
+  item,
+  onSuccess,
+  onSelectMechanic,
+}: Props) {
   const [isLoading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -43,7 +48,17 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
 
   const restriction = hasRoles(["foreman", "super-admin"]);
   const needsMechanic = (item.mechanics?.length ?? 0) < 1;
-  const startWorkDisabled = needsMechanic || !restriction;
+  const startWorkDisabled = !restriction;
+
+  const handleStartWork = () => {
+    if (needsMechanic) {
+      onSelectMechanic?.();
+
+      return;
+    }
+
+    handleUpdateStatus(item.id, "on_progress");
+  };
 
   const startWorkButton = (
     <Button
@@ -54,7 +69,7 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
       size="sm"
       startContent={<Play fill="currentColor" size={16} />}
       variant="shadow"
-      onPress={() => handleUpdateStatus(item.id, "on_progress")}
+      onPress={handleStartWork}
     >
       MULAI KERJA
     </Button>
@@ -73,13 +88,7 @@ export default function ButtonStatus({ item, onSuccess }: Props) {
       {/* STATUS: QUEUE / PICK UP */}
       {["queue", "pick_up"].includes(item.progress as any) &&
         (startWorkDisabled ? (
-          <Tooltip
-            content={
-              needsMechanic
-                ? "Pilih mekanik terlebih dahulu"
-                : "Hanya foreman yang dapat memulai pekerjaan"
-            }
-          >
+          <Tooltip content="Hanya foreman yang dapat memulai pekerjaan">
             <span className="inline-flex">{startWorkButton}</span>
           </Tooltip>
         ) : (

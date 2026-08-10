@@ -10,9 +10,15 @@ import {
   Input,
 } from "@heroui/react";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 import ListCustomer from "./list-customer";
+import ListCustomerFinished from "./list-customer-finished";
 import ListProduct from "./list-product";
+import {
+  getCashierWoStatus,
+  type CashierTab,
+} from "../cashier-query";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import debounce from "@/utils/helpers/debounce";
@@ -26,13 +32,17 @@ import { CustomPagination } from "@/components/custom-pagination";
 import CustomDatePicker from "@/components/forms/date-picker";
 
 export default function ListOrder() {
+  const { t } = useTranslation();
   const { orders, tabCashier, woQuery } = useAppSelector((state) => state.wo);
   const { productQuery, products } = useAppSelector((state) => state.product);
   const [searchTerm, setSearchTerm] = useState("");
 
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
-  const isProduct = tabCashier === "product";
+  const activeTab = tabCashier as CashierTab;
+  const isProduct = activeTab === "product";
+  const isCustomerWo = activeTab === "customer" || activeTab === "finish";
+  const woStatus = getCashierWoStatus(activeTab);
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -44,15 +54,38 @@ export default function ListOrder() {
     }
   }, [productQuery]);
 
-  const debounceSearch = debounce(
-    (q) =>
-      dispatch(
-        isProduct
-          ? setProductQuery({ q, page: 1 })
-          : setWoQuery({ q, page: 1 }),
-      ),
-    500,
-  );
+  const debounceSearch = debounce((q) => {
+    if (isProduct) {
+      dispatch(setProductQuery({ q, page: 1 }));
+
+      return;
+    }
+
+    dispatch(
+      setWoQuery({
+        q,
+        page: 1,
+        status: woStatus,
+      }),
+    );
+  }, 500);
+
+  const handleTabChange = (key: string) => {
+    const tab = key as CashierTab;
+
+    dispatch(setTabCashier(tab));
+    setSearchTerm("");
+
+    if (tab === "product") return;
+
+    dispatch(
+      setWoQuery({
+        q: "",
+        page: 1,
+        status: getCashierWoStatus(tab),
+      }),
+    );
+  };
 
   return (
     <div className="w-full md:w-1/3 flex flex-col gap-4">
@@ -64,21 +97,19 @@ export default function ListOrder() {
               tabContent:
                 "text-gray-600 font-medium group-data-[selected=true]:text-gray-800",
             }}
-            selectedKey={tabCashier}
-            onSelectionChange={(key) => {
-              dispatch(setTabCashier(key as string));
-              setSearchTerm("");
-            }}
+            selectedKey={activeTab}
+            onSelectionChange={(key) => handleTabChange(String(key))}
           >
-            <Tab key="customer" title="Customer" />
-            <Tab key="product" title="Sparepart" />
+            <Tab key="customer" title={t("cashier.tabs.customer")} />
+            <Tab key="finish" title={t("cashier.tabs.finish")} />
+            <Tab key="product" title={t("cashier.tabs.product")} />
           </Tabs>
 
-          {!isProduct && (
+          {isCustomerWo && (
             <CustomDatePicker
-              label="Tanggal"
+              label={t("cashier.date")}
               labelPlacement="outside"
-              placeholder="Semua tanggal"
+              placeholder={t("cashier.all_dates")}
               size="sm"
               value={
                 woQuery.date
@@ -91,6 +122,7 @@ export default function ListOrder() {
                   setWoQuery({
                     date: date || "",
                     page: 1,
+                    status: woStatus,
                   }),
                 )
               }
@@ -98,11 +130,20 @@ export default function ListOrder() {
           )}
 
           <Input
+            aria-label={
+              isProduct
+                ? t("cashier.search.product_aria")
+                : activeTab === "finish"
+                  ? t("cashier.search.finish_aria")
+                  : t("cashier.search.customer_aria")
+            }
             className="placeholder:text-xs"
             placeholder={
               isProduct
-                ? "Cari nama atau kode sparepart..."
-                : "Cari plat nomor atau nama..."
+                ? t("cashier.search.product_placeholder")
+                : activeTab === "finish"
+                  ? t("cashier.search.finish_placeholder")
+                  : t("cashier.search.customer_placeholder")
             }
             size="sm"
             startContent={<Search size={18} />}
@@ -115,7 +156,9 @@ export default function ListOrder() {
           />
         </CardHeader>
         <CardBody className="overflow-y-auto scrollbar-modern flex-1">
-          {tabCashier == "customer" ? <ListCustomer /> : <ListProduct />}
+          {activeTab === "customer" && <ListCustomer />}
+          {activeTab === "finish" && <ListCustomerFinished />}
+          {activeTab === "product" && <ListProduct />}
         </CardBody>
         <CardFooter>
           <CustomPagination
@@ -124,7 +167,9 @@ export default function ListOrder() {
             showDesc={false}
             onPageChange={(page) =>
               dispatch(
-                isProduct ? setProductQuery({ page }) : setWoQuery({ page }),
+                isProduct
+                  ? setProductQuery({ page })
+                  : setWoQuery({ page, status: woStatus }),
               )
             }
           />

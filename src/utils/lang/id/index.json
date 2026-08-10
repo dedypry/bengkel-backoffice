@@ -93,5 +93,90 @@
             "display": "Display Antrean (TV)",
             "service_display": "Display Status Service (TV)"
         }
+    },
+    "cashier": {
+        "tabs": {
+            "customer": "Pelanggan",
+            "finish": "Selesai",
+            "product": "Sparepart"
+        },
+        "date": "Tanggal",
+        "all_dates": "Semua tanggal",
+        "search": {
+            "product_aria": "Cari sparepart",
+            "product_placeholder": "Cari nama atau kode sparepart...",
+            "finish_aria": "Cari transaksi selesai",
+            "finish_placeholder": "Cari plat, nama, atau no. transaksi...",
+            "customer_aria": "Cari antrean pelanggan",
+            "customer_placeholder": "Cari plat nomor atau nama..."
+        },
+        "list": {
+            "empty_queue": "Tidak ada antrean saat ini",
+            "empty_finished": "Belum ada transaksi selesai",
+            "paid": "Lunas"
+        },
+        "product_list": {
+            "per_unit": "per {{unit}}",
+            "stock": "Stok",
+            "selected": "TERPILIH",
+            "unit_fallback": "Unit"
+        },
+        "notify": {
+            "cashier_call": "Panggilan kasir: {{plate}}{{trx}}"
+        },
+        "panel": {
+            "bill_detail": "Rincian Tagihan TRX NO. {{trxNo}}",
+            "plate_no": "Plat No : {{plate}}",
+            "edit": "Edit",
+            "detail": "Detail",
+            "select_queue": "Pilih antrean di sebelah kiri untuk memproses pembayaran",
+            "customer": "Pelanggan",
+            "mechanic": "Mekanik",
+            "payment_success": "Pembayaran Berhasil #{{ref}}",
+            "payment_method": "Pembayaran {{method}}",
+            "time": "Waktu:",
+            "total": "Total : {{amount}}",
+            "order_placeholder": "#Order Pelanggan"
+        },
+        "table": {
+            "service_desc": "Deskripsi Jasa",
+            "part_desc": "Deskripsi Part",
+            "product": "Produk",
+            "sell_price": "Harga Jual",
+            "price": "Harga",
+            "qty": "Qty",
+            "disc_pct": "Disc %",
+            "disc_value": "Nilai Disc",
+            "amount": "Jumlah",
+            "tax_pct": "Pjk %",
+            "ppn_pct": "PPN %",
+            "action": "Aksi"
+        },
+        "product_panel": {
+            "empty_title": "Produk Tidak Ditemukan",
+            "empty_desc": "Silahkan pilih product di sebelah kiri",
+            "po_no": "No PO",
+            "customer": "Pelanggan",
+            "select_customer": "Pilih Pelanggan",
+            "signature": "Signature",
+            "notes": "Catatan"
+        },
+        "payment": {
+            "pay_now": "Bayar Sekarang",
+            "confirm_title": "Konfirmasi Pembayaran",
+            "method_label": "Metode Pembayaran",
+            "cash": "Tunai",
+            "cash_desc": "Bayar di kasir",
+            "transfer": "Transfer",
+            "transfer_desc": "Bank / E-Wallet",
+            "received": "Uang Diterima",
+            "change": "Kembalian",
+            "short_pay": "Kurang Bayar",
+            "proof": "Bukti Transfer",
+            "total_payment": "Total Pembayaran",
+            "cancel": "Batal",
+            "confirm_pay": "Bayar & Selesaikan",
+            "exact": "PAS"
+        }
     }
 }

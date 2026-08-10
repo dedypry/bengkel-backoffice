@@ -5,6 +5,7 @@ import { Chip } from "@heroui/react";
 import { Banknote } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { OrderListSkeleton } from "./list-customer-skeleton";
 
@@ -13,7 +14,21 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { formatIDR } from "@/utils/helpers/format";
 import StatusQueue from "@/components/status-queue";
 
-export default function ListCustomer() {
+interface Props {
+  variant?: "pending" | "finished";
+  emptyMessage?: string;
+}
+
+export default function ListCustomer({
+  variant = "pending",
+  emptyMessage,
+}: Props) {
+  const { t } = useTranslation();
+  const resolvedEmptyMessage =
+    emptyMessage ??
+    (variant === "finished"
+      ? t("cashier.list.empty_finished")
+      : t("cashier.list.empty_queue"));
   const { orders, workOrder, isLoadingOrder } = useAppSelector(
     (state) => state.wo,
   );
@@ -39,9 +54,17 @@ export default function ListCustomer() {
 
   if (isLoadingOrder) return <OrderListSkeleton />;
 
+  if (!orders?.data?.length) {
+    return (
+      <p className="text-center text-sm text-default-500 py-8">
+        {resolvedEmptyMessage}
+      </p>
+    );
+  }
+
   return (
     <div className="space-y-3">
-      {orders?.data.map((wo) => (
+      {orders.data.map((wo) => (
         <div
           key={wo.id}
           className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
@@ -72,15 +95,26 @@ export default function ListCustomer() {
             </div>
           </div>
           <div className="flex justify-between">
-            <StatusQueue wo={wo} />
-            {wo.status === "closed" && (
+            {variant === "finished" ? (
               <Chip
                 className="text-white"
                 color="success"
                 radius="md"
                 startContent={<Banknote />}
               >
-                Lunas
+                {t("cashier.list.paid")}
+              </Chip>
+            ) : (
+              <StatusQueue wo={wo} />
+            )}
+            {variant === "pending" && wo.status === "closed" && (
+              <Chip
+                className="text-white"
+                color="success"
+                radius="md"
+                startContent={<Banknote />}
+              >
+                {t("cashier.list.paid")}
               </Chip>
             )}
           </div>

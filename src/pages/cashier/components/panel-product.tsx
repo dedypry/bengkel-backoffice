@@ -20,6 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import ModalProductOrder from "./modal-product-order";
 import { paymentSchema, PaymentSchema } from "./order-schema";
@@ -41,6 +42,7 @@ import { http } from "@/utils/libs/axios";
 import SumaryTable from "@/components/sumary";
 
 export default function PanelProduct() {
+  const { t } = useTranslation();
   const { products } = useAppSelector((state) => state.wo);
   const { list } = useAppSelector((state) => state.employe);
   const { data } = useAppSelector((state) => state.customer);
@@ -173,14 +175,28 @@ export default function PanelProduct() {
         <CardBody className="gap-2 flex flex-col overflow-y-auto scrollbar-modern max-h-[calc(100vh-320px)]">
           <Table isHeaderSticky removeWrapper>
             <TableHeader>
-              <TableColumn>Produk</TableColumn>
-              <TableColumn className="text-center">Harga</TableColumn>
-              <TableColumn className="text-center">Qty</TableColumn>
-              <TableColumn className="text-center">Disc %</TableColumn>
-              <TableColumn className="text-center">Nilai Disc</TableColumn>
-              <TableColumn className="text-center">PPN %</TableColumn>
-              <TableColumn className="text-center">Jumlah</TableColumn>
-              <TableColumn className="text-center w-20">Aksi</TableColumn>
+              <TableColumn>{t("cashier.table.product")}</TableColumn>
+              <TableColumn className="text-center">
+                {t("cashier.table.price")}
+              </TableColumn>
+              <TableColumn className="text-center">
+                {t("cashier.table.qty")}
+              </TableColumn>
+              <TableColumn className="text-center">
+                {t("cashier.table.disc_pct")}
+              </TableColumn>
+              <TableColumn className="text-center">
+                {t("cashier.table.disc_value")}
+              </TableColumn>
+              <TableColumn className="text-center">
+                {t("cashier.table.ppn_pct")}
+              </TableColumn>
+              <TableColumn className="text-center">
+                {t("cashier.table.amount")}
+              </TableColumn>
+              <TableColumn className="text-center w-20">
+                {t("cashier.table.action")}
+              </TableColumn>
             </TableHeader>
             <TableBody
               emptyContent={
@@ -193,10 +209,10 @@ export default function PanelProduct() {
 
                     <div className="mt-2">
                       <p className="text-xl font-bold text-slate-800">
-                        Produk Tidak Ditemukan
+                        {t("cashier.product_panel.empty_title")}
                       </p>
                       <p className="text-sm text-gray-500 max-w-64">
-                        silahkan pilih product di sebelah kiri
+                        {t("cashier.product_panel.empty_desc")}
                       </p>
                     </div>
                   </div>
@@ -362,9 +378,9 @@ export default function PanelProduct() {
                       label: "w-24",
                       mainWrapper: "w-1/2",
                     }}
-                    label="No PO"
+                    label={t("cashier.product_panel.po_no")}
                     labelPlacement="outside-left"
-                    placeholder="#Order Customer"
+                    placeholder={t("cashier.panel.order_placeholder")}
                     size="sm"
                   />
                 )}
@@ -375,7 +391,7 @@ export default function PanelProduct() {
                 render={({ field }) => (
                   <Autocomplete
                     inputProps={{
-                      label: "Pelanggan",
+                      label: t("cashier.product_panel.customer"),
                       labelPlacement: "outside-left",
                       classNames: {
                         label: "w-24",
@@ -383,7 +399,7 @@ export default function PanelProduct() {
                       },
                     }}
                     items={data || []}
-                    placeholder="Pilih Pelanggan"
+                    placeholder={t("cashier.product_panel.select_customer")}
                     selectedKey={field.value}
                     size="sm"
                     onSelectionChange={field.onChange}
@@ -403,7 +419,7 @@ export default function PanelProduct() {
                   <Autocomplete
                     inputProps={{
                       size: "sm",
-                      label: "Signature",
+                      label: t("cashier.product_panel.signature"),
                       labelPlacement: "outside-left",
                       classNames: {
                         label: "w-24",
@@ -435,7 +451,7 @@ export default function PanelProduct() {
                       label: "w-24",
                       mainWrapper: "w-full",
                     }}
-                    label="Catatan"
+                    label={t("cashier.product_panel.notes")}
                     labelPlacement="outside-left"
                     size="sm"
                   />
@@ -451,7 +467,9 @@ export default function PanelProduct() {
           </div>
           <div className="w-full flex justify-between mt-2 items-center">
             <p className="text-md font-bold">
-              Total : {formatIDR(watch("total"))}
+              {t("cashier.panel.total", {
+                amount: formatIDR(watch("total")),
+              })}
             </p>
             <ModalProductOrder
               control={control}

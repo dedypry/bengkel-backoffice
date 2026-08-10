@@ -1,5 +1,4 @@
 import {
-  CalendarDays,
   Car,
   User,
   AlertCircle,
@@ -21,6 +20,7 @@ import { InfoBlock, SectionHeader } from "./components/helper";
 import HistoryTab from "./components/history-tab";
 import EditUnitInfo from "./components/edit-unit-info";
 import WoComplaint from "./components/wo-complaint";
+import EditOrderDate from "./components/edit-order-date";
 import EditSupervisorInfo from "./components/edit-supervisor-info";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -70,12 +70,7 @@ export default function WorkOrderDetail() {
                 <StatusQueue wo={data} />
               </div>
               <div className="flex items-center gap-4 text-gray-500 font-bold text-[11px] uppercase tracking-widest">
-                <div className="flex items-center gap-2">
-                  <CalendarDays className="text-gray-400" size={14} />
-                  {new Date(data.created_at).toLocaleDateString("id-ID", {
-                    dateStyle: "full",
-                  })}
-                </div>
+                <EditOrderDate />
               </div>
             </div>
             <div className="bg-primary px-8 flex flex-col justify-center items-end min-w-[300px]">

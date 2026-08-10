@@ -25,6 +25,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import dayjs from "dayjs";
 import {
   Alert,
   Autocomplete,
@@ -146,6 +147,7 @@ export default function ServiceAddPage() {
       defaultValues: {
         priority: "normal",
         remind_next_service: false,
+        created_at: dayjs().format("YYYY-MM-DD"),
         customer: {
           birth_date: "",
         },
@@ -234,6 +236,7 @@ export default function ServiceAddPage() {
         setValue("current_km", 0);
         setValue("next_km", 0);
         reset();
+        setValue("created_at", dayjs().format("YYYY-MM-DD"));
         handleVehicleReset();
         handleResetCustomer();
         dispatch(formWoClear());
@@ -1102,7 +1105,7 @@ export default function ServiceAddPage() {
                 </div>
               </CardBody>
             </Card>
-            <div className="space-y-6 sticky top-32">
+            <div className="space-y-6 sticky top-0">
               <Card className="p-4">
                 <CardBody>
                   <h5 className="font-bold border-b border-white/10 pb-3 flex items-center gap-2">
@@ -1128,28 +1131,59 @@ export default function ServiceAddPage() {
                         {formatIDR(servicePrice + sparepartPrice)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center opacity-80 gap-10">
-                      <span className="flex-1">Prioritas</span>
-
-                      <Controller
-                        control={control}
-                        name="priority"
-                        render={({ field }) => (
-                          <Select
-                            placeholder="Pilih Prioritas"
-                            selectedKeys={field.value ? [field.value] : []}
-                            size="sm"
-                            onSelectionChange={(keys) =>
-                              field.onChange(Array.from(keys)[0])
-                            }
-                          >
-                            <SelectItem key="low">Rendah</SelectItem>
-                            <SelectItem key="normal">Normal</SelectItem>
-                            <SelectItem key="hight">Tinggi</SelectItem>
-                            <SelectItem key="urgent">Urgent</SelectItem>
-                          </Select>
-                        )}
-                      />
+                    <div className="flex items-center opacity-80 gap-3">
+                      <span className="w-28 flex-shrink-0">Tanggal Order</span>
+                      <div className="flex-1 min-w-0">
+                        <Controller
+                          control={control}
+                          name="created_at"
+                          render={({ field, fieldState }) => (
+                            <CustomDatePicker
+                              className="w-full"
+                              classNames={{
+                                inputWrapper: "w-full",
+                                mainWrapper: "w-full",
+                              }}
+                              errorMessage={fieldState.error?.message}
+                              isInvalid={fieldState.invalid}
+                              maxDate={new Date()}
+                              size="sm"
+                              value={field.value as any}
+                              onChange={field.onChange}
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center opacity-80 gap-3">
+                      <span className="w-28 flex-shrink-0">Prioritas</span>
+                      <div className="flex-1 min-w-0">
+                        <Controller
+                          control={control}
+                          name="priority"
+                          render={({ field }) => (
+                            <Select
+                              className="w-full"
+                              classNames={{
+                                base: "w-full",
+                                mainWrapper: "w-full",
+                                trigger: "w-full",
+                              }}
+                              placeholder="Pilih Prioritas"
+                              selectedKeys={field.value ? [field.value] : []}
+                              size="sm"
+                              onSelectionChange={(keys) =>
+                                field.onChange(Array.from(keys)[0])
+                              }
+                            >
+                              <SelectItem key="low">Rendah</SelectItem>
+                              <SelectItem key="normal">Normal</SelectItem>
+                              <SelectItem key="hight">Tinggi</SelectItem>
+                              <SelectItem key="urgent">Urgent</SelectItem>
+                            </Select>
+                          )}
+                        />
+                      </div>
                     </div>
                   </div>
                   {canCreate && (

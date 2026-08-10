@@ -5,7 +5,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@heroui/react";
-import { Check, Languages } from "lucide-react";
+import { Languages } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const LANGUAGES = [
@@ -43,11 +43,6 @@ export default function LanguageSwitch() {
         {LANGUAGES.map((lang) => (
           <DropdownItem
             key={lang.key}
-            endContent={
-              current === lang.key ? (
-                <Check className="text-primary" size={16} />
-              ) : null
-            }
             startContent={
               <span className="text-xs font-bold text-gray-500">
                 {lang.flag}

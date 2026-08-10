@@ -1,5 +1,6 @@
 import { RadioGroup, Radio, cn } from "@heroui/react";
 import { Banknote, CreditCard, CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   value: string;
@@ -7,18 +8,20 @@ interface Props {
 }
 
 export default function PaymentMethod({ value, onChange }: Props) {
+  const { t } = useTranslation();
+
   const methods = [
     {
       id: "CASH",
-      label: "Tunai",
+      label: t("cashier.payment.cash"),
       icon: <Banknote size={22} />,
-      description: "Bayar di kasir",
+      description: t("cashier.payment.cash_desc"),
     },
     {
       id: "TRANSFER",
-      label: "Transfer",
+      label: t("cashier.payment.transfer"),
       icon: <CreditCard size={22} />,
-      description: "Bank / E-Wallet",
+      description: t("cashier.payment.transfer_desc"),
     },
   ];
 
@@ -44,7 +47,6 @@ export default function PaymentMethod({ value, onChange }: Props) {
   );
 }
 
-// Komponen Internal untuk Custom Radio Card
 function CustomRadio({ value, label, description, isSelected }: any) {
   return (
     <Radio
@@ -54,7 +56,7 @@ function CustomRadio({ value, label, description, isSelected }: any) {
           "flex-1 cursor-pointer rounded-md gap-4 p-4 border-2 border-transparent",
           "data-[selected=true]:border-primary border-gray-200 data-[selected=true]:bg-primary-50/20",
         ),
-        wrapper: "hidden", // Sembunyikan lingkaran radio standar
+        wrapper: "hidden",
         labelWrapper: "ml-0 w-full",
       }}
       value={value}

@@ -1,5 +1,6 @@
 import { Card, CardBody, Chip, ScrollShadow, Divider } from "@heroui/react";
-import { Package, MapPin, Tag } from "lucide-react"; // Ikon tambahan agar lebih pro
+import { Package, MapPin, Tag } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ProductListSkeleton } from "./product-list-skeleton";
 
@@ -8,6 +9,7 @@ import { formatIDR } from "@/utils/helpers/format";
 import { setWoProducts } from "@/stores/features/work-order/wo-slice";
 
 export default function ListProduct() {
+  const { t } = useTranslation();
   const { products, isLoadingProduct } = useAppSelector(
     (state) => state.product,
   );
@@ -71,7 +73,9 @@ export default function ListProduct() {
                       {formatIDR(Number(item.sell_price))}
                     </p>
                     <p className="text-[10px] text-gray-400 font-medium">
-                      per {item.uom?.name || "Unit"}
+                      {t("cashier.product_list.per_unit", {
+                        unit: item.uom?.name || t("cashier.product_list.unit_fallback"),
+                      })}
                     </p>
                   </div>
                 </div>
@@ -89,7 +93,7 @@ export default function ListProduct() {
                       startContent={<Package size={12} />}
                       variant="flat"
                     >
-                      Stok: {item.stock}
+                      {t("cashier.product_list.stock")}: {item.stock}
                     </Chip>
                     <Chip
                       className="h-6 text-xs font-semibold border-none"
@@ -109,7 +113,7 @@ export default function ListProduct() {
                       size="sm"
                       variant="solid"
                     >
-                      TERPILIH
+                      {t("cashier.product_list.selected")}
                     </Chip>
                   )}
                 </div>

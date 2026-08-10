@@ -1,9 +1,10 @@
 import { useEffect, useRef, useCallback } from "react";
-import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 import ListOrder from "./components/list-order";
 import PanelCustomer from "./components/panel-customer";
 import PanelProduct from "./components/panel-product";
+import { buildCashierWoQuery, type CashierTab } from "./cashier-query";
 
 import { useSidebar, SIDEBAR_COLLAPSED_KEY } from "@/context/sidebar-context";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -13,26 +14,28 @@ import { announceCashierCall } from "@/utils/helpers/queue-announcement";
 import { notify } from "@/utils/helpers/notify";
 
 export default function CashierPage() {
+  const { t } = useTranslation();
   const { woQuery, tabCashier } = useAppSelector((state) => state.wo);
   const { company } = useAppSelector((state) => state.auth);
   const { setCollapsed } = useSidebar();
   const hasFetched = useRef(false);
   const dispatch = useAppDispatch();
+  const activeTab = tabCashier as CashierTab;
 
-  const refreshCashierList = useCallback(() => {
-    dispatch(
-      getWo({
-        ...woQuery,
-        pageSize: 100,
-        date: woQuery.date ? dayjs(woQuery.date).format("YYYY-MM-DD") : "",
-      } as any),
-    );
-  }, [dispatch, woQuery]);
+  const fetchCashierOrders = useCallback(() => {
+    const params = buildCashierWoQuery(activeTab, woQuery);
+
+    if (params) {
+      dispatch(getWo(params as any));
+    }
+  }, [activeTab, dispatch, woQuery]);
 
   useServiceQueueRealtime(company?.id, {
-    onServiceUpdate: refreshCashierList,
+    onServiceUpdate: fetchCashierOrders,
     onCashierCall: (payload) => {
-      refreshCashierList();
+      if (activeTab === "customer") {
+        fetchCashierOrders();
+      }
 
       if (payload.plate_number) {
         announceCashierCall({
@@ -41,7 +44,10 @@ export default function CashierPage() {
         });
 
         notify(
-          `Panggilan kasir: ${payload.plate_number}${payload.trx_no ? ` (${payload.trx_no})` : ""}`,
+          t("cashier.notify.cashier_call", {
+            plate: payload.plate_number,
+            trx: payload.trx_no ? ` (${payload.trx_no})` : "",
+          }),
           "info",
         );
       }
@@ -58,28 +64,22 @@ export default function CashierPage() {
   }, [setCollapsed]);
 
   useEffect(() => {
-    if (company && !hasFetched.current) {
+    if (!company || activeTab === "product") return;
+
+    if (!hasFetched.current) {
       hasFetched.current = true;
-      dispatch(
-        getWo({
-          ...woQuery,
-          pageSize: 100,
-          date: woQuery.date ? dayjs(woQuery.date).format("YYYY-MM-DD") : "",
-        } as any),
-      );
+      fetchCashierOrders();
       setTimeout(() => {
         hasFetched.current = false;
       }, 1000);
     }
-  }, [company, woQuery]);
+  }, [company, woQuery, activeTab, fetchCashierOrders]);
 
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-100px)] gap-4 antialiased">
-      {/* --- BAGIAN KIRI: DAFTAR ANTREAN --- */}
       <ListOrder />
 
-      {/* --- BAGIAN KANAN: RINCIAN & PEMBAYARAN --- */}
-      {tabCashier === "customer" ? <PanelCustomer /> : <PanelProduct />}
+      {activeTab === "product" ? <PanelProduct /> : <PanelCustomer />}
     </div>
   );
 }

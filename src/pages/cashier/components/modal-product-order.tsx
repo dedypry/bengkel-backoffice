@@ -17,6 +17,7 @@ import {
   UseFormWatch,
 } from "react-hook-form";
 import { Banknote, CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import PaymentMethod from "./payment-method";
 import { PaymentSchema } from "./order-schema";
@@ -42,6 +43,7 @@ export default function ModalProductOrder({
   loading,
   isDisable,
 }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const selectedMethod = watch("payment_method");
@@ -60,7 +62,7 @@ export default function ModalProductOrder({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1 text-xl font-bold">
-                <p className="text-sm">Konfirmasi Pembayaran</p>
+                <p className="text-sm">{t("cashier.payment.confirm_title")}</p>
               </ModalHeader>
               <ModalBody className="pb-6">
                 <Controller
@@ -69,7 +71,7 @@ export default function ModalProductOrder({
                   render={({ field }) => (
                     <div className="flex flex-col gap-3">
                       <p className="font-bold text-gray-600 text-sm">
-                        Metode Pembayaran
+                        {t("cashier.payment.method_label")}
                       </p>
                       <PaymentMethod
                         value={field.value}
@@ -109,10 +111,10 @@ export default function ModalProductOrder({
                                     )
                                   }
                                 >
-                                  PAS
+                                  {t("cashier.payment.exact")}
                                 </Button>
                               }
-                              label="Uang Diterima"
+                              label={t("cashier.payment.received")}
                               labelPlacement="outside"
                               placeholder="Rp 0"
                               startContent="Rp. "
@@ -124,7 +126,7 @@ export default function ModalProductOrder({
                         />
                         <div className="flex flex-col gap-2">
                           <label className="text-tiny font-bold text-gray-600">
-                            Kembalian
+                            {t("cashier.payment.change")}
                           </label>
                           <div
                             className={`h-10 flex items-center px-3 rounded-sm border-1 transition-colors ${
@@ -138,7 +140,7 @@ export default function ModalProductOrder({
                             >
                               {changeAmount >= 0
                                 ? formatIDR(changeAmount)
-                                : "Kurang Bayar"}
+                                : t("cashier.payment.short_pay")}
                             </p>
                           </div>
                         </div>
@@ -147,7 +149,7 @@ export default function ModalProductOrder({
                   ) : (
                     <div className="flex flex-col gap-2">
                       <label className="text-tiny font-bold text-gray-600">
-                        Bukti Transfer
+                        {t("cashier.payment.proof")}
                       </label>
                       <Controller
                         control={control}
@@ -166,7 +168,7 @@ export default function ModalProductOrder({
               </ModalBody>
               <ModalFooter className="border-t border-gray-100">
                 <div className="text-sm  w-full">
-                  <p className="text-xs">Total Pembayaran</p>
+                  <p className="text-xs">{t("cashier.payment.total_payment")}</p>
                   <p className="font-bold">{formatIDR(watch("total"))}</p>
                 </div>
                 <Button
@@ -175,7 +177,7 @@ export default function ModalProductOrder({
                   variant="flat"
                   onPress={onClose}
                 >
-                  Batal
+                  {t("cashier.payment.cancel")}
                 </Button>
                 <Button
                   className="font-bold px-10"
@@ -186,7 +188,7 @@ export default function ModalProductOrder({
                   startContent={!loading && <CheckCircle2 size={18} />}
                   onPress={onSubmit}
                 >
-                  Bayar & Selesaikan
+                  {t("cashier.payment.confirm_pay")}
                 </Button>
               </ModalFooter>
             </>
@@ -201,7 +203,7 @@ export default function ModalProductOrder({
         startContent={<Banknote size={20} />}
         onPress={() => setOpen(true)}
       >
-        Bayar Sekarang
+        {t("cashier.payment.pay_now")}
       </Button>
     </>
   );

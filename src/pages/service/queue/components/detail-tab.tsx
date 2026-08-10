@@ -56,7 +56,6 @@ import { http } from "@/utils/libs/axios";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { IWorkOrder } from "@/utils/interfaces/IUser";
 import InputNumber from "@/components/input-number";
-import debounce from "@/utils/helpers/debounce";
 import { ISupplier } from "@/utils/interfaces/ISupplier";
 import SelectSupplierPopover from "@/components/select-supplier-popover";
 import { usePermission } from "@/components/use-permission";
@@ -162,7 +161,7 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
     setSelectedTemplate(trimmed);
   };
 
-  const editPart = debounce((price: number, qty: number, item: ISparepart) => {
+  const editPart = (price: number, qty: number, item: ISparepart) => {
     dispatch(
       addSparepartService({
         ...item,
@@ -172,16 +171,18 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
         total_price: qty * price,
       }),
     );
-  }, 1000);
+  };
 
-  const editService = debounce((price: number, item: any) => {
+  const editService = (price: number, qty: number, item: any) => {
     dispatch(
       addWoService({
         ...item,
+        qty,
         price: price.toString(),
+        total_price: qty * price,
       }),
     );
-  }, 1000);
+  };
 
   function downloadInv(type?: "estimation" | "wo") {
     handleDownload(
@@ -292,6 +293,8 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                 })),
               ].map((item: any, idx: number) => {
                 const find = sparepart.find((e) => e.id === item.data.id);
+                const editPrice = Number(find?.price ?? item.price ?? 0);
+                const editQty = Number(find?.qty ?? item.qty ?? 0);
 
                 return (
                   <TableRow key={idx}>
@@ -342,8 +345,8 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                           }}
                           size="sm"
                           startContent={<p className="text-xs">Rp</p>}
-                          value={Number(item.price || 0).toString()}
-                          onInput={(val) => editPart(val, item.qty, item.data)}
+                          value={editPrice.toString()}
+                          onInput={(val) => editPart(val, editQty, find || item.data)}
                         />
                       ) : Number(item.disc_value) > 0 ? (
                         <>
@@ -368,9 +371,9 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                             input: "text-center text-xs w-8",
                           }}
                           size="sm"
-                          value={Number(item.qty || 0).toString()}
+                          value={editQty.toString()}
                           onInput={(val) =>
-                            editPart(item.price, val, item.data)
+                            editPart(editPrice, val, find || item.data)
                           }
                         />
                       ) : (
@@ -378,7 +381,11 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                       )}
                     </TableCell>
                     <TableCell className="text-gray-500 text-right">
-                      {formatIDR(item.total_price)}
+                      {formatIDR(
+                        isEdit
+                          ? (find?.total_price ?? editPrice * editQty)
+                          : item.total_price,
+                      )}
                     </TableCell>
                     <TableCell>
                       {!["cancel"].includes(data.status) && canDelete && (
@@ -419,113 +426,116 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
               <TableColumn align="end"> </TableColumn>
             </TableHeader>
             <TableBody>
-              {[...(data.services || []).map((e) => ({ ...e, type: "srv" }))].map(
-                (item: any, idx: number) => {
-                  const find = services.find((e) => e.id === item.data?.id);
+              {[
+                ...(data.services || []).map((e) => ({ ...e, type: "srv" })),
+              ].map((item: any, idx: number) => {
+                const find = services.find((e) => e.id === item.data?.id);
+                const editPrice = Number(find?.price ?? item.price ?? 0);
+                const editQty = Number(find?.qty ?? item.qty ?? 0);
 
-                  return (
-                    <TableRow key={idx}>
-                      <TableCell>
-                        <div
-                          className={`flex flex-col max-w-[${isEdit ? "100px" : "170px"}]`}
-                        >
-                          <Tooltip content={item.data?.name}>
-                            <span className="text-gray-600 text-xs truncate block">
-                              {item.data?.name}
-                            </span>
-                          </Tooltip>
-                          <div className=" flex gap-2 items-center">
-                            <span className="text-[11px] text-gray-600 truncate block">
-                              {find?.suplier_name ||
-                                item.supplier_name ||
-                                item.data.code}
-                            </span>
-                            {isEdit && (
-                              <SelectSupplierPopover
-                                suppliers={suppliers as ISupplier[]}
-                                value={find?.supplier_id || item.supplier_id}
-                                onSelectionChange={(val) => {
-                                  dispatch(
-                                    addWoService({
-                                      ...item,
-                                      ...item.data,
-                                      supplier_id: val.id,
-                                      suplier_name: val.name,
-                                    }),
-                                  );
-                                }}
-                              >
-                                <Edit
-                                  className="text-amber-600 cursor-pointer w-4"
-                                  size={15}
-                                />
-                              </SelectSupplierPopover>
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-gray-500">
-                        {isEdit ? (
-                          <InputNumber
-                            classNames={{
-                              input: "text-right w-20 text-xs",
-                            }}
-                            size="sm"
-                            startContent={<p className="text-xs">Rp</p>}
-                            value={Number(item.price || 0).toString()}
-                            onInput={(val) =>
-                              editService(val, { ...item.data, qty: item.qty })
-                            }
-                          />
-                        ) : Number(item.disc_value) > 0 ? (
-                          <>
-                            <p className="text-[10px] line-through italic">
-                              {formatIDR(item.price)}
-                            </p>
-                            <p className="">
-                              {formatIDR(
-                                Number(item.price || 0) -
-                                  Number(item.disc_value || 0),
-                              )}
-                            </p>
-                          </>
-                        ) : (
-                          formatIDR(item.price)
-                        )}
-                      </TableCell>
-                      <TableCell className="text-gray-500 ">
-                        {item?.data?.estimated_duration * item.qty}{" "}
-                        {t(item?.data?.estimated_type)}
-                      </TableCell>
-                      <TableCell className="text-gray-500 text-right">
-                        {formatIDR(item.total_price)}
-                      </TableCell>
-                      <TableCell>
-                        {!["cancel"].includes(data.status) && canDelete && (
-                          <Tooltip
-                            showArrow
-                            color="danger"
-                            content="Hapus Item"
-                          >
-                            <Button
-                              isIconOnly
-                              color="danger"
-                              radius="full"
-                              size="sm"
-                              variant="flat"
-                              onPress={() =>
-                                confirmSweat(() => handleDelete(item.id))
-                              }
+                return (
+                  <TableRow key={idx}>
+                    <TableCell>
+                      <div
+                        className={`flex flex-col max-w-[${isEdit ? "100px" : "170px"}]`}
+                      >
+                        <Tooltip content={item.data?.name}>
+                          <span className="text-gray-600 text-xs truncate block">
+                            {item.data?.name}
+                          </span>
+                        </Tooltip>
+                        <div className=" flex gap-2 items-center">
+                          <span className="text-[11px] text-gray-600 truncate block">
+                            {find?.suplier_name ||
+                              item.supplier_name ||
+                              item.data.code}
+                          </span>
+                          {isEdit && (
+                            <SelectSupplierPopover
+                              suppliers={suppliers as ISupplier[]}
+                              value={find?.supplier_id || item.supplier_id}
+                              onSelectionChange={(val) => {
+                                dispatch(
+                                  addWoService({
+                                    ...item,
+                                    ...item.data,
+                                    supplier_id: val.id,
+                                    suplier_name: val.name,
+                                  }),
+                                );
+                              }}
                             >
-                              <Trash2 size={16} />
-                            </Button>
-                          </Tooltip>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                },
-              )}
+                              <Edit
+                                className="text-amber-600 cursor-pointer w-4"
+                                size={15}
+                              />
+                            </SelectSupplierPopover>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-gray-500">
+                      {isEdit ? (
+                        <InputNumber
+                          classNames={{
+                            input: "text-right w-20 text-xs",
+                          }}
+                          size="sm"
+                          startContent={<p className="text-xs">Rp</p>}
+                          value={editPrice.toString()}
+                          onInput={(val) =>
+                            editService(val, editQty, {
+                              ...(find || item.data),
+                              qty: editQty,
+                            })
+                          }
+                        />
+                      ) : Number(item.disc_value) > 0 ? (
+                        <>
+                          <p className="text-[10px] line-through italic">
+                            {formatIDR(item.price)}
+                          </p>
+                          <p className="">
+                            {formatIDR(
+                              Number(item.price || 0) -
+                                Number(item.disc_value || 0),
+                            )}
+                          </p>
+                        </>
+                      ) : (
+                        formatIDR(item.price)
+                      )}
+                    </TableCell>
+                    <TableCell className="text-gray-500 ">
+                      {item?.data?.estimated_duration * item.qty}{" "}
+                      {t(item?.data?.estimated_type)}
+                    </TableCell>
+                    <TableCell className="text-gray-500 text-right">
+                      {formatIDR(
+                        isEdit ? editPrice * editQty : item.total_price,
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {!["cancel"].includes(data.status) && canDelete && (
+                        <Tooltip showArrow color="danger" content="Hapus Item">
+                          <Button
+                            isIconOnly
+                            color="danger"
+                            radius="full"
+                            size="sm"
+                            variant="flat"
+                            onPress={() =>
+                              confirmSweat(() => handleDelete(item.id))
+                            }
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </Tooltip>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
           <div className="flex justify-end mt-5 items-end border-t pt-5">
@@ -668,6 +678,12 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                   </Button>
                   <ButtonStatus
                     item={data}
+                    onSelectMechanic={() => {
+                      dispatch(
+                        setMechanic(data.mechanics?.map((item) => item.id)),
+                      );
+                      setOpenModal(true);
+                    }}
                     onSuccess={() => dispatch(getWoDetail(id!))}
                   />
                 </>

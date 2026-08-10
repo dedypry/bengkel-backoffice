@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -32,6 +33,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { http } from "@/utils/libs/axios";
 import { uploadFile } from "@/utils/helpers/upload-file";
 import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
+import { buildCashierWoQuery } from "@/pages/cashier/cashier-query";
 import InputNumber from "@/components/input-number";
 import { formatIDR } from "@/utils/helpers/format";
 import {
@@ -48,7 +50,8 @@ import StatusQueue from "@/components/status-queue";
 import SumaryTable from "@/components/sumary";
 
 export default function PanelCustomer() {
-  const { workOrder, woQuery, isLoadingDetail } = useAppSelector(
+  const { t } = useTranslation();
+  const { workOrder, woQuery, tabCashier, isLoadingDetail } = useAppSelector(
     (state) => state.wo,
   );
   const [loading, setLoading] = useState(false);
@@ -200,7 +203,11 @@ export default function PanelCustomer() {
       .then(({ data }) => {
         notify(data.message);
         dispatch(getWoDetail(workOrder.id.toString()));
-        dispatch(getWo({ ...woQuery, pageSize: 100, date: "" } as any));
+        const refreshParams = buildCashierWoQuery(tabCashier as any, woQuery);
+
+        if (refreshParams) {
+          dispatch(getWo(refreshParams as any));
+        }
         reset();
         hasSet.current = false;
       })
@@ -226,10 +233,12 @@ export default function PanelCustomer() {
           <CardHeader className="w-full flex justify-between">
             <div>
               <p className="text-sm font-bold">
-                Rincian Tagihan TRX NO. {workOrder.trx_no}
+                {t("cashier.panel.bill_detail", { trxNo: workOrder.trx_no })}
               </p>
               <p className="text-sm font-bold">
-                Plat No : {workOrder.vehicle.plate_number}
+                {t("cashier.panel.plate_no", {
+                  plate: workOrder.vehicle.plate_number,
+                })}
               </p>
             </div>
             <div className="flex gap-2">
@@ -242,7 +251,7 @@ export default function PanelCustomer() {
                   startContent={<Edit size={18} />}
                   onPress={() => setIsDisable(false)}
                 >
-                  Edit
+                  {t("cashier.panel.edit")}
                 </Button>
               )}
 
@@ -253,7 +262,7 @@ export default function PanelCustomer() {
                 startContent={<Eye size={18} />}
                 onPress={() => navigate(`/service/queue/${workOrder.id}`)}
               >
-                Detail
+                {t("cashier.panel.detail")}
               </Button>
 
               <Button
@@ -277,12 +286,22 @@ export default function PanelCustomer() {
           <CardBody className="gap-2 flex flex-col overflow-y-auto scrollbar-modern max-h-[calc(100vh-360px)]">
             <Table removeWrapper>
               <TableHeader>
-                <TableColumn>Deskripsi Jasa</TableColumn>
-                <TableColumn className="text-center">Harga Jual</TableColumn>
-                <TableColumn className="text-center">Disc %</TableColumn>
-                <TableColumn className="text-center">Nilai Disc</TableColumn>
-                <TableColumn className="text-center">Jumlah</TableColumn>
-                <TableColumn className="text-center">Pjk %</TableColumn>
+                <TableColumn>{t("cashier.table.service_desc")}</TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.sell_price")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.disc_pct")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.disc_value")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.amount")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.tax_pct")}
+                </TableColumn>
                 <TableColumn> </TableColumn>
               </TableHeader>
               <TableBody>
@@ -428,13 +447,25 @@ export default function PanelCustomer() {
 
             <Table removeWrapper className="mt-1">
               <TableHeader>
-                <TableColumn>Deskripsi Part</TableColumn>
-                <TableColumn className="text-center">Harga Jual</TableColumn>
-                <TableColumn className="text-center">Qty</TableColumn>
-                <TableColumn className="text-center">Disc %</TableColumn>
-                <TableColumn className="text-center">Nilai Disc</TableColumn>
-                <TableColumn className="text-center">Jumlah</TableColumn>
-                <TableColumn className="text-center">Pjk %</TableColumn>
+                <TableColumn>{t("cashier.table.part_desc")}</TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.sell_price")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.qty")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.disc_pct")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.disc_value")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.amount")}
+                </TableColumn>
+                <TableColumn className="text-center">
+                  {t("cashier.table.tax_pct")}
+                </TableColumn>
                 <TableColumn> </TableColumn>
               </TableHeader>
               <TableBody>
@@ -604,9 +635,9 @@ export default function PanelCustomer() {
                         label: "w-24",
                         mainWrapper: "w-34",
                       }}
-                      label="Pelanggan"
+                      label={t("cashier.panel.customer")}
                       labelPlacement="outside-left"
-                      placeholder="#Order Customer"
+                      placeholder={t("cashier.panel.order_placeholder")}
                       size="sm"
                       value={workOrder.customer.name}
                     />
@@ -616,7 +647,7 @@ export default function PanelCustomer() {
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <p className="w-24 text-xs pl-2">Mekanik</p>
+                  <p className="w-24 text-xs pl-2">{t("cashier.panel.mechanic")}</p>
                   <div className="flex flex-wrap gap-1">
                     {(workOrder.mechanics || []).map((item) => (
                       <Chip key={item.id} size="sm" variant="bordered">
@@ -630,20 +661,24 @@ export default function PanelCustomer() {
                   <Alert className="mb-2 mt-5" color="success" variant="faded">
                     <div className="w-full">
                       <p className="font-semibold text-sm">
-                        Pembayaran Berhasil #{workOrder.payment?.reference_no}
+                        {t("cashier.panel.payment_success", {
+                          ref: workOrder.payment?.reference_no,
+                        })}
                       </p>
 
                       <Divider className="my-1 opacity-50" />
 
                       <div className="grid grid-cols-2 gap-y-1 mt-2">
                         <p className="font-bold text-xs">
-                          Pebayaran {workOrder.payment?.method || "CASH"}
+                          {t("cashier.panel.payment_method", {
+                            method: workOrder.payment?.method || "CASH",
+                          })}
                         </p>
                         <p className="text-xs text-right">
                           {formatIDR(workOrder.payment?.amount)}
                         </p>
 
-                        <p className="font-bold text-xs">Waktu:</p>
+                        <p className="font-bold text-xs">{t("cashier.panel.time")}</p>
                         <p className="text-xs text-right">
                           {dayjs(
                             workOrder.payment?.payment_date ||
@@ -665,7 +700,9 @@ export default function PanelCustomer() {
             {!isDisable && (
               <div className="w-full flex justify-between mt-2 items-center">
                 <p className="text-md font-bold">
-                  Total : {formatIDR(watch("total"))}
+                  {t("cashier.panel.total", {
+                    amount: formatIDR(watch("total")),
+                  })}
                 </p>
                 <ModalProductOrder
                   control={control}
@@ -684,7 +721,7 @@ export default function PanelCustomer() {
           <div className="p-6 bg-slate-100 rounded-full mb-4">
             <Receipt className="w-12 h-12" />
           </div>
-          <p>Pilih antrean di sebelah kiri untuk memproses pembayaran</p>
+          <p>{t("cashier.panel.select_queue")}</p>
         </Card>
       )}
     </div>

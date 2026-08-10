@@ -93,5 +93,90 @@
             "display": "Queue Display (TV)",
             "service_display": "Service Status Display (TV)"
         }
+    },
+    "cashier": {
+        "tabs": {
+            "customer": "Customer",
+            "finish": "Completed",
+            "product": "Spare Parts"
+        },
+        "date": "Date",
+        "all_dates": "All dates",
+        "search": {
+            "product_aria": "Search spare parts",
+            "product_placeholder": "Search name or part code...",
+            "finish_aria": "Search completed transactions",
+            "finish_placeholder": "Search plate, name, or transaction no...",
+            "customer_aria": "Search customer queue",
+            "customer_placeholder": "Search plate number or name..."
+        },
+        "list": {
+            "empty_queue": "No queue at the moment",
+            "empty_finished": "No completed transactions yet",
+            "paid": "Paid"
+        },
+        "product_list": {
+            "per_unit": "per {{unit}}",
+            "stock": "Stock",
+            "selected": "SELECTED",
+            "unit_fallback": "Unit"
+        },
+        "notify": {
+            "cashier_call": "Cashier call: {{plate}}{{trx}}"
+        },
+        "panel": {
+            "bill_detail": "Bill Details TRX NO. {{trxNo}}",
+            "plate_no": "Plate No : {{plate}}",
+            "edit": "Edit",
+            "detail": "Detail",
+            "select_queue": "Select a queue on the left to process payment",
+            "customer": "Customer",
+            "mechanic": "Mechanic",
+            "payment_success": "Payment Successful #{{ref}}",
+            "payment_method": "Payment {{method}}",
+            "time": "Time:",
+            "total": "Total : {{amount}}",
+            "order_placeholder": "#Customer Order"
+        },
+        "table": {
+            "service_desc": "Service Description",
+            "part_desc": "Part Description",
+            "product": "Product",
+            "sell_price": "Sell Price",
+            "price": "Price",
+            "qty": "Qty",
+            "disc_pct": "Disc %",
+            "disc_value": "Disc Amount",
+            "amount": "Amount",
+            "tax_pct": "Tax %",
+            "ppn_pct": "VAT %",
+            "action": "Action"
+        },
+        "product_panel": {
+            "empty_title": "No Products Found",
+            "empty_desc": "Please select a product on the left",
+            "po_no": "PO No",
+            "customer": "Customer",
+            "select_customer": "Select Customer",
+            "signature": "Signature",
+            "notes": "Notes"
+        },
+        "payment": {
+            "pay_now": "Pay Now",
+            "confirm_title": "Payment Confirmation",
+            "method_label": "Payment Method",
+            "cash": "Cash",
+            "cash_desc": "Pay at cashier",
+            "transfer": "Transfer",
+            "transfer_desc": "Bank / E-Wallet",
+            "received": "Amount Received",
+            "change": "Change",
+            "short_pay": "Insufficient Payment",
+            "proof": "Transfer Proof",
+            "total_payment": "Total Payment",
+            "cancel": "Cancel",
+            "confirm_pay": "Pay & Complete",
+            "exact": "EXACT"
+        }
     }
 }
