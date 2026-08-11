@@ -48,6 +48,12 @@ import { http } from "@/utils/libs/axios";
 import { notify, notifyError } from "@/utils/helpers/notify";
 import { handleDownloadExcel } from "@/utils/helpers/global";
 
+function toStockNumber(value: unknown): number {
+  const stock = Number(value);
+
+  return Number.isFinite(stock) ? stock : 0;
+}
+
 export default function InventoryStockPage() {
   const { t } = useTranslation();
   const { company } = useAppSelector((state) => state.auth);
@@ -321,18 +327,18 @@ export default function InventoryStockPage() {
                   <div className="flex items-center justify-center gap-3">
                     <div className="flex flex-col items-end">
                       <div className="font-black text-small text-gray-700">
-                        {Number(item.stock ?? 0)}{" "}
+                        {toStockNumber(item.stock)}{" "}
                         <span className="text-tiny font-normal text-gray-500 uppercase">
                           {item.uom?.code}
                         </span>
                       </div>
                       <span className="text-[9px] text-gray-400 italic">
                         {t("inventory.stock.min_stock")}{" "}
-                        {Number(item.min_stock ?? 0)}
+                        {toStockNumber(item.min_stock)}
                       </span>
                     </div>
                     <UpdateStock
-                      currentStock={Number(item.stock ?? 0)}
+                      currentStock={toStockNumber(item.stock)}
                       id={item.id}
                       name={item.name}
                     />
@@ -368,7 +374,7 @@ export default function InventoryStockPage() {
                 </TableCell>
 
                 <TableCell>
-                  {Number(item.stock ?? 0) <= 0 ? (
+                  {toStockNumber(item.stock) <= 0 ? (
                     <Chip
                       className="font-bold text-tiny"
                       color="danger"
@@ -376,7 +382,8 @@ export default function InventoryStockPage() {
                     >
                       {t("inventory.stock.status_empty")}
                     </Chip>
-                  ) : Number(item.stock) <= Number(item.min_stock) ? (
+                  ) : toStockNumber(item.stock) <=
+                    toStockNumber(item.min_stock) ? (
                     <Chip
                       className="font-bold text-tiny"
                       color="warning"
@@ -419,7 +426,7 @@ export default function InventoryStockPage() {
         <UpdateStock
           defaultOpen
           hideTrigger
-          currentStock={Number(queryProduct.stock ?? 0)}
+          currentStock={toStockNumber(queryProduct.stock)}
           id={queryProduct.id}
           name={queryProduct.name}
           onClosed={clearUpdateStockParam}
