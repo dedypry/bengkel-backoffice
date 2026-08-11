@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, forwardRef } from "react"; // 1. Tambahkan forwardRef
+import {
+  useEffect,
+  useRef,
+  useState,
+  forwardRef,
+  type KeyboardEvent,
+} from "react";
 import { Input, type InputProps } from "@heroui/react";
 
 import { switchCommasToDots, switchDotsToCommas } from "@/utils/helpers/format";
@@ -114,6 +120,11 @@ const InputNumber = forwardRef<
       }
     }
 
+    function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+      e.stopPropagation();
+      props.onKeyDown?.(e);
+    }
+
     return (
       <Input
         ref={ref} // 4. Teruskan ref ke HeroUI Input
@@ -128,6 +139,11 @@ const InputNumber = forwardRef<
         onFocus={(e) => {
           isFocusedRef.current = true;
           props.onFocus?.(e);
+        }}
+        onKeyDown={handleKeyDown}
+        onKeyDownCapture={(e) => {
+          e.stopPropagation();
+          props.onKeyDownCapture?.(e);
         }}
       />
     );
