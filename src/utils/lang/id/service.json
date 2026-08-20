@@ -409,6 +409,63 @@
             "cancel_note_placeholder": "Tuliskan alasan membatalkan service ini",
             "cancel_required": "Alasan pembatalan wajib diisi",
             "cancel_service": "Batalkan Service"
+        },
+        "inspection": {
+            "title": "Pemeriksaan Kendaraan",
+            "modal_title": "Check Form Kondisi Kendaraan",
+            "modal_subtitle": "Detail pemeriksaan unit sebelum dan sesudah service",
+            "preview_3d": "Model 3D Kendaraan",
+            "preview_hint": "Bagian berwarna merah menandakan kondisi NOT OK. Klik bagian mobil untuk fokus ke checklist.",
+            "open_detail": "Lihat Detail",
+            "save_mock": "Simpan Pemeriksaan",
+            "saved_mock_toast": "Pemeriksaan disimpan lokal (mock)",
+            "search_placeholder": "Cari item pemeriksaan...",
+            "note_placeholder": "Catatan item",
+            "status_empty": "Belum diisi",
+            "status_draft": "Draft",
+            "status_completed": "Selesai",
+            "status_ok": "OK",
+            "status_not_ok": "NOT OK",
+            "no_issue": "Belum ada temuan NOT OK",
+            "issue_count": "{{count}} bagian NOT OK",
+            "fields": {
+                "customer_name": "Nama",
+                "plate_number": "No. Plat",
+                "inspected_at": "Tanggal",
+                "notes": "Catatan Pemeriksaan"
+            },
+            "groups": {
+                "engine": "Mesin & Fluida",
+                "electrical": "Kelistrikan",
+                "undercarriage": "Kaki-kaki",
+                "chemical": "Chemical",
+                "body": "Body"
+            },
+            "items": {
+                "engine_oil": "Oli Mesin",
+                "brake_fluid": "Minyak Rem",
+                "radiator": "Radiator / Coolant",
+                "battery": "Aki",
+                "alternator": "Alternator",
+                "ac_filter": "Filter AC",
+                "air_filter": "Filter Udara",
+                "shock_absorber": "Shock Absorber",
+                "tire": "Ban",
+                "brake_pad": "Kampas Rem",
+                "chemical": "Chemical",
+                "body_condition": "Kondisi Body"
+            },
+            "parts": {
+                "hood": "Kap Mesin",
+                "roof": "Atap",
+                "trunk": "Bagasi",
+                "front_bumper": "Bumper Depan",
+                "rear_bumper": "Bumper Belakang",
+                "front_left_door": "Pintu Depan Kiri",
+                "front_right_door": "Pintu Depan Kanan",
+                "rear_left_door": "Pintu Belakang Kiri",
+                "rear_right_door": "Pintu Belakang Kanan"
+            }
         }
     }
 }

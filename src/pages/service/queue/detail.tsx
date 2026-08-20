@@ -23,6 +23,7 @@ import EditUnitInfo from "./components/edit-unit-info";
 import WoComplaint from "./components/wo-complaint";
 import EditOrderDate from "./components/edit-order-date";
 import EditSupervisorInfo from "./components/edit-supervisor-info";
+import VehicleInspectionCard from "./components/vehicle-inspection/vehicle-inspection-card";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getWoDetail } from "@/stores/features/work-order/wo-action";
@@ -208,6 +209,7 @@ export default function WorkOrderDetail() {
               />
             </CardBody>
           </Card>
+          <VehicleInspectionCard workOrder={data} />
           {data.cancel_note && (
             <Card>
               <CardBody className="p-6 space-y-4">

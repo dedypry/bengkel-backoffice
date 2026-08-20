@@ -409,6 +409,63 @@
             "cancel_note_placeholder": "Write reason for cancelling this service",
             "cancel_required": "Cancellation reason is required",
             "cancel_service": "Cancel Service"
+        },
+        "inspection": {
+            "title": "Vehicle Inspection",
+            "modal_title": "Vehicle Condition Check Form",
+            "modal_subtitle": "Unit inspection details before and after service",
+            "preview_3d": "3D Vehicle Model",
+            "preview_hint": "Red parts indicate NOT OK status. Click a car part to focus the checklist.",
+            "open_detail": "View Detail",
+            "save_mock": "Save Inspection",
+            "saved_mock_toast": "Inspection saved locally (mock)",
+            "search_placeholder": "Search inspection item...",
+            "note_placeholder": "Item note",
+            "status_empty": "Not filled",
+            "status_draft": "Draft",
+            "status_completed": "Completed",
+            "status_ok": "OK",
+            "status_not_ok": "NOT OK",
+            "no_issue": "No NOT OK findings yet",
+            "issue_count": "{{count}} NOT OK parts",
+            "fields": {
+                "customer_name": "Name",
+                "plate_number": "Plate No.",
+                "inspected_at": "Date",
+                "notes": "Inspection Notes"
+            },
+            "groups": {
+                "engine": "Engine & Fluids",
+                "electrical": "Electrical",
+                "undercarriage": "Undercarriage",
+                "chemical": "Chemical",
+                "body": "Body"
+            },
+            "items": {
+                "engine_oil": "Engine Oil",
+                "brake_fluid": "Brake Fluid",
+                "radiator": "Radiator / Coolant",
+                "battery": "Battery",
+                "alternator": "Alternator",
+                "ac_filter": "AC Filter",
+                "air_filter": "Air Filter",
+                "shock_absorber": "Shock Absorber",
+                "tire": "Tire",
+                "brake_pad": "Brake Pad",
+                "chemical": "Chemical",
+                "body_condition": "Body Condition"
+            },
+            "parts": {
+                "hood": "Hood",
+                "roof": "Roof",
+                "trunk": "Trunk",
+                "front_bumper": "Front Bumper",
+                "rear_bumper": "Rear Bumper",
+                "front_left_door": "Front Left Door",
+                "front_right_door": "Front Right Door",
+                "rear_left_door": "Rear Left Door",
+                "rear_right_door": "Rear Right Door"
+            }
         }
     }
 }

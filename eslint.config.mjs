@@ -174,4 +174,11 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ["**/vehicle-inspection/car-3d-preview.tsx"],
+    rules: {
+      // R3F uses Three.js props on lowercase elements (mesh, group, etc.)
+      "react/no-unknown-property": "off",
+    },
+  },
 ]);
