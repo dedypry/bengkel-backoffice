@@ -70,7 +70,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
   const { categories, uoms } = useAppSelector((state) => state.product);
   const [isLoading, setLoading] = useState(false);
   const [modalAddCat, setModalAddCat] = useState(false);
-  const [subCategories, setSubCategories] = useState<IProductCategory[]>([]);
   const [initialCategoryData, setInitialCategoryData] = useState<any>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -114,14 +113,11 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
         initialData.category?.parent_id || initialData.category_id;
 
       if (mainCatId) {
-        const find = categories.find((e) => e.id === mainCatId);
-
-        if (find) {
-          setSubCategories(find.children || []);
-        } else {
-          if (initialData.category) {
-            formatCategories();
-          }
+        if (
+          !categories.find((e) => e.id === mainCatId) &&
+          initialData.category
+        ) {
+          formatCategories();
         }
       }
 
@@ -188,9 +184,9 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
     }
   };
 
-  const mainCategory = categories.find(
-    (e) => e.id == watch("main_category_id"),
-  );
+  const mainCategoryId = watch("main_category_id");
+  const mainCategory = categories.find((e) => e.id == mainCategoryId);
+  const subCategoryOptions = mainCategory?.children ?? [];
 
   return (
     <>
@@ -200,7 +196,6 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
         setOpen={setModalAddCat}
         onClose={(val) => {
           if (val?.children && val?.children.length > 0) {
-            setSubCategories(val?.children || []);
             setValue("category_id", val?.children[0]?.id);
           }
           if (val?.id) {
@@ -294,7 +289,10 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                           color="success"
                           size="sm"
                           variant="light"
-                          onPress={() => setModalAddCat(true)}
+                          onPress={() => {
+                            setInitialCategoryData(undefined);
+                            setModalAddCat(true);
+                          }}
                         >
                           <PlusSquare />{" "}
                         </Button>
@@ -307,17 +305,23 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                       )}
                       selectedKey={field.value?.toString()}
                       onSelectionChange={(val) => {
-                        if (val != String(field.value)) {
-                          setValue("category_id", undefined as any);
-                        }
                         field.onChange(val);
-                        if (val) {
-                          const find = categories.find((e) => e.id == val);
 
-                          if (find) {
-                            setSubCategories(find.children || []);
-                          }
+                        if (!val) {
+                          setValue("category_id", undefined as any);
+
+                          return;
                         }
+
+                        const selectedMain = categories.find(
+                          (e) => e.id == val,
+                        );
+                        const firstSub = selectedMain?.children?.[0];
+
+                        setValue(
+                          "category_id",
+                          firstSub?.id ?? (undefined as any),
+                        );
                       }}
                     >
                       {(item) => (
@@ -342,9 +346,7 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                   name="category_id"
                   render={({ field, fieldState }) => (
                     <Autocomplete
-                      defaultItems={
-                        Array.isArray(subCategories) ? subCategories : []
-                      }
+                      key={String(mainCategoryId || "none")}
                       endContent={
                         <Button
                           isIconOnly
@@ -357,12 +359,12 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                               name: mainCategory?.name,
                               description: mainCategory?.description,
                               is_active: true,
-                              children: [
-                                ...(mainCategory?.children &&
-                                mainCategory?.children.length > 0
-                                  ? mainCategory?.children
-                                  : [{ name: "" }]),
-                              ],
+                              children: (mainCategory?.children ?? []).map(
+                                (child) => ({
+                                  id: child.id,
+                                  name: child.name,
+                                }),
+                              ),
                             });
                             setModalAddCat(true);
                           }}
@@ -371,22 +373,15 @@ export default function FormAddStock({ initialData }: { initialData?: any }) {
                         </Button>
                       }
                       errorMessage={fieldState.error?.message}
+                      isDisabled={!mainCategoryId}
                       isInvalid={!!fieldState.error}
+                      items={subCategoryOptions}
                       label={t("inventory.stock.form.category")}
                       placeholder={t(
                         "inventory.stock.bulk_category.select_category",
                       )}
                       selectedKey={field.value?.toString()}
-                      onSelectionChange={(val) => {
-                        field.onChange(val);
-                        if (val) {
-                          const find = categories.find((e) => e.id == val);
-
-                          if (find) {
-                            setSubCategories(find.children || []);
-                          }
-                        }
-                      }}
+                      onSelectionChange={(val) => field.onChange(val)}
                     >
                       {(item) => (
                         <AutocompleteItem key={item.id} textValue={item.name}>

@@ -448,7 +448,12 @@
                 "add_sub": "TAMBAH SUB",
                 "update": "PERBARUI",
                 "save": "SIMPAN KATEGORI",
-                "sub_placeholder": "Sub-Kategori {{n}}"
+                "sub_placeholder": "Sub-Kategori {{n}}",
+                "pick_main": "Pilih Kategori Utama",
+                "pick_main_search": "Cari kategori...",
+                "pick_main_empty": "Kategori tidak ditemukan",
+                "sub_search": "Cari sub-kategori...",
+                "sub_search_empty": "Sub-kategori tidak ditemukan"
             }
         }
     },

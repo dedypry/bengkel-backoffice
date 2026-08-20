@@ -448,7 +448,12 @@
                 "add_sub": "ADD SUB",
                 "update": "UPDATE",
                 "save": "SAVE CATEGORY",
-                "sub_placeholder": "Sub-Category {{n}}"
+                "sub_placeholder": "Sub-Category {{n}}",
+                "pick_main": "Select Main Category",
+                "pick_main_search": "Search category...",
+                "pick_main_empty": "No categories found",
+                "sub_search": "Search sub-category...",
+                "sub_search_empty": "No sub-categories found"
             }
         }
     },
