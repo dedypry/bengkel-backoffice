@@ -317,7 +317,9 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                     })),
                   ].map((item: any, idx: number) => {
                     const find = sparepart.find((e) => e.id === item.data.id);
-                    const editPrice = Number(find?.price ?? item.price ?? 0);
+                    const editPrice = Number(
+                      find?.price ?? item.price ?? item.data?.sell_price ?? 0,
+                    );
                     const editQty = Number(find?.qty ?? item.qty ?? 0);
 
                     return (
@@ -480,7 +482,9 @@ export default function DetailInfoTab({ data, setOpenModal, id }: Props) {
                     })),
                   ].map((item: any, idx: number) => {
                     const find = services.find((e) => e.id === item.data?.id);
-                    const editPrice = Number(find?.price ?? item.price ?? 0);
+                    const editPrice = Number(
+                      find?.price ?? item.price ?? item.data?.sell_price ?? 0,
+                    );
                     const editQty = Number(find?.qty ?? item.qty ?? 0);
 
                     return (

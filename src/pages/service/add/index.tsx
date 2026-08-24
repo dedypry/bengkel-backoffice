@@ -68,7 +68,10 @@ import {
   setWoService,
   setWoSparepart,
 } from "@/stores/features/work-order/wo-slice";
-import { calculateTotalEstimation } from "@/utils/helpers/global";
+import {
+  calculateTotalEstimation,
+  resolveSparepartUnitPrice,
+} from "@/utils/helpers/global";
 import { http } from "@/utils/libs/axios";
 import { confirmSweat, notify, notifyError } from "@/utils/helpers/notify";
 import InputNumber from "@/components/input-number";
@@ -122,7 +125,7 @@ export default function ServiceAddPage() {
     0,
   );
   const sparepartPrice = sparepart.reduce(
-    (sum, e) => sum + Number(e.price || 0) * Number(e.qty || 0),
+    (sum, e) => sum + resolveSparepartUnitPrice(e) * Number(e.qty || 0),
     0,
   );
 
@@ -227,7 +230,7 @@ export default function ServiceAddPage() {
       sparepart: sparepart.map((item) => ({
         id: item.id,
         qty: item.qty,
-        price: item.price,
+        price: resolveSparepartUnitPrice(item),
       })),
     };
 
@@ -892,43 +895,46 @@ export default function ServiceAddPage() {
                                 </Button>
                               </TableCell>
                             </TableRow>,
-                            ...sparepart.map((item, i) => (
-                              <TableRow key={`spt-item-${item.id || i}`}>
-                                <TableCell>
-                                  <div className="flex flex-col">
-                                    <span className="text-sm font-medium">
-                                      {item.name}
-                                    </span>
-                                    <span className="text-gray-400 text-xs font-mono">
-                                      {item.code}
-                                    </span>
-                                  </div>
-                                </TableCell>
-                                <TableCell className="text-center">
-                                  {formatNumber(Number(item.qty || 0))}
-                                </TableCell>
-                                <TableCell className="text-end">
-                                  {formatIDR(Number(item.sell_price))}
-                                </TableCell>
-                                <TableCell className="text-end font-semibold">
-                                  {formatIDR(
-                                    Number(item.qty || 0) *
-                                      Number(item.sell_price),
-                                  )}
-                                </TableCell>
-                                <TableCell className="text-center">
-                                  <Button
-                                    isIconOnly
-                                    variant="light"
-                                    onPress={() =>
-                                      dispatch(removeSparepartService(item))
-                                    }
-                                  >
-                                    <Trash2 className="size-4 text-danger" />
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            )),
+                            ...sparepart.map((item, i) => {
+                              const unitPrice = resolveSparepartUnitPrice(item);
+
+                              return (
+                                <TableRow key={`spt-item-${item.id || i}`}>
+                                  <TableCell>
+                                    <div className="flex flex-col">
+                                      <span className="text-sm font-medium">
+                                        {item.name}
+                                      </span>
+                                      <span className="text-gray-400 text-xs font-mono">
+                                        {item.code}
+                                      </span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {formatNumber(Number(item.qty || 0))}
+                                  </TableCell>
+                                  <TableCell className="text-end">
+                                    {formatIDR(unitPrice)}
+                                  </TableCell>
+                                  <TableCell className="text-end font-semibold">
+                                    {formatIDR(
+                                      Number(item.qty || 0) * unitPrice,
+                                    )}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <Button
+                                      isIconOnly
+                                      variant="light"
+                                      onPress={() =>
+                                        dispatch(removeSparepartService(item))
+                                      }
+                                    >
+                                      <Trash2 className="size-4 text-danger" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            }),
                           ]
                         : []),
 

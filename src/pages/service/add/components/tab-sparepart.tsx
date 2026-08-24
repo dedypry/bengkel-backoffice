@@ -23,6 +23,7 @@ import {
 import debounce from "@/utils/helpers/debounce";
 import { getProduct } from "@/stores/features/product/product-action";
 import { formatNumber } from "@/utils/helpers/format";
+import { resolveSparepartUnitPrice } from "@/utils/helpers/global";
 // Menggunakan InputNumber HeroUI yang kita buat di awal
 import InputQty from "@/components/input-qty";
 import InputNumber from "@/components/input-number";
@@ -42,7 +43,7 @@ export default function TabSparepart() {
         addSparepartService({
           ...item,
           qty: 1,
-          price: Number(item.sell_price),
+          price: resolveSparepartUnitPrice(item),
         }),
       );
     } else {
@@ -51,11 +52,14 @@ export default function TabSparepart() {
   }
 
   function handleQty(item: IProduct, qty: number) {
+    const existing = findQty(item);
+
     if (qty > 0) {
       dispatch(
         addSparepartService({
           ...item,
           qty: item.stock < qty ? item.stock : qty,
+          price: resolveSparepartUnitPrice(existing || item),
         }),
       );
     } else {
@@ -117,7 +121,7 @@ export default function TabSparepart() {
             const itemData: any = {
               ...item,
               qty: find?.qty || 0,
-              sell_price: find?.price || item.sell_price || 0,
+              sell_price: resolveSparepartUnitPrice(find || item),
             };
 
             return (

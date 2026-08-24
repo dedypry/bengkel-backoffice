@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 
 import { http } from "../libs/axios";
 
+import { switchCommasToDots } from "./format";
 import { notifyError } from "./notify";
 
 export function getInitials(name: string): string {
@@ -220,6 +221,35 @@ export function formatTime(data: string) {
   return data.slice(0, 5);
 }
 
+function parseMoneyValue(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const parsed =
+    typeof value === "string" ? switchCommasToDots(value) : Number(value);
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function resolveSparepartUnitPrice(item: {
+  price?: number | string | null;
+  sell_price?: number | string | null;
+}) {
+  const sellPrice = parseMoneyValue(item.sell_price);
+  const price = parseMoneyValue(item.price);
+
+  if (price !== null && (price > 0 || !sellPrice || sellPrice <= 0)) {
+    return price;
+  }
+
+  if (sellPrice !== null && sellPrice > 0) {
+    return sellPrice;
+  }
+
+  return price ?? 0;
+}
+
 export function generateDataWo(serviceData: any[], sparepartData: any[]) {
   return {
     services: serviceData.map((e) => ({
@@ -231,7 +261,7 @@ export function generateDataWo(serviceData: any[], sparepartData: any[]) {
     sparepart: sparepartData.map((e) => ({
       id: e.id,
       qty: e.qty,
-      price: e.sell_price,
+      price: resolveSparepartUnitPrice(e),
       supplier_id: e?.supplier_id,
     })),
   };

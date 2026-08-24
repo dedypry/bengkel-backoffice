@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
 
 export const formatIDR = (price?: any, type: "full" | "short" = "full") => {
-  if (!price) return "Rp. 0";
-  price = Number(price);
+  const amount = Number(price);
+
+  if (!Number.isFinite(amount)) return "Rp. 0";
+  if (amount === 0) return "Rp. 0";
   if (type === "short") {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -10,7 +12,7 @@ export const formatIDR = (price?: any, type: "full" | "short" = "full") => {
       notation: "compact",
       maximumFractionDigits: 1, // Menampilkan 1 desimal, misal 1.5 Jt
     })
-      .format(price)
+      .format(amount)
       .replace("jt", "Jt")
       .replace("rb", "Rb");
     // .replace di atas untuk memastikan kapitalisasi sesuai selera UI
@@ -20,7 +22,7 @@ export const formatIDR = (price?: any, type: "full" | "short" = "full") => {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(amount);
 };
 
 export const formatNumber = (value: number | string | undefined): string => {
