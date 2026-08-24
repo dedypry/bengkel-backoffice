@@ -193,7 +193,10 @@
             },
             "session": "Login Session",
             "request_body": "Request Body",
-            "response_message": "Response"
+            "response_message": "Response",
+            "copy": "Copy",
+            "copied": "Copied to clipboard",
+            "copy_failed": "Failed to copy"
         },
         "filter": {
             "date_range": "Period",

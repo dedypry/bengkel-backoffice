@@ -8,8 +8,12 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Tooltip,
 } from "@heroui/react";
+import { Copy } from "lucide-react";
 import { useTranslation } from "react-i18next";
+
+import { notify } from "@/utils/helpers/notify";
 
 type Props = {
   open: boolean;
@@ -37,6 +41,63 @@ export function formatPrettyJson(value: unknown) {
   }
 }
 
+function CopyButton({
+  ariaLabel,
+  value,
+}: {
+  ariaLabel: string;
+  value: string;
+}) {
+  const { t } = useTranslation();
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      notify(t("logs.activity.copied"));
+    } catch {
+      notify(t("logs.activity.copy_failed"), "error");
+    }
+  }
+
+  return (
+    <Tooltip content={t("logs.activity.copy")}>
+      <Button
+        isIconOnly
+        aria-label={ariaLabel}
+        size="sm"
+        variant="light"
+        onPress={handleCopy}
+      >
+        <Copy size={14} />
+      </Button>
+    </Tooltip>
+  );
+}
+
+function SectionLabel({
+  copyValue,
+  label,
+}: {
+  copyValue?: string;
+  label: string;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="mb-2 flex items-center justify-between gap-2">
+      <p className="text-[10px] font-bold uppercase text-secondary-400">
+        {label}
+      </p>
+      {copyValue ? (
+        <CopyButton
+          ariaLabel={`${t("logs.activity.copy")} ${label}`}
+          value={copyValue}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 export default function ActivityBodyModal({ open, item, onOpenChange }: Props) {
   const { t } = useTranslation();
 
@@ -45,6 +106,8 @@ export default function ActivityBodyModal({ open, item, onOpenChange }: Props) {
   }
 
   const statusColor = item.status === "success" ? "success" : "danger";
+  const requestBody = formatPrettyJson(item.body);
+  const responseMessage = formatPrettyJson(item.response_message);
 
   return (
     <Modal
@@ -69,9 +132,7 @@ export default function ActivityBodyModal({ open, item, onOpenChange }: Props) {
         </ModalHeader>
         <ModalBody className="gap-4">
           <div className="rounded-lg border border-secondary-200 bg-secondary-50 px-3 py-2">
-            <p className="text-[10px] font-bold uppercase text-secondary-400">
-              URL
-            </p>
+            <SectionLabel copyValue={item.url || undefined} label="URL" />
             <p className="break-all font-mono text-xs text-secondary-700">
               {item.url || "-"}
             </p>
@@ -93,20 +154,22 @@ export default function ActivityBodyModal({ open, item, onOpenChange }: Props) {
           ) : null}
 
           <div>
-            <p className="mb-2 text-[10px] font-bold uppercase text-secondary-400">
-              {t("logs.activity.request_body")}
-            </p>
+            <SectionLabel
+              copyValue={requestBody}
+              label={t("logs.activity.request_body")}
+            />
             <pre className="max-h-[240px] overflow-auto rounded-lg border border-secondary-200 bg-secondary-900 p-4 text-xs leading-relaxed text-secondary-100">
-              {formatPrettyJson(item.body)}
+              {requestBody}
             </pre>
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-bold uppercase text-secondary-400">
-              {t("logs.activity.response_message")}
-            </p>
+            <SectionLabel
+              copyValue={responseMessage}
+              label={t("logs.activity.response_message")}
+            />
             <pre className="max-h-[240px] overflow-auto rounded-lg border border-secondary-200 bg-secondary-900 p-4 text-xs leading-relaxed text-secondary-100">
-              {formatPrettyJson(item.response_message)}
+              {responseMessage}
             </pre>
           </div>
         </ModalBody>

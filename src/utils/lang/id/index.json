@@ -193,7 +193,10 @@
             },
             "session": "Sesi Login",
             "request_body": "Request Body",
-            "response_message": "Response"
+            "response_message": "Response",
+            "copy": "Salin",
+            "copied": "Berhasil disalin",
+            "copy_failed": "Gagal menyalin"
         },
         "filter": {
             "date_range": "Periode",
