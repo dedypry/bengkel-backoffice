@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -11,8 +11,17 @@ import {
   Button,
   Input,
   Textarea,
+  Chip,
 } from "@heroui/react";
-import { List, Plus, Search, Tags, Trash2 } from "lucide-react";
+import {
+  List,
+  Plus,
+  Search,
+  Tags,
+  Trash2,
+  AlertCircle,
+  ArrowRightLeft,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { http } from "@/utils/libs/axios";
@@ -30,11 +39,193 @@ const categorySchema = z.object({
     z.object({
       id: z.number().optional(),
       name: z.string().min(2, "Nama sub-kategori minimal 2 karakter"),
+      total_product: z.number().optional(),
     }),
   ),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
+
+type SubCategoryFormItem = CategoryFormValues["subCategories"][number];
+
+type BlockedSubCategory = {
+  id: number;
+  name: string;
+  productCount: number;
+};
+
+function parseProductCount(value: unknown) {
+  const count = Number(value ?? 0);
+
+  return Number.isFinite(count) ? count : 0;
+}
+
+function buildProductCountMap(items: SubCategoryFormItem[]) {
+  return items.reduce<Record<number, number>>((acc, item) => {
+    if (item.id) {
+      acc[item.id] = parseProductCount(item.total_product);
+    }
+
+    return acc;
+  }, {});
+}
+
+function mergeProductCountMap(
+  current: Record<number, number>,
+  items: Array<{
+    id: number;
+    productCount?: number;
+    total_product?: unknown;
+  }>,
+) {
+  const next = { ...current };
+
+  items.forEach((item) => {
+    next[item.id] = parseProductCount(item.productCount ?? item.total_product);
+  });
+
+  return next;
+}
+
+function resolveSubCategoryProductCount(
+  item: SubCategoryFormItem | undefined,
+  productCountById: Record<number, number>,
+) {
+  if (!item) {
+    return 0;
+  }
+
+  if (item.id && productCountById[item.id] !== undefined) {
+    return productCountById[item.id];
+  }
+
+  return parseProductCount(item.total_product);
+}
+
+function getDuplicateGroups(subCategories: Array<{ name?: string | null }>) {
+  const grouped = new Map<string, number[]>();
+
+  subCategories.forEach((item, index) => {
+    const key = item.name?.trim().toLowerCase();
+
+    if (!key) {
+      return;
+    }
+
+    const indexes = grouped.get(key) ?? [];
+
+    indexes.push(index);
+    grouped.set(key, indexes);
+  });
+
+  return Array.from(grouped.entries())
+    .filter(([, indexes]) => indexes.length > 1)
+    .map(([key, indexes]) => ({
+      key,
+      displayName: subCategories[indexes[0]]?.name?.trim() || key,
+      indexes,
+    }));
+}
+
+function findDuplicateSubCategoryIndexes(
+  subCategories: Array<{ name?: string | null }>,
+) {
+  const duplicateIndexes = new Set<number>();
+
+  getDuplicateGroups(subCategories).forEach((group) => {
+    group.indexes.forEach((index) => duplicateIndexes.add(index));
+  });
+
+  return duplicateIndexes;
+}
+
+function pickBestDuplicateIndex(
+  indexes: number[],
+  subCategories: SubCategoryFormItem[],
+  productCountById: Record<number, number>,
+) {
+  return indexes.reduce((bestIndex, currentIndex) => {
+    const currentCount = resolveSubCategoryProductCount(
+      subCategories[currentIndex],
+      productCountById,
+    );
+    const bestCount = resolveSubCategoryProductCount(
+      subCategories[bestIndex],
+      productCountById,
+    );
+
+    if (currentCount > bestCount) {
+      return currentIndex;
+    }
+
+    if (currentCount === bestCount && currentIndex < bestIndex) {
+      return currentIndex;
+    }
+
+    return bestIndex;
+  }, indexes[0]);
+}
+
+function mapSubCategoriesFromCategory(children: IProductCategory[] = []) {
+  return children.map((child) => ({
+    id: child.id,
+    name: child.name ?? "",
+    total_product: parseProductCount(child.total_product),
+  }));
+}
+
+function buildCategoryPayload(data: CategoryFormValues) {
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description,
+    is_active: data.is_active,
+    subCategories: data.subCategories.map(({ id, name }) => ({
+      ...(id ? { id } : {}),
+      name,
+    })),
+  };
+}
+
+function mergeBlockedSubCategories(
+  current: SubCategoryFormItem[],
+  blocked: BlockedSubCategory[],
+  source: SubCategoryFormItem[],
+) {
+  const merged = [...current];
+  const existingIds = new Set(
+    merged.filter((item) => item.id).map((item) => item.id),
+  );
+
+  blocked.forEach((blockedItem) => {
+    if (existingIds.has(blockedItem.id)) {
+      const index = merged.findIndex((item) => item.id === blockedItem.id);
+
+      if (index >= 0) {
+        merged[index] = {
+          ...merged[index],
+          name: blockedItem.name,
+          total_product: blockedItem.productCount,
+        };
+      }
+
+      return;
+    }
+
+    const fromSource = source.find((item) => item.id === blockedItem.id);
+
+    merged.push(
+      fromSource ?? {
+        id: blockedItem.id,
+        name: blockedItem.name,
+        total_product: blockedItem.productCount,
+      },
+    );
+    existingIds.add(blockedItem.id);
+  });
+
+  return merged;
+}
 
 interface Props {
   open: boolean;
@@ -57,11 +248,27 @@ export default function ModalAddCategory({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState("");
   const [subCategorySearch, setSubCategorySearch] = useState("");
+  const [duplicateKeepSelections, setDuplicateKeepSelections] = useState<
+    Record<string, number>
+  >({});
+  const [blockedSubCategories, setBlockedSubCategories] = useState<
+    BlockedSubCategory[]
+  >([]);
+  const [keepAllDuplicates, setKeepAllDuplicates] = useState(false);
+  const [productCountById, setProductCountById] = useState<
+    Record<number, number>
+  >({});
+  const [moveConfirm, setMoveConfirm] = useState<{
+    fromCategoryId: number;
+    toCategoryId: number;
+    productCount: number;
+  } | null>(null);
   const [mainCategoryOptions, setMainCategoryOptions] = useState<
     IProductCategory[]
   >([]);
   const dispatch = useAppDispatch();
   const prevOpenRef = useRef(false);
+  const originalSubCategoriesRef = useRef<SubCategoryFormItem[]>([]);
 
   const {
     handleSubmit,
@@ -88,6 +295,49 @@ export default function ModalAddCategory({
     setValue("subCategories", [{ name: "" }]);
   }, [isCreateSubCategory, setValue]);
 
+  async function loadCategoryForEdit(category: IProductCategory) {
+    const fallbackSubCategories = mapSubCategoriesFromCategory(
+      category.children ?? [],
+    );
+
+    reset({
+      id: category.id,
+      name: category.name ?? "",
+      description: category.description ?? "",
+      is_active: category.is_active ?? true,
+      subCategories: fallbackSubCategories,
+    });
+    originalSubCategoriesRef.current = fallbackSubCategories;
+    setProductCountById(buildProductCountMap(fallbackSubCategories));
+
+    try {
+      const { data } = await http.get(`/products/categories/${category.id}`);
+      const subCategories = mapSubCategoriesFromCategory(data.children ?? []);
+
+      originalSubCategoriesRef.current = subCategories;
+      setProductCountById(buildProductCountMap(subCategories));
+      reset({
+        id: category.id,
+        name: data.name ?? category.name ?? "",
+        description: data.description ?? category.description ?? "",
+        is_active: data.is_active ?? category.is_active ?? true,
+        subCategories,
+      });
+    } catch (err) {
+      notifyError(err);
+    }
+  }
+
+  useEffect(() => {
+    if (blockedSubCategories.length === 0) {
+      return;
+    }
+
+    setProductCountById((prev) =>
+      mergeProductCountMap(prev, blockedSubCategories),
+    );
+  }, [blockedSubCategories]);
+
   useEffect(() => {
     const justOpened = open && !prevOpenRef.current;
 
@@ -98,21 +348,36 @@ export default function ModalAddCategory({
     }
 
     setSubCategorySearch("");
+    setBlockedSubCategories([]);
+    setKeepAllDuplicates(false);
+    setProductCountById({});
+    setMoveConfirm(null);
+
+    if (initialData?.id) {
+      void loadCategoryForEdit(initialData);
+
+      return;
+    }
 
     if (initialData) {
+      const subCategories = mapSubCategoriesFromCategory(
+        initialData.children ?? [],
+      );
+
+      originalSubCategoriesRef.current = subCategories;
+      setProductCountById(buildProductCountMap(subCategories));
       reset({
         id: initialData.id,
         name: initialData.name ?? "",
         description: initialData.description ?? "",
         is_active: initialData.is_active ?? true,
-        subCategories: (initialData.children ?? []).map((child: any) => ({
-          id: child.id,
-          name: child.name ?? "",
-        })),
+        subCategories,
       });
 
       return;
     }
+
+    originalSubCategoriesRef.current = [];
 
     reset({
       name: "",
@@ -123,9 +388,19 @@ export default function ModalAddCategory({
   }, [open, initialData, reset]);
 
   const onSubmit = async (data: CategoryFormValues) => {
+    const duplicateIndexes = findDuplicateSubCategoryIndexes(
+      data.subCategories,
+    );
+
+    if (!keepAllDuplicates && duplicateIndexes.size > 0) {
+      notify(t("inventory.categories.modal.sub_duplicate_banner"), "warning");
+
+      return;
+    }
+
     setLoading(true);
     http
-      .post("/products/categories", data)
+      .post("/products/categories", buildCategoryPayload(data))
       .then(({ data }) => {
         notify(data.message);
         setValue("subCategories", []);
@@ -137,7 +412,29 @@ export default function ModalAddCategory({
           dispatch(getCategories(categoryQuery));
         }
       })
-      .catch((err) => notifyError(err))
+      .catch((err) => {
+        const blocked = err?.response?.data?.data?.blockedSubCategories;
+
+        if (Array.isArray(blocked) && blocked.length > 0) {
+          const restored = mergeBlockedSubCategories(
+            data.subCategories,
+            blocked,
+            originalSubCategoriesRef.current,
+          );
+
+          setValue("subCategories", restored, { shouldValidate: true });
+          setBlockedSubCategories(blocked);
+          setProductCountById((prev) => mergeProductCountMap(prev, blocked));
+          notify(
+            t("inventory.categories.modal.sub_restored_banner", {
+              count: blocked.length,
+            }),
+            "warning",
+          );
+        }
+
+        notifyError(err);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -149,6 +446,74 @@ export default function ModalAddCategory({
   const categoryId = watch("id");
   const subCategoryValues = watch("subCategories") ?? [];
   const isEditMode = Boolean(categoryId);
+
+  const duplicateSubCategoryIndexes = useMemo(
+    () => findDuplicateSubCategoryIndexes(subCategoryValues),
+    [subCategoryValues],
+  );
+
+  const duplicateGroups = useMemo(
+    () => getDuplicateGroups(subCategoryValues),
+    [subCategoryValues],
+  );
+
+  const hasDuplicateSubCategories = duplicateSubCategoryIndexes.size > 0;
+
+  const blockedSubCategoryIds = useMemo(
+    () => new Set(blockedSubCategories.map((item) => item.id)),
+    [blockedSubCategories],
+  );
+
+  const duplicateGroupsSignature = useMemo(
+    () =>
+      duplicateGroups
+        .map((group) => `${group.key}:${group.indexes.join(",")}`)
+        .join("|"),
+    [duplicateGroups],
+  );
+
+  const prevDuplicateGroupsSignatureRef = useRef("");
+
+  useEffect(() => {
+    if (
+      prevDuplicateGroupsSignatureRef.current &&
+      prevDuplicateGroupsSignatureRef.current !== duplicateGroupsSignature
+    ) {
+      setKeepAllDuplicates(false);
+    }
+
+    prevDuplicateGroupsSignatureRef.current = duplicateGroupsSignature;
+  }, [duplicateGroupsSignature]);
+
+  useEffect(() => {
+    if (duplicateGroups.length === 0) {
+      setDuplicateKeepSelections({});
+
+      return;
+    }
+
+    setDuplicateKeepSelections((prev) => {
+      const next: Record<string, number> = {};
+
+      duplicateGroups.forEach((group) => {
+        const existing = prev[group.key];
+
+        if (existing !== undefined && group.indexes.includes(existing)) {
+          next[group.key] = existing;
+
+          return;
+        }
+
+        next[group.key] = pickBestDuplicateIndex(
+          group.indexes,
+          subCategoryValues,
+          productCountById,
+        );
+      });
+
+      return next;
+    });
+  }, [duplicateGroups, subCategoryValues, productCountById]);
 
   const visibleSubCategories = fields
     .map((field, index) => ({ field, index }))
@@ -175,19 +540,12 @@ export default function ModalAddCategory({
   });
 
   function loadMainCategoryForm(category: IProductCategory) {
-    reset({
-      id: category.id,
-      name: category.name ?? "",
-      description: category.description ?? "",
-      is_active: category.is_active ?? true,
-      subCategories: (category.children ?? []).map((child) => ({
-        id: child.id,
-        name: child.name ?? "",
-      })),
-    });
+    setBlockedSubCategories([]);
+    setKeepAllDuplicates(false);
     setPickerSearch("");
     setSubCategorySearch("");
     setPickerOpen(false);
+    void loadCategoryForEdit(category);
   }
 
   async function openMainCategoryPicker() {
@@ -203,6 +561,228 @@ export default function ModalAddCategory({
 
   function handleAddSubCategory() {
     append({ name: "" });
+  }
+
+  function handleRemoveDuplicateSubCategories() {
+    setKeepAllDuplicates(false);
+
+    if (duplicateGroups.length === 0) {
+      return;
+    }
+
+    const indexesToRemove = new Set<number>();
+
+    duplicateGroups.forEach((group) => {
+      const keepIndex =
+        duplicateKeepSelections[group.key] ??
+        pickBestDuplicateIndex(
+          group.indexes,
+          subCategoryValues,
+          productCountById,
+        );
+
+      group.indexes.forEach((index) => {
+        if (index !== keepIndex) {
+          indexesToRemove.add(index);
+        }
+      });
+    });
+
+    const blockedRemovals = Array.from(indexesToRemove).filter(
+      (index) =>
+        resolveSubCategoryProductCount(
+          subCategoryValues[index],
+          productCountById,
+        ) > 0,
+    );
+
+    if (blockedRemovals.length > 0) {
+      const details = blockedRemovals
+        .map((index) => {
+          const item = subCategoryValues[index];
+
+          return `"${item?.name ?? "-"}" (${resolveSubCategoryProductCount(item, productCountById)} ${t("inventory.categories.modal.sub_product_unit")})`;
+        })
+        .join(", ");
+
+      notify(
+        t("inventory.categories.modal.sub_duplicate_blocked", {
+          names: details,
+        }),
+        "warning",
+      );
+
+      return;
+    }
+
+    const deduped = subCategoryValues.filter(
+      (_, index) => !indexesToRemove.has(index),
+    );
+    const removedCount = subCategoryValues.length - deduped.length;
+
+    if (removedCount === 0) {
+      return;
+    }
+
+    setValue("subCategories", deduped, { shouldValidate: true });
+    notify(
+      t("inventory.categories.modal.sub_duplicates_removed", {
+        count: removedCount,
+      }),
+    );
+  }
+
+  function handleKeepAllDuplicates() {
+    setKeepAllDuplicates(true);
+    notify(t("inventory.categories.modal.sub_keep_all_confirmed"));
+  }
+
+  function applyMovedProductCounts(
+    fromCategoryId: number,
+    toCategoryId: number,
+    movedCount: number,
+  ) {
+    if (movedCount <= 0) {
+      return;
+    }
+
+    setProductCountById((prev) => {
+      const fromCount = prev[fromCategoryId] ?? 0;
+      const toCount = prev[toCategoryId] ?? 0;
+
+      return {
+        ...prev,
+        [fromCategoryId]: Math.max(0, fromCount - movedCount),
+        [toCategoryId]: toCount + movedCount,
+      };
+    });
+
+    setValue(
+      "subCategories",
+      subCategoryValues.map((item) => {
+        if (item.id === fromCategoryId) {
+          return {
+            ...item,
+            total_product: Math.max(
+              0,
+              resolveSubCategoryProductCount(item, productCountById) -
+                movedCount,
+            ),
+          };
+        }
+
+        if (item.id === toCategoryId) {
+          return {
+            ...item,
+            total_product:
+              resolveSubCategoryProductCount(item, productCountById) +
+              movedCount,
+          };
+        }
+
+        return item;
+      }),
+      { shouldValidate: true },
+    );
+
+    setBlockedSubCategories((prev) =>
+      prev
+        .map((item) => {
+          if (item.id === fromCategoryId) {
+            return {
+              ...item,
+              productCount: Math.max(0, item.productCount - movedCount),
+            };
+          }
+
+          if (item.id === toCategoryId) {
+            return {
+              ...item,
+              productCount: item.productCount + movedCount,
+            };
+          }
+
+          return item;
+        })
+        .filter((item) => item.productCount > 0),
+    );
+  }
+
+  function handleMoveProducts(
+    fromCategoryId: number,
+    toCategoryId: number,
+    productCount: number,
+  ) {
+    setMoveConfirm({
+      fromCategoryId,
+      toCategoryId,
+      productCount,
+    });
+  }
+
+  function executeMoveProducts() {
+    if (!moveConfirm) {
+      return;
+    }
+
+    const { fromCategoryId, toCategoryId, productCount } = moveConfirm;
+
+    setLoading(true);
+    http
+      .post("/products/categories/move-products", {
+        fromCategoryId,
+        toCategoryId,
+      })
+      .then(({ data }) => {
+        const movedCount = Number(data?.data?.movedCount ?? productCount);
+
+        applyMovedProductCounts(fromCategoryId, toCategoryId, movedCount);
+        setMoveConfirm(null);
+        notify(
+          data?.message ||
+            t("inventory.categories.modal.sub_move_products_success", {
+              count: movedCount,
+            }),
+        );
+      })
+      .catch((err) => notifyError(err))
+      .finally(() => setLoading(false));
+  }
+
+  function getDuplicateGroupKey(index: number) {
+    const key = subCategoryValues[index]?.name?.trim().toLowerCase();
+
+    if (!key) {
+      return null;
+    }
+
+    const group = duplicateGroups.find((item) => item.key === key);
+
+    return group ? group.key : null;
+  }
+
+  function isDuplicateKeepTarget(index: number) {
+    const groupKey = getDuplicateGroupKey(index);
+
+    if (!groupKey) {
+      return false;
+    }
+
+    const group = duplicateGroups.find((item) => item.key === groupKey);
+
+    if (!group) {
+      return false;
+    }
+
+    const keepIndex =
+      duplicateKeepSelections[groupKey] ??
+      pickBestDuplicateIndex(
+        group.indexes,
+        subCategoryValues,
+        productCountById,
+      );
+
+    return keepIndex === index;
   }
 
   const addSubButton = (
@@ -227,10 +807,18 @@ export default function ModalAddCategory({
           header: "border-b border-gray-50",
           footer: "border-t border-gray-50",
         }}
+        isDismissable={!isLoading}
+        isKeyboardDismissDisabled={isLoading}
         isOpen={open}
         scrollBehavior="outside"
         size="lg"
-        onOpenChange={setOpen}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen && isLoading) {
+            return;
+          }
+
+          setOpen(nextOpen);
+        }}
       >
         <ModalContent>
           {(onClose) => (
@@ -338,6 +926,267 @@ export default function ModalAddCategory({
                       />
                     ) : null}
 
+                    {blockedSubCategories.length > 0 ? (
+                      <div className="flex flex-col gap-2 rounded-lg border border-danger-200 bg-danger-50 px-3 py-3">
+                        <div className="flex items-start gap-2 text-xs text-danger-700">
+                          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                          <p>
+                            {t("inventory.categories.modal.sub_blocked_banner")}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {blockedSubCategories.map((item) => (
+                            <Chip
+                              key={item.id}
+                              classNames={{
+                                content: "text-[10px] font-bold",
+                              }}
+                              color="danger"
+                              size="sm"
+                              variant="flat"
+                            >
+                              {item.name} ({item.productCount}{" "}
+                              {t("inventory.categories.modal.sub_product_unit")}
+                              )
+                            </Chip>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {moveConfirm ? (
+                      <div className="flex flex-col gap-3 rounded-lg border border-primary-200 bg-primary-50 px-3 py-3">
+                        <div className="flex items-start gap-2 text-xs text-primary-700">
+                          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                          <p>
+                            {t(
+                              "inventory.categories.modal.sub_move_products_confirm",
+                              {
+                                count: moveConfirm.productCount,
+                                targetId: moveConfirm.toCategoryId,
+                              },
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            color="primary"
+                            isLoading={isLoading}
+                            size="sm"
+                            type="button"
+                            onPress={executeMoveProducts}
+                          >
+                            {t("inventory.categories.modal.sub_move_products")}
+                          </Button>
+                          <Button
+                            isDisabled={isLoading}
+                            size="sm"
+                            type="button"
+                            variant="light"
+                            onPress={() => setMoveConfirm(null)}
+                          >
+                            {t("common.cancel")}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {hasDuplicateSubCategories ? (
+                      <div
+                        className={`flex flex-col gap-3 rounded-lg border px-3 py-3 ${
+                          keepAllDuplicates
+                            ? "border-success-200 bg-success-50"
+                            : "border-warning-200 bg-warning-50"
+                        }`}
+                      >
+                        <div
+                          className={`flex items-start gap-2 text-xs ${
+                            keepAllDuplicates
+                              ? "text-success-700"
+                              : "text-warning-700"
+                          }`}
+                        >
+                          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                          <p>
+                            {keepAllDuplicates
+                              ? t(
+                                  "inventory.categories.modal.sub_keep_all_active",
+                                )
+                              : t(
+                                  "inventory.categories.modal.sub_duplicate_banner",
+                                )}
+                          </p>
+                        </div>
+
+                        {!keepAllDuplicates ? (
+                          <div className="space-y-3">
+                            {duplicateGroups.map((group) => (
+                              <div
+                                key={group.key}
+                                className="rounded-lg border border-warning-100 bg-white/70 p-3"
+                              >
+                                <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-warning-800">
+                                  {t(
+                                    "inventory.categories.modal.sub_duplicate_group",
+                                    {
+                                      name: group.displayName,
+                                      count: group.indexes.length,
+                                    },
+                                  )}
+                                </p>
+                                <div className="space-y-2">
+                                  {group.indexes.map((index) => {
+                                    const item = subCategoryValues[index];
+                                    const productCount =
+                                      resolveSubCategoryProductCount(
+                                        item,
+                                        productCountById,
+                                      );
+                                    const keepIndex =
+                                      duplicateKeepSelections[group.key] ??
+                                      pickBestDuplicateIndex(
+                                        group.indexes,
+                                        subCategoryValues,
+                                        productCountById,
+                                      );
+                                    const isSelected = keepIndex === index;
+                                    const keepItem =
+                                      subCategoryValues[keepIndex];
+                                    const canMoveProducts =
+                                      !isSelected &&
+                                      productCount > 0 &&
+                                      Boolean(item?.id) &&
+                                      Boolean(keepItem?.id);
+
+                                    return (
+                                      <div
+                                        key={`${group.key}-${index}`}
+                                        className={`flex flex-col gap-2 rounded-lg border px-3 py-2 sm:flex-row sm:items-center sm:justify-between ${
+                                          isSelected
+                                            ? "border-success-200 bg-success-50"
+                                            : "border-secondary-100 bg-white"
+                                        }`}
+                                      >
+                                        <div className="flex min-w-0 flex-wrap items-center gap-2">
+                                          <span className="text-xs font-medium text-secondary-700">
+                                            {item?.name}
+                                          </span>
+                                          {item?.id ? (
+                                            <span className="font-mono text-[10px] text-secondary-400">
+                                              #{item.id}
+                                            </span>
+                                          ) : null}
+                                          <Chip
+                                            classNames={{
+                                              content: "text-[10px] font-bold",
+                                            }}
+                                            color={
+                                              productCount > 0
+                                                ? "warning"
+                                                : "default"
+                                            }
+                                            size="sm"
+                                            variant="flat"
+                                          >
+                                            {t(
+                                              "inventory.categories.modal.sub_product_count",
+                                              { count: productCount },
+                                            )}
+                                          </Chip>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          {canMoveProducts ? (
+                                            <Button
+                                              className="font-semibold"
+                                              color="warning"
+                                              isLoading={isLoading}
+                                              size="sm"
+                                              startContent={
+                                                <ArrowRightLeft size={14} />
+                                              }
+                                              type="button"
+                                              variant="flat"
+                                              onPress={() =>
+                                                handleMoveProducts(
+                                                  item.id!,
+                                                  keepItem.id!,
+                                                  productCount,
+                                                )
+                                              }
+                                            >
+                                              {t(
+                                                "inventory.categories.modal.sub_move_products_to",
+                                                { id: keepItem.id },
+                                              )}
+                                            </Button>
+                                          ) : null}
+                                          <Button
+                                            className="shrink-0 font-semibold"
+                                            color={
+                                              isSelected ? "success" : "primary"
+                                            }
+                                            isDisabled={isSelected}
+                                            size="sm"
+                                            type="button"
+                                            variant="flat"
+                                            onPress={() => {
+                                              setKeepAllDuplicates(false);
+                                              setDuplicateKeepSelections(
+                                                (prev) => ({
+                                                  ...prev,
+                                                  [group.key]: index,
+                                                }),
+                                              );
+                                            }}
+                                          >
+                                            {isSelected
+                                              ? t(
+                                                  "inventory.categories.modal.sub_keep",
+                                                )
+                                              : t(
+                                                  "inventory.categories.modal.sub_keep_item",
+                                                )}
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        <div className="flex flex-wrap gap-2">
+                          {!keepAllDuplicates ? (
+                            <Button
+                              className="font-semibold"
+                              color="warning"
+                              size="sm"
+                              type="button"
+                              variant="flat"
+                              onPress={handleRemoveDuplicateSubCategories}
+                            >
+                              {t(
+                                "inventory.categories.modal.sub_remove_duplicates",
+                              )}
+                            </Button>
+                          ) : null}
+                          <Button
+                            className="font-semibold"
+                            color={keepAllDuplicates ? "success" : "primary"}
+                            isDisabled={keepAllDuplicates}
+                            size="sm"
+                            type="button"
+                            variant="flat"
+                            onPress={handleKeepAllDuplicates}
+                          >
+                            {t("inventory.categories.modal.sub_keep_all")}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
+
                     {fields.length === 0 && (
                       <div className="py-4 text-center border border-dashed border-gray-200 rounded-sm">
                         <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
@@ -355,52 +1204,170 @@ export default function ModalAddCategory({
                     ) : null}
 
                     <div className="grid grid-cols-1 gap-3">
-                      {visibleSubCategories.map(({ field, index }) => (
-                        <div
-                          key={field.id}
-                          className="flex items-end gap-2 group"
-                        >
-                          <div className="flex-1">
-                            <Controller
-                              control={control}
-                              name={`subCategories.${index}.name`}
-                              render={({ field }) => (
-                                <Input
-                                  {...field}
-                                  classNames={{
-                                    inputWrapper:
-                                      "group-data-[focus=true]:border-gray-900",
-                                  }}
-                                  isInvalid={
-                                    !!errors.subCategories?.[index]?.name
-                                  }
-                                  placeholder={t(
-                                    "inventory.categories.modal.sub_placeholder",
-                                    {
-                                      n: index + 1,
-                                    },
-                                  )}
-                                  radius="sm"
-                                  size="sm"
-                                  variant="bordered"
-                                />
-                              )}
-                            />
-                          </div>
-                          <Button
-                            isIconOnly
-                            className="h-8 w-8"
-                            color="danger"
-                            radius="sm"
-                            size="sm"
-                            type="button"
-                            variant="flat"
-                            onPress={() => remove(index)}
+                      {visibleSubCategories.map(({ field, index }) => {
+                        const item = subCategoryValues[index];
+                        const productCount = resolveSubCategoryProductCount(
+                          item,
+                          productCountById,
+                        );
+                        const isDuplicate =
+                          duplicateSubCategoryIndexes.has(index) &&
+                          !keepAllDuplicates;
+                        const willKeep = isDuplicateKeepTarget(index);
+                        const groupKey = getDuplicateGroupKey(index);
+                        const willRemove =
+                          isDuplicate &&
+                          groupKey &&
+                          !willKeep &&
+                          productCount > 0;
+                        const isBlockedSubCategory =
+                          Boolean(item?.id) &&
+                          blockedSubCategoryIds.has(item.id!);
+                        const cannotDelete =
+                          Boolean(item?.id) && productCount > 0;
+
+                        return (
+                          <div
+                            key={field.id}
+                            className={`space-y-1 group rounded-lg ${
+                              isBlockedSubCategory
+                                ? "border border-danger-200 bg-danger-50/60 p-2"
+                                : ""
+                            }`}
                           >
-                            <Trash2 size={14} />
-                          </Button>
-                        </div>
-                      ))}
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <Controller
+                                  control={control}
+                                  name={`subCategories.${index}.name`}
+                                  render={({ field }) => (
+                                    <Input
+                                      {...field}
+                                      classNames={{
+                                        inputWrapper:
+                                          "group-data-[focus=true]:border-gray-900",
+                                      }}
+                                      errorMessage={
+                                        willRemove
+                                          ? t(
+                                              "inventory.categories.modal.sub_duplicate_keep_with_products",
+                                            )
+                                          : isDuplicate
+                                            ? t(
+                                                "inventory.categories.modal.sub_duplicate",
+                                              )
+                                            : errors.subCategories?.[index]
+                                                ?.name?.message
+                                      }
+                                      isInvalid={
+                                        willRemove ||
+                                        isDuplicate ||
+                                        !!errors.subCategories?.[index]?.name
+                                      }
+                                      placeholder={t(
+                                        "inventory.categories.modal.sub_placeholder",
+                                        {
+                                          n: index + 1,
+                                        },
+                                      )}
+                                      radius="sm"
+                                      size="sm"
+                                      variant="bordered"
+                                    />
+                                  )}
+                                />
+                              </div>
+                              <Button
+                                isIconOnly
+                                className="h-8 w-8 shrink-0"
+                                color="danger"
+                                isDisabled={cannotDelete}
+                                radius="sm"
+                                size="sm"
+                                title={
+                                  cannotDelete
+                                    ? t(
+                                        "inventory.categories.modal.sub_cannot_delete",
+                                      )
+                                    : undefined
+                                }
+                                type="button"
+                                variant="flat"
+                                onPress={() => remove(index)}
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 px-1">
+                              {item?.id ? (
+                                <span className="font-mono text-[10px] text-secondary-400">
+                                  #{item.id}
+                                </span>
+                              ) : null}
+                              {item?.id ? (
+                                <Chip
+                                  classNames={{
+                                    content: "text-[10px] font-bold",
+                                  }}
+                                  color={
+                                    productCount > 0 ? "warning" : "default"
+                                  }
+                                  size="sm"
+                                  variant="flat"
+                                >
+                                  {t(
+                                    "inventory.categories.modal.sub_product_count",
+                                    { count: productCount },
+                                  )}
+                                </Chip>
+                              ) : null}
+                              {isDuplicate ? (
+                                <Chip
+                                  classNames={{
+                                    content: "text-[10px] font-bold uppercase",
+                                  }}
+                                  color={willKeep ? "success" : "danger"}
+                                  size="sm"
+                                  variant="flat"
+                                >
+                                  {willKeep
+                                    ? t("inventory.categories.modal.sub_keep")
+                                    : t(
+                                        "inventory.categories.modal.sub_will_remove",
+                                      )}
+                                </Chip>
+                              ) : null}
+                              {keepAllDuplicates &&
+                              duplicateSubCategoryIndexes.has(index) ? (
+                                <Chip
+                                  classNames={{
+                                    content: "text-[10px] font-bold uppercase",
+                                  }}
+                                  color="success"
+                                  size="sm"
+                                  variant="flat"
+                                >
+                                  {t("inventory.categories.modal.sub_keep")}
+                                </Chip>
+                              ) : null}
+                              {isBlockedSubCategory || cannotDelete ? (
+                                <Chip
+                                  classNames={{
+                                    content: "text-[10px] font-bold uppercase",
+                                  }}
+                                  color="danger"
+                                  size="sm"
+                                  variant="flat"
+                                >
+                                  {t(
+                                    "inventory.categories.modal.sub_cannot_delete",
+                                  )}
+                                </Chip>
+                              ) : null}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <div className="flex justify-end border-t border-gray-100 pt-3">
@@ -457,6 +1424,7 @@ export default function ModalAddCategory({
                 <Button
                   color="primary"
                   form="category-form"
+                  isDisabled={hasDuplicateSubCategories && !keepAllDuplicates}
                   isLoading={isLoading}
                   onPress={() => handleSubmit(onSubmit)()}
                 >
