@@ -258,11 +258,6 @@ export default function ModalAddCategory({
   const [productCountById, setProductCountById] = useState<
     Record<number, number>
   >({});
-  const [moveConfirm, setMoveConfirm] = useState<{
-    fromCategoryId: number;
-    toCategoryId: number;
-    productCount: number;
-  } | null>(null);
   const [mainCategoryOptions, setMainCategoryOptions] = useState<
     IProductCategory[]
   >([]);
@@ -351,7 +346,6 @@ export default function ModalAddCategory({
     setBlockedSubCategories([]);
     setKeepAllDuplicates(false);
     setProductCountById({});
-    setMoveConfirm(null);
 
     if (initialData?.id) {
       void loadCategoryForEdit(initialData);
@@ -713,20 +707,6 @@ export default function ModalAddCategory({
     toCategoryId: number,
     productCount: number,
   ) {
-    setMoveConfirm({
-      fromCategoryId,
-      toCategoryId,
-      productCount,
-    });
-  }
-
-  function executeMoveProducts() {
-    if (!moveConfirm) {
-      return;
-    }
-
-    const { fromCategoryId, toCategoryId, productCount } = moveConfirm;
-
     setLoading(true);
     http
       .post("/products/categories/move-products", {
@@ -737,7 +717,6 @@ export default function ModalAddCategory({
         const movedCount = Number(data?.data?.movedCount ?? productCount);
 
         applyMovedProductCounts(fromCategoryId, toCategoryId, movedCount);
-        setMoveConfirm(null);
         notify(
           data?.message ||
             t("inventory.categories.modal.sub_move_products_success", {
@@ -950,43 +929,6 @@ export default function ModalAddCategory({
                               )
                             </Chip>
                           ))}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {moveConfirm ? (
-                      <div className="flex flex-col gap-3 rounded-lg border border-primary-200 bg-primary-50 px-3 py-3">
-                        <div className="flex items-start gap-2 text-xs text-primary-700">
-                          <AlertCircle className="mt-0.5 size-4 shrink-0" />
-                          <p>
-                            {t(
-                              "inventory.categories.modal.sub_move_products_confirm",
-                              {
-                                count: moveConfirm.productCount,
-                                targetId: moveConfirm.toCategoryId,
-                              },
-                            )}
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            color="primary"
-                            isLoading={isLoading}
-                            size="sm"
-                            type="button"
-                            onPress={executeMoveProducts}
-                          >
-                            {t("inventory.categories.modal.sub_move_products")}
-                          </Button>
-                          <Button
-                            isDisabled={isLoading}
-                            size="sm"
-                            type="button"
-                            variant="light"
-                            onPress={() => setMoveConfirm(null)}
-                          >
-                            {t("common.cancel")}
-                          </Button>
                         </div>
                       </div>
                     ) : null}
