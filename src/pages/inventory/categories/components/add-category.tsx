@@ -1259,26 +1259,20 @@ export default function ModalAddCategory({
                                   </p>
                                 ) : null}
                               </div>
-                              <Button
-                                isIconOnly
-                                className="h-8 w-8 shrink-0"
-                                color="danger"
-                                isDisabled={cannotDelete}
-                                radius="sm"
-                                size="sm"
-                                title={
-                                  cannotDelete
-                                    ? t(
-                                        "inventory.categories.modal.sub_cannot_delete",
-                                      )
-                                    : undefined
-                                }
-                                type="button"
-                                variant="flat"
-                                onPress={() => remove(index)}
-                              >
-                                <Trash2 size={14} />
-                              </Button>
+                              {!cannotDelete ? (
+                                <Button
+                                  isIconOnly
+                                  className="h-8 w-8 shrink-0"
+                                  color="danger"
+                                  radius="sm"
+                                  size="sm"
+                                  type="button"
+                                  variant="flat"
+                                  onPress={() => remove(index)}
+                                >
+                                  <Trash2 size={14} />
+                                </Button>
+                              ) : null}
                             </div>
                             <div className="flex flex-wrap items-center gap-2 px-1">
                               {item?.id ? (
