@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -29,6 +29,7 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getCategories } from "@/stores/features/product/product-action";
 import { IProductCategory } from "@/utils/interfaces/IProduct";
+import debounce from "@/utils/helpers/debounce";
 
 const categorySchema = z.object({
   id: z.number().optional(),
@@ -346,6 +347,8 @@ export default function ModalAddCategory({
     setBlockedSubCategories([]);
     setKeepAllDuplicates(false);
     setProductCountById({});
+    setDebouncedSubCategoryValues([]);
+    subCategoryLengthRef.current = 0;
 
     if (initialData?.id) {
       void loadCategoryForEdit(initialData);
@@ -438,17 +441,50 @@ export default function ModalAddCategory({
   });
 
   const categoryId = watch("id");
-  const subCategoryValues = watch("subCategories") ?? [];
+  const subCategoryValues = useWatch({ control, name: "subCategories" }) ?? [];
+  const [debouncedSubCategoryValues, setDebouncedSubCategoryValues] = useState<
+    SubCategoryFormItem[]
+  >([]);
+  const subCategoryLengthRef = useRef(0);
+
+  const debouncedSyncSubCategories = useMemo(
+    () =>
+      debounce((values: SubCategoryFormItem[]) => {
+        setDebouncedSubCategoryValues(values);
+      }, 400),
+    [],
+  );
+
+  useEffect(() => {
+    const lengthChanged =
+      subCategoryValues.length !== subCategoryLengthRef.current;
+
+    subCategoryLengthRef.current = subCategoryValues.length;
+
+    if (lengthChanged) {
+      setDebouncedSubCategoryValues(subCategoryValues);
+
+      return;
+    }
+
+    debouncedSyncSubCategories(subCategoryValues);
+  }, [subCategoryValues, debouncedSyncSubCategories]);
+
+  const subCategoriesForDuplicateCheck =
+    debouncedSubCategoryValues.length > 0
+      ? debouncedSubCategoryValues
+      : subCategoryValues;
+
   const isEditMode = Boolean(categoryId);
 
   const duplicateSubCategoryIndexes = useMemo(
-    () => findDuplicateSubCategoryIndexes(subCategoryValues),
-    [subCategoryValues],
+    () => findDuplicateSubCategoryIndexes(subCategoriesForDuplicateCheck),
+    [subCategoriesForDuplicateCheck],
   );
 
   const duplicateGroups = useMemo(
-    () => getDuplicateGroups(subCategoryValues),
-    [subCategoryValues],
+    () => getDuplicateGroups(subCategoriesForDuplicateCheck),
+    [subCategoriesForDuplicateCheck],
   );
 
   const hasDuplicateSubCategories = duplicateSubCategoryIndexes.size > 0;
@@ -500,14 +536,14 @@ export default function ModalAddCategory({
 
         next[group.key] = pickBestDuplicateIndex(
           group.indexes,
-          subCategoryValues,
+          subCategoriesForDuplicateCheck,
           productCountById,
         );
       });
 
       return next;
     });
-  }, [duplicateGroups, subCategoryValues, productCountById]);
+  }, [duplicateGroups, subCategoriesForDuplicateCheck, productCountById]);
 
   const visibleSubCategories = fields
     .map((field, index) => ({ field, index }))
@@ -571,7 +607,7 @@ export default function ModalAddCategory({
         duplicateKeepSelections[group.key] ??
         pickBestDuplicateIndex(
           group.indexes,
-          subCategoryValues,
+          subCategoriesForDuplicateCheck,
           productCountById,
         );
 
@@ -729,7 +765,9 @@ export default function ModalAddCategory({
   }
 
   function getDuplicateGroupKey(index: number) {
-    const key = subCategoryValues[index]?.name?.trim().toLowerCase();
+    const key = subCategoriesForDuplicateCheck[index]?.name
+      ?.trim()
+      .toLowerCase();
 
     if (!key) {
       return null;
@@ -757,7 +795,7 @@ export default function ModalAddCategory({
       duplicateKeepSelections[groupKey] ??
       pickBestDuplicateIndex(
         group.indexes,
-        subCategoryValues,
+        subCategoriesForDuplicateCheck,
         productCountById,
       );
 
@@ -988,7 +1026,7 @@ export default function ModalAddCategory({
                                       duplicateKeepSelections[group.key] ??
                                       pickBestDuplicateIndex(
                                         group.indexes,
-                                        subCategoryValues,
+                                        subCategoriesForDuplicateCheck,
                                         productCountById,
                                       );
                                     const isSelected = keepIndex === index;
@@ -1167,6 +1205,16 @@ export default function ModalAddCategory({
                           blockedSubCategoryIds.has(item.id!);
                         const cannotDelete =
                           Boolean(item?.id) && productCount > 0;
+                        const subCategoryErrorMessage = willRemove
+                          ? t(
+                              "inventory.categories.modal.sub_duplicate_keep_with_products",
+                            )
+                          : isDuplicate
+                            ? t("inventory.categories.modal.sub_duplicate")
+                            : errors.subCategories?.[index]?.name?.message;
+                        const hasSubCategoryError = Boolean(
+                          subCategoryErrorMessage,
+                        );
 
                         return (
                           <div
@@ -1177,35 +1225,19 @@ export default function ModalAddCategory({
                                 : ""
                             }`}
                           >
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1">
+                            <div className="flex items-start gap-2">
+                              <div className="min-w-0 flex-1">
                                 <Controller
                                   control={control}
                                   name={`subCategories.${index}.name`}
                                   render={({ field }) => (
                                     <Input
-                                      {...field}
                                       classNames={{
                                         inputWrapper:
                                           "group-data-[focus=true]:border-gray-900",
                                       }}
-                                      errorMessage={
-                                        willRemove
-                                          ? t(
-                                              "inventory.categories.modal.sub_duplicate_keep_with_products",
-                                            )
-                                          : isDuplicate
-                                            ? t(
-                                                "inventory.categories.modal.sub_duplicate",
-                                              )
-                                            : errors.subCategories?.[index]
-                                                ?.name?.message
-                                      }
-                                      isInvalid={
-                                        willRemove ||
-                                        isDuplicate ||
-                                        !!errors.subCategories?.[index]?.name
-                                      }
+                                      isInvalid={hasSubCategoryError}
+                                      name={field.name}
                                       placeholder={t(
                                         "inventory.categories.modal.sub_placeholder",
                                         {
@@ -1214,10 +1246,18 @@ export default function ModalAddCategory({
                                       )}
                                       radius="sm"
                                       size="sm"
+                                      value={field.value ?? ""}
                                       variant="bordered"
+                                      onBlur={field.onBlur}
+                                      onValueChange={field.onChange}
                                     />
                                   )}
                                 />
+                                {hasSubCategoryError ? (
+                                  <p className="mt-1 px-1 text-tiny text-danger">
+                                    {subCategoryErrorMessage}
+                                  </p>
+                                ) : null}
                               </div>
                               <Button
                                 isIconOnly
