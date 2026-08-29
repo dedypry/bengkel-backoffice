@@ -29,8 +29,8 @@ const productSlice = createSlice({
       is_active: "all",
       productFilter: "all",
       subCategoryFilter: "all",
-      sortBy: "created_at",
-      sortOrder: "desc",
+      sortBy: "name",
+      sortOrder: "asc",
     },
     productQuery: {
       q: "",

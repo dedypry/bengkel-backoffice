@@ -431,6 +431,7 @@
                 "actions": "AKSI",
                 "empty": "Kategori tidak ditemukan",
                 "no_sub": "Tidak ada",
+                "sub_more": "+{{count}} lainnya",
                 "no_description": "Tidak ada deskripsi",
                 "items": "Items"
             },

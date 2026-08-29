@@ -431,6 +431,7 @@
                 "actions": "ACTIONS",
                 "empty": "No categories found",
                 "no_sub": "None",
+                "sub_more": "+{{count}} more",
                 "no_description": "No description",
                 "items": "Items"
             },

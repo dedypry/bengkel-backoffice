@@ -168,11 +168,17 @@ function pickBestDuplicateIndex(
 }
 
 function mapSubCategoriesFromCategory(children: IProductCategory[] = []) {
-  return children.map((child) => ({
-    id: child.id,
-    name: child.name ?? "",
-    total_product: parseProductCount(child.total_product),
-  }));
+  return [...children]
+    .sort((a, b) =>
+      (a.name ?? "").localeCompare(b.name ?? "", "id", {
+        sensitivity: "base",
+      }),
+    )
+    .map((child) => ({
+      id: child.id,
+      name: child.name ?? "",
+      total_product: parseProductCount(child.total_product),
+    }));
 }
 
 function buildCategoryPayload(data: CategoryFormValues) {

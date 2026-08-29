@@ -57,6 +57,24 @@ function getProductCount(cat: IProductCategory) {
   return Number(cat.total_product_all ?? cat.total_product ?? 0);
 }
 
+function sortByName<T extends { name: string }>(items: T[] = []) {
+  return [...items].sort((a, b) =>
+    a.name.localeCompare(b.name, "id", { sensitivity: "base" }),
+  );
+}
+
+const MAX_VISIBLE_SUB_CATEGORIES = 3;
+
+function getVisibleSubCategories(children: IProductCategory[] = []) {
+  const sortedChildren = sortByName(children);
+  const visibleChildren = sortedChildren.slice(0, MAX_VISIBLE_SUB_CATEGORIES);
+
+  return {
+    visibleChildren,
+    hiddenCount: sortedChildren.length - visibleChildren.length,
+  };
+}
+
 export default function InventoryCategoryPage() {
   const { t } = useTranslation();
   const { categories, categoryQuery } = useAppSelector(
@@ -129,8 +147,8 @@ export default function InventoryCategoryPage() {
         is_active: "all",
         productFilter: "all",
         subCategoryFilter: "all",
-        sortBy: "created_at",
-        sortOrder: "desc",
+        sortBy: "name",
+        sortOrder: "asc",
       }),
     );
   }
@@ -303,7 +321,7 @@ export default function InventoryCategoryPage() {
                   className="w-full md:col-span-2 xl:col-span-1"
                   placeholder={t("inventory.categories.filter.sort")}
                   selectedKeys={[
-                    `${query.sortBy || "created_at"}:${query.sortOrder || "desc"}`,
+                    `${query.sortBy || "name"}:${query.sortOrder || "asc"}`,
                   ]}
                   variant="bordered"
                   onSelectionChange={(keys) => {
@@ -381,84 +399,104 @@ export default function InventoryCategoryPage() {
                 isLoading={loading}
                 loadingContent={<CategoriesTableSkeleton />}
               >
-                {categories.map((cat) => (
-                  <TableRow key={cat.id}>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-small font-bold uppercase text-gray-800">
-                          {cat.name}
-                        </span>
-                        <span className="font-mono text-[10px] italic tracking-tighter text-gray-400">
-                          {cat.slug}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {cat.children?.length ? (
-                        <div className="flex max-w-xs flex-wrap gap-1">
-                          {cat.children.map((child) => (
-                            <Chip
-                              key={child.id}
-                              classNames={{
-                                base: "bg-gray-100 border-none h-6",
-                                content:
-                                  "text-[10px] font-black uppercase text-gray-600",
-                              }}
-                              size="sm"
-                              variant="flat"
-                            >
-                              {child.name}
-                            </Chip>
-                          ))}
+                {categories.map((cat) => {
+                  const { visibleChildren, hiddenCount } =
+                    getVisibleSubCategories(cat.children);
+
+                  return (
+                    <TableRow key={cat.id}>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-small font-bold uppercase text-gray-800">
+                            {cat.name}
+                          </span>
+                          <span className="font-mono text-[10px] italic tracking-tighter text-gray-400">
+                            {cat.slug}
+                          </span>
                         </div>
-                      ) : (
-                        <span className="text-tiny italic text-gray-400">
-                          {t("inventory.categories.table.no_sub")}
+                      </TableCell>
+                      <TableCell>
+                        {cat.children?.length ? (
+                          <div className="flex max-w-xs flex-wrap items-center gap-1">
+                            {visibleChildren.map((child) => (
+                              <Chip
+                                key={child.id}
+                                classNames={{
+                                  base: "bg-gray-100 border-none h-6",
+                                  content:
+                                    "text-[10px] font-black uppercase text-gray-600",
+                                }}
+                                size="sm"
+                                variant="flat"
+                              >
+                                {child.name}
+                              </Chip>
+                            ))}
+                            {hiddenCount > 0 ? (
+                              <Chip
+                                classNames={{
+                                  base: "bg-secondary-100 border-none h-6",
+                                  content:
+                                    "text-[10px] font-black uppercase text-secondary-500",
+                                }}
+                                size="sm"
+                                variant="flat"
+                              >
+                                {t("inventory.categories.table.sub_more", {
+                                  count: hiddenCount,
+                                })}
+                              </Chip>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <span className="text-tiny italic text-gray-400">
+                            {t("inventory.categories.table.no_sub")}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <span className="line-clamp-2 max-w-xs text-tiny text-gray-500">
+                          {cat.description ||
+                            t("inventory.categories.table.no_description")}
                         </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <span className="line-clamp-2 max-w-xs text-tiny text-gray-500">
-                        {cat.description ||
-                          t("inventory.categories.table.no_description")}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-center">
-                        <span className="text-small font-black text-gray-700">
-                          {formatNumber(getProductCount(cat))}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-center">
+                          <span className="text-small font-black text-gray-700">
+                            {formatNumber(getProductCount(cat))}
+                          </span>
+                          <p className="text-[9px] uppercase text-gray-400">
+                            {t("inventory.categories.table.items")}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          className="font-bold text-tiny"
+                          color={cat.is_active ? "success" : "default"}
+                          variant="dot"
+                        >
+                          {cat.is_active
+                            ? t("inventory.categories.filter.active")
+                            : t("inventory.categories.filter.inactive")}
+                        </Chip>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-tiny text-gray-500">
+                          {dayjs(cat.created_at).format("DD MMM YYYY")}
                         </span>
-                        <p className="text-[9px] uppercase text-gray-400">
-                          {t("inventory.categories.table.items")}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        className="font-bold text-tiny"
-                        color={cat.is_active ? "success" : "default"}
-                        variant="dot"
-                      >
-                        {cat.is_active
-                          ? t("inventory.categories.filter.active")
-                          : t("inventory.categories.filter.inactive")}
-                      </Chip>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-tiny text-gray-500">
-                        {dayjs(cat.created_at).format("DD MMM YYYY")}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <TableAction
-                        isDeleteSeparator={false}
-                        viewDetail={false}
-                        onDelete={() => handleDelete(cat.id)}
-                        onEdit={() => handleEditData(cat)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>
+                        <TableAction
+                          isDeleteSeparator={false}
+                          viewDetail={false}
+                          onDelete={() => handleDelete(cat.id)}
+                          onEdit={() => handleEditData(cat)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
 
