@@ -1,7 +1,7 @@
 import type { IService } from "@/utils/interfaces/IService";
 
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Input,
@@ -21,8 +21,8 @@ import {
   addWoService,
   removeWoService,
 } from "@/stores/features/work-order/wo-slice";
+import { setServiceQuery } from "@/stores/features/service/service-slice";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
-import { getService } from "@/stores/features/service/service-action";
 import debounce from "@/utils/helpers/debounce";
 // Menggunakan InputNumber HeroUI kita
 import InputQty from "@/components/input-qty";
@@ -32,12 +32,16 @@ import { asArray } from "@/utils/helpers/as-array";
 
 export default function TabService() {
   const { t } = useTranslation();
-  const { services } = useAppSelector((state) => state.service);
+  const { services, query } = useAppSelector((state) => state.service);
   const { services: selectedServices } = useAppSelector((state) => state.wo);
   const { suppliers } = useAppSelector((state) => state.supplier);
   const supplierOptions = asArray<ISupplier>(suppliers);
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(query.q ?? "");
+
+  useEffect(() => {
+    setSearch(query.q ?? "");
+  }, [query.q]);
 
   const selectedIds = selectedServices.map((e) => e.id);
   const dispatch = useAppDispatch();
@@ -85,7 +89,9 @@ export default function TabService() {
     return find;
   }
 
-  const searchDebounce = debounce((q) => dispatch(getService({ q })), 500);
+  const searchDebounce = debounce((q: string) => {
+    dispatch(setServiceQuery({ q, page: 1 }));
+  }, 500);
 
   return (
     <div className="space-y-4">
@@ -103,7 +109,7 @@ export default function TabService() {
         }}
         onClear={() => {
           setSearch("");
-          dispatch(getService({ q: "" }));
+          dispatch(setServiceQuery({ q: "", page: 1 }));
         }}
       />
 

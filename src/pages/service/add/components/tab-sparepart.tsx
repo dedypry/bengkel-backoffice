@@ -1,7 +1,7 @@
 import type { IProduct } from "@/utils/interfaces/IProduct";
 
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Input,
@@ -21,7 +21,7 @@ import {
   removeSparepartService,
 } from "@/stores/features/work-order/wo-slice";
 import debounce from "@/utils/helpers/debounce";
-import { getProduct } from "@/stores/features/product/product-action";
+import { setProductQuery } from "@/stores/features/product/product-slice";
 import { formatNumber } from "@/utils/helpers/format";
 import { resolveSparepartUnitPrice } from "@/utils/helpers/global";
 // Menggunakan InputNumber HeroUI yang kita buat di awal
@@ -30,9 +30,13 @@ import InputNumber from "@/components/input-number";
 
 export default function TabSparepart() {
   const { t } = useTranslation();
-  const { products } = useAppSelector((state) => state.product);
+  const { products, productQuery } = useAppSelector((state) => state.product);
   const { sparepart } = useAppSelector((state) => state.wo);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(productQuery.q ?? "");
+
+  useEffect(() => {
+    setSearch(productQuery.q ?? "");
+  }, [productQuery.q]);
   const selectedIds = sparepart.map((e) => e.id);
 
   const dispatch = useAppDispatch();
@@ -73,7 +77,9 @@ export default function TabSparepart() {
     return find;
   }
 
-  const searchDebounce = debounce((q) => dispatch(getProduct({ q })), 500);
+  const searchDebounce = debounce((q: string) => {
+    dispatch(setProductQuery({ q, page: 1 }));
+  }, 500);
   const handlePrice = debounce((val: number, item: IProduct) => {
     dispatch(
       addSparepartService({
@@ -99,7 +105,7 @@ export default function TabSparepart() {
         }}
         onClear={() => {
           setSearch("");
-          dispatch(getProduct({ q: "" }));
+          dispatch(setProductQuery({ q: "", page: 1 }));
         }}
       />
 

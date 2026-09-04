@@ -18,7 +18,9 @@ import TabSparepart from "./tab-sparepart";
 
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { getService } from "@/stores/features/service/service-action";
+import { setServiceQuery } from "@/stores/features/service/service-slice";
 import { getProduct } from "@/stores/features/product/product-action";
+import { setProductQuery } from "@/stores/features/product/product-slice";
 import { getSupplier } from "@/stores/features/supplier/supplier-action";
 import { CustomPagination } from "@/components/custom-pagination";
 import { getWo, getWoDetail } from "@/stores/features/work-order/wo-action";
@@ -51,6 +53,7 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
 
   const dispatch = useAppDispatch();
   const hasFetch = useRef(false);
+  const prevOpenRef = useRef(false);
 
   useEffect(() => {
     if (!hasFetch.current) {
@@ -64,11 +67,31 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      dispatch(getService(query));
-      dispatch(getProduct(productQuery));
+    const justOpened = isOpen && !prevOpenRef.current;
+
+    prevOpenRef.current = isOpen;
+
+    if (justOpened) {
+      dispatch(setServiceQuery({ q: "", page: 1 }));
+      dispatch(setProductQuery({ q: "", page: 1 }));
     }
-  }, [company, isOpen, dispatch]);
+  }, [isOpen, dispatch]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    dispatch(getService(query));
+  }, [company, isOpen, query, dispatch]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    dispatch(getProduct(productQuery));
+  }, [company, isOpen, productQuery, dispatch]);
 
   const handleSave = async () => {
     if (!workOrder) return;
@@ -178,12 +201,16 @@ export default function ModalAddService({ isSave, onSave, onClose }: Props) {
                     {selectedKey === "service" ? (
                       <CustomPagination
                         meta={services?.meta!}
-                        onPageChange={(page) => dispatch(getService({ page }))}
+                        onPageChange={(page) =>
+                          dispatch(setServiceQuery({ page }))
+                        }
                       />
                     ) : (
                       <CustomPagination
                         meta={products?.meta!}
-                        onPageChange={(page) => dispatch(getProduct({ page }))}
+                        onPageChange={(page) =>
+                          dispatch(setProductQuery({ page }))
+                        }
                       />
                     )}
                   </div>
