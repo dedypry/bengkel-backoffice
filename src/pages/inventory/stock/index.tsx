@@ -6,12 +6,15 @@ import {
   Package,
   AlertCircle,
   ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
   Download,
   ArrowRight,
+  CircleHelp,
   Pencil,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -35,6 +38,7 @@ import SelectCategories from "./components/select-categories";
 import UpdateStock from "./components/update-stock";
 import ModalBulkCategory from "./components/modal-bulk-category";
 import UploadExcel from "./components/upload-excel";
+import { useStockTour } from "./use-stock-tour";
 
 import HeaderAction from "@/components/header-action";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -54,12 +58,54 @@ function toStockNumber(value: unknown): number {
   return Number.isFinite(stock) ? stock : 0;
 }
 
+function renderSortableHeader(
+  label: string,
+  sortKey: string,
+  sortBy: string | undefined,
+  sortOrder: string | undefined,
+  onSort: (sortKey: string) => void,
+  align: "start" | "center" | "end" = "start",
+) {
+  const isActive = sortBy === sortKey;
+
+  return (
+    <button
+      className={`inline-flex items-center gap-1 font-semibold uppercase tracking-wide text-[12px] ${
+        isActive ? "text-primary-600" : "text-secondary-600"
+      } ${align === "center" ? "mx-auto" : align === "end" ? "ml-auto" : ""}`}
+      type="button"
+      onClick={() => onSort(sortKey)}
+    >
+      <span>{label}</span>
+      <span className="inline-flex flex-col -space-y-1">
+        <ArrowUp
+          className={`size-3 ${
+            isActive && sortOrder === "asc"
+              ? "text-primary-600"
+              : "text-secondary-600"
+          }`}
+          strokeWidth={isActive && sortOrder === "asc" ? 2.5 : 2}
+        />
+        <ArrowDown
+          className={`size-3 ${
+            isActive && sortOrder === "desc"
+              ? "text-primary-600"
+              : "text-secondary-600"
+          }`}
+          strokeWidth={isActive && sortOrder === "desc" ? 2.5 : 2}
+        />
+      </span>
+    </button>
+  );
+}
+
 export default function InventoryStockPage() {
   const { t } = useTranslation();
   const { company } = useAppSelector((state) => state.auth);
   const { products, productQuery } = useAppSelector((state) => state.product);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [openBulkCategory, setOpenBulkCategory] = useState(false);
+  const [isStockTourActive, setIsStockTourActive] = useState(false);
   const [isExcelLoading, setIsExcelLoading] = useState(false);
   const [queryProduct, setQueryProduct] = useState<IProduct | null>(null);
 
@@ -68,6 +114,33 @@ export default function InventoryStockPage() {
   const dispatch = useAppDispatch();
   const hasFetched = useRef(false);
   const updateStockId = Number(searchParams.get("updateStock") || 0) || null;
+
+  const selectFirstProductForTour = useCallback(() => {
+    const firstId = products?.data?.[0]?.id;
+
+    if (firstId) {
+      setSelectedKeys(new Set([String(firstId)]));
+    }
+  }, [products?.data]);
+
+  const clearSelectionForTour = useCallback(() => {
+    setSelectedKeys(new Set([]));
+  }, []);
+
+  const cleanupStockTour = useCallback(() => {
+    setOpenBulkCategory(false);
+    clearSelectionForTour();
+    setIsStockTourActive(false);
+  }, [clearSelectionForTour]);
+
+  const { startTour } = useStockTour({
+    autoStart: (products?.data?.length ?? 0) > 0,
+    onSelectDemo: selectFirstProductForTour,
+    onOpenBulkModal: () => setOpenBulkCategory(true),
+    onCloseBulkModal: () => setOpenBulkCategory(false),
+    onTourStart: () => setIsStockTourActive(true),
+    onTourCleanup: cleanupStockTour,
+  });
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -119,6 +192,14 @@ export default function InventoryStockPage() {
 
   const searchDebounce = debounce((q) => dispatch(setProductQuery({ q })), 800);
 
+  function handleSort(sortKey: string) {
+    const isSameColumn = productQuery.sortBy === sortKey;
+    const sortOrder =
+      isSameColumn && productQuery.sortOrder === "asc" ? "desc" : "asc";
+
+    dispatch(setProductQuery({ sortBy: sortKey, sortOrder, page: 1 }));
+  }
+
   function handleDelete(id: number) {
     http
       .delete(`/products/${id}`)
@@ -134,13 +215,14 @@ export default function InventoryStockPage() {
       {/* Header Section */}
       <ModalBulkCategory
         catIds={selectedKeys}
+        isDismissable={!isStockTourActive}
         open={openBulkCategory}
         setOpen={setOpenBulkCategory}
         onSuccess={() => setSelectedKeys(new Set([]))}
       />
       <HeaderAction
         actionContent={
-          <div className="flex gap-2">
+          <div className="flex gap-2" data-tour="stock-actions">
             <UploadExcel />
             <Button
               color="primary"
@@ -165,6 +247,17 @@ export default function InventoryStockPage() {
             >
               {t("inventory.stock.add")}
             </Button>
+            <div data-tour="stock-tour-replay">
+              <Button
+                isIconOnly
+                aria-label={t("inventory.stock.tour.replay")}
+                className="shrink-0 text-secondary-500"
+                variant="light"
+                onPress={() => startTour({ force: true })}
+              >
+                <CircleHelp size={18} />
+              </Button>
+            </div>
           </div>
         }
         leadIcon={Package}
@@ -173,7 +266,10 @@ export default function InventoryStockPage() {
       />
 
       {/* Overview Cards - Gray Minimalist */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        data-tour="stock-stats"
+      >
         {[
           {
             label: t("inventory.stock.stats.total_item"),
@@ -225,200 +321,259 @@ export default function InventoryStockPage() {
       <Card>
         <div className=" pt-4 px-4 flex flex-col md:flex-row gap-4 justify-between items-center">
           <div className="flex w-full md:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <SelectCategories />
-            <Select
-              isClearable
-              aria-label="Filter status stok"
-              className="w-full sm:w-40"
-              placeholder={t("inventory.stock.filter_all_status")}
-              selectedKeys={productQuery.status ? [productQuery.status] : []}
-              variant="bordered"
-              onSelectionChange={(keys) => {
-                const value = Array.from(keys)[0];
+            <div data-tour="stock-category">
+              <SelectCategories />
+            </div>
+            <div className="w-full sm:w-40" data-tour="stock-status">
+              <Select
+                isClearable
+                aria-label="Filter status stok"
+                className="w-full"
+                placeholder={t("inventory.stock.filter_all_status")}
+                selectedKeys={productQuery.status ? [productQuery.status] : []}
+                variant="bordered"
+                onSelectionChange={(keys) => {
+                  const value = Array.from(keys)[0];
 
-                dispatch(
-                  setProductQuery({
-                    status: value ? String(value) : undefined,
-                    page: 1,
-                  }),
-                );
-              }}
-            >
-              <SelectItem
-                key="empty"
-                textValue={t("inventory.stock.status_empty")}
+                  dispatch(
+                    setProductQuery({
+                      status: value ? String(value) : undefined,
+                      page: 1,
+                    }),
+                  );
+                }}
               >
-                {t("inventory.stock.status_empty")}
-              </SelectItem>
-              <SelectItem key="low" textValue={t("inventory.stock.status_low")}>
-                {t("inventory.stock.status_low")}
-              </SelectItem>
-              <SelectItem key="ok" textValue={t("inventory.stock.status_ok")}>
-                {t("inventory.stock.status_ok")}
-              </SelectItem>
-            </Select>
+                <SelectItem
+                  key="empty"
+                  textValue={t("inventory.stock.status_empty")}
+                >
+                  {t("inventory.stock.status_empty")}
+                </SelectItem>
+                <SelectItem
+                  key="low"
+                  textValue={t("inventory.stock.status_low")}
+                >
+                  {t("inventory.stock.status_low")}
+                </SelectItem>
+                <SelectItem key="ok" textValue={t("inventory.stock.status_ok")}>
+                  {t("inventory.stock.status_ok")}
+                </SelectItem>
+              </Select>
+            </div>
           </div>
           <div className="flex flex-col gap-2 w-full md:w-1/2 items-end">
-            <Input
-              isClearable
-              className="w-full md:max-w-sm"
-              placeholder={t("inventory.stock.search_placeholder")}
-              startContent={<Search className="text-gray-400" size={18} />}
-              variant="bordered"
-              onChange={(e) => searchDebounce(e.target.value)}
-              onClear={() => dispatch(setProductQuery({ q: "" }))}
-            />
-            <div>
-              {(selectedKeys === "all" || selectedKeys.size > 0) && (
-                <Button
-                  color="warning"
-                  size="sm"
-                  startContent={<Pencil className="size-4" />}
-                  onPress={() => setOpenBulkCategory(true)}
-                >
-                  {t("inventory.stock.bulk_update")}
-                </Button>
-              )}
+            <div className="flex w-full md:max-w-sm items-center gap-1">
+              <div className="w-full" data-tour="stock-search">
+                <Input
+                  isClearable
+                  className="w-full"
+                  placeholder={t("inventory.stock.search_placeholder")}
+                  startContent={<Search className="text-gray-400" size={18} />}
+                  variant="bordered"
+                  onChange={(e) => searchDebounce(e.target.value)}
+                  onClear={() => dispatch(setProductQuery({ q: "" }))}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <Table
-          aria-label="Tabel Inventaris"
-          selectedKeys={selectedKeys}
-          selectionMode="multiple"
-          shadow="none"
-          onSelectionChange={setSelectedKeys}
-        >
-          <TableHeader>
-            <TableColumn>{t("inventory.stock.table.info")}</TableColumn>
-            <TableColumn align="center">
-              {t("inventory.stock.table.stock")}
-            </TableColumn>
-            <TableColumn align="center">
-              {t("inventory.stock.table.category")}
-            </TableColumn>
-            <TableColumn align="end">
-              {t("inventory.stock.table.buy_price")}
-            </TableColumn>
-            <TableColumn align="end">
-              {t("inventory.stock.table.sell_price")}
-            </TableColumn>
-            <TableColumn align="center">
-              {t("inventory.stock.table.status")}
-            </TableColumn>
-            <TableColumn align="end"> </TableColumn>
-          </TableHeader>
-          <TableBody emptyContent={t("inventory.stock.table.empty")}>
-            {(products?.data || []).map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-gray-800 text-small uppercase">
-                      {item.name}
-                    </span>
-                    <span className="text-[10px] text-gray-400 font-mono italic tracking-tighter">
-                      {item.code}
-                    </span>
-                  </div>
-                </TableCell>
+        <div className="flex justify-end px-4 pt-2">
+          <div data-tour="stock-bulk-update">
+            <Button
+              color="warning"
+              isDisabled={selectedKeys !== "all" && selectedKeys.size === 0}
+              size="sm"
+              startContent={<Pencil className="size-4" />}
+              onPress={() => setOpenBulkCategory(true)}
+            >
+              {t("inventory.stock.bulk_update")}
+            </Button>
+          </div>
+        </div>
 
-                <TableCell>
-                  <div className="flex items-center justify-center gap-3">
-                    <div className="flex flex-col items-end">
-                      <div className="font-black text-small text-gray-700">
-                        {toStockNumber(item.stock)}{" "}
-                        <span className="text-tiny font-normal text-gray-500 uppercase">
-                          {item.uom?.code}
-                        </span>
-                      </div>
-                      <span className="text-[9px] text-gray-400 italic">
-                        {t("inventory.stock.min_stock")}{" "}
-                        {toStockNumber(item.min_stock)}
+        <div data-tour="stock-table">
+          <Table
+            aria-label="Tabel Inventaris"
+            selectedKeys={selectedKeys}
+            selectionMode="multiple"
+            shadow="none"
+            onSelectionChange={setSelectedKeys}
+          >
+            <TableHeader>
+              <TableColumn>
+                {renderSortableHeader(
+                  t("inventory.stock.table.info"),
+                  "name",
+                  productQuery.sortBy,
+                  productQuery.sortOrder,
+                  handleSort,
+                )}
+              </TableColumn>
+              <TableColumn align="center">
+                {renderSortableHeader(
+                  t("inventory.stock.table.stock"),
+                  "stock",
+                  productQuery.sortBy,
+                  productQuery.sortOrder,
+                  handleSort,
+                  "center",
+                )}
+              </TableColumn>
+              <TableColumn align="center">
+                {t("inventory.stock.table.category")}
+              </TableColumn>
+              <TableColumn align="end">
+                {renderSortableHeader(
+                  t("inventory.stock.table.buy_price"),
+                  "purchase_price",
+                  productQuery.sortBy,
+                  productQuery.sortOrder,
+                  handleSort,
+                  "end",
+                )}
+              </TableColumn>
+              <TableColumn align="end">
+                {renderSortableHeader(
+                  t("inventory.stock.table.sell_price"),
+                  "sell_price",
+                  productQuery.sortBy,
+                  productQuery.sortOrder,
+                  handleSort,
+                  "end",
+                )}
+              </TableColumn>
+              <TableColumn align="center">
+                {renderSortableHeader(
+                  t("inventory.stock.table.status"),
+                  "status",
+                  productQuery.sortBy,
+                  productQuery.sortOrder,
+                  handleSort,
+                  "center",
+                )}
+              </TableColumn>
+              <TableColumn align="end"> </TableColumn>
+            </TableHeader>
+            <TableBody emptyContent={t("inventory.stock.table.empty")}>
+              {(products?.data || []).map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-gray-800 text-small uppercase">
+                        {item.name}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-mono italic tracking-tighter">
+                        {item.code}
                       </span>
                     </div>
-                    <UpdateStock
-                      currentStock={toStockNumber(item.stock)}
-                      id={item.id}
-                      name={item.name}
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="flex flex-col items-end">
+                        <div className="font-black text-small text-gray-700">
+                          {toStockNumber(item.stock)}{" "}
+                          <span className="text-tiny font-normal text-gray-500 uppercase">
+                            {item.uom?.code}
+                          </span>
+                        </div>
+                        <span className="text-[9px] text-gray-400 italic">
+                          {t("inventory.stock.min_stock")}{" "}
+                          {toStockNumber(item.min_stock)}
+                        </span>
+                      </div>
+                      <UpdateStock
+                        currentStock={toStockNumber(item.stock)}
+                        id={item.id}
+                        name={item.name}
+                      />
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="whitespace-nowrap">
+                    <Chip
+                      classNames={{
+                        base: "bg-gray-100 border-none h-6",
+                        content:
+                          "flex items-center gap-2 text-gray-600 font-black text-[10px] uppercase whitespace-nowrap",
+                      }}
+                      size="sm"
+                      variant="flat"
+                    >
+                      <span>{item.category?.parent?.name}</span>
+                      <ArrowRight className="flex-shrink-0" size={10} />
+                      <span>{item.category?.name}</span>
+                    </Chip>
+                  </TableCell>
+
+                  <TableCell>
+                    <span className="font-medium text-gray-600 text-small">
+                      {formatIDR(Number(item.purchase_price))}
+                    </span>
+                  </TableCell>
+
+                  <TableCell>
+                    <span className="font-bold text-gray-800 text-small">
+                      {formatIDR(Number(item.sell_price))}
+                    </span>
+                  </TableCell>
+
+                  <TableCell>
+                    {toStockNumber(item.stock) <= 0 ? (
+                      <Chip
+                        className="font-bold text-tiny"
+                        color="danger"
+                        variant="dot"
+                      >
+                        {t("inventory.stock.status_empty")}
+                      </Chip>
+                    ) : toStockNumber(item.stock) <=
+                      toStockNumber(item.min_stock) ? (
+                      <Chip
+                        className="font-bold text-tiny"
+                        color="warning"
+                        variant="dot"
+                      >
+                        {t("inventory.stock.status_low")}
+                      </Chip>
+                    ) : (
+                      <Chip
+                        className="font-bold text-tiny"
+                        color="success"
+                        variant="dot"
+                      >
+                        {t("inventory.stock.status_ok")}
+                      </Chip>
+                    )}
+                  </TableCell>
+
+                  <TableCell>
+                    <TableAction
+                      onDelete={() => handleDelete(item.id)}
+                      onDetail={() => navigate(`/inventory/stock/${item.id}`)}
+                      onEdit={() =>
+                        navigate(`/inventory/stock/${item.id}/edit`)
+                      }
                     />
-                  </div>
-                </TableCell>
-
-                <TableCell className="whitespace-nowrap">
-                  <Chip
-                    classNames={{
-                      base: "bg-gray-100 border-none h-6",
-                      content:
-                        "flex items-center gap-2 text-gray-600 font-black text-[10px] uppercase whitespace-nowrap",
-                    }}
-                    size="sm"
-                    variant="flat"
-                  >
-                    <span>{item.category?.parent?.name}</span>
-                    <ArrowRight className="flex-shrink-0" size={10} />
-                    <span>{item.category?.name}</span>
-                  </Chip>
-                </TableCell>
-
-                <TableCell>
-                  <span className="font-medium text-gray-600 text-small">
-                    {formatIDR(Number(item.purchase_price))}
-                  </span>
-                </TableCell>
-
-                <TableCell>
-                  <span className="font-bold text-gray-800 text-small">
-                    {formatIDR(Number(item.sell_price))}
-                  </span>
-                </TableCell>
-
-                <TableCell>
-                  {toStockNumber(item.stock) <= 0 ? (
-                    <Chip
-                      className="font-bold text-tiny"
-                      color="danger"
-                      variant="dot"
-                    >
-                      {t("inventory.stock.status_empty")}
-                    </Chip>
-                  ) : toStockNumber(item.stock) <=
-                    toStockNumber(item.min_stock) ? (
-                    <Chip
-                      className="font-bold text-tiny"
-                      color="warning"
-                      variant="dot"
-                    >
-                      {t("inventory.stock.status_low")}
-                    </Chip>
-                  ) : (
-                    <Chip
-                      className="font-bold text-tiny"
-                      color="success"
-                      variant="dot"
-                    >
-                      {t("inventory.stock.status_ok")}
-                    </Chip>
-                  )}
-                </TableCell>
-
-                <TableCell>
-                  <TableAction
-                    onDelete={() => handleDelete(item.id)}
-                    onDetail={() => navigate(`/inventory/stock/${item.id}`)}
-                    onEdit={() => navigate(`/inventory/stock/${item.id}/edit`)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
         <Divider />
 
         <CustomPagination
+          showPageSize
           meta={products?.meta!}
+          pageSizeDataTour="stock-page-size"
+          paginationDataTour="stock-pagination"
           onPageChange={(page) => dispatch(setProductQuery({ page }))}
+          onPageSizeChange={(pageSize) =>
+            dispatch(setProductQuery({ pageSize }))
+          }
         />
       </Card>
 

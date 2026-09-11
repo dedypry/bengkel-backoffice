@@ -28,6 +28,7 @@
     "clsx": "2.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.19",
+    "driver.js": "^1.8.0",
     "framer-motion": "11.18.2",
     "i18next": "^25.8.4",
     "js-cookie": "^3.0.5",

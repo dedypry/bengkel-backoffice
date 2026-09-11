@@ -32,6 +32,7 @@ interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   onSuccess?: () => void;
+  isDismissable?: boolean;
 }
 
 const schema = z.object({
@@ -50,6 +51,7 @@ export default function ModalBulkCategory({
   setOpen,
   catIds,
   onSuccess,
+  isDismissable = true,
 }: Props) {
   const { t } = useTranslation();
   const { categories, productQuery } = useAppSelector((state) => state.product);
@@ -117,12 +119,13 @@ export default function ModalBulkCategory({
         }}
       />
       <Modal
+        isDismissable={isDismissable}
         isOpen={open}
         scrollBehavior="outside"
         onClose={() => setOpen(false)}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalContent>
+          <ModalContent data-tour="stock-bulk-modal">
             <ModalHeader>
               {t("inventory.stock.bulk_category.title")}
             </ModalHeader>

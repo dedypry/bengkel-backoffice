@@ -62,3 +62,47 @@
     background-color: rgba(7, 127, 182, 0.5);
   }
 }
+
+.driver-overlay {
+  z-index: 99998 !important;
+}
+
+.driver-active-element[data-tour="stock-bulk-modal"],
+[data-tour="stock-bulk-modal"].driver-active-element {
+  z-index: 100000 !important;
+}
+
+.driver-popover {
+  @apply rounded-xl border border-secondary-100 shadow-lg;
+  z-index: 99999 !important;
+}
+
+.driver-popover-title {
+  @apply text-secondary-700 !font-normal;
+}
+
+.driver-popover-description {
+  @apply text-secondary-500 text-sm;
+}
+
+.driver-popover-next-btn,
+.driver-popover-prev-btn,
+.driver-popover-close-btn {
+  @apply rounded-lg text-sm !font-normal;
+}
+
+.driver-popover-next-btn.driver-popover-footer-btn,
+.driver-popover-done-btn.driver-popover-footer-btn {
+  @apply !border-none !bg-primary-100 !text-primary !shadow-none;
+}
+
+.driver-popover-next-btn.driver-popover-footer-btn:hover,
+.driver-popover-next-btn.driver-popover-footer-btn:focus,
+.driver-popover-done-btn.driver-popover-footer-btn:hover,
+.driver-popover-done-btn.driver-popover-footer-btn:focus {
+  @apply !border-none !bg-primary-200 !text-primary;
+}
+
+.driver-popover-progress-text {
+  @apply text-secondary-400 text-xs;
+}

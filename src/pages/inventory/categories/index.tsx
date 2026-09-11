@@ -3,6 +3,8 @@ import type { IProductCategory } from "@/utils/interfaces/IProduct";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
   Layers,
   Package,
   Plus,
@@ -73,6 +75,47 @@ function getVisibleSubCategories(children: IProductCategory[] = []) {
     visibleChildren,
     hiddenCount: sortedChildren.length - visibleChildren.length,
   };
+}
+
+function renderSortableHeader(
+  label: string,
+  sortKey: string,
+  sortBy: string | undefined,
+  sortOrder: string | undefined,
+  onSort: (sortKey: string) => void,
+  align: "start" | "center" | "end" = "start",
+) {
+  const isActive = sortBy === sortKey;
+
+  return (
+    <button
+      className={`inline-flex items-center gap-1 font-semibold uppercase tracking-wide text-[12px] ${
+        isActive ? "text-primary-600" : "text-secondary-600"
+      } ${align === "center" ? "mx-auto" : align === "end" ? "ml-auto" : ""}`}
+      type="button"
+      onClick={() => onSort(sortKey)}
+    >
+      <span>{label}</span>
+      <span className="inline-flex flex-col -space-y-1">
+        <ArrowUp
+          className={`size-3 ${
+            isActive && sortOrder === "asc"
+              ? "text-primary-600"
+              : "text-secondary-600"
+          }`}
+          strokeWidth={isActive && sortOrder === "asc" ? 2.5 : 2}
+        />
+        <ArrowDown
+          className={`size-3 ${
+            isActive && sortOrder === "desc"
+              ? "text-primary-600"
+              : "text-secondary-600"
+          }`}
+          strokeWidth={isActive && sortOrder === "desc" ? 2.5 : 2}
+        />
+      </span>
+    </button>
+  );
 }
 
 export default function InventoryCategoryPage() {
@@ -155,6 +198,14 @@ export default function InventoryCategoryPage() {
 
   function updateQuery(payload: Partial<CategoryQueryState>) {
     dispatch(setCategoryQuery(payload));
+  }
+
+  function handleSort(sortKey: string) {
+    const isSameColumn = query.sortBy === sortKey;
+    const sortOrder =
+      isSameColumn && query.sortOrder === "asc" ? "desc" : "asc";
+
+    updateQuery({ sortBy: sortKey, sortOrder });
   }
 
   return (
@@ -375,7 +426,13 @@ export default function InventoryCategoryPage() {
             >
               <TableHeader>
                 <TableColumn>
-                  {t("inventory.categories.table.category")}
+                  {renderSortableHeader(
+                    t("inventory.categories.table.category"),
+                    "name",
+                    query.sortBy,
+                    query.sortOrder,
+                    handleSort,
+                  )}
                 </TableColumn>
                 <TableColumn>
                   {t("inventory.categories.table.sub_category")}
@@ -384,13 +441,27 @@ export default function InventoryCategoryPage() {
                   {t("inventory.categories.table.description")}
                 </TableColumn>
                 <TableColumn align="center">
-                  {t("inventory.categories.table.products")}
+                  {renderSortableHeader(
+                    t("inventory.categories.table.products"),
+                    "total_product",
+                    query.sortBy,
+                    query.sortOrder,
+                    handleSort,
+                    "center",
+                  )}
                 </TableColumn>
                 <TableColumn align="center">
                   {t("inventory.categories.table.status")}
                 </TableColumn>
                 <TableColumn align="end">
-                  {t("inventory.categories.table.created")}
+                  {renderSortableHeader(
+                    t("inventory.categories.table.created"),
+                    "created_at",
+                    query.sortBy,
+                    query.sortOrder,
+                    handleSort,
+                    "end",
+                  )}
                 </TableColumn>
                 <TableColumn align="center"> </TableColumn>
               </TableHeader>

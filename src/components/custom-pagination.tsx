@@ -12,6 +12,8 @@ interface Props {
   showTotal?: boolean;
   className?: string;
   showPageSize?: boolean;
+  paginationDataTour?: string;
+  pageSizeDataTour?: string;
 }
 
 export function CustomPagination({
@@ -22,6 +24,8 @@ export function CustomPagination({
   showDesc = true,
   showTotal = false,
   className,
+  paginationDataTour,
+  pageSizeDataTour,
 }: Props) {
   if (!meta) return null;
   if (meta.total === 0) return null;
@@ -61,33 +65,37 @@ export function CustomPagination({
 
       {/* Komponen Pagination HeroUI */}
       <div className="flex items-center gap-2">
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          classNames={{
-            wrapper: "gap-1",
-            item: "w-8 h-8 text-small rounded-lg",
-            prev: "w-8 h-8 rounded-lg",
-            next: "w-8 h-8 rounded-lg",
-            cursor: "bg-primary shadow-primary/30 text-white font-bold",
-          }}
-          color="primary"
-          page={currentPage}
-          total={totalPage}
-          onChange={(page) => onPageChange(page)}
-        />
+        <div data-tour={paginationDataTour}>
+          <Pagination
+            isCompact
+            showControls
+            showShadow
+            classNames={{
+              wrapper: "gap-1",
+              item: "w-8 h-8 text-small rounded-lg",
+              prev: "w-8 h-8 rounded-lg",
+              next: "w-8 h-8 rounded-lg",
+              cursor: "bg-primary shadow-primary/30 text-white font-bold",
+            }}
+            color="primary"
+            page={currentPage}
+            total={totalPage}
+            onChange={(page) => onPageChange(page)}
+          />
+        </div>
 
         {showPageSize && (
-          <PageSize
-            selectedKeys={[meta.pageSize.toString()]}
-            size="sm"
-            onSelectionChange={(key) => {
-              const val = Array.from(key)[0].toString();
+          <div data-tour={pageSizeDataTour}>
+            <PageSize
+              selectedKeys={[meta.pageSize.toString()]}
+              size="sm"
+              onSelectionChange={(key) => {
+                const val = Array.from(key)[0].toString();
 
-              onPageSizeChange?.(Number(val));
-            }}
-          />
+                onPageSizeChange?.(Number(val));
+              }}
+            />
+          </div>
         )}
       </div>
     </div>

@@ -39,6 +39,8 @@ const productSlice = createSlice({
       noStats: undefined as number | undefined,
       categoryId: undefined as number | undefined,
       status: undefined as string | undefined,
+      sortBy: "stock",
+      sortOrder: "asc",
     },
     recepipts: null as IPagination<IReceipt> | null,
     recepipt: null as IReceipt | null,

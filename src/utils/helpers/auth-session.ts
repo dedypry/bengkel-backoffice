@@ -1,6 +1,10 @@
 import Cookies from "js-cookie";
 
 import config from "@/config/api";
+import {
+  restorePersistentStorage,
+  snapshotPersistentStorage,
+} from "@/utils/helpers/persistent-storage";
 import { disconnectPusher } from "@/utils/libs/pusher";
 
 const AUTH_BROADCAST_CHANNEL = "bengkel-auth";
@@ -53,8 +57,11 @@ export function forceLogout(options?: { skipBroadcast?: boolean }) {
     }
   }
 
+  const persistentSnapshot = snapshotPersistentStorage();
+
   localStorage.removeItem("session_id");
   localStorage.clear();
+  restorePersistentStorage(persistentSnapshot);
   Cookies.remove("token");
   disconnectPusher();
   window.location.replace("/login");
