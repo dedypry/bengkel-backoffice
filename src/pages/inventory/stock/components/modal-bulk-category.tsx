@@ -36,10 +36,10 @@ interface Props {
 }
 
 const schema = z.object({
-  mainCategoryId: z.coerce
+  mainCategoryId: z
     .number({ message: "Main kategori wajib diisi" })
     .min(1, "Main kategori wajib diisi"),
-  categoryId: z.coerce
+  categoryId: z
     .number({ message: "Sub kategori wajib diisi" })
     .min(1, "Sub kategori wajib diisi"),
 });
