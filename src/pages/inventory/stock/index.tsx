@@ -190,7 +190,10 @@ export default function InventoryStockPage() {
     setQueryProduct(null);
   }
 
-  const searchDebounce = debounce((q) => dispatch(setProductQuery({ q })), 800);
+  const searchDebounce = debounce(
+    (q) => dispatch(setProductQuery({ q, page: 1 })),
+    800,
+  );
 
   function handleSort(sortKey: string) {
     const isSameColumn = productQuery.sortBy === sortKey;
@@ -371,7 +374,7 @@ export default function InventoryStockPage() {
                   startContent={<Search className="text-gray-400" size={18} />}
                   variant="bordered"
                   onChange={(e) => searchDebounce(e.target.value)}
-                  onClear={() => dispatch(setProductQuery({ q: "" }))}
+                  onClear={() => dispatch(setProductQuery({ q: "", page: 1 }))}
                 />
               </div>
             </div>
