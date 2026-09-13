@@ -53,11 +53,12 @@ function waitForElement(
   });
 }
 
-function getTableSelectElement() {
+function resolveTableSelectElement(): Element {
   return (
     document.querySelector("[data-tour='stock-table'] [role='checkbox']") ??
     document.querySelector("[data-tour='stock-table'] tbody tr:first-child") ??
-    document.querySelector("[data-tour='stock-table']")
+    document.querySelector("[data-tour='stock-table']") ??
+    document.body
   );
 }
 
@@ -124,7 +125,7 @@ function buildStockTourSteps(
       },
     },
     {
-      element: getTableSelectElement,
+      element: resolveTableSelectElement,
       onHighlightStarted: () => {
         options?.onSelectDemo?.();
       },
@@ -161,7 +162,7 @@ function buildStockTourSteps(
       popover: {
         title: t("inventory.stock.tour.bulk_modal_title"),
         description: t("inventory.stock.tour.bulk_modal_desc"),
-        side: "over",
+        side: "left",
         align: "center",
       },
     },
@@ -203,7 +204,7 @@ type StartTourOptions = {
 };
 
 export function useStockTour(options: StockTourOptions = {}) {
-  const { autoStart = true, onSelectDemo, onTourCleanup } = options;
+  const { autoStart = true } = options;
   const { t } = useTranslation();
   const isRunningRef = useRef(false);
   const tourOptionsRef = useRef(options);
