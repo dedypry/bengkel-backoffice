@@ -220,6 +220,7 @@ export default function InventoryStockPage() {
         catIds={selectedKeys}
         isDismissable={!isStockTourActive}
         open={openBulkCategory}
+        pageProducts={products?.data ?? []}
         setOpen={setOpenBulkCategory}
         onSuccess={() => setSelectedKeys(new Set([]))}
       />

@@ -29,10 +29,25 @@ import { notify, notifyError } from "@/utils/helpers/notify";
 
 interface Props {
   catIds: Selection;
+  /** Produk di halaman saat ini (hasil filter/search) — dipakai jika checkbox header = "all". */
+  pageProducts: { id: number }[];
   open: boolean;
   setOpen: (open: boolean) => void;
   onSuccess?: () => void;
   isDismissable?: boolean;
+}
+
+function resolveBulkProductIds(
+  selection: Selection,
+  pageProducts: { id: number }[],
+): number[] {
+  if (selection === "all") {
+    return pageProducts.map((product) => product.id);
+  }
+
+  return Array.from(selection)
+    .map((id) => Number(id))
+    .filter((id) => Number.isFinite(id) && id > 0);
 }
 
 const schema = z.object({
@@ -58,6 +73,7 @@ export default function ModalBulkCategory({
   open,
   setOpen,
   catIds,
+  pageProducts,
   onSuccess,
   isDismissable = true,
 }: Props) {
@@ -119,10 +135,18 @@ export default function ModalBulkCategory({
   }, [open, dispatch, reset]);
 
   function onSubmit(data: FormValues) {
+    const productIds = resolveBulkProductIds(catIds, pageProducts);
+
+    if (productIds.length === 0) {
+      notify("Pilih minimal satu produk", "error");
+
+      return;
+    }
+
     setLoading(true);
     http
       .post("/products/categories/bulk-update", {
-        productIds: catIds !== "all" ? Array.from(catIds) : "all",
+        productIds,
         categoryId: data.categoryId,
       })
       .then(({ data }) => {
