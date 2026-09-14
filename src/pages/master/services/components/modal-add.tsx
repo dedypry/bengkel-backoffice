@@ -42,7 +42,7 @@ const formSchema = z.object({
   difficulty: z.string().min(1, "Pilih tingkat kesulitan"),
   category_id: z.string().min(1, "Pilih kategori"),
   description: z.string().optional(),
-  supplier_id: z.number().optional(),
+  supplier_id: z.number().nullable().optional(),
 });
 
 interface Props {
