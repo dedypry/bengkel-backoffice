@@ -9,7 +9,7 @@ import {
   ModalHeader,
   Selection,
 } from "@heroui/react";
-import { useEffect, useState, type Key } from "react";
+import { useEffect, useMemo, useState, type Key } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusSquare } from "lucide-react";
 import z from "zod";
@@ -69,6 +69,21 @@ function sortSubCategories(children: IProductCategory[] = []) {
   );
 }
 
+function filterCategoriesByQuery(
+  list: IProductCategory[],
+  query: string,
+): IProductCategory[] {
+  const keyword = query.trim().toLowerCase();
+
+  if (!keyword) {
+    return list;
+  }
+
+  return list.filter((item) =>
+    (item.name ?? "").toLowerCase().includes(keyword),
+  );
+}
+
 export default function ModalBulkCategory({
   open,
   setOpen,
@@ -85,6 +100,8 @@ export default function ModalBulkCategory({
     [],
   );
   const [isLoadingSubCategories, setIsLoadingSubCategories] = useState(false);
+  const [mainCategoryQuery, setMainCategoryQuery] = useState("");
+  const [subCategoryQuery, setSubCategoryQuery] = useState("");
 
   const { control, handleSubmit, setValue, reset, trigger } =
     useForm<FormValues>({
@@ -98,6 +115,16 @@ export default function ModalBulkCategory({
   const dispatch = useAppDispatch();
   const mainCategoryId = useWatch({ control, name: "mainCategoryId" });
   const mainCategoryItems = Array.isArray(categories) ? categories : [];
+
+  const filteredMainCategories = useMemo(
+    () => filterCategoriesByQuery(mainCategoryItems, mainCategoryQuery),
+    [mainCategoryItems, mainCategoryQuery],
+  );
+
+  const filteredSubCategories = useMemo(
+    () => filterCategoriesByQuery(categoryChildren, subCategoryQuery),
+    [categoryChildren, subCategoryQuery],
+  );
 
   function parseAutocompleteKey(val: Key | null): number {
     if (val == null || val === "") {
@@ -132,6 +159,8 @@ export default function ModalBulkCategory({
     dispatch(getCategories({}));
     reset({ mainCategoryId: 0, categoryId: 0 });
     setCategoryChildren([]);
+    setMainCategoryQuery("");
+    setSubCategoryQuery("");
   }, [open, dispatch, reset]);
 
   function onSubmit(data: FormValues) {
@@ -206,23 +235,45 @@ export default function ModalBulkCategory({
                   name="mainCategoryId"
                   render={({ field, fieldState }) => (
                     <Autocomplete
+                      isClearable
                       errorMessage={fieldState.error?.message}
+                      inputValue={mainCategoryQuery}
                       isInvalid={!!fieldState.error}
-                      items={mainCategoryItems}
+                      items={filteredMainCategories}
                       label={t("inventory.stock.bulk_category.category")}
+                      listboxProps={{
+                        emptyContent: t(
+                          "inventory.stock.bulk_category.select_category",
+                        ),
+                      }}
                       placeholder={t(
                         "inventory.stock.bulk_category.select_category",
                       )}
                       selectedKey={field.value > 0 ? String(field.value) : null}
+                      onClear={() => {
+                        setMainCategoryQuery("");
+                        field.onChange(0);
+                        setValue("categoryId", 0, { shouldValidate: false });
+                        setSubCategoryQuery("");
+                        setCategoryChildren([]);
+                      }}
+                      onInputChange={setMainCategoryQuery}
                       onSelectionChange={(val) => {
                         const nextId = parseAutocompleteKey(val);
 
                         field.onChange(nextId);
                         setValue("categoryId", 0, { shouldValidate: false });
+                        setSubCategoryQuery("");
 
                         if (nextId > 0) {
+                          const selected = mainCategoryItems.find(
+                            (item) => item.id === nextId,
+                          );
+
+                          setMainCategoryQuery(selected?.name ?? "");
                           void loadSubCategories(nextId);
                         } else {
+                          setMainCategoryQuery("");
                           setCategoryChildren([]);
                         }
                       }}
@@ -244,23 +295,42 @@ export default function ModalBulkCategory({
                   render={({ field, fieldState }) => (
                     <Autocomplete
                       key={String(mainCategoryId || "none")}
+                      isClearable
                       errorMessage={fieldState.error?.message}
+                      inputValue={subCategoryQuery}
                       isDisabled={!mainCategoryId || isLoadingSubCategories}
                       isInvalid={!!fieldState.error}
                       isLoading={isLoadingSubCategories}
-                      items={categoryChildren}
+                      items={filteredSubCategories}
                       label={t("inventory.stock.bulk_category.sub_category")}
+                      listboxProps={{
+                        emptyContent: t(
+                          "inventory.stock.bulk_category.select_sub_category",
+                        ),
+                      }}
                       placeholder={t(
                         "inventory.stock.bulk_category.select_sub_category",
                       )}
                       selectedKey={field.value > 0 ? String(field.value) : null}
+                      onClear={() => {
+                        setSubCategoryQuery("");
+                        field.onChange(0);
+                      }}
+                      onInputChange={setSubCategoryQuery}
                       onSelectionChange={(val) => {
                         const nextId = parseAutocompleteKey(val);
 
                         field.onChange(nextId);
 
                         if (nextId > 0) {
+                          const selected = categoryChildren.find(
+                            (item) => item.id === nextId,
+                          );
+
+                          setSubCategoryQuery(selected?.name ?? "");
                           void trigger("categoryId");
+                        } else {
+                          setSubCategoryQuery("");
                         }
                       }}
                     >
